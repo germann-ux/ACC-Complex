@@ -1,0 +1,141 @@
+﻿/* Reset y utilidades globales */
+/** {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+     
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background: #121225;
+    color: #f0f0f0;
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+    color: #fff;
+}*/
+
+/*.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+*/
+/*.text-center {
+    text-align: center;
+}*/
+
+/* Cards */
+/*.card {
+    background: #1a1a2e;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    color: #f0f0f0;
+    max-width: 1140px;
+}
+
+    .card p {
+        color: #f0f0f0;
+    }*/
+
+/* Botones */
+/*.button,
+.btn-primary,
+.btn-secondary,
+.continue-btn,
+.interest-btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all .3s;
+    color: #fff;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3a0ca3, #7209b7);
+    padding: .75rem 1.5rem;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #232389, #4752c4);
+    padding: .75rem 1.5rem;
+}
+
+.continue-btn {
+    background: linear-gradient(135deg, #4d358b, #2e245e);
+    padding: 1rem 2rem;
+    display: block;
+    margin: 1rem auto;
+}
+
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .continue-btn:hover {
+        opacity: .9;
+        transform: translateY(-2px);
+    }*/
+
+/* Quick access */
+/*.quick-access-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}*/
+
+/* Responsive */
+/*@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+
+    .quick-access-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}*/
+
+
+/*.container-resumen {*/
+   /* display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #121225;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);*/
+
+   /*margin-left: 20rem; 
+}*/
+
+
+/*.container-resumen .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #121225;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    margin-right: 20rem;
+}*/
+/*.content {
+    
+}*/
+
+.content.resumen {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+

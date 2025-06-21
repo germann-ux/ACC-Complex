@@ -1,0 +1,17 @@
+﻿<div id="formularioCrearAviso" class="card" style="display: none; margin-top: 20px;">
+    <h2><i class="fas fa-edit"></i> Crear Nuevo Aviso</h2>
+    <form>
+        <div class="form-group">
+            <label for="tituloAviso"><i class="fas fa-heading"></i> Título del Aviso:</label>
+            <input type="text" id="tituloAviso" name="tituloAviso" placeholder="Ej: Examen parcial la próxima semana">
+        </div>
+        <div class="form-group">
+            <label for="contenidoAviso"><i class="fas fa-align-left"></i> Contenido del Aviso:</label>
+            <textarea id="contenidoAviso" name="contenidoAviso" rows="5" placeholder="Detalles del aviso..."></textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit"><i class="fas fa-paper-plane"></i> Publicar Aviso</button>
+            <button type="button" class="secondary" onclick="ocultarFormularioAviso()"><i class="fas fa-times"></i> Cancelar</button>
+        </div>
+    </form>
+</div>

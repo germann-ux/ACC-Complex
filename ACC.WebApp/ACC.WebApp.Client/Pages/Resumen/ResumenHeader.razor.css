@@ -1,0 +1,105 @@
+﻿/* Reset y tipografía para el header */
+.resumen-header h1 {
+    background: linear-gradient(to right, #4361ee, #7209b7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: calc(1.375rem + 1.5vw);
+    margin-bottom: 1rem;
+    font-weight: bold;
+    font-family: Nunito;
+}
+
+.resumen-header p {
+    color: #f0f0f0;
+    font-size: 1.2rem;
+    margin: 0.5rem 0 1rem 0;
+}
+
+.resumen-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 0.6rem;  /*Espacio entre el header y la tarjeta */
+}
+/* Bombilla y tip popup con animación breathe */
+.tip-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    margin-top: 3rem;
+    user-select: none;
+}
+
+.tip-bombilla {
+    cursor: pointer;
+    font-size: 24px;
+    color: #ffd700;
+    animation: breathe 1s infinite ease-in-out;
+}
+
+    .tip-bombilla.no-animation {
+        animation: none;
+        transform: scale(1);
+    }
+
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(0.9);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.tip-popup {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    z-index: 1000;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background-color: #39325b;
+    opacity: 1;
+    transform: none;
+}
+
+    .tip-popup p {
+        font-family: Arial; 
+        color: white;
+        font-size: 1.1rem;
+    }
+
+/* Botón continuar */
+.continue-btn {
+    background: linear-gradient(135deg, #4d358b, #2e245e);
+    color: #fff;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .3s;
+    display: block;
+    margin: 1rem auto 0 auto;
+    margin-bottom: 1rem; /*Espacio entre el botón y la tarjeta */
+}
+
+    .continue-btn:hover {
+        opacity: .9;
+        transform: translateY(-2px);
+    }
+
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 500;
+    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0100-02BA;
+}
+
+

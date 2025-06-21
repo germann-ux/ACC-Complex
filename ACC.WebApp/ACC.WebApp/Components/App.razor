@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+    <html lang="es">
+
+    <head>
+        <!--Metadatos-->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!--Nombre de la pagina-->
+        <title>ACC</title>
+
+        <!--Pagina base de la aplicacion web-->
+        <base href="/" />
+
+        <!--Estilos globales de la aplicacion web-->
+        <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+        <link rel="stylesheet" href="app.css" />
+        <link rel="stylesheet" href="ACC.WebApp.styles.css" />
+        <link rel="stylesheet" href="Cuentas.css" />
+        <link rel="stylesheet" href="biblioteca.css" />
+        <link rel="stylesheet" href="EstilosAulasDocente.css" />
+        <link rel="stylesheet" href="Capitulos.css" />
+        <script src="https://kit.fontawesome.com/01209f3ecf.js" crossorigin="anonymous"></script>
+
+        <!--Icono de la pagina-->
+        <link rel="icon" type="image/png" href="ACC_icono.webp" />
+
+        <!--Librerias de CodeMirror-->
+        <!-- CodeMirror CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/eclipse.min.css" />
+
+        @*<link rel="stylesheet" href="JS/CodeMirror/codemirror.min.css" />
+        <link rel="stylesheet" href="JS/CodeMirror/dracula.min.css" />
+        <link rel="stylesheet" href="JS/CodeMirror/eclipse.min.css" />
+        <link rel="stylesheet" href="JS/CodeMirror/monokai.min.css" />*@
+
+        <!--C:\Users\unesp\OneDrive\Desktop\ACC-Complex\ACC.WebApp\ACC.WebApp\wwwroot\JS\CodeMirror\dracula.min.css-->
+        <!-- CodeMirror JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js" defer></script>
+
+        @*<script src="JS/CodeMirror/clike.min.js"></script>
+        <script src="JS/CodeMirror/codemirror.min.js" defer></script>*@
+
+        <HeadOutlet />
+    </head>
+
+    <body>
+        <Routes />
+        <!--scrits de grafica para el resumen -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="JS/ResumenChart.js"></script>
+        <script src="JS/docentes.js"></script>
+        <!-- Script para el arranque de codemirror -->
+        <script src="JS/CodeMirror/CodeMirrorInit.js" defer></script>
+
+        <!-- Scripts para la inteligencia artificial Charp -->
+        <script>
+            window.embeddedChatbotConfig = {
+                chatbotId: "E4W-vGLpQvQJlyQ4WIk7m",
+                domain: "www.chatbase.co"
+            };
+        </script>
+        <script src="https://www.chatbase.co/embed.min.js" chatbotId="E4W-vGLpQvQJlyQ4WIk7m" domain="www.chatbase.co" defer>
+        </script>
+
+        <!-- Script de blazor wasm, debe ir al final -->
+        <script src="_framework/blazor.web.js"></script>
+    </body>
+
+    </html>

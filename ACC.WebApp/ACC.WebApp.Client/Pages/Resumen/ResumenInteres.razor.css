@@ -1,0 +1,56 @@
+﻿.resumen-interes.card {
+    background: #1a1a2e;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    color: #f0f0f0;
+    max-width: 1140px;
+    border: none;
+}
+
+.resumen-interes h2 {
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+    font-family:Nunito; 
+}
+
+.interes-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.interest-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #2e2e5e;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin: .25rem 0;
+}
+
+    .interest-btn i {
+        font-size: 1rem;
+    }
+
+    .interest-btn:hover {
+        background: #3a3a75;
+    }
+
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 500;
+    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0100-02BA;
+}
+

@@ -1,0 +1,113 @@
+﻿@rendermode InteractiveServer
+@using ACC.Shared.DTOs
+
+<div class="evaluacion card">
+    @if (evaluacion.preguntas.Count != 0)
+    {
+        foreach (var pregunta in evaluacion.preguntas)
+        {
+            <div class="pregunta-bloque">
+                <p class="enunciado-evaluacion">@pregunta.Enunciado</p>
+
+                <div class="evaluacion-opciones">
+                    <button @onclick="@(() => EvaluarRespuesta(pregunta, "Sí"))">Sí</button>
+                    <button @onclick="@(() => EvaluarRespuesta(pregunta, "No"))">No</button>
+                </div>
+
+                @if (respuestas.ContainsKey(pregunta.Id))
+                {
+                    <p class="resultado">@respuestas[pregunta.Id]</p>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <p>Cargando preguntas...</p>
+    }
+</div>
+
+@code {
+    private EvaluacionBinariaDTO evaluacion { get; set; } = new();
+    private Dictionary<int, string> respuestas = new(); // Mapea IdPregunta -> mensaje de retroalimentación
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    { 
+        
+    }
+
+    private void EvaluarRespuesta(PreguntaBinariaDTO pregunta, string respuestaUsuario)
+    {
+        if (respuestaUsuario.Equals(pregunta.RespuestaCorrecta, StringComparison.OrdinalIgnoreCase))
+        {
+            respuestas[pregunta.Id] = "Correcto";
+        }
+        else
+        {
+            respuestas[pregunta.Id] = $"Incorrecto. {pregunta.Explicacion}";
+        }
+    }
+}
+<!--TEMPORAL: luego mover al archivo de estilos principal-->
+<style>
+.evaluacion {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(27, 110, 194, 0.08);
+    padding: 2rem 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 540px;
+}
+
+.pregunta-bloque {
+    border-bottom: 1px solid #e6e6e6;
+    padding: 1.2rem 0;
+    margin-bottom: 1rem;
+}
+
+.pregunta-bloque:last-child {
+    border-bottom: none;
+}
+
+.enunciado-evaluacion {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1b6ec2;
+    margin-bottom: 0.7rem;
+}
+
+.evaluacion-opciones {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.evaluacion-opciones button {
+    background: #1b6ec2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.evaluacion-opciones button:hover,
+.evaluacion-opciones button:focus {
+    background: #258cfb;
+    outline: none;
+}
+
+.resultado {
+    font-size: 0.98rem;
+    margin-top: 0.3rem;
+    color: #1861ac;
+    font-style: italic;
+}
+</style>

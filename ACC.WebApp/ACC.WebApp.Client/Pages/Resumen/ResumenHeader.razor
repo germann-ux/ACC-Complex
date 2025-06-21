@@ -1,0 +1,34 @@
+﻿@using ACC.Shared.DTOs
+@rendermode InteractiveServer    
+<div class="resumen-header">
+    <h1>
+        ¡Bienvenido de vuelta, @Usuario.Nombre!
+    </h1>
+
+    <p>¿Listo para continuar?</p>
+
+    <div class="tip-container">
+        <div class="tip-bombilla @(HaVistoTip ? "no-animation" : "")" @onclick="MostrarTip">
+            <i class="fa-solid fa-lightbulb"></i>
+        </div>
+        @if (MostrarTipEstado)
+        {
+            <div class="tip-popup">
+                <p>@Tip</p>
+            </div>
+        }
+    </div>
+
+    <button class="continue-btn" @onclick="ContinuarDondeLoDejaste">
+        <i class="fas fa-play-circle"></i> Continuar tu última lección
+    </button>
+</div>
+
+@code {
+    [Parameter] public ApplicationUserDto Usuario { get; set; }
+    [Parameter] public string Tip { get; set; }
+    [Parameter] public bool MostrarTipEstado { get; set; }
+    [Parameter] public bool HaVistoTip { get; set; }
+    [Parameter] public EventCallback MostrarTip { get; set; }
+    [Parameter] public EventCallback ContinuarDondeLoDejaste { get; set; }
+}

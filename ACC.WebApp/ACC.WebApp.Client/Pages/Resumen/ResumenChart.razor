@@ -1,0 +1,42 @@
+﻿<div class="resumen-chart card">
+    <h2>Progreso en Módulos</h2>
+    <div id="chart-container">
+        <canvas id="gradesChart"></canvas>
+    </div>
+</div>
+
+@code {
+    [Inject] IJSRuntime JSRuntime { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var chartData = new
+            {
+                labels = new[] { "Módulo 1", "Módulo 2", "Módulo 3", "Módulo 4", "Módulo 5" },
+                datasets = new[]
+                {
+                    new {
+                        label = "Calificaciones",
+                        data = new[] { 85, 78, 92, 88, 90 },
+                        borderColor = "#7209b7",
+                        backgroundColor = new {
+                            type = "linear",
+                            colors = new[] { "rgba(114, 9, 183, 0.7)", "rgba(67, 97, 238, 0.1)" }
+                        },
+                        tension = 0.4,
+                        fill = true,
+                        pointBackgroundColor = "#4361ee",
+                        pointBorderColor = "#fff",
+                        pointBorderWidth = 2,
+                        pointRadius = 5,
+                        pointHoverRadius = 7
+                    }
+                }
+            };
+
+            await JSRuntime.InvokeVoidAsync("ResumenChart.renderChart", "gradesChart", chartData);
+        }
+    }
+}

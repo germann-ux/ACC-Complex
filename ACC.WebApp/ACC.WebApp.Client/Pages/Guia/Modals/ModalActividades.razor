@@ -1,0 +1,31 @@
+﻿@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+@if (IsOpen)
+{
+        <div class="modal-overlay active">
+            <div class="modal-content">
+                <button class="close-btn" @onclick="CloseModal">✖ Cerrar</button>
+                <iframe src="@Url" class="responsive-iframe" allow="fullscreen; autoplay;" allowfullscreen></iframe>
+            </div>
+        </div>
+}
+
+@code {
+    [Parameter] public string Url { get; set; } = "";
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+
+    private bool IsOpen { get; set; } = false;
+
+    public void OpenModal()
+    {
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task CloseModal()
+    {
+        IsOpen = false;
+        await OnClose.InvokeAsync(false);
+    }
+}

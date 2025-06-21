@@ -1,0 +1,12 @@
+﻿.Examen-Card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #1e1e1e;
+    background-clip: border-box;
+    border: 1px solid var(--neutral-medium);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease;
+}

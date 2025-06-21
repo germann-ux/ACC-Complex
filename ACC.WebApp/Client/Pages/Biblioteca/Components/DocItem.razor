@@ -1,0 +1,59 @@
+@* DocItem.razor *@
+@rendermode InteractiveServer
+@using ACC.Shared.DTOs
+
+<div class="biblioteca-doc-item">
+    <div class="biblioteca-doc-header">
+        <span class="biblioteca-doc-type">@contenidoCapitulo.Tipo</span>
+        <h3 class="biblioteca-doc-title">@contenidoCapitulo.Titulo</h3>
+        <div class="biblioteca-doc-subtitle">@contenidoCapitulo.Subtitulo</div>
+    </div>
+    <div class="biblioteca-doc-content">
+        <p class="biblioteca-doc-description">@contenidoCapitulo.Descripcion</p>
+        <div class="biblioteca-doc-meta">
+            <div class="biblioteca-doc-meta-item">
+                <i class="far fa-clock"></i>
+                <span>@contenidoCapitulo.Duracion</span>
+            </div>
+            @if (!string.IsNullOrEmpty(contenidoCapitulo.FechaActualizacion.ToShortDateString()))
+            {
+                <div class="biblioteca-doc-meta-item">
+                    <i class="far fa-calendar-alt"></i>
+                    <span>@contenidoCapitulo.FechaActualizacion</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(contenidoCapitulo.Dificultad))
+            {
+                <div class="biblioteca-doc-meta-item">
+                    <i class="fas fa-signal"></i>
+                    <span>Dificultad: @contenidoCapitulo.Dificultad</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(contenidoCapitulo.Tags))
+            {
+                <div class="biblioteca-doc-meta-item">
+                    <i class="fas fa-tags"></i>
+                    <span>@contenidoCapitulo.Tags</span>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="biblioteca-doc-footer">
+        <div class="biblioteca-doc-actions">
+            <button class="biblioteca-doc-action-btn" aria-label="Marcar como favorito">
+                <i class="far fa-bookmark"></i>
+            </button>
+            <button class="biblioteca-doc-action-btn" aria-label="Marcar como completado">
+                <i class="far fa-check-circle"></i>
+            </button>
+        </div>
+        <div class="biblioteca-doc-badge">
+            <i class="@contenidoCapitulo.IconoBadge"></i>
+            <span>@contenidoCapitulo.EtiquetaNivel</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public ContenidoCapituloDto contenidoCapitulo { get; set; } = default!;
+}

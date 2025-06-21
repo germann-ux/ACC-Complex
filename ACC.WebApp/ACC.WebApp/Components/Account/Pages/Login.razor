@@ -1,0 +1,145 @@
+﻿@page "/Account/Login"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@using ACC.WebApp.Data;
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Log in</PageTitle>
+
+<div class="biblioteca-doc-item" style="max-width: 400px; margin: 40px auto;">
+    <div class="biblioteca-doc-header">
+        <h1 class="biblioteca-section-title">Iniciar sesion</h1>
+        <h2 class="biblioteca-section-description">Usa una cuenta para iniciar sesión.</h2>
+    </div>
+    <section class="biblioteca-doc-content">
+        <StatusMessage Message="@errorMessage" />
+        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator />
+            <hr />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true"
+                    placeholder="name@example.com" />
+                <label for="email" class="form-label">Email</label>
+                <ValidationMessage For="() => Input.Email" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.NombreUsuario" class="form-control" autocomplete="username"
+                    aria-required="true" placeholder="nombreUsuario" />
+                <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
+                <ValidationMessage For="() => Input.NombreUsuario" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputText type="password" @bind-Value="Input.Password" class="form-control"
+                    autocomplete="current-password" aria-required="true" placeholder="password" />
+                <label for="password" class="form-label">Password</label>
+                <ValidationMessage For="() => Input.Password" class="text-danger" />
+            </div>
+            <div class="checkbox mb-3">
+                <label class="form-label">
+                    <InputCheckbox @bind-Value="Input.RememberMe" />
+                    Recordarme
+                </label>
+            </div>
+            <button type="submit" class="biblioteca-btn-completar-subtema w-100">Entrar</button>
+        </EditForm>
+    </section>
+</div>
+
+@code {
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        var result = await SignInManager.PasswordSignInAsync(Input.NombreUsuario, Input.Password, Input.RememberMe,
+        lockoutOnFailure: false);
+
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("User logged in.");
+
+            // Obtén el usuario autenticado
+            var usuario = await SignInManager.UserManager.FindByNameAsync(Input.NombreUsuario);
+            if (usuario != null)
+            {
+                // Obtén los roles del usuario
+                var roles = await SignInManager.UserManager.GetRolesAsync(usuario);
+
+                if (roles.Any())
+                {
+                    // Agrega los roles al contexto de autenticación actual
+                    var identity = new ClaimsIdentity(HttpContext.User.Identity);
+                    foreach (var rol in roles)
+                    {
+                        identity.AddClaim(new Claim(ClaimTypes.Role, rol));
+                    }
+
+                    var principal = new ClaimsPrincipal(identity);
+
+                    // Actualiza el contexto con los claims de roles
+                    await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal);
+                }
+            }
+
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+            "Account/LoginWith2fa",
+            new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogWarning("User account locked out.");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: Invalid login attempt.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "Nombre de usuario")]
+        public string NombreUsuario { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "¿Recordarme?")]
+        public bool RememberMe { get; set; }
+    }
+}

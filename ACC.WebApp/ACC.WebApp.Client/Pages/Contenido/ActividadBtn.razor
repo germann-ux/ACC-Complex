@@ -1,0 +1,33 @@
+﻿@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components
+
+@code {
+    [Parameter]
+    public string UrlActividad { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> OnAbrirActividad { get; set; }
+}
+
+<div class="leccion-container">
+    <button class="actividad-btn">
+        Ver actividad interactiva
+    </button>
+</div>
+
+<style>
+    .actividad-btn {
+        background-color: #4263eb;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .actividad-btn:hover {
+            background-color: #364fc7;
+        }
+</style>

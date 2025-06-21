@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+@using ACC.Shared.Interfaces; 
+@using ACC.WebApp.Components.Account.Pages.Manage;  
+@inject IRoleStateService RoleStateService
+
+<div class="page">
+        <AutoHideSidebar />
+    <main>
+        <div class="top-row px-4">
+            <a href="AcercaDe">Acerca De</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+            @if (!RoleStateService.HasClosedAlert)
+            {
+                <RedirectRoles />
+            }
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    private bool _initialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RoleStateService.OnAlertStateChanged += StateHasChanged;
+            await RoleStateService.InitializeAsync();
+            _initialized = true;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        RoleStateService.OnAlertStateChanged -= StateHasChanged;
+    }
+}

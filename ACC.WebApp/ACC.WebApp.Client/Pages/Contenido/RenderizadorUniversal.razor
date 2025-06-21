@@ -1,0 +1,59 @@
+﻿@*@rendermode InteractiveServer
+@using ACC.Shared.DTOs
+@using ACC.WebApp.Client.Pages.Contenido
+@using Microsoft.AspNetCore.Components
+@using ACC.WebApp.Client.Pages.ACC_Compiler
+@using ACC.WebApp.Client.Pages.Guia.Modals
+
+@code {
+    [Parameter]
+    public List<ContenidoBloqueDto> Bloques { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<string> OnShowActividad { get; set; }
+}
+    @if (Bloques != null && Bloques.Count > 0)
+    {
+        foreach (var bloque in Bloques)
+        {
+            @switch (bloque.Tipo.ToLower())
+            {
+                case "html":
+                    <HtmlBlock ContenidoHtml=@bloque.Contenido />
+                    break;
+
+                case "charp-tip":
+                    if (bloque.EsDialogo)
+                    {
+                        <CharpDialog Texto=@bloque.Contenido />
+                    }
+                    else
+                    {
+                        <CharpTip Texto=@bloque.Contenido />
+                    }
+                    break;
+
+                case "tabs":
+                    <TabsStatic Contenidos=@bloque.Contenidos />
+                    break;
+
+                case "actividad":
+                    <ActividadBtn UrlActividad=@bloque.Url
+                                  OnAbrirActividad="OnShowActividad" />
+                    break;
+
+                case "pregunta":
+                    <BloquePregunta Pregunta=@bloque.Contenido />
+                    break;
+
+                case "compilador":
+                    <CompiladorACC />
+                    break;
+
+            }
+        }
+    }
+    else
+    {
+        <p style="color: red;">[No se han definido bloques para este contenido]</p>
+    }*@

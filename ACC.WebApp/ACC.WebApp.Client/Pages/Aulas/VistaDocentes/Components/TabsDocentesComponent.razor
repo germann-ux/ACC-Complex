@@ -1,0 +1,38 @@
+﻿<div class="tabs">
+    @*@switch (SeccionSeleccionada)
+    {
+        case 1: // caso uno configuracion del aula
+            <ConfiguracionAula/>
+            break;
+        case 2: // caso 2 muro de avisos
+            <MuroAvisos/>
+            break;
+        case 3: // caso 3 gestor de tareas
+            <GestorTareasComponent/>
+            break;
+        case 4: // caso 4 lista de estudiantes
+            <ListaEstudiantes/>
+            break;
+        case 5: // caso 5 resumen del aula
+            <ResumenAulaDocente/>
+            break;
+        default:
+            <ResumenAulaDocente/>
+            break;
+    }*@
+
+    <button class="tab-button active" data-tab="configuracion"><i class="fas fa-cog"></i> Configuración</button>
+    <button class="tab-button" data-tab="avisos"><i class="fas fa-bullhorn"></i> Muro de Avisos</button>
+    <button class="tab-button" data-tab="tareas"><i class="fas fa-tasks"></i> Tareas</button>
+    <button class="tab-button" data-tab="estudiantes"><i class="fas fa-users"></i> Estudiantes</button>
+    <button class="tab-button" data-tab="resumen"><i class="fas fa-chart-pie"></i> Resumen</button>
+</div>
+
+@code{
+    //private int SeccionSeleccionada;
+
+    //    private void SeleccionarSeccion(int numeroSeccion)
+    //    {
+    //        SeccionSeleccionada = numeroSeccion;
+    //    }
+    }

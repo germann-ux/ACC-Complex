@@ -1,0 +1,25 @@
+﻿<h3>Evaluaciones disponibles</h3>
+
+<Examen SubModuloId="1"
+        ExamenNombre="Examen del Submódulo 1"
+        ExamenDescripcion="Diseño de software: conceptos y prácticas"
+        OnRealizarExamen="IrAlExamen" />
+
+<Examen SubModuloId="2"
+        ExamenNombre="Examen del Submódulo 2"
+        ExamenDescripcion="Codificación en C#, estructuras y POO"
+        OnRealizarExamen="IrAlExamen" />
+
+<Examen SubModuloId="3"
+        ExamenNombre="Examen del Submódulo 3"
+        ExamenDescripcion="Implementación, pruebas y despliegue"
+        OnRealizarExamen="IrAlExamen" />
+
+@code {
+    [Inject] private NavigationManager nav { get; set; }
+
+    private void IrAlExamen(int idSubmodulo)
+    {
+        nav.NavigateTo($"/ExamenSubModulo{idSubmodulo}");
+    }
+}

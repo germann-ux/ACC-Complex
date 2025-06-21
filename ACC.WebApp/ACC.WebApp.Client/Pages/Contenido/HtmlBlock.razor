@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNetCore.Components
+
+@code {
+    [Parameter]
+    public string ContenidoHtml { get; set; } = string.Empty;
+}
+
+<div class="leccion-container">
+    <div class="contenido-html">
+        @((MarkupString)ContenidoHtml)
+    </div>
+</div>

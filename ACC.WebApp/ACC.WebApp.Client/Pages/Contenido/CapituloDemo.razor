@@ -1,0 +1,65 @@
+﻿<!--@InteractiveServer
+@using ACC.Shared.DTOs
+@using ACC.WebApp.Client.Pages.Contenido
+@using ACC.WebApp.Client.Pages.Guia.Modals
+
+@code {
+    private ModalActividades? ModalActividad;
+    private string? urlActividadActual;
+
+    private void AbrirActividad(string url)
+    {
+        urlActividadActual = url;
+        ModalActividad?.OpenModal();
+    }
+
+    private List<ContenidoBloqueDto> BloquesDemo = new()
+{
+        //new ContenidoBloqueDto
+        //{
+        //    Tipo = "html",
+        //    Contenido = "<p>Este es un bloque HTML enriquecido que introduce el tema.</p><p>El diseño de software es fundamental para el éxito de un proyecto.</p>"
+        //},
+        new ContenidoBloqueDto
+        {
+            Tipo = "charp-tip",
+            Contenido = "¡Recuerda! No inicies codificación sin haber hecho un buen diseño."
+        }
+    //    ,
+    //    new ContenidoBloqueDto
+    //    {
+    //        Tipo = "tabs",
+    //        Contenidos = new List<string>
+    //{
+    //            "<strong>Definición:</strong> El diseño de software organiza la estructura general del sistema.",
+    //            "<strong>Ejemplo:</strong> Una app de tareas puede dividirse en componentes MVC.",
+    //            "<strong>Aplicación:</strong> Se aplica al definir arquitectura, flujos y responsabilidades."
+    //        }
+    //    },
+    //    new ContenidoBloqueDto
+    //    {
+    //        Tipo = "actividad",
+    //        Url = "https://wordwall.net/resource/123456/dise%C3%B1o-software"
+    //    },
+    //    new ContenidoBloqueDto
+    //    {
+    //        Tipo = "compilador"
+    //    },
+    //    new ContenidoBloqueDto
+    //    {
+    //        Tipo = "pregunta",
+    //        Contenido = "¿Qué consecuencias puede traer un diseño mal estructurado en un proyecto real?"
+    //    }
+
+    };
+}
+
+<PageTitle>Demo Renderizador Modular</PageTitle>-->-->
+
+@*<CharpDialog Texto="¿Sabías que el diseño de software define el éxito del proyecto más que el código mismo?" />*@
+
+<!--<ModalActividades Url="@urlActividadActual" @ref="ModalActividad" />
+
+<h1 style="color: var(--biblioteca-primary-purple); margin-bottom: 1rem;">Vista de Prueba - Capítulo Modular</h1>
+
+<RenderizadorUniversal Bloques="@BloquesDemo" OnShowActividad="AbrirActividad" />-->

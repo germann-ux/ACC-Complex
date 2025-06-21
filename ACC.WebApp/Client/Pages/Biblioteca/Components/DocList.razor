@@ -1,0 +1,46 @@
+@* DocList.razor *@
+@rendermode InteractiveServer
+@using ACC.Shared.DTOs
+
+<div class="biblioteca-doc-list">
+    @if (contenidoCapitulos != null && contenidoCapitulos.Count > 0)
+    {
+        var docsFiltrados = contenidoCapitulos
+            .Where(d => FiltrosSeleccionados == null || FiltrosSeleccionados.Count == 0 || FiltrosSeleccionados.Contains(d.Tipo))
+            .ToList();
+
+        @if (docsFiltrados.Count > 0)
+        {
+            @foreach (var doc in docsFiltrados)
+            {
+                <DocItem contenidoCapitulo="doc" />
+                <br />
+            }
+        }
+        else
+        {
+            <div class="biblioteca-empty-state">
+                <div class="biblioteca-empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="biblioteca-empty-title">No se encontraron resultados</h3>
+                <p class="biblioteca-empty-description">Prueba con otros filtros o términos de búsqueda para encontrar la documentación que necesitas.</p>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="biblioteca-empty-state">
+            <div class="biblioteca-empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="biblioteca-empty-title">No se encontraron resultados</h3>
+            <p class="biblioteca-empty-description">Prueba con otros filtros o términos de búsqueda para encontrar la documentación que necesitas.</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<ContenidoCapituloDto> contenidoCapitulos { get; set; } = new();
+    [Parameter] public List<string> FiltrosSeleccionados { get; set; } = new();
+}

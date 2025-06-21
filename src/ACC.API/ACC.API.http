@@ -1,0 +1,6 @@
+@ACC.API_HostAddress = http://localhost:5009
+
+GET {{ACC.API_HostAddress}}/api/
+Accept: application/json
+
+###

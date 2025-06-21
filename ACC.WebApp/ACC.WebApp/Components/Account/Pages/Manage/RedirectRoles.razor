@@ -1,0 +1,39 @@
+﻿@using ACC.Shared.Interfaces; 
+@inject NavigationManager Navigation
+@inject IRoleStateService RoleStateService
+@rendermode InteractiveServer
+
+@if (!RoleStateService.HasVisitedVerificationPage && RoleStateService.UserRole == "Estudiante" && !RoleStateService.HasClosedAlert)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>¡Atención!</strong> Para registrarte como docente u otro rol, por favor haz clic en el siguiente enlace y proporciona la clave de verificación.
+        <a href="/Account/rol/Verificar">Registrarse como docente u otro rol</a>.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @onclick="CloseAlert"></button>
+    </div>
+}
+
+@code {
+    private bool _initialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RoleStateService.InitializeAsync();
+            _initialized = true;
+            StateHasChanged();
+        }
+
+        // No mostrar el componente en la página de verificación
+        if (Navigation.Uri.Contains("/Account/rol/Verificar"))
+        {
+            RoleStateService.HasVisitedVerificationPage = true;
+        }
+    }
+
+    private async Task CloseAlert()
+    {
+        await RoleStateService.CloseAlertAsync();
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNetCore.Components
+
+@code {
+    [Parameter]
+    public string Pregunta { get; set; } = string.Empty;
+}
+
+<div class="leccion-container">
+    <div class="fomentador">
+        <strong>Pregunta:</strong> @Pregunta
+    </div>
+</div>

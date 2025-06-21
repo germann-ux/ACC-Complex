@@ -1,0 +1,245 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Web
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+
+<!--<div class="container @(isExpanded ? "expand" : "collapse")"
+     @onmouseenter="ExpandSidebar"
+     @onmouseleave="CollapseSidebar">
+
+    <script src="https://kit.fontawesome.com/01209f3ecf.js" crossorigin="anonymous"></script>
+
+    <AuthorizeView>
+
+        <NotAuthorized>
+
+            <NavLink class="menu-item" href="/">
+                <span class="fa-solid fa-gears menu-icon-Inicio">
+                    <span class="menu-inicio">--> <!-- posible remplazo: menu-span -->
+                        <!--Inicio
+                    </span>
+                </span>
+            </NavLink>
+
+        </NotAuthorized>
+
+        <Authorized>
+
+            <NavLink class="menu-item" href="Resumen">
+                <span class="fa-solid fa-house menu-icon-Lecciones">
+                    <span class="menu-temas">
+                        Resumen
+                    </span>
+                </span>
+            </NavLink>
+
+
+            <NavLink class="menu-item" href="Guia">
+                <span class="fa-regular fa-map menu-icon-Lecciones">
+                    <span class="menu-temas">
+                        Guía
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item" href="Biblioteca">
+                <span class="fa-solid fa-book-open menu-icon-Cuenta">
+                    <span class="menu-Cuenta">
+                        Biblioteca
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item" href="Charp-IA">
+                <span class="fa-regular fa-comments menu-icon-AI">
+                    <span class="menu-AI">
+                        Charp
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item" href="/Account/Manage">
+                <span class="fa-solid fa-user menu-icon-AI">
+                    <span class="menu-AI">
+                        Cuenta
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item">
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                    <button type="submit">
+                        <span class="fa-solid fa-arrow-right-from-bracket menu-icon-AI" aria-hidden="true">
+                            <span class="menu-AI">cerrar sesion</span>
+                        </span>
+                    </button>
+                </form>
+            </NavLink>
+
+            @if (EsDocente)
+            {
+                <NavLink class="menu-item" href="Docentes">
+                    <span class="fa-solid fa-chalkboard-user menu-icon-Cuenta">
+                        <span class="menu-Cuenta">
+                            Docentes
+                        </span>
+                    </span>
+                </NavLink>
+            }
+            else
+            {
+                <NavLink class="menu-item" href="Aulas/Docente">
+                    <span class="fa-solid fa-chalkboard-user menu-icon-Cuenta">
+                        <span class="menu-Cuenta">
+                            Aulas
+                        </span>
+                    </span>
+                </NavLink>
+            }
+        </Authorized>
+    </AuthorizeView>
+
+</div>-->
+
+<div class="container @(isExpanded ? "expand" : "collapse")"
+     @onmouseenter="ExpandSidebar"
+     @onmouseleave="CollapseSidebar">
+
+    <script src="https://kit.fontawesome.com/01209f3ecf.js" crossorigin="anonymous"></script>
+
+    <AuthorizeView>
+
+        <NotAuthorized>
+
+            <NavLink class="menu-item" href="/">
+                <span class="fa-solid fa-gears menu-icon">
+                    <span class="menu-span">
+                        <!-- posible remplazo: menu-span -->
+                        Inicio
+                    </span>
+                </span>
+            </NavLink>
+
+        </NotAuthorized>
+
+        <Authorized>
+
+            <NavLink class="menu-item" href="Resumen">
+                <span class="fa-solid fa-house menu-icon">
+                    <span class="menu-span">
+                        Resumen
+                    </span>
+                </span>
+            </NavLink>
+
+
+            <NavLink class="menu-item" href="Guia">
+                <span class="fa-regular fa-map menu-icon">
+                    <span class="menu-span">
+                        Guía
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item" href="Biblioteca">
+                <span class="fa-solid fa-book-open menu-icon">
+                    <span class="menu-span">
+                        Biblioteca
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item" href="Charp-IA">
+                <span class="fa-regular fa-comments menu-icon">
+                    <span class="menu-span">
+                        Charp
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item" href="/Account/Manage">
+                <span class="fa-solid fa-user menu-icon">
+                    <span class="menu-span">
+                        Cuenta
+                    </span>
+                </span>
+            </NavLink>
+
+            <NavLink class="menu-item">
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                    <button type="submit">
+                        <span class="fa-solid fa-arrow-right-from-bracket menu-icon" aria-hidden="true">
+                            <span class="menu-span">cerrar sesion</span>
+                        </span>
+                    </button>
+                </form>
+            </NavLink>
+
+            @if (EsDocente)
+            {
+                <NavLink class="menu-item" href="Docentes">
+                    <span class="fa-solid fa-chalkboard-user menu-icon">
+                        <span class="menu-span">
+                            Docentes
+                        </span>
+                    </span>
+                </NavLink>
+            }
+            else
+            {
+                <NavLink class="menu-item" href="Aulas/Docente">
+                    <span class="fa-solid fa-chalkboard-user menu-icon">
+                        <span class="menu-span">
+                            Aulas
+                        </span>
+                    </span>
+                </NavLink>
+            }
+        </Authorized>
+    </AuthorizeView>
+
+</div>
+
+@code {
+    private bool isExpanded = false;
+    private bool isMenuOpen = false;
+
+    private void ExpandSidebar() => isExpanded = true;
+    private void CollapseSidebar() => isExpanded = false;
+
+    private void ToggleMenu() => isMenuOpen = !isMenuOpen;
+
+    private bool EsDocente;
+
+    private string? currentUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var AuthState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = AuthState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            EsDocente = user.IsInRole("Docente");
+        }
+
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

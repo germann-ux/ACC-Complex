@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-ACC.WebApp-7afd03ba-0b97-4076-b5fd-7f2794d44451</UserSecretsId>
+	  <!--<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == 'browser-wasm'">win-x64</RuntimeIdentifier>
+	  <DisableTransitiveFrameworkReferenceDownloads>true</DisableTransitiveFrameworkReferenceDownloads>-->
+  </PropertyGroup>
+
+	
+  <ItemGroup>
+    <ProjectReference Include="..\..\ACC.ServiceDefaults\ACC.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\src\ACC.Shared\ACC.Shared.csproj" />
+    <ProjectReference Include="..\ACC.WebApp.Client\ACC.WebApp.Client.csproj" />
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.13" />
+  </ItemGroup>
+
+	
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+    <Folder Include="Utilities\" />
+  </ItemGroup>
+
+</Project>

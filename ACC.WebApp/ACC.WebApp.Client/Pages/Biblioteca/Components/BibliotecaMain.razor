@@ -1,0 +1,89 @@
+﻿@page "/Biblioteca"
+@rendermode InteractiveServer
+@using ACC.Shared.DTOs;
+@using ACC.Shared.Core;
+@using ACC.WebApp.Client.Pages.Biblioteca.Components;
+@using ACC.WebApp.Client.Services;
+@inject BibliotecaService BibliotecaService
+
+<div class="content biblioteca-app-container">
+    <main class="biblioteca-main-content">
+        <div class="biblioteca-header">
+            <h1 class="biblioteca-section-title">Biblioteca de ACC</h1>
+            <p class="biblioteca-section-description">Explora documentación, ejercicios y proyectos en un formato comodo de capitulos.</p>
+            <ViewToggle FiltrosSeleccionados="@filtrosSeleccionados"
+                        OnFiltrosCambiados="OnFiltrosCambiados" />
+        </div>
+        @if (cargando)
+        {
+            <p>Cargando contenido...</p>
+        }
+        else if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger">
+                <p>Error al cargar el contenido: @mensajeError</p>
+                <button class="btn btn-primary" @onclick="RecargarContenido">Reintentar</button>
+            </div>
+        }
+        else if (todosLosCapitulos?.Data != null)
+        {
+            <DocList contenidoCapitulos="@todosLosCapitulos.Data"
+                     FiltrosSeleccionados="@filtrosSeleccionados" />
+        }
+        else
+        {
+            <p>No hay contenido disponible.</p>
+        }
+    </main>
+    <SidebarFiltros OnFiltrosCambiados="OnFiltrosCambiados" />
+</div>
+
+@code {
+    private List<string> filtrosSeleccionados = new();
+    private ServiceResult<List<ContenidoCapituloDto>>? todosLosCapitulos;
+    private bool cargando = true;
+    private string? mensajeError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarContenido();
+    }
+
+    private async Task CargarContenido()
+    {
+        try
+        {
+            cargando = true;
+            mensajeError = null;
+
+            todosLosCapitulos = await BibliotecaService.ObtenerContenidosAsync();
+
+            if (!todosLosCapitulos.Success)
+            {
+                mensajeError = todosLosCapitulos.Message ?? "Error desconocido al cargar el contenido";
+                Console.WriteLine($"Error en BibliotecaService: {mensajeError}");
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "Error de conexión. Por favor, intenta más tarde.";
+            Console.WriteLine($"Excepción en CargarContenido: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RecargarContenido()
+    {
+        await CargarContenido();
+    }
+
+    private void OnFiltrosCambiados(List<string> filtros)
+    {
+        filtrosSeleccionados = filtros != null ? new List<string>(filtros) : new List<string>();
+        StateHasChanged();
+    }
+}

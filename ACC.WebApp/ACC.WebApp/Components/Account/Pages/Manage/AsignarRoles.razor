@@ -1,0 +1,117 @@
+﻿@page "/Account/rol/Verificar"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using ACC.WebApp.Data;
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager Navigation
+
+    <div class="biblioteca-doc-item" style="max-width: 500px; margin: 40px auto;">
+        <div class="biblioteca-doc-header">
+            <h3 class="biblioteca-section-title">Verificación de Rol</h3>
+        </div>
+        <section class="biblioteca-doc-content">
+            <p class="biblioteca-section-description">
+                Por defecto, ya tienes el rol de Estudiante. Si deseas obtener el rol de Docente o Administrador,
+                selecciona la opción correspondiente y proporciona la clave de verificación.
+            </p>
+            <EditForm Model="@rolModel" FormName="VerificarRolFrm" OnValidSubmit="VerificarClave">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label class="form-label" for="rol">Selecciona el rol:</label>
+                    <InputSelect id="rol" @bind-Value="rolModel.Rol" class="form-control">
+                        <option value="Docente">Docente</option>
+                        <option value="Administrador">Administrador</option>
+                    </InputSelect>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="clave">Clave de Verificación:</label>
+                    <InputText id="clave" @bind-Value="rolModel.Clave" class="form-control" />
+                    <ValidationMessage For="() => rolModel.Clave" class="text-danger" />
+                </div>
+                <button type="submit" class="biblioteca-btn-completar-subtema">Verificar</button>
+                <button type="button" class="biblioteca-btn-completar-subtema"
+                    style="background:#7c3aed; margin-left:10px;" @onclick="QuedarmeConEstudiante">Quedarme con el rol
+                    de Estudiante</button>
+            </EditForm>
+            @if (mensaje != null)
+            {
+                <div class="biblioteca-mensaje-completado" style="margin-top:15px;">@mensaje</div>
+            }
+        </section>
+    </div>
+
+@code {
+    private RolModel rolModel = new RolModel();
+    private string mensaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserManager.GetUserAsync(SignInManager.Context.User);
+        if (user != null)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            if (!roles.Contains("Estudiante") && !roles.Contains("Docente") && !roles.Contains("Administrador"))
+            {
+                var result = await UserManager.AddToRoleAsync(user, "Estudiante");
+                if (result.Succeeded)
+                {
+                    mensaje = "Se te ha asignado el rol de Estudiante automáticamente.";
+                }
+                else
+                {
+                    mensaje = "Error al asignar el rol de Estudiante.";
+                }
+            }
+        }
+        else
+        {
+            mensaje = "Usuario no encontrado.";
+        }
+    }
+
+    private async Task VerificarClave()
+    {
+        if (rolModel.Clave == "clave123")
+        {
+            var user = await UserManager.GetUserAsync(SignInManager.Context.User);
+            if (user != null)
+            {
+                var result = await UserManager.AddToRoleAsync(user, rolModel.Rol);
+                if (result.Succeeded)
+                {
+                    mensaje = $"Verificación exitosa. Ahora tienes el rol de {rolModel.Rol}.";
+                    Navigation.NavigateTo("/");
+                }
+                else
+                {
+                    mensaje = $"Error al asignar el rol de {rolModel.Rol}.";
+                }
+            }
+            else
+            {
+                mensaje = "Usuario no encontrado.";
+            }
+        }
+        else
+        {
+            mensaje = "Clave incorrecta.";
+        }
+    }
+
+    private void QuedarmeConEstudiante()
+    {
+        Navigation.NavigateTo("Resumen");
+    }
+
+    public class RolModel
+    {
+        [Required(ErrorMessage = "El rol es requerido.")]
+        public string Rol { get; set; } = "Estudiante";
+
+        [Required(ErrorMessage = "La clave es requerida.")]
+        public string Clave { get; set; }
+    }
+}

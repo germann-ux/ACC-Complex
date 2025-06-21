@@ -1,0 +1,39 @@
+@page "/Biblioteca"
+@rendermode InteractiveServer
+@using ACC.Shared.DTOs; 
+@using ACC.Shared.Core; 
+@using ACC.WebApp.Client.Pages.Biblioteca.Components; 
+@using ACC.WebApp.Client.Services;  
+@inject BibliotecaService BibliotecaService; 
+
+<div class="biblioteca-app-container">
+    <main class="biblioteca-main-content">
+        <div class="biblioteca-header">
+            <h1 class="biblioteca-section-title">Biblioteca de ACC</h1>
+            <p class="biblioteca-section-description">Explora documentación, ejercicios y proyectos en un formato comodo de capitulos.</p>
+            <ViewToggle FiltrosSeleccionados="@filtrosSeleccionados"
+                        OnFiltrosCambiados="OnFiltrosCambiados" />
+        </div>
+
+        <DocList Documentos="@todosLosCapitulos"
+                 FiltrosSeleccionados="@filtrosSeleccionados" />
+    </main>
+
+    <SidebarFiltros OnFiltrosCambiados="OnFiltrosCambiados" />
+</div>
+
+@code {
+    private List<string> filtrosSeleccionados = new();
+    private ServiceResult<List<ContenidoCapituloDto>> todosLosCapitulos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        todosLosCapitulos = await BibliotecaService.ObtenerContenidosAsync();
+    }
+
+    private void OnFiltrosCambiados(List<string> filtros)
+    {
+        filtrosSeleccionados = filtros;
+        StateHasChanged();
+    }
+}

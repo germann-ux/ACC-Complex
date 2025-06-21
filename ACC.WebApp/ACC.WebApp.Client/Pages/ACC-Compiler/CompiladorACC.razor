@@ -1,0 +1,107 @@
+﻿@page "/Compilador"
+
+@using System.Text.Json
+@using System.Text
+@using ACC.Shared.Core
+
+@rendermode InteractiveServer
+
+@inject NavigationManager navegador
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<div class="compiler-container">
+    <h3 class="compiler-title">Compilador Online</h3>
+    <div class="compiler-options">
+        <label class="compiler-label">Code:</label>
+
+        <div class="compiler-select-container">
+            <label class="compiler-label">Tema:</label>
+            <select class="compiler-select" @onchange="ChangeTheme">
+                <option value="dracula">Oscuro</option>
+                <option value="monokai">Monokai</option>
+                <option value="eclipse">Claro</option>
+            </select>
+        </div>
+    </div>
+
+    <textarea id="codeInput" class="compiler-textarea"></textarea>
+
+    <label for="stdinInput" class="compiler-label">Entradas (stdin):</label>
+    <textarea id="stdinInput" class="compiler-textarea" @bind="Input"></textarea>
+
+    <button class="compiler-button" @onclick="RunCode">Ejecutar Código</button>
+
+    <h4 class="compiler-output-title">Salida:</h4>
+    <div class="compiler-output">
+        <pre class="compiler-output-box">@Output</pre>
+    </div>
+    <br />
+    <div class="fomentador">
+        <p>¿No sabes como se usa el compilador?, da click <a href="/GuiaCompiladorACC">aqui</a></p>
+    </div>
+</div>
+    
+
+    @code {
+        // private void IrAGuiaCompiladorACC()
+        // {
+        //     navegador.NavigateTo("/GuiaCompiladorACC");
+        // }
+
+        private string Code = @"using System;
+        class Program {
+            static void Main(string[] args)
+            {
+                Console.WriteLine(""Hola desde ACC!"");
+            }
+        }";
+
+        private string Input = "";
+        private string Output = "";
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await JS.InvokeVoidAsync("initializeCodeMirror", "codeInput");
+            }
+        }
+
+        private async Task RunCode()
+        {
+            try
+            {
+                // 🔹 Obtener el código actualizado desde CodeMirror antes de enviarlo
+                Code = await JS.InvokeAsync<string>("getCodeMirrorValue");
+
+                var request = new { Code, Input };
+                var json = JsonSerializer.Serialize(request);
+                Console.WriteLine($"JSON enviado: {json}"); // Verificar el JSON enviado
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await Http.PostAsync($"{ServiceRoots.ACC_COMPILER_Url}", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Output = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Output = $"Error: {errorContent}";
+                }
+            }
+            catch (Exception ex)
+            {
+                Output = $"Excepción: {ex.Message}";
+            }
+        }
+
+        private async Task ChangeTheme(ChangeEventArgs e)
+        {
+            string selectedTheme = e.Value?.ToString() ?? "dracula";
+            await JS.InvokeVoidAsync("changeCodeMirrorTheme", selectedTheme);
+        }
+    }
+

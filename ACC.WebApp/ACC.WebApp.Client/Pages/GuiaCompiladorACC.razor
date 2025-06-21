@@ -1,0 +1,179 @@
+﻿@page "/GuiaCompiladorACC"
+@rendermode InteractiveWebAssembly
+
+<div id="manual-compilador-online" class="manual">
+    <h1 class="manual-title">Manual de Usuario: Compilador Online de ACC</h1>
+    <p class="manual-intro">Bienvenido al manual de usuario del <strong>Compilador Online</strong> de ACC. Este documento te guiará para utilizar correctamente el componente, resolver dudas comunes y evitar errores al ejecutar código.</p>
+
+    <h2 class="section-title">Introducción</h2>
+    <p>El <strong>Compilador Online</strong> permite escribir, ejecutar y depurar código en C# directamente desde la aplicación. Puedes:</p>
+    <ul class="features-list">
+        <li>Escribir tu propio código en C#.</li>
+        <li>Proporcionar entradas estándar (stdin) para simular interacción con el programa.</li>
+        <li>Visualizar la salida del programa ejecutado.</li>
+    </ul>
+
+    <hr class="divider">
+
+    <h2 class="section-title">Estructura de la Interfaz</h2>
+    <h3 class="subsection-title">1. Código</h3>
+    <p>La sección de código está diseñada para que escribas tus programas en C#. Por defecto, incluye la estructura básica de un programa, que es:</p>
+    <pre class="code-block"><code>
+using System;
+class Program {
+    static void Main() {
+        // tu codigo aqui
+    }
+}
+    </code></pre>
+    <h4 class="subsubsection-title">Consideraciones Importantes:</h4>
+    <ul class="important-notes">
+        <li><strong>No elimines la estructura básica a menos que estés escribiendo un programa que no use `Main`.</strong></li>
+        <li><strong>Evita pegar código que ya incluya otro método `Main`</strong>, ya que esto generará errores de compilación. Solo pega el contenido dentro del método `Main`.</li>
+        <li>Si necesitas clases o métodos adicionales, agrégalos fuera de la clase `Program` o dentro, pero fuera de `Main`.</li>
+    </ul>
+
+    <h4 class="subsubsection-title">Casos Especiales:</h4>
+    <p>Si tienes un código que ya incluye una estructura completa, como el siguiente ejemplo:</p>
+    <pre class="code-block"><code>
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        // Entradas
+        Console.WriteLine("Introduce el primer número:");
+        double numero1 = Convert.ToDouble(Console.ReadLine());
+        Console.WriteLine("Introduce el segundo número:");
+        double numero2 = Convert.ToDouble(Console.ReadLine());
+
+        // Proceso
+        double suma = numero1 + numero2;
+
+        // Salida
+        Console.WriteLine($"La suma de {numero1} y {numero2} es {suma}");
+    }
+}
+    </code></pre>
+    <ol class="steps">
+        <li><strong>Elimina la estructura por defecto proporcionada por el compilador.</strong></li> <!--jajajaja xdddddd, chinge su madre-->
+        <li>Pega el código completo en el área de código.</li>
+        <li>Asegúrate de que no quede ningún contenido duplicado.</li>
+    </ol>
+
+    <h3 class="subsection-title">2. Entradas (stdin)</h3>
+    <p>La sección de <strong>Entradas</strong> está diseñada para simular datos que tu programa recibirá mediante <code>Console.ReadLine()</code> o métodos similares.</p>
+    <ul class="input-guidelines">
+        <li><strong>Formato de entradas:</strong> Escribe las entradas en líneas separadas. Por ejemplo, si tu programa solicita un nombre y una edad:</li>
+    </ul>
+    <pre class="example-input"><code>
+Juan
+25
+    </code></pre>
+    <p>Asegúrate de que las entradas coincidan con el orden y formato esperado por tu programa.</p>
+
+    <h4 class="subsubsection-title">Errores Comunes en Entradas:</h4>
+    <ul class="error-list">
+        <li><strong>Dejar líneas en blanco:</strong> Si tu programa espera entradas consecutivas, una línea en blanco puede causar errores inesperados.</li>
+        <li><strong>Formato incorrecto:</strong> Proporcionar texto cuando se espera un número puede generar errores como "Input string was not in a correct format".</li>
+        <li><strong>Entradas insuficientes:</strong> Si el programa espera más líneas de las proporcionadas, quedará esperando indefinidamente.</li>
+    </ul>
+
+    <h3 class="subsection-title">3. Botón "Ejecutar Código"</h3>
+    <p>Presiona este botón para compilar y ejecutar tu código. El compilador procesará tanto el código como las entradas y mostrará la salida en la sección correspondiente.</p>
+
+    <h3 class="subsection-title">4. Salida</h3>
+    <p>La sección de <strong>Salida</strong> muestra:</p>
+    <ul class="output-details">
+        <li>El resultado de tu programa.</li>
+        <li>Mensajes de error si hay problemas de compilación o ejecución.</li>
+    </ul>
+
+    <hr class="divider">
+
+    <h2 class="section-title">Qué se Puede Hacer y Qué No</h2>
+    <h3 class="subsection-title">Qué Puedes Hacer:</h3>
+    <ul class="capabilities">
+        <li>Ejecutar aplicaciones de consola escritas en C#.</li>
+        <li>Usar entradas estándar (stdin) para simular interacción del usuario.</li>
+        <li>Probar algoritmos, estructuras de control y conceptos básicos de programación.</li>
+    </ul>
+
+    <h3 class="subsection-title">Qué No Puedes Hacer:</h3>
+    <ul class="limitations">
+        <li>Ejecutar aplicaciones con interfaces gráficas (Windows Forms, WPF, etc.).</li>
+        <li>Acceder a sistemas de archivos o realizar operaciones que requieren permisos avanzados.</li>
+        <li>Conectar a bases de datos o realizar operaciones de red complejas.</li>
+    </ul>
+
+    <hr class="divider">
+
+    <h2 class="section-title">Ejemplos Prácticos</h2>
+    <h3 class="subsection-title">Ejemplo 1: Programa Básico sin Entradas</h3>
+    <h4 class="example-code-title">Código:</h4>
+    <pre class="code-block"><code>
+using System;
+class Program {
+    static void Main() {
+        Console.WriteLine("Hola, mundo!");
+    }
+}
+    </code></pre>
+    <h4 class="example-input-title">Entradas:</h4>
+    <p>(No aplica)</p>
+    <h4 class="example-output-title">Salida:</h4>
+    <pre class="output"><code>
+Hola, mundo!
+    </code></pre>
+
+    <h3 class="subsection-title">Ejemplo 2: Programa con Entradas</h3>
+    <h4 class="example-code-title">Código:</h4>
+    <pre class="code-block"><code>
+using System;
+class Program {
+    static void Main() {
+        string nombre = Console.ReadLine();
+        Console.WriteLine($"Hola, {nombre}!");
+    }
+}
+    </code></pre>
+    <h4 class="example-input-title">Entradas:</h4>
+    <pre class="example-input"><code>
+Carlos
+    </code></pre>
+    <h4 class="example-output-title">Salida:</h4>
+    <pre class="output"><code>
+Hola, Carlos!
+    </code></pre>
+
+    <hr class="divider">
+
+    <h2 class="section-title">Solución de Problemas</h2>
+    <h3 class="subsection-title">Errores Comunes</h3>
+    <ul class="error-list">
+        <li>
+            <strong>\"El nombre `Main` ya está definido\":</strong>
+            <ul>
+                <li><strong>Causa:</strong> El código pegado contiene otra estructura de programa con un método `Main`.</li>
+                <li><strong>Solución:</strong> Elimina las líneas duplicadas y usa solo el método `Main` ya provisto.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>\"Input string was not in a correct format\":</strong>
+            <ul>
+                <li><strong>Causa:</strong> Las entradas no coinciden con lo esperado por el programa.</li>
+                <li><strong>Solución:</strong> Revisa el formato y orden de las entradas.</li>
+            </ul>
+        </li>
+        <li>
+            <strong>\"Error al compilar\":</strong>
+            <ul>
+                <li><strong>Causa:</strong> Sintaxis incorrecta en el código.</li>
+                <li><strong>Solución:</strong> Verifica la sintaxis y asegúrate de que todo el código esté dentro de un bloque válido.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p class="conclusion">Con este manual, estás listo para usar el <strong>Compilador Online</strong> de manera eficiente y sacar el máximo provecho a tus prácticas de programación. ¡Feliz codificación!</p>
+</div>

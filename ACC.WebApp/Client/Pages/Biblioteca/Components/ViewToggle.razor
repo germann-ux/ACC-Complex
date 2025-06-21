@@ -1,0 +1,28 @@
+@* ViewToggle.razor *@
+@rendermode InteractiveServer
+<div class="biblioteca-view-toggle">
+    @foreach (var tipo in Tipos)
+    {
+        <button class="biblioteca-toggle-btn @(FiltrosSeleccionados.Contains(tipo) ? "active" : null)"
+                @onclick="() => CambiarFiltro(tipo)">
+            @tipo
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public List<string> FiltrosSeleccionados { get; set; } = new();
+    [Parameter] public EventCallback<List<string>> OnFiltrosCambiados { get; set; }
+
+    private readonly string[] Tipos = ["Documentación", "Ejercicios", "Ejemplos", "Proyectos"];
+
+    private void CambiarFiltro(string tipo)
+    {
+        if (FiltrosSeleccionados.Contains(tipo))
+            FiltrosSeleccionados.Remove(tipo);
+        else
+            FiltrosSeleccionados.Add(tipo);
+
+        OnFiltrosCambiados.InvokeAsync(FiltrosSeleccionados.ToList());
+    }
+}
