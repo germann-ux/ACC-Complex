@@ -1,0 +1,53 @@
+@page "/Aulas/VistaDocentes/Dashboard"
+@using ACC.WebApp.Client.Components.Aulas
+
+<div class="dashboard">
+    <nav class="tab-menu">
+        <button class="@GetTabClass(Tab.Anuncios)" @onclick="() => Activar(Tab.Anuncios)">Anuncios</button>
+        <button class="@GetTabClass(Tab.Estudiantes)" @onclick="() => Activar(Tab.Estudiantes)">Estudiantes</button>
+        <button class="@GetTabClass(Tab.Tareas)" @onclick="() => Activar(Tab.Tareas)">Tareas</button>
+        <button class="@GetTabClass(Tab.Evaluaciones)" @onclick="() => Activar(Tab.Evaluaciones)">Evaluaciones</button>
+        <button class="@GetTabClass(Tab.Configuracion)" @onclick="() => Activar(Tab.Configuracion)">Configuración</button>
+    </nav>
+
+    <section class="tab-content">
+        @switch (active)
+        {
+            case Tab.Anuncios:
+                <AnunciosAula />
+                break;
+            case Tab.Estudiantes:
+                <ListaEstudiantes />
+                break;
+            case Tab.Tareas:
+                <TareasAula />
+                break;
+            case Tab.Evaluaciones:
+                <EvaluacionesAula />
+                break;
+            default:
+                <ConfiguracionAula />
+                break;
+        }
+    </section>
+</div>
+
+@code {
+    private Tab active = Tab.Anuncios;
+
+    private void Activar(Tab tab)
+    {
+        active = tab;
+    }
+
+    private string GetTabClass(Tab tab) => active == tab ? "active" : string.Empty;
+
+    private enum Tab
+    {
+        Anuncios,
+        Estudiantes,
+        Tareas,
+        Evaluaciones,
+        Configuracion
+    }
+}

@@ -1,0 +1,38 @@
+<div class="anuncios-wrapper">
+    <h3>Anuncios</h3>
+    <button class="crear-btn" @onclick="Nuevo">+ Crear anuncio</button>
+
+    @if (showForm)
+    {
+        <div class="anuncio-form">
+            <input type="text" placeholder="Título" @bind="current.Titulo" />
+            <textarea placeholder="Cuerpo" @bind="current.Cuerpo"></textarea>
+            <div class="acciones">
+                <button @onclick="Guardar">Guardar</button>
+                <button class="secundario" @onclick="Cancelar">Cancelar</button>
+            </div>
+        </div>
+    }
+
+    @foreach (var anuncio in anuncios)
+    {
+        <div class="anuncio-card">
+            <div class="anuncio-header">
+                <h4>@anuncio.Titulo</h4>
+                <span class="fecha">@anuncio.Fecha.ToShortDateString()</span>
+            </div>
+            <p>@anuncio.Cuerpo</p>
+            <div class="acciones">
+                <button @onclick="() => Editar(anuncio)">Editar</button>
+                <button class="secundario" @onclick="() => Eliminar(anuncio)">Eliminar</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Anuncio> anuncios = new();
+    private Anuncio current = new();
+    private bool showForm;
+    private bool editing;
+}
