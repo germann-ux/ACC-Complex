@@ -1,0 +1,76 @@
+<div class="tareas-wrapper">
+    <h3>Tareas</h3>
+    <button class="crear-btn" @onclick="NuevaTarea">+ Nueva tarea</button>
+
+    @if (mostrarFormulario)
+    {
+        <div class="tarea-form">
+            <input type="text" placeholder="Título" @bind="tareaActual.Titulo" />
+            <select @bind="tareaActual.Estado">
+                <option value="En progreso">En progreso</option>
+                <option value="Completada">Completada</option>
+                <option value="No iniciada">No iniciada</option>
+            </select>
+            <input type="date" @bind="fechaString" />
+            <div class="acciones">
+                <button @onclick="Guardar">Guardar</button>
+                <button class="secundario" @onclick="Cancelar">Cancelar</button>
+            </div>
+        </div>
+    }
+
+    @foreach (var tarea in tareas)
+    {
+        <div class="tarea-item">
+            <span class="titulo">@tarea.Titulo</span>
+            <span class="estado">@tarea.Estado</span>
+            <span class="fecha">@tarea.FechaLimite.ToShortDateString()</span>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Tarea> tareas = new();
+    private Tarea tareaActual = new();
+    private bool mostrarFormulario;
+    private bool editando;
+    private string fechaString
+    {
+        get => tareaActual.FechaLimite.ToString("yyyy-MM-dd");
+        set
+        {
+            if (DateTime.TryParse(value, out var fecha))
+            {
+                tareaActual.FechaLimite = fecha;
+            }
+        }
+    }
+
+    public class Tarea
+    {
+        public string Titulo { get; set; } = string.Empty;
+        public string Estado { get; set; } = "No iniciada";
+        public DateTime FechaLimite { get; set; } = DateTime.Now.AddDays(7);
+    }
+
+    private void NuevaTarea()
+    {
+        tareaActual = new Tarea();
+        editando = false;
+        mostrarFormulario = true;
+    }
+
+    private void Guardar()
+    {
+        if (!editando)
+        {
+            tareas.Add(tareaActual);
+        }
+        mostrarFormulario = false;
+    }
+
+    private void Cancelar()
+    {
+        mostrarFormulario = false;
+    }
+}

@@ -1,0 +1,80 @@
+<div class="evaluaciones-wrapper">
+    <h3>Evaluaciones</h3>
+    <button class="crear-btn" @onclick="NuevaEvaluacion">Asignar Evaluación</button>
+
+    @if (mostrarFormulario)
+    {
+        <div class="evaluacion-form">
+            <input type="text" placeholder="Título" @bind="evalActual.Titulo" />
+            <input type="date" @bind="fechaString" />
+            <div class="acciones">
+                <button @onclick="Guardar">Guardar</button>
+                <button class="secundario" @onclick="Cancelar">Cancelar</button>
+            </div>
+        </div>
+    }
+
+    <table class="tabla-evaluaciones">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Fecha</th>
+                <th>Total Alumnos</th>
+                <th>Promedio</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in evaluaciones)
+            {
+                <tr>
+                    <td>@ev.Titulo</td>
+                    <td>@ev.Fecha.ToShortDateString()</td>
+                    <td>@ev.TotalAlumnos</td>
+                    <td>@ev.Promedio</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<Evaluacion> evaluaciones = new();
+    private Evaluacion evalActual = new();
+    private bool mostrarFormulario;
+    private string fechaString
+    {
+        get => evalActual.Fecha.ToString("yyyy-MM-dd");
+        set
+        {
+            if (DateTime.TryParse(value, out var fecha))
+            {
+                evalActual.Fecha = fecha;
+            }
+        }
+    }
+
+    public class Evaluacion
+    {
+        public string Titulo { get; set; } = string.Empty;
+        public DateTime Fecha { get; set; } = DateTime.Today;
+        public int TotalAlumnos { get; set; }
+        public double Promedio { get; set; }
+    }
+
+    private void NuevaEvaluacion()
+    {
+        evalActual = new Evaluacion();
+        mostrarFormulario = true;
+    }
+
+    private void Guardar()
+    {
+        evaluaciones.Add(evalActual);
+        mostrarFormulario = false;
+    }
+
+    private void Cancelar()
+    {
+        mostrarFormulario = false;
+    }
+}

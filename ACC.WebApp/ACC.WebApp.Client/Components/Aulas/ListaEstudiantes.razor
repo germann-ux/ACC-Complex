@@ -1,0 +1,38 @@
+<table class="tabla-estudiantes">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Progreso</th>
+            <th>Última Lección</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var estudiante in estudiantes)
+        {
+            <tr>
+                <td>@estudiante.Nombre</td>
+                <td>@estudiante.Correo</td>
+                <td>@estudiante.Progreso%</td>
+                <td>@estudiante.UltimaLeccion</td>
+                <td>
+                    <button @onclick="() => OnVerDetalles.InvokeAsync(estudiante)">Ver Detalles</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    public record Estudiante(string Nombre, string Correo, int Progreso, string UltimaLeccion);
+
+    [Parameter] public EventCallback<Estudiante> OnVerDetalles { get; set; }
+
+    private List<Estudiante> estudiantes = new()
+    {
+        new("Ana López", "ana@example.com", 45, "Lección 3"),
+        new("Carlos Pérez", "carlos@example.com", 70, "Lección 5"),
+        new("Julia Ruiz", "jruiz@example.com", 55, "Lección 7")
+    };
+}
