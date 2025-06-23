@@ -1,0 +1,18 @@
+.dashboard {
+    padding: 1rem;
+}
+.tab-menu {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.tab-menu button {
+    padding: .5rem 1rem;
+}
+.tab-menu .active {
+    background-color: #eee;
+}
+.tab-content {
+    min-height: 300px;
+}

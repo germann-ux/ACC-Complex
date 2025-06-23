@@ -1,0 +1,40 @@
+<div class="configuracion-wrapper">
+    <h3>Configuración del Aula</h3>
+    <div class="form-group">
+        <label>Nombre:</label>
+        <input type="text" @bind="Nombre" />
+    </div>
+    <div class="form-group">
+        <label>Submódulo:</label>
+        <input type="text" @bind="Submodulo" />
+    </div>
+    <div class="form-group">
+        <label>Descripción:</label>
+        <textarea @bind="Descripcion"></textarea>
+    </div>
+    <div class="form-group">
+        <button @onclick="GenerarEnlace">Generar invitación</button>
+        @if (!string.IsNullOrEmpty(LinkInvitacion))
+        {
+            <span class="enlace">@LinkInvitacion</span>
+        }
+    </div>
+    <div class="form-group opciones">
+        <label><input type="checkbox" @bind="CerrarAula" /> Cerrar aula</label>
+        <label><input type="checkbox" @bind="ArchivarAula" /> Archivar aula</label>
+    </div>
+</div>
+
+@code {
+    private string Nombre { get; set; } = "Aula Demo";
+    private string Submodulo { get; set; } = "Submódulo 1";
+    private string Descripcion { get; set; } = string.Empty;
+    private string? LinkInvitacion;
+    private bool CerrarAula;
+    private bool ArchivarAula;
+
+    private void GenerarEnlace()
+    {
+        LinkInvitacion = $"https://acc.local/invite/{Guid.NewGuid()}";
+    }
+}

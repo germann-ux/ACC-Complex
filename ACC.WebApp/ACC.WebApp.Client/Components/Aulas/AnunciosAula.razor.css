@@ -1,0 +1,26 @@
+.anuncios-wrapper {
+    max-width: 700px;
+    margin: 1rem auto;
+}
+.anuncio-card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+.anuncio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.crear-btn {
+    margin-bottom: 1rem;
+}
+.anuncio-form textarea,
+.anuncio-form input[type="text"] {
+    width: 100%;
+    margin-bottom: .5rem;
+}
+.acciones button {
+    margin-right: .5rem;
+}
