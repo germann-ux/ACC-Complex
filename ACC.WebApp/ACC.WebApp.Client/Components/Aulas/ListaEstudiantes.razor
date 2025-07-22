@@ -1,3 +1,4 @@
+@rendermode InteractiveServer
 <table class="tabla-estudiantes">
     <thead>
         <tr>
@@ -30,7 +31,7 @@
     [Parameter] public EventCallback<Estudiante> OnVerDetalles { get; set; }
 
     private List<Estudiante> estudiantes = new()
-    {
+{
         new("Ana López", "ana@example.com", 45, "Lección 3"),
         new("Carlos Pérez", "carlos@example.com", 70, "Lección 5"),
         new("Julia Ruiz", "jruiz@example.com", 55, "Lección 7")

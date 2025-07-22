@@ -1,3 +1,4 @@
+@rendermode InteractiveServer
 <div class="tareas-wrapper">
     <h3>Tareas</h3>
     <button class="crear-btn" @onclick="NuevaTarea">+ Nueva tarea</button>
@@ -11,7 +12,7 @@
                 <option value="Completada">Completada</option>
                 <option value="No iniciada">No iniciada</option>
             </select>
-            <input type="date" @bind="fechaString" />
+            <input type="date" @bind="tareaActual.FechaLimite" />
             <div class="acciones">
                 <button @onclick="Guardar">Guardar</button>
                 <button class="secundario" @onclick="Cancelar">Cancelar</button>
@@ -34,17 +35,18 @@
     private Tarea tareaActual = new();
     private bool mostrarFormulario;
     private bool editando;
-    private string fechaString
-    {
-        get => tareaActual.FechaLimite.ToString("yyyy-MM-dd");
-        set
-        {
-            if (DateTime.TryParse(value, out var fecha))
-            {
-                tareaActual.FechaLimite = fecha;
-            }
-        }
-    }
+    //private string fechaString
+    //{
+    //    // yyyy-MM-dd
+    //    get => tareaActual.FechaLimite.ToString("yyyy-MM-dd");
+    //    set
+    //    {
+    //        if (DateTime.TryParse(value, out var fecha))
+    //        {
+    //            tareaActual.FechaLimite = fecha;
+    //        }
+    //    }
+    //}
 
     public class Tarea
     {

@@ -1,3 +1,4 @@
+@rendermode InteractiveServer
 <div class="evaluaciones-wrapper">
     <h3>Evaluaciones</h3>
     <button class="crear-btn" @onclick="NuevaEvaluacion">Asignar Evaluación</button>
@@ -6,7 +7,7 @@
     {
         <div class="evaluacion-form">
             <input type="text" placeholder="Título" @bind="evalActual.Titulo" />
-            <input type="date" @bind="fechaString" />
+            <input type="date" @bind="evalActual.Fecha" />
             <div class="acciones">
                 <button @onclick="Guardar">Guardar</button>
                 <button class="secundario" @onclick="Cancelar">Cancelar</button>
@@ -41,17 +42,17 @@
     private List<Evaluacion> evaluaciones = new();
     private Evaluacion evalActual = new();
     private bool mostrarFormulario;
-    private string fechaString
-    {
-        get => evalActual.Fecha.ToString("yyyy-MM-dd");
-        set
-        {
-            if (DateTime.TryParse(value, out var fecha))
-            {
-                evalActual.Fecha = fecha;
-            }
-        }
-    }
+    //private string fechaString
+    //{
+    //    get => evalActual.Fecha.ToString("yyyy-MM-dd");
+    //    set
+    //    {
+    //        if (DateTime.TryParse(value, out var fecha))
+    //        {
+    //            evalActual.Fecha = fecha;
+    //        }
+    //    }
+    //}
 
     public class Evaluacion
     {

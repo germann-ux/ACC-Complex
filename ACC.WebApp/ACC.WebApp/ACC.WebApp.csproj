@@ -9,6 +9,10 @@
 	  <DisableTransitiveFrameworkReferenceDownloads>true</DisableTransitiveFrameworkReferenceDownloads>-->
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="wwwroot\ACC_icono.webp" />
+  </ItemGroup>
+
 	
   <ItemGroup>
     <ProjectReference Include="..\..\ACC.ServiceDefaults\ACC.ServiceDefaults.csproj" />

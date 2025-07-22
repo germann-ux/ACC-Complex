@@ -1,3 +1,4 @@
+@rendermode InteractiveServer
 <div class="anuncios-wrapper">
     <h3>Anuncios</h3>
     <button class="crear-btn" @onclick="Nuevo">+ Crear anuncio</button>
@@ -29,10 +30,3 @@
         </div>
     }
 </div>
-
-@code {
-    private List<Anuncio> anuncios = new();
-    private Anuncio current = new();
-    private bool showForm;
-    private bool editing;
-}
