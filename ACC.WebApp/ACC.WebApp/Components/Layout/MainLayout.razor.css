@@ -2,7 +2,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    background: #070b33;
+    background-color: #0f0f0f;
 }
 
 main {
@@ -10,9 +10,11 @@ main {
 }
 
 .top-row {
-    background: linear-gradient(#070b33, #121851);
+    /*background: linear-gradient(#070b33, #121851);*/
     border-bottom: 1px solid #d6d5d5;
-    background: linear-gradient(to right,#070b33,#121851);
+    /*background: linear-gradient(to right,#070b33,#121851);*/
+    /*background: linear-gradient(to right, #0f0f0f, #2a003f);*/
+    background: linear-gradient(to right, #0f0f0f, #1c0b33, #2a003f);
     justify-content: flex-end;
     height: 3.2rem;
     display: flex;
@@ -20,6 +22,10 @@ main {
     border: none;
     margin-left: 1.5rem;
 }
+
+    .top-row a {
+        color: white;
+    }
 
     .top-row ::deep a, .top-row ::deep .btn-link {
         white-space: nowrap;
@@ -86,6 +92,7 @@ main {
     position: fixed;
     width: 100%;
     z-index: 1000;
+    color: black; 
 }
 
     #blazor-error-ui .dismiss {

@@ -1,5 +1,6 @@
 ﻿using ACC.Data;
 using ACC.Data.Entities;
+using ACC.Shared.Enums;
 using ACC.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,101 +10,101 @@ namespace ACC.API.Services
     public class ProgresoUsuarioService : IProgresoUsuarioService
     {
         private readonly ACCDbContext _dbContext;
-        private readonly IExamenesHabilitadosService _examenesHabilitadosService;
+        //private readonly IExamenesHabilitadosService _examenesHabilitadosService;
+        private readonly IPrerrequisitosService _prerrequisitosService; 
 
-        public ProgresoUsuarioService(ACCDbContext dbContext, IExamenesHabilitadosService examenesHabilitadosService)
+        public ProgresoUsuarioService(ACCDbContext dbContext, IPrerrequisitosService prerrequisitosService)
         {
             _dbContext = dbContext;
-            _examenesHabilitadosService = examenesHabilitadosService;
+            _prerrequisitosService = prerrequisitosService;
         }
 
         public async Task GuardarProgresoAsync(string usuarioId, int SubTemaId)
         {
             if (string.IsNullOrEmpty(usuarioId))
-            {
                 throw new ArgumentException("El ID del usuario no puede estar vacío.", nameof(usuarioId));
-            }
 
             var progreso = await _dbContext.ProgresoUsuarios
                 .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId && p.SubTemaId == SubTemaId);
 
             if (progreso == null)
             {
-                // Crear un nuevo registro si no existe
                 progreso = new ProgresoUsuario
                 {
                     UsuarioId = usuarioId,
                     SubTemaId = SubTemaId,
-                    Fecha = DateTime.Now
+                    Fecha = DateTimeOffset.UtcNow
                 };
                 await _dbContext.ProgresoUsuarios.AddAsync(progreso);
             }
             else
             {
-                // Actualizar el registro existente
-                progreso.Fecha = DateTime.Now;
+                progreso.Fecha = DateTimeOffset.UtcNow; // ← unifica Offset
             }
 
             await _dbContext.SaveChangesAsync();
         }
-
+        // MarcarSubtemaComoCompletadoAsync
 
         public async Task<int?> ObtenerUltimoTemaAsync(string usuarioId)
         {
-            var progreso = await _dbContext.ProgresoUsuarios
+            var subTemaId = await _dbContext.ProgresoUsuarios
                 .Where(p => p.UsuarioId == usuarioId)
-                .OrderByDescending(p => p.Fecha) // Ordena por fecha más reciente
-                .FirstOrDefaultAsync(); // Obtén el primer registro más reciente
+                .OrderByDescending(p => p.Fecha)
+                .Select(p => (int?)p.SubTemaId)   // ← trae solo lo que necesitas
+                .FirstOrDefaultAsync();
 
-            return progreso?.SubTemaId;
+            return subTemaId;
         }
 
-        // metodo para marcar un subtema como visto
         public async Task MarcarSubtemaComoCompletadoAsync(string usuarioId, int subTemaId)
         {
             var progreso = await _dbContext.ProgresoUsuarios
                 .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId && p.SubTemaId == subTemaId);
 
-            if (progreso == null)
+            if (progreso is null)
             {
                 progreso = new ProgresoUsuario
                 {
                     UsuarioId = usuarioId,
                     SubTemaId = subTemaId,
-                    Fecha = DateTime.Now,
+                    Fecha = DateTimeOffset.UtcNow,
                     Completado = true
                 };
                 _dbContext.ProgresoUsuarios.Add(progreso);
             }
             else
             {
-                progreso.Completado = true;
-                progreso.Fecha = DateTime.Now;
+                if (!progreso.Completado)
+                    progreso.Completado = true;
+
+                progreso.Fecha = DateTimeOffset.UtcNow;
             }
 
-            await _dbContext.SaveChangesAsync();
-
-            // 🔹 Obtener el subtema para acceder a su tema relacionado
-            var subTema = await _dbContext.SubTemas
-                .Include(st => st.Tema) // Incluir la relación con Tema
-                .FirstOrDefaultAsync(st => st.Id_SubTema == subTemaId);
-
-            if (subTema?.Tema != null)
-            {
-                // 🔹 Obtener el ID del submódulo desde el tema asociado
-                int subModuloId = subTema.Tema.Id_SubModulo;
-
-                // 🔹 Verificar si el examen debe habilitarse
-                await _examenesHabilitadosService.HabilitarExamenParaUsuarioAsync(usuarioId, subModuloId);
-            }
+            var affected = await _dbContext.SaveChangesAsync();
+            // Disparo idempotente: aunque affected sea 0, reevalúa y hace UPSERT si corresponde
+            await _prerrequisitosService.EvaluarDesbloqueosPorProgresoAsync(usuarioId, subTemaId);
         }
 
-        public async Task<bool> EstaSubtemaCompletadoAsync(string usuarioId, int subTemaId)
+
+        public Task<bool> EstaSubtemaCompletadoAsync(string usuarioId, int subTemaId)
         {
-            var progreso = await _dbContext.ProgresoUsuarios
-                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId && p.SubTemaId == subTemaId);
-
-            return progreso?.Completado ?? false;
+            return _dbContext.ProgresoUsuarios
+                .AsNoTracking()
+                .AnyAsync(p => p.UsuarioId == usuarioId && p.SubTemaId == subTemaId && p.Completado);
         }
+
+        // === NUEVO ===
+        public Task<bool> ExamenHabilitadoAsync(string userId, ExamenRef examen)
+            => _prerrequisitosService.EstaHabilitadoAsync(userId, examen);
+
+        public Task<bool> ExamenSubModuloHabilitadoAsync(string userId, int subModuloId)
+            => ExamenHabilitadoAsync(userId, new ExamenRef(ExamenTipo.SubModulo, subModuloId));
+
+        public Task<bool> ExamenModuloHabilitadoAsync(string userId, int moduloId)
+            => ExamenHabilitadoAsync(userId, new ExamenRef(ExamenTipo.Modulo, moduloId));
+
+        public Task<bool> ExamenLibreHabilitadoAsync(string userId, int examenId)
+            => ExamenHabilitadoAsync(userId, new ExamenRef(ExamenTipo.Libre, examenId));
     }
 }

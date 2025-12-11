@@ -51,7 +51,23 @@ namespace ACC.Shared.DTOs
         /// <summary>
         /// Contenido HTML principal (modo antiguo, sigue siendo compatible).
         /// </summary>
+        [Obsolete("Se remplazara por propiedades separadas, Teoria, practica y Ejemplo")]
         public string HtmlBody { get; set; } = string.Empty;
+        //  |
+        //  |
+        // \ /
+        /// <summary>
+        /// Seccion teorica de las lecciones, en formato html
+        /// </summary>
+        public string Teoria { get; set; } = string.Empty;
+        /// <summary>
+        /// Seccion conectora a la practica, no nesesariamente una practica redactada u tarea por definicion
+        /// </summary>
+        public string Practica { get; set; } = string.Empty;
+        /// <summary>
+        /// Seccion de ejemplos en la leccion, simples y sencillos o mas extensos si es nesesario.
+        /// </summary>
+        public string Ejemplo { get; set; } = string.Empty;
 
         /// <summary>
         /// ¿Tiene actividad externa?
@@ -80,7 +96,7 @@ namespace ACC.Shared.DTOs
 
         /// <summary>
         /// Lista ordenada de secciones a renderizar (modo clásico).
-        /// Ejemplo: ["html", "actividad", "compilador"]
+        /// Ejemplo: ["html(Teoria, Practica y Teoria)", "actividad", "compilador"]
         /// </summary>
         public List<string> OrdenSecciones { get; set; } = [];
     }

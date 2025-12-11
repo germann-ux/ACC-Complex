@@ -1,9 +1,7 @@
-﻿using ACC.Data.Entities;
-using ACC.Shared.DTOs;
+﻿using ACC.Shared.DTOs;
+using ACC.Shared.Enums;
 using ACC.Shared.Interfaces;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ACC.API.Controllers
 {
@@ -11,88 +9,79 @@ namespace ACC.API.Controllers
     [Route("api/[controller]")]
     public class ProgresoUsuarioController : ControllerBase
     {
-        private readonly IMapper _mapper; 
-        private readonly IExamenesHabilitadosService _examenesHabilitadosService;
         private readonly IProgresoUsuarioService _progresoService;
 
-        public ProgresoUsuarioController(IProgresoUsuarioService progresoService, IExamenesHabilitadosService examenesHabilitadosService, IMapper mapper)
+        public ProgresoUsuarioController(IProgresoUsuarioService progresoService)
         {
             _progresoService = progresoService;
-            _examenesHabilitadosService = examenesHabilitadosService;
-            _mapper = mapper;
         }
 
         [HttpGet("ultimo/{usuarioId}")]
         public async Task<IActionResult> ObtenerUltimoTema(string usuarioId)
         {
-            var ultimoProgreso = await _progresoService.ObtenerUltimoTemaAsync(usuarioId);
-
-            if (ultimoProgreso.HasValue)
-            {
-                return Ok(ultimoProgreso.Value);
-            }
-
-            // Cambia el 404 por un mensaje más claro
-            return NotFound(new { Message = "No se encontró progreso para el usuario." });
+            var ultimoSubTema = await _progresoService.ObtenerUltimoTemaAsync(usuarioId);
+            return ultimoSubTema.HasValue
+                ? Ok(ultimoSubTema.Value)
+                : NotFound(new { Message = "No se encontró progreso para el usuario." });
         }
 
-        // controladores para guardar el progreso del usuario
         [HttpPost("guardar")]
-        public async Task<IActionResult> GuardarProgreso([FromBody] ProgresoUsuario progreso)
+        public async Task<IActionResult> GuardarProgreso([FromBody] ProgresoUsuarioDto progreso)
         {
-            if (string.IsNullOrEmpty(progreso.UsuarioId) || progreso.SubTemaId == 0)
-            {
+            if (string.IsNullOrEmpty(progreso.UsuarioId) || progreso.SubTemaId <= 0)
                 return BadRequest(new { Message = "Datos incompletos para guardar el progreso." });
-            }
 
             await _progresoService.GuardarProgresoAsync(progreso.UsuarioId, progreso.SubTemaId);
-            return Ok();
+            return Ok(new { Message = "Progreso guardado." });
         }
 
-        /// <summary>
-        /// Marca un subtema como completado y verifica si el examen del submódulo debe habilitarse.
-        /// </summary>
         [HttpPost("completar")]
         public async Task<IActionResult> MarcarSubtemaComoCompletado([FromBody] ProgresoUsuarioDto progreso)
         {
-            if (string.IsNullOrEmpty(progreso.UsuarioId) || progreso.SubTemaId < 0)
-            {
+            if (string.IsNullOrEmpty(progreso.UsuarioId) || progreso.SubTemaId <= 0)
                 return BadRequest(new { Message = "Datos inválidos." });
-            }
 
-            try
-            {
-                
-                await _progresoService.MarcarSubtemaComoCompletadoAsync(progreso.UsuarioId, progreso.SubTemaId);
-                return Ok(new { Message = "Subtema marcado como completado correctamente." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "Error al marcar el subtema como completado.", Error = ex.Message });
-            }
+            await _progresoService.MarcarSubtemaComoCompletadoAsync(progreso.UsuarioId, progreso.SubTemaId);
+            return Ok(new { Message = "Subtema marcado como completado correctamente." });
         }
 
-        /// <summary>
-        /// Verifica si el examen de un submódulo está habilitado para el usuario.
-        /// </summary>
-        [HttpGet("examen-habilitado/{userId}/{subModuloId}")]
-        public async Task<IActionResult> VerificarExamenHabilitado(string userId, int subModuloId)
-        {
-            var examen = await _examenesHabilitadosService.VerificarExamenHabilitadoAsync(userId, subModuloId);
-
-            return Ok(new { ExamenHabilitado = examen });
-        }
-
-        // obtiene el estado de un subtema para el usuario
         [HttpGet("subtema-completado/{usuarioId}/{subTemaId}")]
         public async Task<IActionResult> EstaSubtemaCompletado(string usuarioId, int subTemaId)
         {
             if (string.IsNullOrEmpty(usuarioId) || subTemaId <= 0)
-            {
                 return BadRequest(new { Message = "Datos inválidos." });
+
+            var ok = await _progresoService.EstaSubtemaCompletadoAsync(usuarioId, subTemaId);
+            return Ok(new { Completado = ok });
+        }
+
+        // ------------ NUEVO: endpoint genérico ------------
+        // GET api/ProgresoUsuario/examen-habilitado/{userId}/{tipo}/{refId}
+        // tipo: SubModulo | Modulo | Libre  (case-insensitive)
+        [HttpGet("examen-habilitado/{userId}/{tipo}/{refId:int}")]
+        public async Task<IActionResult> ExamenHabilitado(string userId, string tipo, int refId)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || refId <= 0)
+                return BadRequest(new { Message = "Parámetros inválidos." });
+
+            if (!TryParseExamenTipo(tipo, out var examTipo))
+                return BadRequest(new { Message = $"Tipo de examen inválido: '{tipo}'. Use SubModulo | Modulo | Libre." });
+
+            var habilitado = await _progresoService.ExamenHabilitadoAsync(userId, new ExamenRef(examTipo, refId));
+            return Ok(new { ExamenHabilitado = habilitado });
+        }
+        //ExamenHabilitadoAsync
+
+        private static bool TryParseExamenTipo(string s, out ExamenTipo tipo)
+        {
+            // Permite strings como "submodulo", "SubModulo", "MODULO", etc.
+            if (Enum.TryParse<ExamenTipo>(s, ignoreCase: true, out var t))
+            {
+                tipo = t;
+                return true;
             }
-            var estaCompletado = await _progresoService.EstaSubtemaCompletadoAsync(usuarioId, subTemaId);
-            return Ok(new { Completado = estaCompletado });
+            tipo = default;
+            return false;
         }
     }
 }

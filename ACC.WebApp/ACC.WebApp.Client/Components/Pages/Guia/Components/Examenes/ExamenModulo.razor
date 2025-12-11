@@ -1,0 +1,49 @@
+﻿@*@using ACC.WebApp.Client.Services;
+@inject AuthenticationStateProvider AuthProvider
+@inject ProgresoUsuarioClient ProgresoService
+
+@code {
+    [Parameter] public int ModuloId { get; set; }
+    [Parameter] public string ExamenNombre { get; set; } = "Examen del Módulo";
+    [Parameter] public string ExamenDescripcion { get; set; } = "";
+    [Parameter] public EventCallback<int> OnRealizarExamen { get; set; }
+
+    private bool examenDesbloqueado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        var userId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            // Aquí en vez de SubModuloId pasamos ModuloId
+            examenDesbloqueado = await ProgresoService.ExamenHabilitadoAsync(userId,(ModuloId));
+        }
+    }
+
+    private async Task RealizarExamen()
+    {
+        if (examenDesbloqueado)
+            await OnRealizarExamen.InvokeAsync(ModuloId);
+    }
+}
+<div class="examen-card">
+    <div class="examen-icon-title">
+        <span class="examen-icon">📘</span>
+        <span class="examen-title">@ExamenNombre</span>
+    </div>
+    <div class="examen-desc">@ExamenDescripcion</div>
+    @if (examenDesbloqueado)
+    {
+        <button class="examen-btn" @onclick="RealizarExamen">
+            ¡Enfrentar el Examen Final del Módulo!
+        </button>
+    }
+    else
+    {
+        <button class="examen-btn examen-btn-locked" disabled>
+            Examen de Módulo Bloqueado
+        </button>
+    }
+</div>*@

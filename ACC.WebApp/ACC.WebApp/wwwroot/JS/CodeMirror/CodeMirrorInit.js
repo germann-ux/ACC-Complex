@@ -32,3 +32,7 @@ window.changeCodeMirrorTheme = function (theme) {
         window.codeMirrorEditor.setOption("theme", theme);
     }
 };
+
+/*
+codeInput
+initializeCodeMirror*/

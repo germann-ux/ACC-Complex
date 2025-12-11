@@ -1,0 +1,50 @@
+﻿@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+
+<h3>Evaluaciones disponibles</h3>
+
+@if (ExamenesSubModulo?.Count > 0)
+{
+    @foreach (var examen in ExamenesSubModulo)
+    {
+        <Examen Tipo="ExamenTipo.SubModulo"
+                RefId="@examen.SubModuloId"
+                ExamenNombre="@examen.Nombre"
+                ExamenDescripcion="@examen.Descripcion"
+                OnRealizarExamen="@(id => IrAlExamen(ExamenTipo.SubModulo, id))" />
+    }
+}
+
+@if (ExamenesModulo is not null)
+{
+    @foreach (var examenModulo in ExamenesModulo)
+    {
+        <!-- Muestra el examen integrador del Módulo -->
+        <Examen Tipo="ExamenTipo.Modulo"
+                RefId="@examenModulo.ModuloId"
+                ExamenNombre="@examenModulo.Nombre"
+                ExamenDescripcion="@examenModulo.Descripcion"
+                OnRealizarExamen="@(id => IrAlExamen(ExamenTipo.Modulo, id))" />
+    }
+}
+
+@code {
+    [Inject] private NavigationManager nav { get; set; } = default!;
+
+    // Entrada
+    [Parameter] public List<ExamenSubModuloDto> ExamenesSubModulo { get; set; } = [];
+    [Parameter] public List<ExamenModuloDto>? ExamenesModulo { get; set; }
+
+    private void IrAlExamen(ExamenTipo tipo, int refId)
+    {
+        var slug = tipo switch
+        {
+            ExamenTipo.SubModulo => "ExamenSubModulo",
+            ExamenTipo.Modulo => "ExamenModulo",
+            ExamenTipo.Libre => "ExamenLibre",
+            _ => "Examen"
+        };
+
+        nav.NavigateTo($"examen/{slug}/{refId}");
+    }
+}

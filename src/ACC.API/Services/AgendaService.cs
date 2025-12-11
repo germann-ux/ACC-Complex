@@ -18,17 +18,17 @@ namespace ACC.API.Services
             _logger = logger;
         }
 
-        public Task<AgendaDto> CreateAgendaAsync(AgendaDto agenda, string IdUsuario)
+        public async Task<AgendaDto> CreateAgendaAsync(AgendaDto agenda, string IdUsuario)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> DeleteAgendaAsync(int agendaId)
+        public async Task<bool> DeleteAgendaAsync(int agendaId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<AgendaDto> GetAgendaByUserAsync(string userId)
+        public async Task<AgendaDto> GetAgendaByUserAsync(string userId)
         {
             throw new NotImplementedException();
         }

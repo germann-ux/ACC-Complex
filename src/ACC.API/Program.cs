@@ -17,7 +17,7 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults(); // telemetry, quizas quitar si no funciona...
+builder.AddServiceDefaults(); // telemetry, quizas quitar si no funciona
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(ACCmappingProfile));
@@ -66,9 +66,16 @@ builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<CompileService>();
 builder.Services.AddScoped<IProgresoUsuarioService, ProgresoUsuarioService>();
 builder.Services.AddScoped<ITipService, TipService>();
-builder.Services.AddScoped<IExamenesHabilitadosService, ExamenesHabilitadosService>();
 builder.Services.AddScoped<IAvisosService, AvisosService>();
 builder.Services.AddScoped<INavegacionContenidoService, NavegacionContenidoService>();
+builder.Services.AddScoped<ICapitulosService, CapitulosService>();
+// --- Exámenes:
+builder.Services.AddScoped<IPrerrequisitosService, PrerrequisitosService>();
+builder.Services.AddScoped<IExamenesModService, ExamenesService>();
+builder.Services.AddScoped<IExamenesSubMService, ExamenesService>();
+builder.Services.AddScoped<IExamenesUserService, ExamenesService>();
+// Fachada de compatibilidad:
+builder.Services.AddScoped<IExamenesHabilitadosService, ExamenesHabilitadosService>();
 
 // Tiempo del sistema
 builder.Services.AddSingleton<System.TimeProvider>(System.TimeProvider.System);

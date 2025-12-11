@@ -1,0 +1,47 @@
+﻿@*@page "/{slug}/{refId}"
+
+    @rendermode InteractiveServer
+    @using ACC.WebApp.Client.Services
+    @using ACC.Shared.DTOs
+    @inject ExamenesServiceClient ExamenesService
+
+    @code
+    {
+        [Parameter] public ExamenSubModuloDto examen { get; set; }
+    }
+
+    @if (examen == null)
+    {
+        <p>Cargando examen...</p>
+
+    }
+    else
+    {
+        <ExamenRender Examen="@examen" />
+    }*@
+
+@page "/examen/{slug}/{refId:int}"
+@rendermode InteractiveServer
+@using ACC.WebApp.Client.Services
+@using ACC.Shared.DTOs
+@inject ExamenesServiceClient ExamenesService
+
+@code {
+    [Parameter] public string? Slug { get; set; }   // p.ej. "submodulo-1-2"
+    [Parameter] public int RefId { get; set; }      // Id del ExamenSubModulo
+    private ExamenSubModuloDto? Examen;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Carga por ID. Cambia por el método real de tu client:
+        Examen = await ExamenesService.ObtenerExamenSubMAsync(RefId);
+    }
+}
+@if (Examen is null)
+{
+    <p>Cargando examen...</p>
+}
+else
+{
+    <ExamenRender Examen="@Examen" />
+}

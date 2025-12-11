@@ -44,16 +44,18 @@ namespace ACC.API.Services
 
         public async Task<ServiceResult<ApplicationUserDto>> GetUserByIdAsync(string userId)
         {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Id == userId);
-            if (usuario.Id == null)
-            {
+            if (string.IsNullOrWhiteSpace(userId))
+                return ServiceResult<ApplicationUserDto>.Fail("userId es requerido.");
+
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (usuario is null)
                 return ServiceResult<ApplicationUserDto>.NotFound("Usuario no encontrado");
-            }
-            else
-            {
-                var usuarioDTO = _mapper.Map<ApplicationUserDto>(usuario);
-                return ServiceResult<ApplicationUserDto>.Ok(usuarioDTO);
-            }
+
+            var dto = _mapper.Map<ApplicationUserDto>(usuario);
+            return ServiceResult<ApplicationUserDto>.Ok(dto);
         }
 
         public async Task<ServiceResult<ApplicationUserDto>> GetUserByNameAsync(string userName)
@@ -64,18 +66,20 @@ namespace ACC.API.Services
         // metodo responsable de sincronizar el usuario con la base de datos o de crearlo inicialmente.
         public async Task<ServiceResult<ApplicationUserDto>> SincUserAsync(ApplicationUserDto dto)
         {
-            // se busca el usuario en la base de datos
+            if (string.IsNullOrWhiteSpace(dto.Id))
+                return ServiceResult<ApplicationUserDto>.Fail("El Id del usuario (Identity) es obligatorio.");
+
             var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Id == dto.Id);
 
             if (usuario is null)
             {
-                // si no existe el usuario se crea uno nuevo
                 var nuevoUsuario = _mapper.Map<Usuario>(dto);
+                // Asegura que preserve el Id del DTO:
+                nuevoUsuario.Id = dto.Id;
                 await _context.Usuarios.AddAsync(nuevoUsuario);
             }
             else
             {
-                // si ya existe el usuario se actualiza
                 usuario.Nombre = dto.Nombre;
                 usuario.Email = dto.Email;
                 usuario.ProgresoGeneral = dto.ProgresoGeneral;
@@ -84,6 +88,5 @@ namespace ACC.API.Services
             await _context.SaveChangesAsync();
             return ServiceResult<ApplicationUserDto>.Ok(dto);
         }
-
     }
 }

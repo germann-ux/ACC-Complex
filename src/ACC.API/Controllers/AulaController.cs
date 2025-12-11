@@ -7,14 +7,9 @@ namespace ACC.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AulaController : ControllerBase
+    public class AulaController(IAulaService aulaService) : ControllerBase
     {
-        private readonly IAulaService _aulaService;
-
-        public AulaController(IAulaService aulaService)
-        {
-            _aulaService = aulaService;
-        }
+        private readonly IAulaService _aulaService = aulaService;
         // TODO: seguir con este controllador luego lol
     }
 }

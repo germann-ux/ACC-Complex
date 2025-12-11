@@ -1,49 +1,48 @@
-﻿:root {
-    --Capitulo-primary-dark: #181829;
-    --Capitulo-secondary-dark: #23233a;
-    --Capitulo-tertiary-dark: #2e2e48;
-    --Capitulo-hover-dark: #39395a;
-    --Capitulo-primary-purple: #a084ee;
-    --Capitulo-secondary-purple: #b56bcf;
-    --Capitulo-primary-blue: #6c8cff;
-    --Capitulo-secondary-blue: #4f46e5;
-    --Capitulo-accent-cyan: #5eead4;
-    --Capitulo-accent-pink: #f472b6;
-    --Capitulo-text-white: #f8fafc;
-    --Capitulo-text-gray: #d1d5db;
-    --Capitulo-border-color: #444466;
-    --Capitulo-shadow: 0 4px 24px rgba(160, 132, 238, 0.10);
-    --Capitulo-transition-speed: 0.22s;
+﻿/* ======================================================
+   ACC — Capítulo (unificado al tema global)
+   - Sin :root local
+   - Superficies: --biblioteca-secondary-dark
+   - Acentos derivados del brand
+   ====================================================== */
+
+/* Acentos derivados (sin nuevos tokens globales) */
+.capitulo {
+    --cap-accent-cyan: color-mix(in srgb, var(--acc-brand-600) 10%, #5eead4);
+    --cap-accent-pink: color-mix(in srgb, var(--acc-brand-600) 22%, #f472b6);
+    --cap-shadow: 0 4px 24px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
 }
 
+/* Contenedor principal */
 .contenido-capitulo {
-    background: linear-gradient(120deg, var(--Capitulo-secondary-dark) 80%, var(--Capitulo-tertiary-dark) 100%);
-    color: var(--Capitulo-text-gray);
+    background: linear-gradient(120deg, var(--biblioteca-secondary-dark) 80%, var(--biblioteca-tertiary-dark) 100%);
+    color: var(--biblioteca-text-gray);
     padding: 2.5rem 1.5rem;
     border-radius: 18px;
     margin: 2rem auto;
     max-width: 1100px;
     text-align: justify;
-    box-shadow: var(--Capitulo-shadow);
+    box-shadow: var(--cap-shadow);
     transition: background 0.5s;
+    border: 1px solid var(--biblioteca-border-color);
 }
 
+/* Encabezados */
 .capitulo-h1 {
     font-size: 2.4rem !important;
     font-weight: 800;
-    color: var(--Capitulo-primary-purple);
+    color: var(--acc-brand-600);
     margin-bottom: 1.5rem;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
     line-height: 1.1;
     text-align: initial;
-    letter-spacing: 0.01em;
-    text-shadow: 0 2px 16px rgba(160, 132, 238, 0.08);
+    letter-spacing: .01em;
+    text-shadow: 0 2px 16px color-mix(in srgb, var(--acc-brand-600) 8%, transparent);
 }
 
 .capitulo-strong-especial {
     font-weight: 800;
-    color: var(--Capitulo-primary-purple);
-    background: linear-gradient(90deg, var(--Capitulo-secondary-purple), var(--Capitulo-primary-blue));
+    color: var(--acc-brand-600);
+    background: linear-gradient(90deg, var(--biblioteca-secondary-purple), var(--biblioteca-primary-blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 1.2rem;
@@ -52,203 +51,212 @@
 .capitulo-h2 {
     font-size: 1.7rem;
     font-weight: 700;
-    color: var(--Capitulo-secondary-purple);
+    color: var(--biblioteca-secondary-purple);
     margin-top: 2.5rem;
     margin-bottom: 1.2rem;
-    font-family: 'Nunito', 'Segoe UI', sans-serif;
-    border-left: 5px solid var(--Capitulo-primary-blue);
+    font-family: Nunito, 'Segoe UI', system-ui, sans-serif;
+    border-left: 5px solid var(--biblioteca-primary-blue);
     padding-left: 1rem;
-    /*background: linear-gradient(90deg, transparent 80%, var(--Capitulo-tertiary-dark) 100%);*/
     border-radius: 6px;
 }
 
 .capitulo-h3 {
     font-size: 1.18rem;
     font-weight: 600;
-    color: var(--Capitulo-primary-blue);
+    color: var(--biblioteca-primary-blue);
     margin-top: 1.7rem;
-    margin-bottom: 0.8rem;
-    font-family: 'Nunito', 'Segoe UI', sans-serif;
-    letter-spacing: 0.01em;
+    margin-bottom: .8rem;
+    font-family: Nunito, 'Segoe UI', system-ui, sans-serif;
+    letter-spacing: .01em;
 }
 
+/* Texto */
 .capitulo-p {
-    color: var(--Capitulo-text-gray);
+    color: var(--biblioteca-text-gray);
     font-size: 1.07rem;
     margin-bottom: 1.1rem;
     line-height: 1.8;
-    letter-spacing: 0.01em;
+    letter-spacing: .01em;
 }
 
 .capitulo-hr {
     border: none;
-    border-top: 2px dashed var(--Capitulo-border-color);
+    border-top: 2px dashed var(--biblioteca-border-color);
     margin: 2.5rem 0;
-    opacity: 0.5;
+    opacity: .5;
 }
 
+/* Citas */
 .capitulo-blockquote {
-    border-left: 5px solid var(--Capitulo-accent-cyan);
-    background: linear-gradient(90deg, rgba(160, 132, 238, 0.10) 60%, rgba(94, 234, 212, 0.10) 100%);
-    color: var(--Capitulo-text-white);
+    border-left: 5px solid var(--cap-accent-cyan);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--acc-brand-600) 10%, transparent) 60%, color-mix(in srgb, var(--cap-accent-cyan) 15%, transparent) 100%);
+    color: var(--biblioteca-text-white);
     margin: 1.7rem 0;
     padding: 1.2rem 2rem;
     border-radius: 10px;
     font-size: 1.08rem;
     font-style: italic;
-    box-shadow: 0 2px 12px rgba(94, 234, 212, 0.07);
-    transition: background 0.4s;
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--cap-accent-cyan) 7%, transparent);
+    transition: background .4s;
 }
 
+/* Énfasis */
 .capitulo-mark {
-    background: #ffe066;
-    color: var(--Capitulo-primary-dark);
-    padding: 0.1em 0.4em;
+    background: #ffe066; /* Conservamos highlight legible */
+    color: var(--biblioteca-primary-dark);
+    padding: .1em .4em;
     border-radius: 4px;
 }
 
 .capitulo-em {
     font-style: italic;
-    color: var(--Capitulo-accent-pink);
+    color: var(--cap-accent-pink);
 }
 
 .capitulo-strong {
     font-weight: 700;
-    color: var(--Capitulo-secondary-purple);
+    color: var(--biblioteca-secondary-purple);
 }
 
+/* Código inline y bloque */
 .capitulo-code {
-    background: var(--Capitulo-tertiary-dark);
-    color: var(--Capitulo-primary-purple);
-    font-family: 'Fira Mono', 'Consolas', monospace;
-    padding: 0.18em 0.5em;
+    background: var(--biblioteca-tertiary-dark);
+    color: var(--acc-brand-600);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    padding: .18em .5em;
     border-radius: 5px;
     font-size: 1em;
-    box-shadow: 0 1px 4px rgba(160, 132, 238, 0.07);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
 }
 
 .capitulo-pre {
-    background: linear-gradient(90deg, var(--Capitulo-tertiary-dark) 80%, var(--Capitulo-hover-dark) 100%);
-    color: var(--Capitulo-text-white);
-    font-family: 'Fira Mono', 'Consolas', monospace;
+    background: linear-gradient(90deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-hover-dark) 100%);
+    color: var(--biblioteca-text-white);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     padding: 1.2rem;
     border-radius: 10px;
     overflow-x: auto;
     margin: 1.7rem 0;
     font-size: 1em;
-    box-shadow: 0 2px 12px rgba(160, 132, 238, 0.10);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
 }
 
+/* Tablas */
 .capitulo-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    background: var(--Capitulo-tertiary-dark);
+    background: var(--biblioteca-tertiary-dark);
     margin: 2rem 0;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(76, 70, 229, 0.07);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--biblioteca-primary-blue) 7%, transparent);
+    border: 1px solid var(--biblioteca-border-color);
 }
 
 .capitulo-thead {
-    background: linear-gradient(90deg, var(--Capitulo-secondary-purple), var(--Capitulo-primary-blue));
-    color: var(--Capitulo-text-white);
+    background: linear-gradient(90deg, var(--biblioteca-secondary-purple), var(--biblioteca-primary-blue));
+    color: var(--biblioteca-text-white);
 }
 
 .capitulo-tbody {
-    color: var(--Capitulo-text-gray);
+    color: var(--biblioteca-text-gray);
 }
 
 .capitulo-tr {
-    border-bottom: 1px solid var(--Capitulo-border-color);
-    transition: background var(--Capitulo-transition-speed);
+    border-bottom: 1px solid var(--biblioteca-border-color);
+    transition: background var(--biblioteca-transition-speed);
 }
 
     .capitulo-tr:hover {
-        background: var(--Capitulo-hover-dark);
+        background: var(--biblioteca-hover-dark);
     }
 
-.capitulo-td,
-.capitulo-th {
-    padding: 0.9em 1.2em;
+.capitulo-td, .capitulo-th {
+    padding: .9em 1.2em;
     text-align: left;
 }
 
 .capitulo-th {
     font-weight: 700;
-    color: var(--Capitulo-text-white);
-    background: rgba(160, 132, 238, 0.13);
+    color: var(--biblioteca-text-white);
+    background: color-mix(in srgb, var(--acc-brand-600) 13%, transparent);
 }
 
-.capitulo-ul,
-.capitulo-ol {
+/* Listas */
+.capitulo-ul, .capitulo-ol {
     margin: 1.2rem 0 1.2rem 2rem;
-    color: var(--Capitulo-text-gray);
+    color: var(--biblioteca-text-gray);
     font-size: 1.07rem;
-    padding-left: 0.5rem;
+    padding-left: .5rem;
 }
 
 .capitulo-li {
-    margin-bottom: 0.6em;
+    margin-bottom: .6em;
     line-height: 1.7;
     position: relative;
-    padding-left: 0.5em;
+    padding-left: .5em;
 }
 
 .capitulo-ul {
-    list-style-type: disc;
+    list-style: disc;
 }
 
 .capitulo-ol {
-    list-style-type: decimal;
+    list-style: decimal;
 }
 
+/* Enlaces */
 .capitulo-a {
-    color: var(--Capitulo-accent-cyan);
+    color: var(--cap-accent-cyan);
     text-decoration: underline;
     font-weight: 600;
-    transition: color var(--Capitulo-transition-speed);
+    transition: color var(--biblioteca-transition-speed), text-shadow var(--biblioteca-transition-speed);
 }
 
     .capitulo-a:hover {
-        color: var(--Capitulo-primary-purple);
-        text-shadow: 0 2px 8px rgba(160, 132, 238, 0.12);
+        color: var(--acc-brand-600);
+        text-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 12%, transparent);
     }
 
+/* Navegación interna / secciones */
 .capitulo-nav {
     margin: 1.7rem 0;
     padding: 1.1rem;
-    background: linear-gradient(90deg, var(--Capitulo-tertiary-dark) 80%, var(--Capitulo-hover-dark) 100%);
+    background: linear-gradient(90deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-hover-dark) 100%);
     border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(160, 132, 238, 0.07);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
+    border: 1px solid var(--biblioteca-border-color);
 }
 
 .capitulo-section {
     margin: 2.5rem 0;
     padding: 2rem 1.5rem;
-    background: linear-gradient(120deg, var(--Capitulo-tertiary-dark) 80%, var(--Capitulo-secondary-dark) 100%);
+    background: none; /*linear-gradient(120deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-secondary-dark) 100%);*/
     border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(160, 132, 238, 0.07);
-    transition: background 0.5s;
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
+    transition: background .5s;
+    border: 2px solid var(--biblioteca-border-color);
 }
 
 .capitulo-span {
-    color: var(--Capitulo-primary-blue);
+    color: var(--biblioteca-primary-blue);
     font-weight: 600;
 }
 
+/* Medios */
 .capitulo-img {
     max-width: 100%;
     border-radius: 10px;
     margin: 1.2rem 0;
-    box-shadow: 0 2px 16px rgba(160, 132, 238, 0.10);
+    box-shadow: 0 2px 16px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
     display: block;
-    border: 2px solid var(--Capitulo-primary-purple);
-    transition: border 0.3s;
+    border: 2px solid var(--acc-brand-600);
+    transition: border .3s;
 }
 
     .capitulo-img:hover {
-        border: 2px solid var(--Capitulo-accent-cyan);
+        border: 2px solid var(--cap-accent-cyan);
     }
 
 .capitulo-figure {
@@ -257,9 +265,9 @@
 }
 
 .capitulo-figcaption {
-    color: var(--Capitulo-text-gray);
+    color: var(--biblioteca-text-gray);
     font-size: 1rem;
-    margin-top: 0.7rem;
+    margin-top: .7rem;
     font-style: italic;
 }
 
@@ -267,40 +275,39 @@
     max-width: 100%;
     border-radius: 10px;
     margin: 2rem 0;
-    background: var(--Capitulo-tertiary-dark);
+    background: var(--biblioteca-tertiary-dark);
     display: block;
-    box-shadow: 0 2px 12px rgba(160, 132, 238, 0.10);
+    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
+    border: 1px solid var(--biblioteca-border-color);
 }
 
+/* Modo lectura */
 .modo-lectura-btn {
     right: 1rem;
     z-index: 1000;
-    background: linear-gradient(90deg, var(--Capitulo-secondary-purple), var(--Capitulo-primary-blue));
-    color: white;
+    background: linear-gradient(90deg, var(--biblioteca-secondary-purple), var(--biblioteca-primary-blue));
+    color: #fff;
     border: none;
-    padding: 0.7rem 1.2rem;
+    padding: .7rem 1.2rem;
     border-radius: 8px;
     cursor: pointer;
-    font-family: Nunito, sans-serif;
+    font-family: Nunito, system-ui, sans-serif;
     font-size: 1rem;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba(160, 132, 238, 0.10);
-    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
+    transition: background .3s, box-shadow .3s;
 }
 
     .modo-lectura-btn:hover {
-        background: linear-gradient(90deg, var(--Capitulo-primary-blue), var(--Capitulo-secondary-purple));
-        box-shadow: 0 4px 16px rgba(160, 132, 238, 0.18);
+        background: linear-gradient(90deg, var(--biblioteca-primary-blue), var(--biblioteca-secondary-purple));
+        box-shadow: 0 4px 16px color-mix(in srgb, var(--acc-brand-600) 18%, transparent);
     }
 
 .modo-lectura-activa {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
     overflow-y: auto;
-    background: var(--Capitulo-primary-dark);
+    background: var(--biblioteca-primary-dark);
     z-index: 10000;
     padding: 1.5rem;
     border-radius: 0 !important;
@@ -320,21 +327,21 @@
     .modo-lectura-activa .capitulo-p {
         font-size: 1.2rem;
         line-height: 1.8;
-        color: var(--Capitulo-text-white);
+        color: var(--biblioteca-text-white);
     }
 
     .modo-lectura-activa .capitulo-h1 {
         font-size: 2.2rem;
-        color: var(--Capitulo-secondary-purple);
+        color: var(--biblioteca-secondary-purple);
     }
 
     .modo-lectura-activa .capitulo-h2 {
-        color: var(--Capitulo-primary-purple);
+        color: var(--acc-brand-600);
         font-size: 1.6rem;
     }
 
     .modo-lectura-activa .capitulo-h3 {
-        color: var(--Capitulo-secondary-blue);
+        color: var(--biblioteca-secondary-blue);
         font-size: 1.3rem;
     }
 
@@ -343,44 +350,59 @@
         line-height: 1.8;
     }
 
+/* Selección de texto coherente con el tema */
 ::selection {
-    background-color: var(--Capitulo-secondary-purple);
-    color: white;
+    background-color: var(--biblioteca-secondary-purple);
+    color: #fff;
 }
+/*
+    .capitulo-section {
+    margin: 2.5rem 0;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(120deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-secondary-dark) 100%);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px
+    color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
+    transition: background .5s;
+    border: 2.5px solid var(--biblioteca-border-color);
+*/
 
+
+/* Responsive */
 @media (max-width: 900px) {
     .contenido-capitulo {
-        padding: 1.2rem 0.5rem;
+        padding: 1.2rem .5rem;
     }
 
     .capitulo-section {
-        padding: 1.2rem 0.5rem;
+        padding: 1.2rem .5rem;
     }
 }
 
 @media (max-width: 600px) {
     .contenido-capitulo {
-        padding: 0.5rem 0.1rem;
+        padding: .5rem .1rem;
         border-radius: 0;
     }
 
     .capitulo-section {
-        padding: 0.7rem 0.2rem;
-        border-radius: 0;
+        padding: .7rem .2rem;
+        /*border-radius: 0;*/
+        border:none; 
     }
 
     .capitulo-h2 {
         font-size: 1.1rem;
-        padding-left: 0.5rem;
+        padding-left: .5rem;
     }
 
     .capitulo-h3 {
         font-size: 1rem;
     }
 
-    .capitulo-p,
-    .capitulo-ul,
-    .capitulo-ol {
-        font-size: 0.97rem;
+    .capitulo-p, .capitulo-ul, .capitulo-ol {
+        font-size: .97rem;
     }
 }
+
+/*.capitulo-section*/

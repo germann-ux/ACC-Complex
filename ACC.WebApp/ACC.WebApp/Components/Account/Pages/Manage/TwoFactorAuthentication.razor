@@ -10,9 +10,8 @@
 @inject IdentityRedirectManager RedirectManager
 
 <PageTitle>Autenticación de Dos Factores (2FA)</PageTitle>
-
     <div class="biblioteca-doc-item" style="max-width: 500px; margin: 40px auto;">
-        <div class="biblioteca-doc-header">
+        <div class="cuentas-doc-header">
             <h3 class="biblioteca-section-title">Autenticación de Dos Factores (2FA)</h3>
         </div>
         <section class="biblioteca-doc-content">
@@ -54,8 +53,8 @@
                     <a href="Account/Manage/Disable2fa" class="biblioteca-btn-completar-subtema">Desactivar 2FA</a>
                     <a href="Account/Manage/GenerateRecoveryCodes" class="biblioteca-btn-completar-subtema">Restablecer códigos de recuperación</a>
                 }
-
                 <h4 class="biblioteca-section-title" style="font-size:1.1rem;">Aplicación de autenticación</h4>
+                <br />
                 @if (!hasAuthenticator)
                 {
                     <a href="Account/Manage/EnableAuthenticator" class="biblioteca-btn-completar-subtema">Agregar aplicación de autenticación</a>
@@ -65,7 +64,7 @@
                     <a href="Account/Manage/EnableAuthenticator" class="biblioteca-btn-completar-subtema">Configurar aplicación de autenticación</a>
                     <br />
                     <br />
-                    <a href="Account/Manage/ResetAuthenticator" class="biblioteca-btn-completar-subtema">Restablecer aplicación de autenticación</a>
+                    <a href="Account/Manage/ResetAuthenticator" class="biblioteca-btn-completar-subtema">Restaurar aplicación de autenticación</a>
                 }
             }
             else

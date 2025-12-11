@@ -1,49 +1,125 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using ACC.WebApp.Data;
+﻿@*@using Microsoft.AspNetCore.Identity
+    @using ACC.WebApp.Data;
 
+    @inject SignInManager<ApplicationUser> SignInManager
+
+    <nav class="biblioteca-nav-tabs-container">
+        <div class="biblioteca-nav-tabs">
+            <NavLink class="biblioteca-nav-tab" href="Account/Manage" Match="NavLinkMatch.All">
+                <span class="biblioteca-nav-tab-icon"><i class="fas fa-user"></i></span>
+                <span class="biblioteca-nav-tab-label">Perfil</span>
+            </NavLink>
+            <NavLink class="biblioteca-nav-tab" href="Account/Manage/Email">
+                <span class="biblioteca-nav-tab-icon"><i class="fas fa-envelope"></i></span>
+                <span class="biblioteca-nav-tab-label">Correo</span>
+            </NavLink>
+            <NavLink class="biblioteca-nav-tab" href="Account/Manage/ChangePassword">
+                <span class="biblioteca-nav-tab-icon"><i class="fas fa-key"></i></span>
+                <span class="biblioteca-nav-tab-label">Cambiar Contraseña</span>
+            </NavLink>
+            @if (hasExternalLogins)
+            {
+                <NavLink class="biblioteca-nav-tab" href="Account/Manage/ExternalLogins">
+                    <span class="biblioteca-nav-tab-icon"><i class="fas fa-external-link-alt"></i></span>
+                    <span class="biblioteca-nav-tab-label">Inicios de Sesión Externos</span>
+                </NavLink>
+            }
+            <NavLink class="biblioteca-nav-tab" href="Account/Manage/TwoFactorAuthentication">
+                <span class="biblioteca-nav-tab-icon"><i class="fas fa-shield-alt"></i></span>
+                <span class="biblioteca-nav-tab-label">Autenticación de Dos Factores</span>
+            </NavLink>
+            <NavLink class="biblioteca-nav-tab" href="Account/Manage/PersonalData">
+                <span class="biblioteca-nav-tab-icon"><i class="fas fa-id-card"></i></span>
+                <span class="biblioteca-nav-tab-label">Datos Personales</span>
+            </NavLink>
+            <NavLink class="biblioteca-nav-tab" href="Account/rol/Verificar">
+                <span class="biblioteca-nav-tab-icon"><i class="fas fa-user-tag"></i></span>
+                <span class="biblioteca-nav-tab-label">Asignar Roles</span>
+            </NavLink>
+        </div>
+    </nav>
+
+    @code {
+        private bool hasExternalLogins;
+
+        protected override async Task OnInitializedAsync()
+        {
+            hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+        }
+    }*@
+
+@using Microsoft.AspNetCore.Identity
+@using ACC.WebApp.Data
 @inject SignInManager<ApplicationUser> SignInManager
+@*<nav class="nav" aria-label="Secciones de cuenta">
+        <NavLink class="account-link" href="Account/Manage" Match="NavLinkMatch.All">
+            <i class="fas fa-user"></i><span>Perfil</span>
+        </NavLink>
 
-<nav class="biblioteca-nav-tabs-container">
-    <div class="biblioteca-nav-tabs">
-        <NavLink class="biblioteca-nav-tab" href="Account/Manage" Match="NavLinkMatch.All">
-            <span class="biblioteca-nav-tab-icon"><i class="fas fa-user"></i></span>
-            <span class="biblioteca-nav-tab-label">Perfil</span>
+        <NavLink class="account-link" href="Account/Manage/Email">
+            <i class="fas fa-envelope"></i><span>Correo</span>
         </NavLink>
-        <NavLink class="biblioteca-nav-tab" href="Account/Manage/Email">
-            <span class="biblioteca-nav-tab-icon"><i class="fas fa-envelope"></i></span>
-            <span class="biblioteca-nav-tab-label">Correo</span>
+
+        <NavLink class="account-link" href="Account/Manage/ChangePassword">
+            <i class="fas fa-key"></i><span>Cambiar Contraseña</span>
         </NavLink>
-        <NavLink class="biblioteca-nav-tab" href="Account/Manage/ChangePassword">
-            <span class="biblioteca-nav-tab-icon"><i class="fas fa-key"></i></span>
-            <span class="biblioteca-nav-tab-label">Cambiar Contraseña</span>
-        </NavLink>
+
         @if (hasExternalLogins)
         {
-            <NavLink class="biblioteca-nav-tab" href="Account/Manage/ExternalLogins">
-                <span class="biblioteca-nav-tab-icon"><i class="fas fa-external-link-alt"></i></span>
-                <span class="biblioteca-nav-tab-label">Inicios de Sesión Externos</span>
+            <NavLink class="account-link" href="Account/Manage/ExternalLogins">
+                <i class="fas fa-external-link-alt"></i><span>Inicios de Sesión Externos</span>
             </NavLink>
         }
-        <NavLink class="biblioteca-nav-tab" href="Account/Manage/TwoFactorAuthentication">
-            <span class="biblioteca-nav-tab-icon"><i class="fas fa-shield-alt"></i></span>
-            <span class="biblioteca-nav-tab-label">Autenticación de Dos Factores</span>
+
+        <NavLink class="account-link" href="Account/Manage/TwoFactorAuthentication">
+            <i class="fas fa-shield-alt"></i><span>Autenticación de Dos Factores</span>
         </NavLink>
-        <NavLink class="biblioteca-nav-tab" href="Account/Manage/PersonalData">
-            <span class="biblioteca-nav-tab-icon"><i class="fas fa-id-card"></i></span>
-            <span class="biblioteca-nav-tab-label">Datos Personales</span>
+
+        <NavLink class="account-link" href="Account/Manage/PersonalData">
+            <i class="fas fa-id-card"></i><span>Datos Personales</span>
         </NavLink>
-        <NavLink class="biblioteca-nav-tab" href="Account/rol/Verificar">
-            <span class="biblioteca-nav-tab-icon"><i class="fas fa-user-tag"></i></span>
-            <span class="biblioteca-nav-tab-label">Asignar Roles</span>
+
+        <NavLink class="account-link" href="Account/rol/Verificar">
+            <i class="fas fa-user-tag"></i><span>Asignar Roles</span>
         </NavLink>
-    </div>
+    </nav>*@
+
+<nav class="nav nav-pills flex-column gap-2" aria-label="Secciones de cuenta">
+    <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">
+        <i class="fas fa-user me-2"></i><span>Perfil</span>
+    </NavLink>
+
+    <NavLink class="nav-link" href="Account/Manage/Email">
+        <i class="fas fa-envelope me-2"></i><span>Correo</span>
+    </NavLink>
+
+    <NavLink class="nav-link" href="Account/Manage/ChangePassword">
+        <i class="fas fa-key me-2"></i><span>Cambiar Contraseña</span>
+    </NavLink>
+
+    @if (hasExternalLogins)
+    {
+        <NavLink class="nav-link" href="Account/Manage/ExternalLogins">
+            <i class="fas fa-external-link-alt me-2"></i><span>Inicios de Sesión Externos</span>
+        </NavLink>
+    }
+
+    <NavLink class="nav-link" href="Account/Manage/TwoFactorAuthentication">
+        <i class="fas fa-shield-alt me-2"></i><span>Autenticación de Dos Factores</span>
+    </NavLink>
+
+    <NavLink class="nav-link" href="Account/Manage/PersonalData">
+        <i class="fas fa-id-card me-2"></i><span>Datos Personales</span>
+    </NavLink>
+
+    <NavLink class="nav-link" href="Account/rol/Verificar">
+        <i class="fas fa-user-tag me-2"></i><span>Asignar Roles</span>
+    </NavLink>
 </nav>
+
 
 @code {
     private bool hasExternalLogins;
-
     protected override async Task OnInitializedAsync()
-    {
-        hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
-    }
+        => hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }

@@ -1,0 +1,125 @@
+﻿@page "/Guia"
+@rendermode InteractiveServer
+
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Services
+@using ACC.Shared.DTOs
+
+@inject NavegacionContenidoClient Navegacion
+@inject ExamenesServiceClient ExamenesService
+
+@code {
+    // Evita nulos desde el primer render
+    private List<NodoJerarquicoDto> modulos = new();
+    private List<ExamenSubModuloDto> examenesSubM = new();
+    private List<ExamenModuloDto> examenesMod = new();
+
+    private int? moduloSeleccionadoId;
+
+    // Estados de carga / error
+    private bool loadingModulos;
+    private bool loadingExamenes;
+    private string? errorModulos;
+    private string? errorExamenes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loadingModulos = true;
+        loadingExamenes = true;
+
+        try
+        {
+            // Carga paralela: módulos + (exámenes submódulo + módulo)
+            var modulosTask = Navegacion.ObtenerModulosAsync();
+            var subTask = ExamenesService.ObtenerExamanesSubMAsync(); // ojo al nombre aquí
+            var modTask = ExamenesService.ObtenerExamenesModAsync();
+
+            await Task.WhenAll(modulosTask, subTask, modTask);
+
+            modulos = modulosTask.Result ?? new();
+            examenesSubM = subTask.Result ?? new();
+            examenesMod = modTask.Result ?? new();
+        }
+        catch (Exception ex)
+        {
+            // Divide y vencerás: deja rastros distintos
+            if (modulos.Count == 0) errorModulos = ex.Message;
+            errorExamenes = ex.Message;
+        }
+        finally
+        {
+            loadingModulos = false;
+            loadingExamenes = false;
+        }
+    }
+
+    private void SeleccionarModulo(int idModulo)
+    {
+        moduloSeleccionadoId = idModulo;
+        // Más adelante: aquí puedes disparar carga específica por submódulo si lo deseas
+        // await CargarExamenesDeSubmoduloAsync(idSubModulo);
+    }
+}
+
+<div class="guia-navegador-container">
+    <h3 class="guia-navegador-title">Guía De Estudios</h3>
+    <p>Completa el contenido de cada modulo para adquirir conocimientos.</p>
+
+    @if (loadingModulos)
+    {
+        <p class="guia-navegador-loading">Cargando módulos...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorModulos))
+    {
+        <p class="error">No se pudieron cargar los módulos: @errorModulos</p>
+    }
+    else if (modulos.Count == 0)
+    {
+        <p>No hay módulos disponibles.</p>
+    }
+    else
+    {
+        @foreach (var modulo in modulos)
+        {
+            <div class="card">
+                <div class="modulo-card-title">
+                    @modulo?.Nombre <span></span>
+                </div>
+                <div class="modulo-card-desc">
+                    @modulo?.Descripcion
+                </div>
+                <button @onclick="() => SeleccionarModulo(modulo.Id)"
+                        class="guia-navegador-btn @(moduloSeleccionadoId == modulo.Id ? "selected" : "")">
+                    Navegar
+                </button>
+            </div>
+        }
+    }
+
+    @if (moduloSeleccionadoId.HasValue)
+    {
+        <GuiaMainComponent Tipo="@TipoNodoJerarquico.Modulo.ToString()" Id="@moduloSeleccionadoId.Value" />
+    }
+
+    @if (loadingExamenes)
+    {
+        <p>cargando exámenes...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorExamenes))
+    {
+        <p class="error">No se pudieron cargar los exámenes: @errorExamenes</p>
+    }
+    else
+    {
+        @* Renderiza sólo si hay data; si tu componente tolera lista vacía, puedes omitir estas guardas *@
+        @if (examenesMod.Count > 0)
+        {
+            <ExamenesMain ExamenesModulo="@examenesMod" />
+        }
+        @if (examenesSubM.Count > 0)
+        {
+            <ExamenesMain ExamenesSubModulo="@examenesSubM" />
+        }
+    }
+</div>

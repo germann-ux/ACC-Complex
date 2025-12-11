@@ -14,7 +14,6 @@
 @inject ILogger<EnableAuthenticator> Logger
 
 <PageTitle>Configurar aplicación de autenticación</PageTitle>
-
 @if (recoveryCodes is not null)
 {
     <ShowRecoveryCodes RecoveryCodes="recoveryCodes.ToArray()" StatusMessage="@message" />
@@ -25,7 +24,7 @@ else
     <h3>Configurar aplicación de autenticación</h3>
     <div style="color:white">
         <p>Para usar una aplicación de autenticación, sigue los siguientes pasos:</p>
-        <ol class="list">
+        <ol>
             <li>
                 <p>
                     Descarga una aplicación de autenticación de dos factores como Microsoft Authenticator para

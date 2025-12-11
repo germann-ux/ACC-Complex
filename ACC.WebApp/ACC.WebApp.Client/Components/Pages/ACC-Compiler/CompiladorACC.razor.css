@@ -1,0 +1,237 @@
+﻿/* ======================================================
+   ACC — Compiler (unificado al tema global)
+   - Superficies: --biblioteca-secondary-dark
+   - Acentos: --acc-brand-600
+   ====================================================== */
+
+/* Fuentes (si no están ya globales) */
+@font-face {
+    font-family: 'Graduate';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 500;
+    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0100-02BA;
+    font-display: swap;
+}
+
+/* Contenedor principal */
+.compiler-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: var(--biblioteca-secondary-dark);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius);
+    box-shadow: var(--acc-shadow);
+    color: var(--biblioteca-text-gray);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Título */
+.compiler-title {
+    margin-bottom: 1.5rem;
+    color: var(--acc-brand-600);
+    font-size: 1.7rem;
+    font-weight: 800;
+    font-family: Nunito, system-ui, sans-serif;
+}
+
+/* Etiquetas */
+.compiler-label {
+    display: block;
+    margin: 1rem 0 .5rem;
+    font-family: Nunito, system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--biblioteca-text-white);
+}
+
+/* Inputs de texto */
+.compiler-textarea-input,
+.compiler-textarea {
+    width: 100%;
+    background-color: var(--biblioteca-tertiary-dark);
+    color: var(--biblioteca-text-white);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius-sm);
+    padding: .5rem .6rem;
+    resize: none;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    transition: border-color var(--biblioteca-transition-speed), box-shadow var(--biblioteca-transition-speed);
+}
+
+.compiler-textarea-input {
+    height: 20rem;
+}
+
+.compiler-textarea {
+    height: 120px;
+}
+
+    .compiler-textarea-input:focus,
+    .compiler-textarea:focus {
+        outline: none;
+        border-color: var(--acc-brand-600);
+        box-shadow: var(--acc-focus);
+    }
+
+/* Botón ejecutar/compilar */
+.compiler-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 1rem 0 1rem;
+    padding: .8rem 1.5rem;
+    background-color: var(--acc-brand-600);
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: var(--acc-radius-sm);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color var(--biblioteca-transition-speed), box-shadow var(--biblioteca-transition-speed), transform .05s ease-in-out;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 12%, transparent);
+}
+
+    .compiler-button:hover {
+        background-color: var(--biblioteca-secondary-purple);
+    }
+
+    .compiler-button:active {
+        transform: translateY(1px);
+    }
+
+/* Salida */
+.compiler-output {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: var(--biblioteca-tertiary-dark);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius-sm);
+}
+
+.compiler-output-title {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-family: Nunito, system-ui, sans-serif;
+    color: var(--biblioteca-text-white);
+}
+
+.compiler-output-box {
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    color: var(--biblioteca-text-gray);
+}
+
+/* CodeMirror (editor) */
+.CodeMirror {
+    height: auto !important;
+    min-height: 300px !important;
+    border: 1px solid var(--biblioteca-border-color) !important;
+    border-radius: var(--acc-radius-sm) !important;
+    background: var(--biblioteca-tertiary-dark) !important;
+    color: var(--biblioteca-text-white) !important;
+}
+
+    .CodeMirror .cm-s-default,
+    .CodeMirror pre {
+        color: var(--biblioteca-text-white) !important;
+    }
+
+.CodeMirror-focused {
+    outline: none !important;
+    box-shadow: var(--acc-focus) !important;
+}
+
+.CodeMirror-gutters {
+    background: var(--biblioteca-tertiary-dark) !important;
+    border-right: 1px solid var(--biblioteca-border-color) !important;
+}
+
+.CodeMirror-cursor {
+    border-left: 2px solid var(--biblioteca-text-white) !important;
+}
+
+/* Barra de opciones */
+.options-container,
+.compiler-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem; /* reemplaza gaps gigantes no responsivos */
+    flex-wrap: wrap; /* permite salto en móviles */
+    margin-bottom: 1rem;
+}
+
+.compiler-select-container {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.compiler-select {
+    width: 100%;
+    max-width: 260px;
+    padding: .55rem .7rem;
+    font-size: 1rem;
+    font-family: Nunito, system-ui, sans-serif;
+    background-color: var(--biblioteca-tertiary-dark);
+    color: var(--biblioteca-text-white);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius-sm);
+    appearance: none;
+    cursor: pointer;
+    transition: background-color var(--biblioteca-transition-speed), border-color var(--biblioteca-transition-speed), box-shadow var(--biblioteca-transition-speed);
+}
+
+    .compiler-select:hover {
+        background-color: var(--biblioteca-hover-dark);
+        border-color: var(--acc-brand-600);
+    }
+
+    .compiler-select:focus {
+        outline: none;
+        border-color: var(--acc-brand-600);
+        box-shadow: var(--acc-focus);
+        background-color: color-mix(in srgb, var(--biblioteca-tertiary-dark) 85%, black);
+    }
+
+    .compiler-select option {
+        background-color: var(--biblioteca-tertiary-dark);
+        color: var(--biblioteca-text-white);
+    }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .compiler-container {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .compiler-title {
+        font-size: 1.4rem;
+    }
+
+    .compiler-select {
+        max-width: 100%;
+    }
+}
+
+/* Selección coherente con el tema */
+.compiler-container ::selection {
+    background-color: var(--biblioteca-secondary-purple);
+    color: #fff;
+}
+
+/* (Compat) fuerza monoespaciada si hay estilos anteriores en cascada */
+.compiler-textarea {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace !important;
+}

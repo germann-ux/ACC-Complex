@@ -53,23 +53,26 @@ namespace ACC.API.Services
                 return ServiceResult<TareaPersonalDto>.Error(ex);// se retorna el mensaje de la exeption
             }
         }
-
-        // Borrar una tarea personal por el id del usuario
+        /// <summary>
+        /// Metodo para eliminar una tarea personal por el id de la tarea y el id del usuario
+        /// </summary>
+        /// <param name="tareaPersonalId"></param>
+        /// <param name="UserId"></param>
+        /// <returns></returns>
         public async Task<ServiceResult<bool>> DeleteTareaPersonalAsync(int tareaPersonalId, string UserId)
         {
             try
             {
-                // Se busca la tarea personal por el id de la tarea y el id del usuario
                 var tareaPersonal = await dbContext.TareasPersonales.FirstOrDefaultAsync(t => t.TareaPersonalId == tareaPersonalId && t.IdUsuario == UserId);
-                // validacion para verificar si la tarea personal fue encontrada o no existe
                 if (tareaPersonal == null)
                 {
                     return ServiceResult<bool>.Fail("La tarea personal no fue encontrada.");
                 }
+
                 // Se elimina la tarea personal de la base de datos
                 dbContext.TareasPersonales.Remove(tareaPersonal);
-                await dbContext.SaveChangesAsync(); // se espera a guardar los cambios de manera asincrona
-                return ServiceResult<bool>.Ok(true);// se retorna el mensaje de exito
+                await dbContext.SaveChangesAsync();
+                return ServiceResult<bool>.Ok(true);
             }
             catch (Exception ex)
             {

@@ -1,0 +1,237 @@
+﻿@*@page "/"
+    @layout LandingPageLayout*@
+
+@*<div class="landing-page">
+        <div class="hero-section">
+            <h1>Bienvenido a ACC - Aprendiendo C# con Charp</h1>
+            <p>Crea una cuenta o inicia sesión en una cuenta ya existente.</p>
+        </div>
+
+        <div class="actions">
+            <a href="/Account/Login" class="button">Iniciar Sesión</a>
+            <a href="/Account/Register" class="button button-secondary">Crear una Cuenta</a>
+        </div>
+
+        <div class="features">
+            <ul>
+                <li>Educación enfocada en C#.</li>
+                <li>Interfaz amigable y fácil de usar.</li>
+                <li>Contenido educativo de calidad.</li>
+                <li>Soporte integral para docentes.</li>
+                <li>Charp, tu asistente virtual personalizado.</li>
+                <li>Prácticas interactivas y dinámicas.</li>
+                <li>Seguimiento del progreso y estadísticas.</li>
+            </ul>
+        </div>
+
+        <div class="faq">
+            <h2>Preguntas Frecuentes</h2>
+            <ul>
+                <li><strong>¿Es ACC adecuado para principiantes?</strong> Sí, ACC está diseñado tanto para principiantes como para usuarios avanzados.</li>
+                <li><strong>¿Charp puede ayudarme con proyectos específicos?</strong> Sí, Charp está diseñado para guiarte en prácticas personalizadas y resolver tus dudas.</li>
+                <li><strong>¿Es necesario instalar algún software?</strong> No, ACC es completamente online y accesible desde cualquier dispositivo.</li>
+            </ul>
+        </div>
+
+        <div class="cta-final">
+            <h2>¿Listo para comenzar tu viaje con ACC?</h2>
+            <p>Crea tu cuenta hoy mismo y empieza a aprender con Charp, tu asistente virtual para dominar C#.</p>
+            <a href="/Account/Register" class="button">Crear una Cuenta</a>
+        </div>
+    </div>*@
+
+@page "/"
+@rendermode InteractiveServer
+@layout LandingPageLayout
+@using Microsoft.AspNetCore.Components.Authorization
+
+@if (_redirigiendo)
+{
+    <p>Cargando tu resumen...</p>
+}
+else
+{
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <body>
+        <!-- Barra de navegación -->
+        <header>
+            <div class="container nav-container">
+                <div class="logo-container">
+                    <img src="ACC_icono.webp" alt="Charp Mascot" width="40" height="40">
+                    <div class="logo-text">ACC</div>
+                </div>
+                <nav class="nav-links">
+                    <a href="javascript:void(0)" class="nav-link">Inicio</a>
+                    <a href="javascript:void(0)" class="nav-link">Cursos</a>
+                    <a href="javascript:void(0)" class="nav-link">Recursos</a>
+                    <a href="javascript:void(0)" class="nav-link">Contacto</a>
+                </nav>
+                <button class="mobile-menu-btn" id="mobile-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero section -->
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="container hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Bienvenido a ACC<br>Aprendiendo C# con Charp</h1>
+                    <p class="hero-subtitle">Crea una cuenta o inicia sesión en una cuenta ya existente.</p>
+                    <div class="cta-buttons">
+                        <a href="/Account/Login" class="btn btn-primary">Iniciar Sesión</a>
+                        <a href="/Account/Register" class="btn btn-secondary">Crear una Cuenta</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="./Images/charp.webp" alt="Charp Mascot" class="hero-mascot">
+                </div>
+            </div>
+        </section>
+
+        <!-- Características -->
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Características de ACC</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fa-solid fa-code feature-icon"></i>
+                        <h3 class="feature-title">Educación enfocada en C#</h3>
+                        <p>Cursos especializados para dominar el lenguaje más versátil de Microsoft.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-user-interface feature-icon"></i>
+                        <h3 class="feature-title">Interfaz amigable</h3>
+                        <p>Plataforma intuitiva y fácil de usar para todos los niveles de aprendizaje.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-book feature-icon"></i>
+                        <h3 class="feature-title">Contenido educativo de calidad</h3>
+                        <p>Material cuidadosamente seleccionado y actualizado por expertos en C#.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-chalkboard-teacher feature-icon"></i>
+                        <h3 class="feature-title">Soporte integral para docentes</h3>
+                        <p>Herramientas y recursos para educadores que quieren implementar C# en sus clases.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-robot feature-icon"></i>
+                        <h3 class="feature-title">Charp, tu asistente virtual</h3>
+                        <p>Acompañamiento personalizado para resolver dudas y guiar tu aprendizaje.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-laptop-code feature-icon"></i>
+                        <h3 class="feature-title">Prácticas interactivas</h3>
+                        <p>Ejercicios dinámicos para aplicar lo aprendido en entornos reales.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-chart-line feature-icon"></i>
+                        <h3 class="feature-title">Seguimiento del progreso</h3>
+                        <p>Estadísticas detalladas para monitorear tu avance y mejorar constantemente.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preguntas Frecuentes -->
+        <section class="faq">
+            <div class="container">
+                <h2 class="section-title">Preguntas Frecuentes</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Es ACC adecuado para principiantes?</span>
+                            <i class="fa-solid fa-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, ACC está diseñado tanto para principiantes como para usuarios avanzados. Ofrecemos rutas de aprendizaje personalizadas según tu nivel de experiencia.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Charp puede ayudarme con proyectos específicos?</span>
+                            <i class="fa-solid fa-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Sí, Charp está diseñado para guiarte en prácticas personalizadas y resolver tus dudas específicas sobre tus proyectos en C#.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>¿Es necesario instalar algún software?</span>
+                            <i class="fa-solid fa-chevron-down faq-icon"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>No, ACC es completamente online y accesible desde cualquier dispositivo con conexión a internet. Nuestro IDE integrado te permite programar sin instalaciones adicionales.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="final-cta">
+            <div class="final-cta-bg"></div>
+            <div class="container final-cta-content">
+                <h2 class="final-cta-title">¿Listo para comenzar tu viaje con ACC?</h2>
+                <p class="final-cta-text">Crea tu cuenta hoy mismo y empieza a aprender con Charp, tu asistente virtual para dominar C#.</p>
+                <a href="/Account/Login" class="btn btn-primary">Crear una Cuenta</a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-logo">
+                    <i class="fa-solid fa-code"></i> ACC
+                </div>
+                <p class="footer-text">© 2025 Aprendiendo C# con Charp. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+
+        <script id="app-script">
+        // Manejar el menú móvil
+        document.getElementById('mobile-menu').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Manejar las preguntas frecuentes (acordeón)
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const faqItem = question.parentElement;
+
+                // Cerrar otras preguntas abiertas
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    if (item !== faqItem && item.classList.contains('active')) {
+                        item.classList.remove('active');
+                    }
+                });
+
+                // Toggle la pregunta actual
+                faqItem.classList.toggle('active');
+            });
+        });</script>
+    </body>
+}
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@code {
+    private bool estaAutenticado;
+    private bool _redirigiendo = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        estaAutenticado = auth.User.Identity?.IsAuthenticated ?? false;
+
+        if (estaAutenticado)
+        {
+            // redirige
+            _redirigiendo = true;
+            Navigation.NavigateTo("/Resumen", forceLoad: true);
+        }
+    }
+}

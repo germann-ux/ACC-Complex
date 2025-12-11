@@ -1,4 +1,4 @@
-using ACC.WebApp.Client.Pages;
+using ACC.WebApp.Client.Components.Pages;
 using ACC.WebApp.Components;
 using ACC.WebApp.Components.Account;
 using ACC.Shared.DTOs;
@@ -40,6 +40,10 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAu
 builder.Services.AddScoped<IRoleStateService, RoleStateService>();
 builder.Services.AddScoped<UsuarioSyncService>();
 builder.Services.AddScoped<NavegacionContenidoClient>();
+// --- Examenes:
+builder.Services.AddScoped<ExamenesServiceClient>();
+// Program.cs (WebApp)
+builder.Services.AddScoped<ClientCapitulosService>();
 
 // Cadenas de Conexión a base de datos de identidad // 
 

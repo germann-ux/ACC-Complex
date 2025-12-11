@@ -20,7 +20,7 @@ namespace ACC.Data.Entities
         public int SubTemaId { get; set; }
 
         [Required]
-        public DateTime Fecha { get; set; }
+        public DateTimeOffset Fecha { get; set; }
 
         public bool Completado { get; set; } = false;
 

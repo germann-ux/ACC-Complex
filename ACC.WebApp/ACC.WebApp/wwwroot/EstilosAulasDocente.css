@@ -1,103 +1,72 @@
-﻿/* ==========================================================================
-   DocenteGlobalCSS.css
-   Estilo profesional, moderno y diferenciado para plataforma docente
-   Paleta: Morados, azules, acentos frescos y detalles visuales
-   Variables personalizadas para AulaDocentes
-   ========================================================================== */
+﻿/* ======================================================
+   ACC — Docentes (AulaDocentes) — unificado al tema global
+   - Sin :root local; usa --biblioteca-* / --acc-*
+   - Superficies: --biblioteca-secondary-dark
+   - Acentos locales derivados del brand
+   ====================================================== */
 
-/* =========================
-   Variables de color global
-   ========================= */
-:root {
-    --AulaDocentes-primary-dark: #13131a;
-    --AulaDocentes-secondary-dark: #1a1a26;
-    --AulaDocentes-tertiary-dark: #23233a;
-    --AulaDocentes-hover-dark: #26263a;
-    --AulaDocentes-primary-purple: #6d4bc3;
-    --AulaDocentes-secondary-purple: #5a3ea6;
-    --AulaDocentes-primary-blue: #3d4e8c;
-    --AulaDocentes-secondary-blue: #2c365e;
-    --AulaDocentes-accent-cyan: #3ecfcf;
-    --AulaDocentes-accent-pink: #e05fa4;
-    --AulaDocentes-accent-yellow: #e6c94d;
-    --AulaDocentes-accent-green: #1bbfae;
-    --AulaDocentes-text-white: #f3f4f8;
-    --AulaDocentes-text-gray: #bfc4d1;
-    --AulaDocentes-border-color: #35354a;
-    --AulaDocentes-shadow: 0 4px 18px rgba(109, 75, 195, 0.07);
-    --AulaDocentes-transition-speed: 0.22s;
+/* Acentos locales (scopeados al contenedor) */
+.content .container-aulas {
+    --aulas-accent-cyan: color-mix(in srgb, var(--acc-brand-600) 12%, #3ecfcf);
+    --aulas-accent-pink: color-mix(in srgb, var(--acc-brand-600) 20%, #e05fa4);
+    --aulas-accent-yellow: color-mix(in srgb, var(--acc-brand-600) 12%, #e6c94d);
+    --aulas-accent-green: color-mix(in srgb, var(--acc-brand-600) 12%, #1bbfae);
+    --aulas-shadow: 0 4px 18px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
+    --aulas-transition: 0.22s;
 }
-
-/* =========================
-   Tipografía y base
-   ========================= */
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-}
-
-/*body {
-    margin: 0;
-    font-family: 'Nunito', 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(120deg, var(--AulaDocentes-primary-dark) 70%, var(--AulaDocentes-tertiary-dark) 100%);
-    color: var(--AulaDocentes-text-gray);
-    line-height: 1.7;
-    min-height: 100vh;
-}*/
 
 /* =========================
    Contenedor principal
    ========================= */
-.content .container-aulas{
+.content .container-aulas {
     max-width: 1100px;
     margin: 36px auto;
     padding: 0 24px;
-    background: rgba(26, 26, 38, 0.97);
+    background: color-mix(in srgb, var(--biblioteca-secondary-dark) 97%, transparent);
     border-radius: 18px;
-    box-shadow: var(--AulaDocentes-shadow);
-    border: 1.5px solid var(--AulaDocentes-border-color);
+    box-shadow: var(--aulas-shadow);
+    border: 1.5px solid var(--biblioteca-border-color);
+    color: var(--biblioteca-text-gray);
 }
 
 /* =========================
    Títulos y encabezados
    ========================= */
-.container-aulas
-h1,
-h2,
-h3,
-h4 {
-    font-family: 'Nunito', 'Segoe UI', Arial, sans-serif;
+.container-aulas h1,
+.container-aulas h2,
+.container-aulas h3,
+.container-aulas h4 {
+    font-family: Nunito, 'Segoe UI', Arial, sans-serif;
     font-weight: 700;
     margin-top: 0;
+    color: var(--biblioteca-text-white);
 }
+
 .container-aulas h2 {
-    color: var(--AulaDocentes-primary-purple);
+    color: var(--acc-brand-600);
     font-size: 1.5rem;
     margin-bottom: 18px;
-    letter-spacing: 0.01em;
+    letter-spacing: .01em;
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: .5em;
 }
 
     .container-aulas h2 i {
-        color: var(--AulaDocentes-primary-blue);
+        color: var(--biblioteca-primary-blue);
         font-size: 1.1em;
     }
 
 .container-aulas h3 {
-    color: var(--AulaDocentes-secondary-purple);
+    color: var(--biblioteca-secondary-purple);
     font-size: 1.15rem;
     margin-bottom: 12px;
 }
 
 .container-aulas strong {
-    color: var(--AulaDocentes-text-white);
+    color: var(--biblioteca-text-white);
     font-weight: 700;
-    letter-spacing: 0.01em;
+    letter-spacing: .01em;
 }
 
 /* =========================
@@ -105,15 +74,13 @@ h4 {
    ========================= */
 .container-aulas .tabs {
     display: flex;
-    margin-bottom: 22px;
-    border-bottom: 2px solid var(--AulaDocentes-border-color);
-    background: var(--AulaDocentes-tertiary-dark);
+    margin: 1rem 0 22px;
+    border-bottom: 2px solid var(--biblioteca-border-color);
+    background: var(--biblioteca-tertiary-dark);
     border-radius: 10px 10px 0 0;
     overflow-x: auto;
-    box-shadow: none;
     justify-content: space-around;
-    margin-top: 1rem;
-    /* Sin brillo ni sombra */
+    box-shadow: none;
 }
 
 .container-aulas .tab-button {
@@ -124,53 +91,51 @@ h4 {
     border-top-right-radius: 10px;
     margin-right: 6px;
     cursor: pointer;
-    color: var(--AulaDocentes-text-gray);
+    color: var(--biblioteca-text-gray);
     font-weight: 600;
     font-size: 1rem;
-    transition: background var(--AulaDocentes-transition-speed), color var(--AulaDocentes-transition-speed), box-shadow var(--AulaDocentes-transition-speed);
+    transition: background var(--aulas-transition), color var(--aulas-transition);
     position: relative;
     bottom: -2px;
     margin-bottom: 10px;
     outline: none;
     box-shadow: none;
-    /* Sin brillo ni sombra */
 }
 
     .container-aulas .tab-button i {
         margin-right: 7px;
-        color: var(--AulaDocentes-primary-purple);
+        color: var(--acc-brand-600);
         font-size: 1.1em;
     }
 
     .container-aulas .tab-button.active {
-        background: var(--AulaDocentes-secondary-dark);
-        color: var(--AulaDocentes-text-white);
-        box-shadow: none;
+        background: var(--biblioteca-secondary-dark);
+        color: var(--biblioteca-text-white);
         z-index: 2;
     }
 
     .container-aulas .tab-button:not(.active):hover {
-        background: var(--AulaDocentes-hover-dark);
-        color: var(--AulaDocentes-primary-purple);
+        background: var(--biblioteca-hover-dark);
+        color: var(--acc-brand-600);
     }
 
 /* =========================
    Cards y componentes
    ========================= */
 .container-aulas .card {
-    background: var(--AulaDocentes-secondary-dark);
-    border: 1.5px solid var(--AulaDocentes-border-color);
+    background: var(--biblioteca-secondary-dark);
+    border: 1.5px solid var(--biblioteca-border-color);
     border-radius: 14px;
-    padding: 32px 28px 24px 28px;
-    box-shadow: 0 2px 10px rgba(109, 75, 195, 0.04);
+    padding: 32px 28px 24px;
+    box-shadow: 0 2px 10px color-mix(in srgb, var(--acc-brand-600) 4%, transparent);
     display: none;
     margin-bottom: 28px;
-    transition: box-shadow 0.3s;
+    transition: box-shadow .3s;
 }
 
     .container-aulas .card.active {
         display: block;
-        animation: fadeInCard 0.5s;
+        animation: fadeInCard .5s;
     }
 
 @keyframes fadeInCard {
@@ -185,25 +150,25 @@ h4 {
     }
 }
 
-.container-aulas.card h2 {
+.container-aulas .card h2 {
     margin-top: 0;
     margin-bottom: 18px;
-    color: var(--AulaDocentes-primary-purple);
+    color: var(--acc-brand-600);
     font-size: 1.35rem;
     font-weight: 700;
-    letter-spacing: 0.01em;
+    letter-spacing: .01em;
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: .5em;
 }
 
-.container-aulas.card p {
+.container-aulas .card p {
     margin-bottom: 18px;
     font-size: 1.01rem;
-    color: var(--AulaDocentes-text-gray);
+    color: var(--biblioteca-text-gray);
 }
 
-.container-aulas.card button {
+.container-aulas .card button {
     margin-top: 8px;
 }
 
@@ -211,17 +176,17 @@ h4 {
    Botones generales
    ========================= */
 .container-aulas button {
-    background: linear-gradient(90deg, var(--AulaDocentes-primary-purple) 80%, var(--AulaDocentes-primary-blue) 100%);
-    color: var(--AulaDocentes-text-white);
+    background: linear-gradient(90deg, var(--acc-brand-600) 80%, var(--biblioteca-primary-blue) 100%);
+    color: var(--biblioteca-text-white);
     border: none;
     padding: 11px 22px;
     border-radius: 7px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
-    font-family: 'Nunito', sans-serif;
-    transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px rgba(109, 75, 195, 0.07);
+    font-family: Nunito, sans-serif;
+    transition: background .2s, box-shadow .2s;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
     outline: none;
 }
 
@@ -230,21 +195,21 @@ h4 {
     }
 
     .container-aulas button:hover,
-    .view-details-btn:hover {
-        background: linear-gradient(90deg, var(--AulaDocentes-primary-blue) 60%, var(--AulaDocentes-secondary-purple) 100%);
-        color: var(--AulaDocentes-accent-cyan);
-        box-shadow: 0 4px 16px rgba(109, 75, 195, 0.13);
+    .container-aulas .view-details-btn:hover {
+        background: linear-gradient(90deg, var(--biblioteca-primary-blue) 60%, var(--biblioteca-secondary-purple) 100%);
+        color: var(--aulas-accent-cyan);
+        box-shadow: 0 4px 16px color-mix(in srgb, var(--acc-brand-600) 13%, transparent);
     }
 
     .container-aulas button.secondary {
-        background: var(--AulaDocentes-tertiary-dark);
-        color: var(--AulaDocentes-text-gray);
-        border: 1.5px solid var(--AulaDocentes-border-color);
+        background: var(--biblioteca-tertiary-dark);
+        color: var(--biblioteca-text-gray);
+        border: 1.5px solid var(--biblioteca-border-color);
     }
 
         .container-aulas button.secondary:hover {
-            background: var(--AulaDocentes-hover-dark);
-            color: var(--AulaDocentes-primary-purple);
+            background: var(--biblioteca-hover-dark);
+            color: var(--acc-brand-600);
         }
 
 /* =========================
@@ -257,31 +222,36 @@ h4 {
 .container-aulas label {
     display: block;
     margin-bottom: 8px;
-    font-size: 0.97rem;
+    font-size: .97rem;
     font-weight: 600;
-    color: var(--AulaDocentes-primary-blue);
-    letter-spacing: 0.01em;
+    color: var(--biblioteca-primary-blue);
+    letter-spacing: .01em;
 }
 
 .container-aulas input[type="text"],
-textarea {
+.container-aulas textarea {
     width: 100%;
     padding: 13px;
-    background: var(--AulaDocentes-tertiary-dark);
-    color: var(--AulaDocentes-text-white);
-    border: 1.5px solid var(--AulaDocentes-border-color);
+    background: var(--biblioteca-tertiary-dark);
+    color: var(--biblioteca-text-white);
+    border: 1.5px solid var(--biblioteca-border-color);
     border-radius: 7px;
-    font-family: 'Nunito', sans-serif;
+    font-family: Nunito, sans-serif;
     font-size: 1rem;
     box-sizing: border-box;
-    transition: border-color var(--AulaDocentes-transition-speed), box-shadow var(--AulaDocentes-transition-speed);
+    transition: border-color var(--aulas-transition), box-shadow var(--aulas-transition);
 }
 
+    .container-aulas input[type="text"]::placeholder,
+    .container-aulas textarea::placeholder {
+        color: var(--biblioteca-text-gray);
+    }
+
     .container-aulas input[type="text"]:focus,
-    textarea:focus {
+    .container-aulas textarea:focus {
         outline: none;
-        border-color: var(--AulaDocentes-primary-purple);
-        box-shadow: 0 0 0 3px rgba(109, 75, 195, 0.13);
+        border-color: var(--acc-brand-600);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 13%, transparent);
     }
 
 .container-aulas textarea {
@@ -298,53 +268,48 @@ textarea {
 /* =========================
    Lista de estudiantes
    ========================= */
-.container-aulas.students-list {
+.container-aulas .students-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-    .container-aulas.students-list li {
+    .container-aulas .students-list li {
         padding: 15px 10px;
-        border-bottom: 1.5px solid var(--AulaDocentes-border-color);
+        border-bottom: 1.5px solid var(--biblioteca-border-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--AulaDocentes-tertiary-dark);
-        transition: background 0.2s, border-color 0.2s;
+        background: var(--biblioteca-tertiary-dark);
+        transition: background .2s, border-color .2s;
         border-radius: 7px;
         margin-bottom: 6px;
     }
 
-        .container-aulas.students-list li:last-child {
+        .container-aulas .students-list li:last-child {
             border-bottom: none;
         }
 
-        .container-aulas.students-list li:hover {
-            background: var(--AulaDocentes-hover-dark);
-            border-color: var(--AulaDocentes-primary-purple);
+        .container-aulas .students-list li:hover {
+            background: var(--biblioteca-hover-dark);
+            border-color: var(--acc-brand-600);
         }
 
-.container-aulas.student-info {
+.container-aulas .student-info {
     font-size: 1rem;
-    color: var(--AulaDocentes-text-white);
+    color: var(--biblioteca-text-white);
     font-weight: 500;
 }
 
-.container-aulas.view-details-btn {
-    background: linear-gradient(90deg, var(--AulaDocentes-primary-blue) 80%, var(--AulaDocentes-primary-purple) 100%);
+.container-aulas .view-details-btn {
+    background: linear-gradient(90deg, var(--biblioteca-primary-blue) 80%, var(--acc-brand-600) 100%);
     padding: 8px 16px;
-    font-size: 0.95rem;
+    font-size: .95rem;
     border-radius: 6px;
-    color: var(--AulaDocentes-text-white);
+    color: var(--biblioteca-text-white);
     font-weight: 600;
-    transition: background 0.2s, color 0.2s;
+    transition: background .2s, color .2s;
 }
-
-    .container-aulas.view-details-btn:hover {
-        background: linear-gradient(90deg, var(--AulaDocentes-secondary-purple) 80%, var(--AulaDocentes-primary-blue) 100%);
-        color: var(--AulaDocentes-accent-cyan);
-    }
 
 /* =========================
    Popup Detalles Estudiante
@@ -352,11 +317,8 @@ textarea {
 .overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(18, 18, 24, 0.88);
+    inset: 0;
+    background: rgba(18, 18, 24, .88);
     z-index: 999;
 }
 
@@ -366,63 +328,63 @@ textarea {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--AulaDocentes-secondary-dark);
-    border: 2.5px solid var(--AulaDocentes-primary-purple);
+    background: var(--biblioteca-secondary-dark);
+    border: 2.5px solid var(--acc-brand-600);
     border-radius: 14px;
     padding: 32px 36px;
-    box-shadow: 0 10px 32px rgba(109, 75, 195, 0.13);
+    box-shadow: 0 10px 32px color-mix(in srgb, var(--acc-brand-600) 13%, transparent);
     max-width: 520px;
     width: 95vw;
     z-index: 1000;
-    animation: fadeInCard 0.5s;
+    animation: fadeInCard .5s;
+    color: var(--biblioteca-text-gray);
 }
 
     .student-details-popup h2 {
-        color: var(--AulaDocentes-primary-purple);
+        color: var(--acc-brand-600);
         margin-bottom: 18px;
         font-size: 1.25rem;
         display: flex;
         align-items: center;
-        gap: 0.5em;
+        gap: .5em;
     }
 
     .student-details-popup p {
         margin-bottom: 10px;
         font-size: 1.01rem;
-        color: var(--AulaDocentes-text-gray);
+        color: var(--biblioteca-text-gray);
         display: flex;
         align-items: center;
-        gap: 0.5em;
+        gap: .5em;
     }
 
     .student-details-popup strong {
-        color: var(--AulaDocentes-primary-purple);
+        color: var(--acc-brand-600);
         font-weight: 600;
     }
 
-    .container-aulas.student-details-popup ul {
-        list-style: none;
-        padding-left: 0;
-        margin-top: 5px;
-        margin-bottom: 0;
-    }
+.container-aulas .student-details-popup ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 5px 0 0;
+}
 
-    .container-aulas.student-details-popup li {
-        padding: 5px 0;
-        font-size: 0.97rem;
-        color: var(--AulaDocentes-text-gray);
-        display: flex;
-        align-items: center;
-        gap: 0.5em;
-    }
+.container-aulas .student-details-popup li {
+    padding: 5px 0;
+    font-size: .97rem;
+    color: var(--biblioteca-text-gray);
+    display: flex;
+    align-items: center;
+    gap: .5em;
+}
 
-        .container-aulas.student-details-popup li::before {
-            content: "•";
-            color: var(--AulaDocentes-primary-purple);
-            margin-right: 8px;
-            font-size: 1.2em;
-            line-height: 1;
-        }
+    .container-aulas .student-details-popup li::before {
+        content: "•";
+        color: var(--acc-brand-600);
+        margin-right: 8px;
+        font-size: 1.2em;
+        line-height: 1;
+    }
 
 .close-button {
     position: absolute;
@@ -432,114 +394,111 @@ textarea {
     border: none;
     font-size: 1.7rem;
     cursor: pointer;
-    color: var(--AulaDocentes-text-gray);
+    color: var(--biblioteca-text-gray);
     padding: 5px;
     line-height: 1;
-    transition: color var(--AulaDocentes-transition-speed);
+    transition: color var(--aulas-transition);
 }
 
     .close-button:hover {
-        color: var(--AulaDocentes-primary-purple);
+        color: var(--acc-brand-600);
     }
 
 /* =========================
    Barra de progreso
    ========================= */
-.container-aulas.progress-info-container {
+.container-aulas .progress-info-container {
     display: flex;
     align-items: center;
     margin-bottom: 12px;
-    gap: 0.7em;
+    gap: .7em;
 }
 
-    .container-aulas.progress-info-container .progress-label {
+    .container-aulas .progress-info-container .progress-label {
         display: flex;
         align-items: center;
         margin-right: 10px;
         white-space: nowrap;
         font-weight: 600;
-        color: var(--AulaDocentes-primary-blue);
+        color: var(--biblioteca-primary-blue);
     }
 
-.container-aulas.progress-bar-container {
+.container-aulas .progress-bar-container {
     flex-grow: 1;
-    background: var(--AulaDocentes-hover-dark);
+    background: var(--biblioteca-hover-dark);
     border-radius: 8px;
     height: 18px;
     overflow: hidden;
-    box-shadow: 0 1px 6px rgba(109, 75, 195, 0.07);
+    box-shadow: 0 1px 6px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
 }
 
-.container-aulas.progress-bar {
+.container-aulas .progress-bar {
     height: 100%;
-    color: #f8fafc;
-    font-size: 0.85rem;
+    color: var(--biblioteca-text-white);
+    font-size: .85rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: width 0.5s, background 0.5s;
+    transition: width .5s, background .5s;
     border-radius: 8px;
-    letter-spacing: 0.03em;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    letter-spacing: .03em;
+    text-shadow: 0 1px 4px rgba(0,0,0,.18);
+    background: linear-gradient(90deg, var(--acc-brand-600), var(--biblioteca-primary-blue));
 }
 
 /* =========================
    Resumen Aula (Summary)
    ========================= */
-.container-aulas.summary-item {
-    background: var(--AulaDocentes-tertiary-dark);
+.container-aulas .summary-item {
+    background: var(--biblioteca-tertiary-dark);
     border-radius: 10px;
     padding: 18px 22px;
     margin-bottom: 18px;
-    box-shadow: 0 2px 8px rgba(109, 75, 195, 0.05);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 5%, transparent);
     display: flex;
     align-items: center;
     gap: 1.2em;
 }
 
-    .container-aulas.summary-item p {
+    .container-aulas .summary-item p {
         margin: 0;
         font-size: 1.05rem;
-        color: var(--AulaDocentes-text-white);
+        color: var(--biblioteca-text-white);
         display: flex;
         align-items: center;
-        gap: 0.7em;
+        gap: .7em;
     }
 
-    .container-aulas.summary-item .progress-bar-container {
+    .container-aulas .summary-item .progress-bar-container {
         width: 180px;
         margin-left: 10px;
         vertical-align: middle;
     }
 
-    .container-aulas.summary-item .progress-bar {
-        /* font-size: 0.95rem; */
-    }
-
 /* =========================
    Iconos y detalles visuales
    ========================= */
-.container-aulas.fas,
-.fa-solid {
+.container-aulas .fas,
+.container-aulas .fa-solid {
     min-width: 1.2em;
     text-align: center;
-    color: var(--AulaDocentes-primary-purple);
-    transition: color 0.2s;
+    color: var(--acc-brand-600);
+    transition: color .2s;
 }
 
-.container-aulas.students-list .fas.fa-user {
-    color: var(--AulaDocentes-accent-cyan);
+.container-aulas .students-list .fas.fa-user {
+    color: var(--aulas-accent-cyan);
     font-size: 1.2em;
 }
 
-.container-aulas.student-details-popup h2 .fas,
+.container-aulas .student-details-popup h2 .fas,
 .student-details-popup #studentDetailsContent .fas {
-    color: var(--AulaDocentes-primary-blue);
+    color: var(--biblioteca-primary-blue);
     margin-right: 8px;
 }
 
-.container-aulas.summary-item i {
+.container-aulas .summary-item i {
     font-size: 1.2em;
     margin-right: 10px;
 }
@@ -552,7 +511,7 @@ textarea {
         padding: 0 8px;
     }
 
-        .container-aulas.card,
+        .container-aulas .card,
         .student-details-popup {
             padding: 18px 8px;
         }
@@ -564,38 +523,34 @@ textarea {
         border-radius: 0;
     }
 
-        .container-aulas.card,
+        .container-aulas .card,
         .student-details-popup {
             padding: 10px 2px;
             border-radius: 0;
         }
 
-        .container-aulas.tabs {
+        .container-aulas .tabs {
             flex-wrap: wrap;
             border-radius: 0;
         }
 
-        .container-aulas.tab-button {
-            font-size: 0.97rem;
-            padding: 10px 10px;
+        .container-aulas .tab-button {
+            font-size: .97rem;
+            padding: 10px;
         }
 
-        .container-aulas.summary-item {
+        .container-aulas .summary-item {
             flex-direction: column;
             align-items: flex-start;
-            gap: 0.5em;
+            gap: .5em;
             padding: 10px 8px;
         }
 }
 
 /* =========================
-   Selección de texto
+   Selección de texto (scope)
    ========================= */
-.container-aulas::selection {
-    background: var(--AulaDocentes-secondary-purple);
-    color: var(--AulaDocentes-text-white);
+.container-aulas ::selection {
+    background: var(--biblioteca-secondary-purple);
+    color: var(--biblioteca-text-white);
 }
-
-/* ==========================================================================
-   Fin DocenteGlobalCSS.css
-   ========================================================================== */

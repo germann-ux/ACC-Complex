@@ -6,21 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ACC.Data.Entities
+namespace ACC.Data.Entities; 
+
+public class AulaEstudiante
 {
-    public class AulaEstudiante
-    {
-        [Required]
-        public int AulaId { get; set; } // Relación con Aula
+    public int AulaEstudianteId { get; set; }
+    public int AulaId { get; set; }
+    public string UsuarioId { get; set; } = null!;
+    public DateTime FechaInscripcion { get; set; } // UTC
 
-        [Required]
-        public string UsuarioId { get; set; } // Relación con Usuario
-
-        // Relaciones
-        [ForeignKey("AulaId")]
-        public Aula Aula { get; set; }
-
-        [ForeignKey("UsuarioId")]
-        public Usuario Usuario { get; set; }
-    }
+    public Aula Aula { get; set; } = null!;
+    public Usuario Usuario { get; set; } = null!;
 }

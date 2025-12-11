@@ -1,0 +1,25 @@
+﻿@page "/leccion/{Id:int}"
+
+@rendermode InteractiveServer
+@using ACC.WebApp.Client.Services
+@using ACC.Shared.DTOs
+@inject NavegacionContenidoClient Navegacion
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private LeccionDto? leccion;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        leccion = await Navegacion.ObtenerLeccionAsync(Id);
+    }
+}
+
+@if (leccion == null)
+{
+    <p>Cargando lección...</p>
+}
+else
+{
+    <LeccionCompleta Leccion="@leccion" />
+}

@@ -1,91 +1,85 @@
 ﻿using ACC.Shared.Core;
 using ACC.Shared.DTOs;
-using System.ComponentModel;
+using ACC.Shared.Enums; 
+using ACC.Shared.Utils;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-public class ProgresoUsuarioClient
+namespace ACC.WebApp.Client.Services;
+
+public class ProgresoUsuarioClient(HttpClient http)
 {
-    private readonly HttpClient _http;
+    private readonly HttpClient _http = http;
     private readonly string _baseUrl = $"{ServiceRoots.ACC_API_Url}ProgresoUsuario";
+    // ruta: https://localhost:7059/api/ProgresoUsuario
+    // -----------------------------------------
+    // Genérico (usa ExamenTipo del Shared)
+    // -----------------------------------------
+    public record ExamenHabilitadoDto(bool ExamenHabilitado);
 
-    public ProgresoUsuarioClient(HttpClient http)
+    public async Task<bool> ExamenHabilitadoAsync(string userId, ExamenTipo tipo, int refId)
     {
-        _http = http;
+        if (string.IsNullOrWhiteSpace(userId)) return false;
+        if (refId <= 0) return false;
+
+        var url = $"{_baseUrl}/examen-habilitado/{userId}/{tipo}/{refId}";
+        
+            var result = await _http.GetFromJsonAsync<ExamenHabilitadoDto>(url, Options._jsonOptions);
+            return result?.ExamenHabilitado ?? false;
+        
     }
+    // Atajos tipados con el enum
+    public Task<bool> ExamenSubModuloHabilitadoAsync(string userId, int subModuloId)
+        => ExamenHabilitadoAsync(userId, ExamenTipo.SubModulo, subModuloId);
 
-    private readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
-    };
+    public Task<bool> ExamenModuloHabilitadoAsync(string userId, int moduloId)
+        => ExamenHabilitadoAsync(userId, ExamenTipo.Modulo, moduloId);
 
-    public async Task<bool> ExamenHabilitadoAsync(string userId, int subModuloId)
-    {
-        try
-        {
-            var result = await _http.GetFromJsonAsync<JsonElement>($"{_baseUrl}/examen-habilitado/{userId}/{subModuloId}");
-            return result.GetProperty("examenHabilitado").GetBoolean();
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    public Task<bool> ExamenLibreHabilitadoAsync(string userId, int examenId)
+        => ExamenHabilitadoAsync(userId, ExamenTipo.Libre, examenId);
 
+    // -----------------------------------------
+    // Métodos de progreso (igual que antes)
+    // -----------------------------------------
     public async Task GuardarProgresoSubTemaAsync(string usuarioId, int subTemaId)
     {
-        var progreso = new { UsuarioId = usuarioId, SubTemaId = subTemaId };
-        var response = await _http.PostAsJsonAsync($"{_baseUrl}/guardar", progreso, _jsonOptions);
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("No se pudo guardar el progreso del subtema.");
+        var url = $"{_baseUrl}/guardar";
+        var body = new ProgresoUsuarioDto { UsuarioId = usuarioId, SubTemaId = subTemaId };
+
+        var resp = await _http.PostAsJsonAsync(url, body, Options._jsonOptions);
+        var content = await resp.Content.ReadAsStringAsync();
+
+        if (!resp.IsSuccessStatusCode)
+            throw new Exception($"POST {url} -> {(int)resp.StatusCode} {resp.ReasonPhrase}. Body: {content}");
     }
 
     public async Task<bool> MarcarSubtemaComoCompletadoAsync(string userId, int subTemaId)
     {
-        var progreso = new ProgresoUsuarioDto
-        {
-            UsuarioId = userId,
-            SubTemaId = subTemaId
-        };
+        var url = $"{_baseUrl}/completar";
+        var body = new ProgresoUsuarioDto { UsuarioId = userId, SubTemaId = subTemaId };
 
-        var response = await _http.PostAsJsonAsync($"{_baseUrl}/completar", progreso);
-        return response.IsSuccessStatusCode;
+        var resp = await _http.PostAsJsonAsync(url, body, Options._jsonOptions);
+        var content = await resp.Content.ReadAsStringAsync();
+#if DEBUG
+        Console.WriteLine($"POST {url} -> {(int)resp.StatusCode} {resp.ReasonPhrase}. Body: {content}");
+#endif
+        return resp.IsSuccessStatusCode;
     }
+
 
     public async Task<bool> ObtenerEstadoSubtema(string usuarioId, int subTemaId)
     {
-        if (string.IsNullOrWhiteSpace(usuarioId))
-            throw new ArgumentException("El usuarioId no puede ser nulo o vacío.", nameof(usuarioId));
-
         var url = $"{_baseUrl}/subtema-completado/{usuarioId}/{subTemaId}";
-
         try
         {
-            var response = await _http.GetAsync(url);
+            var resp = await _http.GetAsync(url);
+            if (!resp.IsSuccessStatusCode) return false;
 
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"[ERROR] Falló la petición a {url} - Código: {response.StatusCode}");
-                return false;
-            }
-
-            var result = await response.Content.ReadFromJsonAsync<JsonElement>(_jsonOptions);
-
-            if (result.TryGetProperty("completado", out var completado))
-            {
-                return completado.GetBoolean();
-            }
-
-            Console.WriteLine("[WARN] No se encontró la propiedad 'completado' en la respuesta.");
-            return false;
+            var json = await resp.Content.ReadFromJsonAsync<JsonElement>(Options._jsonOptions);
+            if (json.TryGetProperty("Completado", out var v1)) return v1.GetBoolean();
+            if (json.TryGetProperty("completado", out var v2)) return v2.GetBoolean();
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] Ocurrió una excepción al obtener estado del subtema: {ex.Message}");
-            return false;
-        }
+        catch { }
+        return false;
     }
-
 }

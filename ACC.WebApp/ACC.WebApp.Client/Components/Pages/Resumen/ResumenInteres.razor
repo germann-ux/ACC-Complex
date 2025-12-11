@@ -1,0 +1,55 @@
+﻿@rendermode InteractiveServer
+@using ACC.Shared.DTOs
+@using ACC.WebApp.Client.Services
+@inject ClientCapitulosService CapsSvc
+
+<div class="resumen-interes card">
+    <h2>Esto podría interesarte</h2>
+
+    @if (_cargando)
+    {
+        <p>Cargando recomendaciones...</p>
+    }
+    else if (_recs is null || _recs.Count == 0)
+    {
+        <p>No tenemos recomendaciones por ahora.</p>
+    }
+    else
+    {
+        <div class="interes-buttons">
+            @foreach (var cap in _recs)
+            {
+                <a class="interest-btn" href="@($"/Capitulo/Contenido/{cap.IdContenido}")" title="@cap.Titulo">
+                    <i class="fas fa-book-open"></i> @Trunca(cap.Titulo, 40)
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool _cargando = true;
+    private List<ContenidoCapituloDto>? _recs;
+
+    private const int MaxId = 100;
+    private const int Count = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _recs = await CapsSvc.GetCapitulosRecomendadosRandomAsync(MaxId, Count);
+        }
+        catch
+        {
+            _recs = new();
+        }
+        finally
+        {
+            _cargando = false;
+        }
+    }
+
+    private static string Trunca(string? s, int len)
+        => string.IsNullOrWhiteSpace(s) ? "Capítulo" : (s.Length <= len ? s : s.Substring(0, len - 1) + "…");
+}

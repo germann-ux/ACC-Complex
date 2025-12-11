@@ -1,5 +1,5 @@
 @page "/Aulas/VistaDocentes/Dashboard"
-@rendermode InteractiveServer
+@*@rendermode InteractiveServer*@
 @using ACC.WebApp.Client.Components.Aulas
 
 <div class="dashboard">
@@ -18,7 +18,7 @@
                 <AnunciosAula />
                 break;
             case Tab.Estudiantes:
-                <ListaEstudiantes />
+                @*<ListaEstudiantes />*@
                 break;
             case Tab.Tareas:
                 <TareasAula />
@@ -27,7 +27,7 @@
                 <EvaluacionesAula />
                 break;
             default:
-                <ConfiguracionAula />
+                @*<ConfiguracionAula />*@
                 break;
         }
     </section>

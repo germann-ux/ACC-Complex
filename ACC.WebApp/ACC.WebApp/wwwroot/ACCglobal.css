@@ -1,0 +1,808 @@
+/* ======================================================
+   ACC — REFAC CSS a tema unificado (tokens ya definidos)
+   - Usa solo variables --acc-* / --biblioteca-*
+   - Fondos de tarjetas/componentes: --biblioteca-secondary-dark
+   ====================================================== */
+
+/* Compatibilidad con tu preferencia en <h3> y labels */
+label {
+    color: var(--acc-text);
+}
+
+h3 {
+    font-family: 'Cascadia Code', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    color: color-mix(in srgb, var(--acc-brand-600) 65%, white);
+    margin: .8rem 0 .5rem;
+}
+
+
+/* Página / contenedor principal */
+.page {
+    background-color: var(--acc-bg-1);
+}
+
+.content {
+    padding-top: 1.1rem;
+    /* centrar el contenido */
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+/* Enlaces */
+a, .btn-link {
+    color: var(--acc-brand-600);
+}
+
+    a:hover, .btn-link:hover {
+        color: var(--acc-brand-700);
+    }
+
+/* Botones - mapeo a tu sistema (no romper legacy) */
+.btn-primary {
+    color: #fff;
+    background-color: var(--acc-brand-600);
+    border-color: var(--acc-brand-700);
+}
+
+    .btn-primary:hover {
+        background-color: var(--acc-brand-700);
+        border-color: var(--acc-brand-800);
+    }
+
+/* Estándar de foco accesible */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: var(--acc-focus);
+    outline: none;
+}
+
+/* Estados de validación */
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #22c55e;
+}
+
+.invalid {
+    outline: 1px solid #ef4444;
+}
+
+.validation-message {
+    color: #ef4444;
+}
+
+/* Borde más oscuro para checkbox cuando aplique */
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+/* -----------------------------
+   Chatbase (móviles)
+   ----------------------------- */
+@media (max-width: 768px) {
+    /* Ajustar el botón del chatbot */
+    #chatbase-bubble-button {
+        bottom: 80px !important; /* Mover el botón hacia arriba en móviles */
+        right: 20px !important;
+        z-index: 2147483647 !important; /* Asegurar visibilidad */
+    }
+    /* Ajustar los mensajes de burbuja */
+    #chatbase-message-bubbles {
+        bottom: 140px !important; /* Relación con el botón */
+        right: 20px !important;
+        z-index: 2147483646 !important; /* Detrás del botón */
+    }
+    /* Ajustar la ventana principal del chatbot */
+    #chatbase-bubble-window {
+        bottom: 120px !important; /* Evitar menú inferior */
+        right: 10px !important;
+        width: calc(100% - 20px) !important; /* Casi todo el ancho */
+        max-height: 75vh !important; /* Limitar altura */
+        overflow: auto !important; /* Scroll si es necesario */
+        z-index: 2147483645 !important; /* Menor que los mensajes */
+    }
+}
+
+/* -----------------------------
+   Blazor error boundary
+   ----------------------------- */
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, color-mix(in srgb, #b32121 85%, black);
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: var(--acc-text);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius);
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred.";
+    }
+
+/* -----------------------------
+   Subtemas (superficies unificadas)
+   ----------------------------- */
+.subtema-container {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--biblioteca-secondary-dark); /* oficial */
+    color: var(--acc-text);
+    border-radius: var(--acc-radius);
+    box-shadow: var(--acc-shadow);
+    border: 1px solid var(--biblioteca-border-color);
+}
+
+    .subtema-container h3 {
+        text-align: center;
+        color: var(--acc-text);
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-family: 'Graduate', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    }
+
+.loading, .no-subtemas {
+    text-align: center;
+    color: var(--acc-text-muted);
+    font-size: 1.2rem;
+}
+
+.subtema-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.subtema-item {
+    background: var(--biblioteca-secondary-dark);
+    border-left: 6px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius-sm);
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: var(--acc-shadow);
+    transition: transform var(--acc-transition), box-shadow var(--acc-transition);
+}
+
+    .subtema-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0,0,0,.45);
+    }
+
+.subtema-title {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+    color: var(--acc-text);
+}
+
+.subtema-description {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--acc-text-muted);
+}
+
+.subtema-item button {
+    /* usa el botón estándar */
+    composes: btn btn--primary;
+    /* fallback si no usas CSS Modules: */
+    background: var(--acc-brand-600);
+    color: #fff;
+    border: none;
+    border-radius: var(--acc-radius-sm);
+    margin-top: .2rem;
+    padding: .5rem .8rem;
+}
+
+/* -----------------------------
+   Lecciones (superficies, tablas, code, alerts)
+   ----------------------------- */
+.leccion-container {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    background-color: var(--biblioteca-secondary-dark);
+    border-left: 5px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius-sm);
+    padding: 15px;
+    margin: 0 auto; /* Centrar */
+    border: 1px solid var(--biblioteca-border-color);
+    box-shadow: var(--acc-shadow);
+}
+
+    /* Secciones dentro de lecciones */
+    .leccion-container .leccion-teoria,
+    .leccion-container .leccion-ejemplos,
+    .leccion-container .leccion-practicas {
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: var(--biblioteca-secondary-dark);
+        border-left: 5px solid var(--biblioteca-border-color);
+        border-radius: var(--acc-radius-sm);
+        box-shadow: var(--acc-shadow);
+        align-content: center;
+    }
+
+    .leccion-container h3 {
+        color: var(--acc-brand-600);
+        font-family: 'Nunito', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        font-weight: 700;
+    }
+
+    .leccion-container p {
+        color: var(--acc-text-muted);
+        font-size: 1rem;
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+
+    /* Listas */
+    .leccion-container ul {
+        margin: 0 0 10px 20px;
+        padding: 0;
+        list-style-type: disc;
+    }
+
+    .leccion-container li {
+        margin-bottom: 8px;
+        font-size: 1rem;
+        color: var(--acc-text);
+    }
+
+    /* Tablas */
+    .leccion-container table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: var(--biblioteca-secondary-dark);
+        border: 1px solid var(--biblioteca-border-color);
+        color: var(--acc-text);
+    }
+
+        .leccion-container table th,
+        .leccion-container table td {
+            border: 1px solid var(--biblioteca-border-color);
+            padding: 10px;
+            text-align: left;
+        }
+
+        .leccion-container table thead th {
+            background: color-mix(in srgb, var(--biblioteca-secondary-dark) 85%, black);
+            color: var(--acc-text);
+            font-weight: 700;
+        }
+
+    /* Código */
+    .leccion-container pre,
+    .leccion-container code {
+        background-color: var(--acc-bg-3);
+        color: var(--acc-text);
+        border-radius: var(--acc-radius-sm);
+        padding: 10px;
+        font-size: 0.9rem;
+        display: block;
+        overflow-x: auto;
+        margin: 10px 0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    /* Botones dentro de lección */
+    .leccion-container button {
+        padding: .6rem 1rem;
+        background-color: var(--acc-brand-600);
+        color: #fff;
+        border: none;
+        border-radius: var(--acc-radius-sm);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: var(--acc-transition);
+    }
+
+        .leccion-container button:hover {
+            background-color: var(--acc-brand-700);
+        }
+
+    /* Imágenes */
+    .leccion-container img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px 0;
+        border-radius: var(--acc-radius-sm);
+    }
+
+    /* Destacados */
+    .leccion-container .highlight {
+        color: #ffcc00;
+        font-weight: bold;
+    }
+
+    /* Alertas (paleta sobria sobre surfaces) */
+    .leccion-container .alert {
+        padding: 15px;
+        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--biblioteca-secondary-dark));
+        color: var(--acc-text);
+        border-left: 5px solid var(--acc-brand-700);
+        border-radius: var(--acc-radius-sm);
+        margin-bottom: 20px;
+        box-shadow: var(--acc-shadow);
+    }
+
+    .leccion-container .alert-info {
+        background-color: color-mix(in srgb, var(--acc-blue-600) 15%, var(--biblioteca-secondary-dark));
+        border-left-color: var(--acc-blue-600);
+    }
+
+    .leccion-container .alert-success {
+        background-color: color-mix(in srgb, #22c55e 15%, var(--biblioteca-secondary-dark));
+        border-left-color: #22c55e;
+    }
+
+    .leccion-container .alert-warning {
+        background-color: color-mix(in srgb, #f59e0b 15%, var(--biblioteca-secondary-dark));
+        border-left-color: #f59e0b;
+    }
+
+    .leccion-container .alert-error {
+        background-color: color-mix(in srgb, #ef4444 15%, var(--biblioteca-secondary-dark));
+        border-left-color: #ef4444;
+    }
+
+    /* Fomentador (caja destacada) */
+    .fomentador,
+    .leccion-container .fomentador {
+        padding: 15px;
+        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--biblioteca-secondary-dark));
+        color: var(--acc-text);
+        border-left: 5px solid var(--biblioteca-border-color);
+        border-radius: var(--acc-radius-sm);
+        margin: 20px 0;
+        font-size: 1rem;
+        line-height: 1.5;
+        box-shadow: var(--acc-shadow);
+    }
+
+        .leccion-container .fomentador a {
+            color: var(--acc-brand-600);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color var(--acc-transition);
+        }
+
+            .leccion-container .fomentador a:hover {
+                color: var(--acc-brand-700);
+            }
+
+/*
+    BOTON EQUISDE
+*/
+.expand-btn{
+    margin: 1rem 0 1rem; 
+}
+/* Iframe responsivo (corregido selector: era clase sin punto) */
+.responsive-iframe-no-modal {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Mantiene proporción de video HD */
+    border: none;
+}
+
+/* Fuentes personalizadas (comentarios corregidos) */
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 500;
+    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0100-02BA;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Graduate';
+    font-style: normal; /* import de la fuente personalizada */
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Icono resumen (mantengo tu acento) */
+.resumen .fa-solid {
+    color: #d0d122;
+}
+
+/* Charp container */
+.content .charp-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+
+/* -------------------------------------------------------
+   ACC THEME — Única fuente de verdad (tokens + base)
+   ---------------------------------------------------- */
+
+/* Alias de compatibilidad mientras migras (puedes retirarlos al final) */
+:root {
+    --biblioteca-primary-dark: #121218;
+    --biblioteca-secondary-dark: #1e1e2a; /* SUPERFICIES/TARJETAS OFICIAL */
+    --biblioteca-tertiary-dark: #282838;
+    --biblioteca-hover-dark: #32324a;
+    --biblioteca-primary-purple: #8b5cf6;
+    --biblioteca-secondary-purple: #7c3aed;
+    --biblioteca-primary-blue: #4f46e5;
+    --biblioteca-secondary-blue: #3730a3;
+    --biblioteca-text-white: #f8fafc;
+    --biblioteca-text-gray: #cbd5e1;
+    --biblioteca-border-color: #3f3f5a;
+    --biblioteca-transition-speed: 0.2s ease;
+}
+
+/* Tokens (variables) */
+:root {
+    /* Paleta base (oscuros) */
+    --acc-bg-0: #0f0f0f; /* fondo raíz más profundo */
+    --acc-bg-1: #121218; /* fondo app (primario oscuro) */
+    --acc-bg-2: #1e1e2a; /* surfaces/tarjetas (SECUNDARIO OFICIAL) */
+    --acc-bg-3: #282838; /* elevación intermedia */
+    --acc-bg-hover: #32324a; /* hover sobre fondos oscuros */
+    /* Bordes / separadores */
+    --acc-border: #3f3f5a;
+    /* Texto */
+    --acc-text: #f8fafc;
+    --acc-text-muted: #cbd5e1;
+    /* Marca (lila oficial y escalas) */
+    --acc-brand-600: #9926fe; /* ACENTO OFICIAL */
+    --acc-brand-700: #7c3aed;
+    --acc-brand-800: #3d1f5c;
+    --acc-brand-900: #2a003f;
+    /* Azul de apoyo (si se requiere) */
+    --acc-blue-600: #4f46e5;
+    --acc-blue-700: #3730a3;
+    /* Gradiente unificado (sidebar/top-row) */
+    --acc-grad-start: var(--acc-bg-0);
+    --acc-grad-mid: #1c0b33; /* azul violáceo que conversa con #9926fe */
+    --acc-grad-end: var(--acc-brand-900);
+    /* Dimensiones y motion */
+    --acc-radius: 12px;
+    --acc-radius-sm: 8px;
+    --acc-shadow: 0 8px 24px rgba(0,0,0,.35);
+    --acc-transition: 0.2s ease;
+    /* Focus accesible */
+    --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
+}
+
+
+/* -------------------------------------------------------
+   Reset suave & tipografía
+   ---------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.landing-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--acc-bg-0);
+    color: var(--acc-text);
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button {
+    font: inherit;
+}
+
+/* -------------------------------------------------------
+   Layouts clave: Top Row & Sidebar (mismo gradiente)
+   ---------------------------------------------------- */
+.top-row {
+    background: linear-gradient(to right, var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end) );
+    color: var(--acc-text);
+    border-bottom: 1px solid var(--acc-border);
+}
+
+.sidebar {
+    background: linear-gradient( var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end) );
+    color: var(--acc-text);
+    border-right: 1px solid var(--acc-border);
+}
+
+/* -------------------------------------------------------
+   Superficies / Tarjetas / Componentes
+   (USAR SIEMPRE --biblioteca-secondary-dark)
+   ---------------------------------------------------- */
+.card, .panel, .surface, .module, .component-surface {
+    background: var(--biblioteca-secondary-dark); /* tu regla oficial */
+    color: var(--acc-text);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius);
+    box-shadow: var(--acc-shadow);
+}
+
+.card--flat, .surface--flat {
+    box-shadow: none;
+    border-radius: var(--acc-radius-sm);
+}
+
+.section-header,
+.block-header {
+    background: color-mix(in srgb, var(--biblioteca-secondary-dark) 85%, black);
+    border-bottom: 1px solid var(--biblioteca-border-color);
+}
+
+/* Separadores */
+.hr, hr {
+    border: 0;
+    border-top: 1px solid var(--biblioteca-border-color);
+    opacity: .7;
+    margin: 1rem 0;
+}
+
+/* -------------------------------------------------------
+   Botón estándar ACC
+   ---------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .6rem 1rem;
+    border-radius: var(--acc-radius-sm);
+    border: 1px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--acc-transition);
+}
+
+/* Estándar (Primario) — lila oficial */
+.btn--primary {
+    background-color: var(--acc-brand-600); /* #9926fe */
+    color: #fff;
+}
+
+    .btn--primary:hover {
+        background-color: var(--acc-brand-700);
+    }
+
+    .btn--primary:active {
+        background-color: var(--acc-brand-800);
+    }
+
+    .btn--primary:focus-visible {
+        outline: none;
+        box-shadow: var(--acc-focus);
+    }
+
+/* Variante Ghost (para topbar o fondos muy oscuros) */
+.btn--ghost {
+    background: transparent;
+    color: var(--acc-text);
+    border-color: var(--acc-border);
+}
+
+    .btn--ghost:hover {
+        background: color-mix(in srgb, var(--acc-text) 6%, transparent);
+    }
+
+/* Variante Danger (opcional) */
+.btn--danger {
+    background: #ef4444; /* rojo accesible */
+    color: #fff;
+}
+
+    .btn--danger:hover {
+        background: #dc2626;
+    }
+
+    .btn--danger:active {
+        background: #b91c1c;
+    }
+
+/* -------------------------------------------------------
+   Inputs / Selects / Textareas
+   ---------------------------------------------------- */
+.input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+    width: 100%;
+    background: var(--biblioteca-secondary-dark); /* consistente con surfaces */
+    color: var(--acc-text);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius-sm);
+    padding: .55rem .7rem;
+    transition: var(--acc-transition);
+}
+
+    .input::placeholder,
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--biblioteca-text-gray);
+    }
+
+    .input:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--acc-brand-600);
+        box-shadow: var(--acc-focus);
+        outline: none;
+    }
+
+    /* Estados de validación simples */
+    .input--error,
+    input.is-invalid,
+    select.is-invalid,
+    textarea.is-invalid {
+        border-color: #ef4444;
+    }
+
+    .input--success,
+    input.is-valid,
+    select.is-valid,
+    textarea.is-valid {
+        border-color: #22c55e;
+    }
+
+/* -------------------------------------------------------
+   Listas, enlaces de navegación, badges
+   ---------------------------------------------------- */
+.nav a,
+.menu a,
+.list a {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .5rem .75rem;
+    border-radius: var(--acc-radius-sm);
+    color: var(--acc-text);
+    transition: var(--acc-transition);
+}
+
+    .nav a:hover,
+    .menu a:hover,
+    .list a:hover {
+        background: var(--acc-bg-hover);
+    }
+
+.badge {
+    display: inline-block;
+    padding: .25rem .5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    background: color-mix(in srgb, var(--acc-brand-600) 18%, var(--biblioteca-secondary-dark));
+    color: var(--acc-text);
+    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 40%, var(--biblioteca-secondary-dark));
+}
+
+/* -------------------------------------------------------
+   Tablas (surfaces consistentes)
+   ---------------------------------------------------- */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--biblioteca-secondary-dark);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius);
+    overflow: hidden;
+}
+
+    .table th, .table td {
+        padding: .75rem .9rem;
+        border-bottom: 1px solid var(--biblioteca-border-color);
+    }
+
+    .table thead th {
+        background: color-mix(in srgb, var(--biblioteca-secondary-dark) 85%, black);
+        text-align: left;
+    }
+    /*body*/
+/* -------------------------------------------------------
+   Utilidades mínimas
+   ---------------------------------------------------- */
+.text-muted {
+    color: var(--acc-text-muted);
+}
+
+.rounded {
+    border-radius: var(--acc-radius);
+}
+
+.rounded-sm {
+    border-radius: var(--acc-radius-sm);
+}
+
+.shadow {
+    box-shadow: var(--acc-shadow);
+}
+
+.border {
+    border: 1px solid var(--biblioteca-border-color);
+}
+
+.surface {
+    background: var(--biblioteca-secondary-dark);
+}
+
+
+/* ======================================================
+   ACC — Select refinado (versión responsive y accesible)
+   ====================================================== */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-family: inherit;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    /* Colores y contraste */
+    color: var(--acc-text-primary, #ccc);
+    background-color: var(--acc-surface-100, #1e1e1e);
+    border: 1.5px solid var(--acc-brand-600, #9926fe);
+    border-radius: 0.75rem;
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    /* Icono de flecha */
+    background-image: linear-gradient(45deg, transparent 50%, var(--acc-brand-600, #9926fe) 50%), linear-gradient(135deg, var(--acc-brand-600, #9926fe) 50%, transparent 50%);
+    background-position: right 1rem center, right 0.75rem center;
+    background-size: 8px 8px, 8px 8px;
+    background-repeat: no-repeat;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+    /* Hover y Focus */
+    select:hover {
+        border-color: color-mix(in srgb, var(--acc-brand-600, #9926fe), white 25%);
+    }
+
+    select:focus {
+        outline: none;
+        border-color: var(--acc-brand-600, #9926fe);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600, #9926fe), transparent 75%);
+    }
+
+    /* Opciones internas */
+    select option {
+        background-color: var(--acc-surface-200, #2b2b2b);
+        color: var(--acc-text-primary, #ccc);
+    }
+
+/* Adaptabilidad */
+@media (max-width: 600px) {
+    select {
+        font-size: 0.95rem;
+        padding: 0.55rem 2.25rem 0.55rem 0.9rem;
+        border-radius: 0.6rem;
+    }
+}
+
+@media (max-width: 400px) {
+    select {
+        font-size: 0.9rem;
+        padding: 0.5rem 2rem 0.5rem 0.8rem;
+    }
+}

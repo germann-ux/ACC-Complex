@@ -1,3 +1,4 @@
+@using ACC.Shared.DTOs 
 @rendermode InteractiveServer
 <div class="tareas-wrapper">
     <h3>Tareas</h3>
@@ -6,13 +7,12 @@
     @if (mostrarFormulario)
     {
         <div class="tarea-form">
-            <input type="text" placeholder="Título" @bind="tareaActual.Titulo" />
-            <select @bind="tareaActual.Estado">
-                <option value="En progreso">En progreso</option>
-                <option value="Completada">Completada</option>
-                <option value="No iniciada">No iniciada</option>
+            <input type="text" placeholder="Título" @bind="tareaActual.TituloTareaAsignada" />
+            <select @bind="tareaActual.Completada">
+                <option value="true">Completada</option>
+                <option value="false">Sin Completar</option>
             </select>
-            <input type="date" @bind="tareaActual.FechaLimite" />
+            <input type="date" @bind="tareaActual.FechaLimiteTareaAsignada" />
             <div class="acciones">
                 <button @onclick="Guardar">Guardar</button>
                 <button class="secundario" @onclick="Cancelar">Cancelar</button>
@@ -23,41 +23,22 @@
     @foreach (var tarea in tareas)
     {
         <div class="tarea-item">
-            <span class="titulo">@tarea.Titulo</span>
-            <span class="estado">@tarea.Estado</span>
-            <span class="fecha">@tarea.FechaLimite.ToShortDateString()</span>
+            <span class="titulo">@tarea.TituloTareaAsignada</span>
+            <span class="estado">@tarea.Completada</span>
+            <span class="fecha">@tarea.FechaLimiteTareaAsignada.ToString("dd/MM/yyyy HH:mm")</span>
         </div>
     }
 </div>
 
 @code {
-    private List<Tarea> tareas = new();
-    private Tarea tareaActual = new();
+    private List<TareaAsignadaDto> tareas = new();
+    private TareaAsignadaDto tareaActual = new();
     private bool mostrarFormulario;
     private bool editando;
-    //private string fechaString
-    //{
-    //    // yyyy-MM-dd
-    //    get => tareaActual.FechaLimite.ToString("yyyy-MM-dd");
-    //    set
-    //    {
-    //        if (DateTime.TryParse(value, out var fecha))
-    //        {
-    //            tareaActual.FechaLimite = fecha;
-    //        }
-    //    }
-    //}
-
-    public class Tarea
-    {
-        public string Titulo { get; set; } = string.Empty;
-        public string Estado { get; set; } = "No iniciada";
-        public DateTime FechaLimite { get; set; } = DateTime.Now.AddDays(7);
-    }
 
     private void NuevaTarea()
     {
-        tareaActual = new Tarea();
+        tareaActual = new TareaAsignadaDto();
         editando = false;
         mostrarFormulario = true;
     }

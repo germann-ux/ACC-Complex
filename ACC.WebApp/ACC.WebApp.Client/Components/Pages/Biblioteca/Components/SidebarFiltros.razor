@@ -1,0 +1,81 @@
+﻿@* SidebarFiltros.razor *@
+@rendermode InteractiveServer
+<div class="biblioteca-sidebar">
+    <div class="biblioteca-sidebar-header">
+        <h2 class="biblioteca-sidebar-title">Filtros</h2>
+    </div>
+    <div class="biblioteca-sidebar-content">
+        @foreach (var grupo in Filtros)
+        {
+            <div class="biblioteca-filter-group">
+                <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(grupo.Nombre)">
+                    <span>@grupo.Nombre</span>
+                    <i class="fas @(grupo.Expandido ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                </div>
+                @if (grupo.Expandido)
+                {
+                    <div class="biblioteca-filter-items">
+                        @foreach (var item in grupo.Items)
+                        {
+                            <div class="biblioteca-filter-item @(item.Activo ? "active" : "")" @onclick="() => CambiarFiltro(item)">
+                                <span class="biblioteca-filter-checkbox"></span>
+                                <span>@item.Nombre</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<List<string>> OnFiltrosCambiados { get; set; }
+
+    private List<FiltroGrupo> Filtros = new()
+{
+        new("Tipo de Contenido", new[] { "Documentación", "Ejercicios", "Ejemplos", "Proyectos" })
+    };
+
+    private void CambiarFiltro(FiltroItem item)
+    {
+        item.Activo = !item.Activo;
+        OnFiltrosCambiados.InvokeAsync(GetFiltrosActivos());
+    }
+
+    private List<string> GetFiltrosActivos()
+    {
+        return Filtros.SelectMany(g => g.Items)
+                      .Where(i => i.Activo)
+                      .Select(i => i.Nombre)
+                      .ToList();
+    }
+
+    private void ToggleGrupo(string nombre)
+    {
+        var grupo = Filtros.FirstOrDefault(f => f.Nombre == nombre);
+        if (grupo != null)
+        {
+            grupo.Expandido = !grupo.Expandido;
+        }
+    }
+
+    private class FiltroGrupo
+    {
+        public string Nombre { get; set; }
+        public List<FiltroItem> Items { get; set; }
+        public bool Expandido { get; set; } = true;
+
+        public FiltroGrupo(string nombre, IEnumerable<string> items)
+        {
+            Nombre = nombre;
+            Items = items.Select(i => new FiltroItem { Nombre = i }).ToList();
+        }
+    }
+
+    private class FiltroItem
+    {
+        public string Nombre { get; set; }
+        public bool Activo { get; set; }
+    }
+}

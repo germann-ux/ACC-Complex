@@ -12,5 +12,6 @@ namespace ACC.Shared.DTOs
         public string Nombre { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public decimal ProgresoGeneral { get; set; } = 0; // progreso general del usuario
+        public int ModulosCompletados { get; set; } = 0; // modulos completados por el usuario
     }
 }

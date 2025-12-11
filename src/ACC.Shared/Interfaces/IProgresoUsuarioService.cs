@@ -23,6 +23,13 @@
         /// <summary>
         /// Metodo para obtener si un subtema esta completado para el usuario.
         /// </summary>
-        Task<bool> EstaSubtemaCompletadoAsync(string usuarioId, int subTemaId); 
+        /// <param name="subTemaId">ID del subtema.</param>
+        /// <param name="usuarioId">ID del usuario.</param>
+        Task<bool> EstaSubtemaCompletadoAsync(string usuarioId, int subTemaId);
+
+        Task<bool> ExamenHabilitadoAsync(string userId, ExamenRef examen);
+        Task<bool> ExamenSubModuloHabilitadoAsync(string userId, int subModuloId);
+        Task<bool> ExamenModuloHabilitadoAsync(string userId, int moduloId);
+        Task<bool> ExamenLibreHabilitadoAsync(string userId, int examenId);
     }
 }

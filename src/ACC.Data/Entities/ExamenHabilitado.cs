@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ACC.Shared.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,23 +11,20 @@ namespace ACC.Data.Entities
 {
     public class ExamenHabilitado
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required]
-        [ForeignKey("Usuario")]
-        public string UsuarioId { get; set; } // Relación con AspNetUsers
+        // Clave de usuario
+        public string UsuarioId { get; set; } = default!;
 
-        [Required]
-        [ForeignKey("SubModulo")]
-        public int Id_SubModulo { get; set; } // Relación con SubModulos
+        // Referencia polimórfica al examen
+        public ExamenTipo Tipo { get; set; }
+        public int RefId { get; set; } // Id del examen según el tipo
 
-        public bool Habilitado { get; set; } = false; // Indica si el examen está habilitado
+        // Estado
+        public bool Habilitado { get; set; }
+        public DateTimeOffset FechaHabilitacion { get; set; }
 
-        public DateTime? FechaHabilitacion { get; set; } // Fecha en que se habilitó el examen
-
-        // Relaciones de navegación
-        public virtual SubModulo SubModulo { get; set; }
-        public virtual Usuario Usuario { get; set; }
+        // Metadata opcional (útil para auditoría)
+        public string? ReglaFuente { get; set; }
     }
 }

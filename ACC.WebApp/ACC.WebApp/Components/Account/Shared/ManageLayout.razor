@@ -1,16 +1,73 @@
-﻿@inherits LayoutComponentBase
-@layout AccountLayout
+﻿@*@inherits LayoutComponentBase
+    @layout AccountLayout
 
-    <div class="biblioteca-doc-item" style="max-width: 1100px; margin: 0 auto; padding: 32px 24px;">
-        <h1 class="biblioteca-section-title" style="margin-bottom: 0.5em;">Gestiona tu cuenta</h1>
-        <h2 class="biblioteca-section-description" style="margin-bottom: 1.5em;">Cambia la configuración de tu cuenta
-        </h2>
-        <div class="row" style="gap: 0;">
-            <div class="col-md-4" style="min-width: 300px; max-width: 340px;">
-                <ManageNavMenu />
+        <div class="biblioteca-doc-item" style="max-width: 1100px; margin: 0 auto; padding: 32px 24px;">
+            <h1 class="biblioteca-section-title" style="margin-bottom: 0.5em;">Gestiona tu cuenta</h1>
+            <h2 class="biblioteca-section-description" style="margin-bottom: 1.5em;">Cambia la configuración de tu cuenta
+            </h2>
+            <div class="row" style="gap: 0;">
+                <div class="col-md-4" style="min-width: 300px; max-width: 340px;">
+                    <ManageNavMenu />
+                </div>
+                <div class="col-md-8" style="padding-left: 32px;">
+                    @Body
+                </div>
             </div>
-            <div class="col-md-8" style="padding-left: 32px;">
+        </div>*@
+
+@inherits LayoutComponentBase
+@layout AccountLayout
+<!--<section class="page" style="padding: 1.25rem;">
+    <header class="card rounded shadow" style="padding: 1rem 1.25rem; margin: 0 auto 1rem; max-width: 1200px;">
+        <h1 style="margin: 0 0 .25rem 0;">Gestiona tu cuenta</h1>
+        <p class="text-muted" style="margin: 0;">Actualiza tu perfil, seguridad y preferencias.</p>
+    </header>-->
+<!-- Grid principal -->
+<!--<div class="account-grid" style="display:grid; gap: 1.25rem; grid-template-columns: 260px 1fr; max-width:1200px; margin:0 auto;">
+        <aside class="card rounded shadow" style="padding:.75rem;">
+            <ManageNavMenu />
+        </aside>
+
+        <main class="card rounded shadow account-content">
+            <div class="form-wrap">
                 @Body
             </div>
+        </main>
+
+    </div>
+</section>-->
+
+<section class="py-4 page">
+    <div class="container">
+        <header class="card shadow mb-3">
+            <div class="card-body py-3">
+                <h1 class="mb-1">Gestiona tu cuenta</h1>
+                <p class="text-muted mb-0">Actualiza tu perfil, seguridad y preferencias.</p>
+            </div>
+        </header>
+
+        <div class="row g-3">
+            <!-- Sidebar -->
+            <aside class="col-12 col-lg-4 col-xl-3">
+                <div class="card h-100 shadow">
+                    <div class="card-body p-3">
+                        <ManageNavMenu />
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Contenido -->
+            <main class="col-12 col-lg-8 col-xl-9">
+                <div class="card h-100 shadow">
+                    <div class="card-body p-3">
+                        <!-- Limita el ancho del formulario sin romper en móvil -->
+                        <div class="mx-auto w-100" style="max-width: 720px;">
+                            @Body
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
+</section>
+

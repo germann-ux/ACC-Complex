@@ -6,39 +6,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ACC.Data.Entities
+namespace ACC.Data.Entities;
+
+public class Aula
 {
-    public class Aula
-    {
-        [Key]
-        public int Id { get; set; } // Identificador único
+    public int AulaId { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        public string Nombre { get; set; } // Nombre descriptivo del aula
+    public string Nombre { get; set; } = null!;
+    public string? Descripcion { get; set; }
 
-        [MaxLength(500)]
-        public string Descripcion { get; set; } // Descripción opcional
+    public bool CerrarAula { get; set; } = false;
+    public bool ArchivarAula { get; set; } = false;
 
-        [Required]
-        public int ModuloId { get; set; } // Relación con el módulo
+    public DateTime FechaCreacion { get; set; } // UTC
+    public DateTime FechaActualizacion { get; set; } // UTC
 
-        [Required]
-        public string DocenteId { get; set; } // Relación con el docente
+    public int? ModuloId { get; set; }
+    public int? SubModuloId { get; set; }
 
-        // Relaciones
-        [ForeignKey("ModuloId")]
-        public Modulo Modulo { get; set; } // Relación 1:N con Modulo
+    public string DocenteId { get; set; } = null!;
 
-        [ForeignKey("DocenteId")]
-        public  Usuario Docente { get; set; } // Relación con el docente (ApplicationUser)
+    // Navs académicas (tipos Modulo/SubModulo/Usuario existen fuera de este snippet)
+    public Modulo? Modulo { get; set; }
+    public SubModulo? SubModulo { get; set; }
+    public Usuario? Docente { get; set; }
 
-        public ICollection<AulaEstudiante> AulaEstudiantes { get; set; } = new List<AulaEstudiante>(); // Relación N:M con estudiantes
-
-        public ICollection<TareaAsignada> Tareas { get; set; } = new List<TareaAsignada>(); // Relación 1:N con Tareas
-
-        public ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>(); // Relación 1:N con Notificaciones
-
-        public ICollection<Aviso>? Avisos { get; set; } = new List<Aviso>(); // Relación 1:N con Avisos
-    }
+    // Navs propias
+    public ICollection<AulaEstudiante> AulaEstudiantes { get; set; } = [];
+    public ICollection<Anuncio> Anuncios { get; set; } = [];
+    public ICollection<Tarea> Tareas { get; set; } = [];
+    public ICollection<Evaluacion> Evaluaciones { get; set; } = [];
+    public ICollection<InvitacionAula> Invitaciones { get; set; } = [];
+    public ICollection<Notificacion> Notificaciones { get; set; } = [];
 }

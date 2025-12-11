@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace ACC.Data.Entities
 {
+    [Obsolete("Esta entidad está obsoleta y será eliminada en futuras versiones. Use 'TareaAsignacion' en su lugar.")]
     public class TareaAsignada // entidad que sirve para las tareas en las aulas que se le asignen a los alumnos en las aulas
     {
         [Key] // pk de la tarea asignada

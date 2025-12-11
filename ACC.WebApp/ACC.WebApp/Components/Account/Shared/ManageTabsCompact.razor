@@ -1,0 +1,33 @@
+﻿@*<nav class="tabs-compact" aria-label="Secciones de cuenta">
+    <NavLink class="tabpill" href="Account/Manage" Match="NavLinkMatch.All"><i class="fas fa-user"></i><span>Perfil</span></NavLink>
+    <NavLink class="tabpill" href="Account/Manage/Email"><i class="fas fa-envelope"></i><span>Correo</span></NavLink>
+    <NavLink class="tabpill" href="Account/Manage/ChangePassword"><i class="fas fa-key"></i><span>Contraseña</span></NavLink>
+    <NavLink class="tabpill" href="Account/Manage/TwoFactorAuthentication"><i class="fas fa-shield-alt"></i><span>2FA</span></NavLink>
+    <NavLink class="tabpill" href="Account/Manage/PersonalData"><i class="fas fa-id-card"></i><span>Datos</span></NavLink>
+    <NavLink class="tabpill" href="Account/rol/Verificar"><i class="fas fa-user-tag"></i><span>Roles</span></NavLink>
+</nav>
+
+<style>
+/* Oculta/mostrar rail vs tabs */
+@@media (max-width:900px){
+  .account-grid > aside{ display:none; }
+  .tabs-compact{ display:flex; gap:.5rem; overflow-x:auto; padding:.25rem; margin:0 auto .75rem; max-width:1200px; }
+}
+@@media (min-width:901px){
+  .tabs-compact{ display:none; }
+}
+
+/* Píldoras basadas en tus tokens */
+.tabpill{
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.45rem .75rem; border:1px solid var(--biblioteca-border-color);
+  border-radius:999px; background: var(--biblioteca-secondary-dark);
+  white-space:nowrap; transition: var(--acc-transition);
+}
+.tabpill:hover{ background: var(--acc-bg-hover); }
+.tabpill[aria-current="page"]{
+  border-color: color-mix(in srgb, var(--acc-brand-600) 40%, var(--biblioteca-secondary-dark));
+  box-shadow: var(--acc-focus);
+}
+.tabpill i{ width:1rem; text-align:center; }
+</style>*@

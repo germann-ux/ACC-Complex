@@ -10,34 +10,17 @@ namespace ACC.Data.Entities
 {
     public class Notificacion
     {
-        [Key]
         public int Id { get; set; }
-
-        [Required]
-        [MaxLength(100)]
-        public string Titulo { get; set; }
-
-        [Required]
-        [MaxLength(500)]
-        public string Mensaje { get; set; }
-
-        [Required]
-        public DateTime FechaEnvio { get; set; }
-
+        public string Titulo { get; set; } = null!;
+        public string Mensaje { get; set; } = null!;
+        public DateTime FechaEnvio { get; set; } // UTC
         public bool Leido { get; set; } = false;
 
-        // Relación con Aula
         public int? AulaId { get; set; }
+        public string UsuarioId { get; set; } = null!;
 
-        [ForeignKey("AulaId")]
-        public Aula Aula { get; set; }
-
-        // Relación con usuario
-        [Required]
-        public string UsuarioId { get; set; }
-
-        [ForeignKey("UsuarioId")]
-        public Usuario Usuario { get; set; }
+        public Aula? Aula { get; set; }
+        public Usuario Usuario { get; set; } = null!;
     }
 }
 

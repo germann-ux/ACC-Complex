@@ -35,11 +35,14 @@ namespace ACC.Data.Entities
         // Relación 1:N con Temas
         public ICollection<Tema> Temas { get; set; } = new List<Tema>();
 
+        // Relación 1:N con ExamenSubModulo
+        public ICollection<ExamenSubModulo>? Examenes { get; set; }
+
         // Relación 1:N con Capitulos
-        public ICollection<Capitulo> Capitulos { get; set; } = new List<Capitulo>();
+        public ICollection<Capitulo> Capitulos { get; set; } = []; 
 
         // Relación N:M con ApplicationUser
-        public ICollection<UsuarioSubModulos> UsuarioSubModulos { get; set; } = new List<UsuarioSubModulos>();
+        public ICollection<UsuarioSubModulos> UsuarioSubModulos { get; set; } = [];
 
         /*--------------------- implementacion de la interfaz ---------------------*/
         int INodoJerarquico.Id => Id_SubModulo; // su Id del submodulo

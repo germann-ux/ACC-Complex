@@ -1,0 +1,40 @@
+﻿@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<div class="chart-wrap">
+    <canvas id="gradesChart"></canvas>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // Asegura que Chart.js y ResumenChart ya estén listos
+        await JS.InvokeVoidAsync("ResumenChart.waitForReady");
+
+        //var chartData = new
+        //{
+        //    labels = Array.Empty<string>(),   // cuenta de prueba sin progreso
+        //    datasets = Array.Empty<object>()
+        //};
+        var chartData = new
+        {
+            labels = new[] { "Módulo 1", "Módulo 2", "Módulo 3" },
+            datasets = new object[] {
+            new {
+                label = "Calificación",
+                data = new[] { 75, 82, 91 },
+                borderColor = "#4f46e5",
+                backgroundColor = new { type = "linear", colors = new[] { "rgba(79,70,229,0.25)", "rgba(79,70,229,0.05)" } },
+                pointBackgroundColor = "#fff",
+                pointBorderColor = "#4f46e5",
+                fill = true
+                }
+            }
+        };
+
+
+        await JS.InvokeVoidAsync("ResumenChart.renderChart", "gradesChart", chartData);
+    }
+}

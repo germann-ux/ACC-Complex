@@ -38,7 +38,9 @@ namespace ACC.Data.Entities
         /// <summary>
         /// Contenido principal de la lección el cual es renderizado (puede incluir HTML, markdown, etc.).
         /// </summary>
+        [Obsolete("Campo obsoleto, se fragmento en las nuevas propiedades 'Teoria', 'Practica', 'Ejemplo'")]
         public string HtmlBody { get; set; } = string.Empty;
+        
         /// <summary>
         /// Indica si la lección tiene una actividad asociada.
         /// </summary>
@@ -94,6 +96,20 @@ namespace ACC.Data.Entities
         /// propiedad para manejar el cuerpo de las evaluaciones y renderizarlas luego
         /// </summary>
         public string? CuerpoEvaluacion { get; set; } = null;
+
+        /// <summary>
+        /// Seccion teorica de las lecciones, en formato html
+        /// </summary>
+        public string Teoria { get; set; } = string.Empty;
+        /// <summary>
+        /// Seccion conectora a la practica, no nesesariamente una practica redactada u tarea por definicion
+        /// </summary>
+        public string Practica { get; set; } = string.Empty;
+        /// <summary>
+        /// Seccion de ejemplos en la leccion, simples y sencillos o mas extensos si es nesesario.
+        /// </summary>
+        public string Ejemplo { get; set; } = string.Empty;
+
 
         // --- // ------------------ Implementación de la interfaz INodoJerarquico ------------------ // --- //
 

@@ -1,0 +1,62 @@
+﻿@rendermode InteractiveServer
+@using ACC.WebApp.Client.Services
+@inject AuthenticationStateProvider AuthProvider
+@inject ProgresoUsuarioClient ProgresoService
+
+<button class="biblioteca-btn-completar-subtema"
+        @onclick:stopPropagation
+        @onclick="MarcarComoCompletado"
+        disabled="@completado">
+    @(completado ? "✓" : "Completar")
+</button>
+
+@if (mensaje is not null)
+{
+    <span class="biblioteca-mensaje-completado">@mensaje</span>
+}
+
+@code {
+    [Parameter] public int SubTemaId { get; set; }
+    [Parameter] public int SubModuloId { get; set; } // pásalo desde el padre
+
+    private bool completado;
+    private string? mensaje;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        var userId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            // pinta el estado inicial del subtema por si ya estaba completo
+            completado = await ProgresoService.ObtenerEstadoSubtema(userId, SubTemaId);
+        }
+    }
+
+    private async Task MarcarComoCompletado()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        var userId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            mensaje = "Usuario no autenticado.";
+            return;
+        }
+
+        var ok = await ProgresoService.MarcarSubtemaComoCompletadoAsync(userId, SubTemaId);
+        completado = ok;
+        if (!ok)
+        {
+            mensaje = "No se pudo marcar como completado.";
+            return;
+        }
+
+        // <- AQUÍ: tras completar, lee si ya quedó habilitado el examen del submódulo
+        var habilitado = await ProgresoService.ExamenSubModuloHabilitadoAsync(userId, SubModuloId);
+        mensaje = habilitado
+            ? "¡Subtema guardado y examen de submódulo habilitado!"
+            : "Subtema guardado. Continúa con los restantes o vuelve a intentar.";
+        StateHasChanged();
+    }
+}

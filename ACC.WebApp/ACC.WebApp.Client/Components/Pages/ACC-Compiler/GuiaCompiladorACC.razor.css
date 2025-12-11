@@ -1,0 +1,177 @@
+﻿/* ======================================================
+   ACC — Manual Compilador (tema unificado y scoping)
+   - Superficies: --biblioteca-secondary/tertiary-dark
+   - Texto: --biblioteca-text-white/gray
+   - Acentos: --acc-brand-600 (lila) y --biblioteca-primary-blue
+   ====================================================== */
+
+/* Fuente para títulos si no está global */
+@font-face {
+    font-family: 'Graduate';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
+}
+
+/* Contenedor principal */
+#manual-compilador-online {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--biblioteca-secondary-dark);
+    border: 1px solid var(--biblioteca-border-color);
+    border-radius: var(--acc-radius);
+    padding: 20px;
+    box-shadow: var(--acc-shadow);
+    color: var(--biblioteca-text-gray);
+}
+
+    /* Títulos (toda la jerarquía dentro del manual) */
+    #manual-compilador-online .manual-title,
+    #manual-compilador-online .section-title,
+    #manual-compilador-online .subsection-title,
+    #manual-compilador-online .subsubsection-title {
+        font-family: 'Graduate', system-ui, sans-serif;
+        color: var(--acc-brand-600);
+        margin-top: 0;
+    }
+
+    #manual-compilador-online .manual-title {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    #manual-compilador-online .section-title {
+        font-size: 2rem;
+        border-bottom: 2px solid var(--biblioteca-primary-blue);
+        padding-bottom: 5px;
+        margin-top: 30px;
+        margin-bottom: 15px;
+    }
+
+    #manual-compilador-online .subsection-title {
+        font-size: 1.6rem;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    #manual-compilador-online .subsubsection-title {
+        font-size: 1.4rem;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+
+    /* Texto */
+    #manual-compilador-online .manual-intro {
+        font-size: 1rem;
+        color: var(--biblioteca-text-white);
+        opacity: .9;
+        margin-bottom: 20px;
+    }
+
+    #manual-compilador-online p {
+        margin: 10px 0;
+        color: var(--biblioteca-text-gray);
+    }
+
+    #manual-compilador-online ul,
+    #manual-compilador-online ol {
+        padding-left: 20px;
+    }
+
+    #manual-compilador-online li {
+        margin-bottom: 10px;
+        color: var(--biblioteca-text-white);
+    }
+
+    /* Código */
+    #manual-compilador-online .code-block {
+        background: var(--biblioteca-primary-dark);
+        border: 1px solid var(--biblioteca-border-color);
+        padding: 10px;
+        border-radius: var(--acc-radius-sm);
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: .9rem;
+        color: var(--biblioteca-text-white);
+    }
+
+    #manual-compilador-online pre.example-input,
+    #manual-compilador-online pre.output {
+        background: var(--biblioteca-tertiary-dark);
+        border-left: 4px solid var(--biblioteca-primary-blue);
+        border: 1px solid var(--biblioteca-border-color);
+        padding: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: .9rem;
+        color: var(--biblioteca-text-white);
+        overflow-x: auto;
+        border-radius: var(--acc-radius-sm);
+    }
+
+    /* Listas específicas */
+    #manual-compilador-online .features-list,
+    #manual-compilador-online .capabilities,
+    #manual-compilador-online .limitations,
+    #manual-compilador-online .input-guidelines,
+    #manual-compilador-online .error-list,
+    #manual-compilador-online .best-practices {
+        list-style: square;
+        margin-left: 20px;
+        color: var(--biblioteca-text-white);
+    }
+
+        #manual-compilador-online .error-list ul {
+            list-style: circle;
+            color: var(--biblioteca-text-gray);
+        }
+
+    /* Subtítulos pequeños */
+    #manual-compilador-online h4 {
+        color: var(--biblioteca-text-white);
+        font-family: 'Cascadia Code', ui-monospace, monospace;
+    }
+
+    /* Divisores */
+    #manual-compilador-online .divider {
+        border: none;
+        border-top: 1px solid var(--biblioteca-primary-blue);
+        margin: 20px 0;
+    }
+
+    /* Botón dentro del manual (scope) */
+    #manual-compilador-online button {
+        background: var(--acc-brand-600);
+        color: #fff;
+        border: 1px solid transparent;
+        padding: .65rem 1.1rem;
+        border-radius: var(--acc-radius-sm);
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color var(--biblioteca-transition-speed), box-shadow var(--biblioteca-transition-speed), transform .05s;
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 12%, transparent);
+    }
+
+        #manual-compilador-online button:hover {
+            background: var(--biblioteca-secondary-purple);
+        }
+
+        #manual-compilador-online button:active {
+            transform: translateY(1px);
+        }
+
+    /* Conclusión */
+    #manual-compilador-online .conclusion {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--biblioteca-text-white);
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    /* Selección coherente con el brand, solo dentro del manual */
+    #manual-compilador-online ::selection {
+        background-color: var(--biblioteca-secondary-purple);
+        color: #fff;
+    }
