@@ -14,7 +14,11 @@
 - 🔐 Autenticación con **Identity + roles** (estudiante, docente, administrador).  
 - 🌐 Soporte multiplataforma: **Web (Blazor WASM), Escritorio y Móvil (MAUI Blazor)**.  
 - 📊 Telemetría y resiliencia con **OpenTelemetry, Serilog y Aspire**.  
-
+---
+Nomenclatura:
+ACC : Aprendiendo C# con Charp
+ACC-Complex : Nombre de la arquitectura del sistema
+ACC.Componente "Componente" se refiere a cualquier modulo del sistema.
 ---
 
 ## 🏗 Arquitectura del Proyecto
