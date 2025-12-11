@@ -1,0 +1,143 @@
+{
+  "repo_notes": [
+    {
+      "content": "This repository documents the technical structure and internal operation of ACC-Complex, the distributed architecture behind Aprendiendo C# con Charp. It centralizes backend APIs, authentication, compiler services, shared libraries, and the Blazor Web client."
+    }
+  ],
+  "pages": [
+    {
+      "title": "Overview",
+      "purpose": "Introduce the ACC educational platform as a distributed .NET ecosystem designed to teach C# using modular content, interactive exercises, dynamic lesson rendering, and an integrated compiler. Summarize the goals, target users, and the multi-project architecture that forms ACC-Complex.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "System Architecture",
+      "purpose": "Explain the full architecture of ACC-Complex, including all 11 projects: ACC.API, ACC.WebApp, ACC.WebApp.Client, ACC.MultiPlataform, API_CompilerACC, ACC.Data, ACC.Shared, ACC.ExternalClients, ACC.ServiceDefaults, ACC.AppHost, and ACC.Tests. Describe how authentication, content management, compilation, resilience, and telemetry interact across services.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Infrastructure & Configuration",
+      "purpose": "Document the infrastructure required to run ACC, including Aspire-based orchestration, Dockerized services (SQL Server, Redis), environment variables, service discovery, OpenTelemetry instrumentation, health checks, and configuration defaults provided by ACC.ServiceDefaults.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Client Application Structure",
+      "purpose": "Explain the structure of ACC.WebApp.Client (Blazor WebAssembly) and ACC.MultiPlataform (MAUI Blazor). Detail routing, authentication flow against ACC.WebApp, how the client consumes ACC.API via DTOs from ACC.Shared, and how lesson rendering is handled using the dynamic JSON-based section ordering system.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Online Compiler Feature",
+      "purpose": "Document the API_CompilerACC service that compiles C# code using Roslyn, the communication flow between client and compiler API, error handling, security considerations, and how compiler availability is enabled per lesson through the dynamic section renderer.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Classroom Management System",
+      "purpose": "Provide an overview of the virtual classroom system, including class enrollment, teacher/ student roles, announcements, tasks, evaluations, monitoring, and how these features integrate with authentication and ACC.API. This section reflects the updated vision aligned with the new dynamic lesson and APP pedagogical model.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Common Classroom Components",
+      "purpose": "Document reusable UI components used across classroom views, including standardized confirmation dialogs, invitation link generation, shared containers, and any cross-view interaction elements.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Student Interface",
+      "purpose": "Explain the student-facing functionality: lesson access, dynamic rendering of content blocks, progress tracking, announcements board, task details, evaluation access, and classroom enrollment views.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Teacher Dashboard",
+      "purpose": "Document the main teacher dashboard enabling classroom creation, announcements, student monitoring, task and evaluation management. Describe the tabbed navigation system and backend interactions.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Announcement Management",
+      "purpose": "Describe the creation, editing, publishing, and listing of announcements within a classroom, including the data flow with ACC.API and UI interaction patterns.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Student Management & Monitoring",
+      "purpose": "Document the student list, role information, progress visualization, last-lesson tracking system, and detailed views showing performance metrics drawn from ACC.API.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Task & Assignment Management",
+      "purpose": "Explain task creation, editing, publishing, linking tasks to lessons or subtopics, tracking student completion status, and future integration with automatic evaluation.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Evaluation Management",
+      "purpose": "Document binary and future evaluation types, JSON evaluation schema (EvaluacionBinaria), scoring, explanation flow, and how evaluations are rendered conditionally using the dynamic section system.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Classroom Configuration",
+      "purpose": "Describe the classroom setup options including name, module selection, description, invitation link generation, teacher tools, and the relationship of configuration settings with ACC.API.",
+      "parent": "Classroom Management System",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    }
+  ]
+}The content has been copied to your clipboard. Please paste it here to complete the file creation.
