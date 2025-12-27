@@ -3,46 +3,40 @@ using ACC.Shared.Core;
 using ACC.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
+namespace ACC.API.Controllers; 
 
-namespace ACC.API.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class BibliotecaController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BibliotecaController : ControllerBase
+    private readonly IBibliotecaService _service;
+
+    public BibliotecaController(IBibliotecaService service)
     {
-        private readonly IBibliotecaService _servicio;
+        _service = service;
+    }
 
-        public BibliotecaController(IBibliotecaService servicio)
-        {
-            _servicio = servicio;
-        }
+    [HttpGet("capitulos")]
+    public async Task<ActionResult<ServiceResult<List<CapituloDto>>>> ObtenerCapitulos()
+    {
+        var result = await _service.ObtenerCapitulosAsync();
+        return StatusCode(result.StatusCode ?? 200, result);
+    }
 
-        [HttpGet("contenidos")]
-        public async Task<ServiceResult<List<ContenidoCapituloDto>>> ObtenerContenidos()
-        {
-            var resultado = await _servicio.ObtenerContenidosAsync();
-            if (resultado.Success)
-            {
-                return ServiceResult<List<ContenidoCapituloDto>>.Ok(resultado.Data, resultado.Message);
-            }
-            else
-            { 
-                return ServiceResult<List<ContenidoCapituloDto>>.Fail(resultado.Message, resultado.StatusCode);
-            }
-        }
+    [HttpGet("capitulos/{idCapitulo:int}")]
+    public async Task<ActionResult<ServiceResult<CapituloDto>>> ObtenerCapitulo(int idCapitulo)
+    {
+        var result = await _service.ObtenerCapituloPorIdAsync(idCapitulo);
+        return StatusCode(result.StatusCode ?? 200, result);
+    }
 
-        [HttpGet("Capitulo/{Id}")]
-        public async Task<ServiceResult<ContenidoCapituloDto>> ObtenerCapituloAsync(int Id)
-        {
-            var resultado = await _servicio.ObtenerCapituloAsync(Id);
-            if (resultado.Success)
-            {
-                return ServiceResult<ContenidoCapituloDto>.Ok(resultado.Data, resultado.Message); 
-            }
-            else
-            {
-                return ServiceResult<ContenidoCapituloDto>.Fail(resultado.Message, resultado.StatusCode); 
-            }
-        }
+    [HttpGet("contenidos/recomendados")]
+    public async Task<ActionResult<ServiceResult<List<ContenidoCapituloDto>>>> ObtenerContenidosRecomendados(
+       [FromQuery] int count = 5,
+       [FromQuery] int? maxIdContenido = null
+   )
+    {
+        var result = await _service.ObtenerContenidosRecomendadosRandomAsync(count, maxIdContenido);
+        return StatusCode(result.StatusCode ?? 200, result);
     }
 }

@@ -1,7 +1,7 @@
 ﻿@rendermode InteractiveServer
 @using ACC.Shared.DTOs
 @using ACC.WebApp.Client.Services
-@inject ClientCapitulosService CapsSvc
+@inject BibliotecaClientService BibliotecaSvc
 
 <div class="resumen-interes card">
     <h2>Esto podría interesarte</h2>
@@ -38,7 +38,8 @@
     {
         try
         {
-            _recs = await CapsSvc.GetCapitulosRecomendadosRandomAsync(MaxId, Count);
+            var res = await BibliotecaSvc.ObtenerRecomendadosAsync(count: Count, maxIdContenido: MaxId);
+            _recs = res.Success ? (res.Data ?? new()) : new();
         }
         catch
         {

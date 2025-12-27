@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 
 namespace ACC.Data.Entities
 {
@@ -39,7 +40,7 @@ namespace ACC.Data.Entities
         /// Contenido principal de la lección el cual es renderizado (puede incluir HTML, markdown, etc.).
         /// </summary>
         [Obsolete("Campo obsoleto, se fragmento en las nuevas propiedades 'Teoria', 'Practica', 'Ejemplo'")]
-        public string HtmlBody { get; set; } = string.Empty;
+        public string? HtmlBody { get; set; }
         
         /// <summary>
         /// Indica si la lección tiene una actividad asociada.
@@ -56,7 +57,6 @@ namespace ACC.Data.Entities
         /// <summary>
         /// Indica si la lección tiene una evaluación asociada.
         /// </summary>
-        [AllowedValues("true", "false")]
         public bool TieneEvaluacion { get; set; } = false;
 
         /// <summary>
@@ -95,7 +95,9 @@ namespace ACC.Data.Entities
         /// <summary>
         /// propiedad para manejar el cuerpo de las evaluaciones y renderizarlas luego
         /// </summary>
-        public string? CuerpoEvaluacion { get; set; } = null;
+        //public string? CuerpoEvaluacion { get; set; } = null;
+
+
 
         /// <summary>
         /// Seccion teorica de las lecciones, en formato html
@@ -109,6 +111,24 @@ namespace ACC.Data.Entities
         /// Seccion de ejemplos en la leccion, simples y sencillos o mas extensos si es nesesario.
         /// </summary>
         public string Ejemplo { get; set; } = string.Empty;
+
+        // ------------------ Fin de la nueva implementación ------------------ //
+
+        // Añadidos: CharpTip y CharpDialog
+        /// <summary>
+        /// Propiedad para manejar el tip Charp en las lecciones.
+        /// </summary>
+        public string? CharpTip { get; set; } = null;
+        /// <summary>
+        /// Propiedad para manejar el diálogo Charp en las lecciones.
+        /// </summary>
+        public string? CharpDialog { get; set; } = null;
+
+        /// <summary>
+        /// Nivel de la taxonomia de bloom asociado a la lección.
+        /// Recordar, Comprender, Aplicar, Analizar, Evaluar, Crear
+        /// </summary>
+        public string NivelBloom { get; set; } = string.Empty;
 
 
         // --- // ------------------ Implementación de la interfaz INodoJerarquico ------------------ // --- //

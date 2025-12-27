@@ -32,7 +32,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<BibliotecaService>();
+builder.Services.AddScoped<BibliotecaClientService>();
 builder.Services.AddScoped<ProgresoUsuarioClient>();
 //builder.Services.AddScoped<BloquesContenidoClient>(); // servicio cancelado por falta de tiempo para su implementación
 builder.Services.AddScoped<IdentityRedirectManager>();
@@ -43,8 +43,6 @@ builder.Services.AddScoped<NavegacionContenidoClient>();
 // --- Examenes:
 builder.Services.AddScoped<ExamenesServiceClient>();
 // Program.cs (WebApp)
-builder.Services.AddScoped<ClientCapitulosService>();
-
 // Cadenas de Conexión a base de datos de identidad // 
 
 // desarrollo: "DefaultConnection"
@@ -84,7 +82,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 builder.Services.AddHttpClient("ACC.API", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiUrl"]);
+    client.BaseAddress = new Uri(uriString: builder.Configuration["ApiUrl"]);
 });
 
 //Habilita la compresión

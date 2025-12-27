@@ -5,48 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ACC.Shared.DTOs
+namespace ACC.Shared.DTOs;
+
+/// <summary>
+/// CapituloDto ---> Representa un capítulo dentro de la estructura de contenidos de la biblioteca.
+/// </summary>
+public class CapituloDto
 {
-    /// <summary>
-    /// CapituloDto ---> Representa un capítulo dentro de la estructura de contenidos.
-    /// </summary>
-    public class CapituloDto
-    {
-        /// <summary>
-        /// Id del capítulo.
-        /// </summary>
-        public int IdCapitulo { get; set; }
+    public int IdCapitulo { get; set; }
 
-        /// <summary>
-        /// Nombre o título del capítulo.
-        /// </summary>
-        public string NombreCapitulo { get; set; }
+    public string TituloCapitulo { get; set; } = string.Empty;
+    public string SubtituloCapitulo { get; set; } = string.Empty;
+    public string Descripcion { get; set; } = string.Empty;
 
-        public string HtmlBody { get; set; } = string.Empty;
+    public int? ModuloId { get; set; }
+    public int? SubmoduloId { get; set; }
+    public int? TemaId { get; set; }
+    public int? LeccionId { get; set; }
 
-        /// <summary>
-        /// Descripción general del capítulo.
-        /// </summary>
-        public string Descripcion { get; set; }
-
-        /// <summary>
-        /// Id del módulo al que pertenece el capítulo.
-        /// </summary>
-        public int ModuloId { get; set; }
-
-        /// <summary>
-        /// Id del submódulo al que pertenece el capítulo.
-        /// </summary>
-        public int SubmoduloId { get; set; }
-
-        /// <summary>
-        /// Id del tema al que pertenece el capítulo.
-        /// </summary>
-        public int TemaId { get; set; }
-
-        /// <summary>
-        /// Id de la lección asociada, si aplica.
-        /// </summary>
-        public int? LeccionId { get; set; }
-    }
+    public List<TagDto> Tags { get; set; } = new();
+    public List<ContenidoCapituloDto> Contenidos { get; set; } = new();
 }

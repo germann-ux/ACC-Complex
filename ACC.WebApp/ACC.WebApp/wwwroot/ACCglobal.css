@@ -1,7 +1,8 @@
 /* ======================================================
-   ACC — REFAC CSS a tema unificado (tokens ya definidos)
-   - Usa solo variables --acc-* / --biblioteca-*
-   - Fondos de tarjetas/componentes: --biblioteca-secondary-dark
+   ACC — REFAC CSS a tema unificado (DESACOPLADO DE BIBLIOTECA)
+   - Todo lo que era --biblioteca-* ahora es --acc-*
+   - Si no existía token ACC equivalente, se crea con el MISMO valor
+   - NO se modifica estructura (paddings/margins/rem/layout)
    ====================================================== */
 
 /* Compatibilidad con tu preferencia en <h3> y labels */
@@ -15,7 +16,6 @@ h3 {
     margin: .8rem 0 .5rem;
 }
 
-
 /* Página / contenedor principal */
 .page {
     background-color: var(--acc-bg-1);
@@ -23,7 +23,6 @@ h3 {
 
 .content {
     padding-top: 1.1rem;
-    /* centrar el contenido */
     margin: 0 auto;
     max-width: 1200px;
 }
@@ -61,46 +60,45 @@ a, .btn-link {
 
 /* Estados de validación */
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #22c55e;
+    outline: 1px solid var(--acc-success-500);
 }
 
 .invalid {
-    outline: 1px solid #ef4444;
+    outline: 1px solid var(--acc-danger-500);
 }
 
 .validation-message {
-    color: #ef4444;
+    color: var(--acc-danger-500);
 }
 
 /* Borde más oscuro para checkbox cuando aplique */
 .darker-border-checkbox.form-check-input {
-    border-color: #929292;
+    border-color: var(--acc-border-strong);
 }
 
 /* -----------------------------
    Chatbase (móviles)
    ----------------------------- */
 @media (max-width: 768px) {
-    /* Ajustar el botón del chatbot */
     #chatbase-bubble-button {
-        bottom: 80px !important; /* Mover el botón hacia arriba en móviles */
+        bottom: 80px !important;
         right: 20px !important;
-        z-index: 2147483647 !important; /* Asegurar visibilidad */
+        z-index: 2147483647 !important;
     }
-    /* Ajustar los mensajes de burbuja */
+
     #chatbase-message-bubbles {
-        bottom: 140px !important; /* Relación con el botón */
+        bottom: 140px !important;
         right: 20px !important;
-        z-index: 2147483646 !important; /* Detrás del botón */
+        z-index: 2147483646 !important;
     }
-    /* Ajustar la ventana principal del chatbot */
+
     #chatbase-bubble-window {
-        bottom: 120px !important; /* Evitar menú inferior */
+        bottom: 120px !important;
         right: 10px !important;
-        width: calc(100% - 20px) !important; /* Casi todo el ancho */
-        max-height: 75vh !important; /* Limitar altura */
-        overflow: auto !important; /* Scroll si es necesario */
-        z-index: 2147483645 !important; /* Menor que los mensajes */
+        width: calc(100% - 20px) !important;
+        max-height: 75vh !important;
+        overflow: auto !important;
+        z-index: 2147483645 !important;
     }
 }
 
@@ -108,10 +106,10 @@ a, .btn-link {
    Blazor error boundary
    ----------------------------- */
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, color-mix(in srgb, #b32121 85%, black);
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, var(--acc-danger-surface);
     padding: 1rem 1rem 1rem 3.7rem;
     color: var(--acc-text);
-    border: 1px solid var(--biblioteca-border-color);
+    border: 1px solid var(--acc-border);
     border-radius: var(--acc-radius);
 }
 
@@ -127,11 +125,11 @@ a, .btn-link {
     max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
-    background-color: var(--biblioteca-secondary-dark); /* oficial */
+    background-color: var(--acc-surface-2);
     color: var(--acc-text);
     border-radius: var(--acc-radius);
     box-shadow: var(--acc-shadow);
-    border: 1px solid var(--biblioteca-border-color);
+    border: 1px solid var(--acc-border);
 }
 
     .subtema-container h3 {
@@ -155,8 +153,8 @@ a, .btn-link {
 }
 
 .subtema-item {
-    background: var(--biblioteca-secondary-dark);
-    border-left: 6px solid var(--biblioteca-border-color);
+    background: var(--acc-surface-2);
+    border-left: 6px solid var(--acc-border);
     border-radius: var(--acc-radius-sm);
     padding: 15px;
     margin-bottom: 15px;
@@ -183,9 +181,7 @@ a, .btn-link {
 }
 
 .subtema-item button {
-    /* usa el botón estándar */
     composes: btn btn--primary;
-    /* fallback si no usas CSS Modules: */
     background: var(--acc-brand-600);
     color: #fff;
     border: none;
@@ -200,23 +196,22 @@ a, .btn-link {
 .leccion-container {
     font-family: Arial, sans-serif;
     max-width: 1200px;
-    background-color: var(--biblioteca-secondary-dark);
-    border-left: 5px solid var(--biblioteca-border-color);
+    background-color: var(--acc-surface-2);
+    border-left: 5px solid var(--acc-border);
     border-radius: var(--acc-radius-sm);
     padding: 15px;
-    margin: 0 auto; /* Centrar */
-    border: 1px solid var(--biblioteca-border-color);
+    margin: 0 auto;
+    border: 1px solid var(--acc-border);
     box-shadow: var(--acc-shadow);
 }
 
-    /* Secciones dentro de lecciones */
     .leccion-container .leccion-teoria,
     .leccion-container .leccion-ejemplos,
     .leccion-container .leccion-practicas {
         margin-bottom: 20px;
         padding: 20px;
-        background-color: var(--biblioteca-secondary-dark);
-        border-left: 5px solid var(--biblioteca-border-color);
+        background-color: var(--acc-surface-2);
+        border-left: 5px solid var(--acc-border);
         border-radius: var(--acc-radius-sm);
         box-shadow: var(--acc-shadow);
         align-content: center;
@@ -235,7 +230,6 @@ a, .btn-link {
         line-height: 1.6;
     }
 
-    /* Listas */
     .leccion-container ul {
         margin: 0 0 10px 20px;
         padding: 0;
@@ -248,30 +242,28 @@ a, .btn-link {
         color: var(--acc-text);
     }
 
-    /* Tablas */
     .leccion-container table {
         width: 100%;
         border-collapse: collapse;
         margin: 20px 0;
-        background-color: var(--biblioteca-secondary-dark);
-        border: 1px solid var(--biblioteca-border-color);
+        background-color: var(--acc-surface-2);
+        border: 1px solid var(--acc-border);
         color: var(--acc-text);
     }
 
         .leccion-container table th,
         .leccion-container table td {
-            border: 1px solid var(--biblioteca-border-color);
+            border: 1px solid var(--acc-border);
             padding: 10px;
             text-align: left;
         }
 
         .leccion-container table thead th {
-            background: color-mix(in srgb, var(--biblioteca-secondary-dark) 85%, black);
+            background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
             color: var(--acc-text);
             font-weight: 700;
         }
 
-    /* Código */
     .leccion-container pre,
     .leccion-container code {
         background-color: var(--acc-bg-3);
@@ -285,7 +277,6 @@ a, .btn-link {
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
     }
 
-    /* Botones dentro de lección */
     .leccion-container button {
         padding: .6rem 1rem;
         background-color: var(--acc-brand-600);
@@ -301,7 +292,6 @@ a, .btn-link {
             background-color: var(--acc-brand-700);
         }
 
-    /* Imágenes */
     .leccion-container img {
         max-width: 100%;
         height: auto;
@@ -312,14 +302,14 @@ a, .btn-link {
 
     /* Destacados */
     .leccion-container .highlight {
-        color: #ffcc00;
+        color: var(--acc-warning-accent);
         font-weight: bold;
     }
 
-    /* Alertas (paleta sobria sobre surfaces) */
+    /* Alertas */
     .leccion-container .alert {
         padding: 15px;
-        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--biblioteca-secondary-dark));
+        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--acc-surface-2));
         color: var(--acc-text);
         border-left: 5px solid var(--acc-brand-700);
         border-radius: var(--acc-radius-sm);
@@ -328,32 +318,32 @@ a, .btn-link {
     }
 
     .leccion-container .alert-info {
-        background-color: color-mix(in srgb, var(--acc-blue-600) 15%, var(--biblioteca-secondary-dark));
+        background-color: color-mix(in srgb, var(--acc-blue-600) 15%, var(--acc-surface-2));
         border-left-color: var(--acc-blue-600);
     }
 
     .leccion-container .alert-success {
-        background-color: color-mix(in srgb, #22c55e 15%, var(--biblioteca-secondary-dark));
-        border-left-color: #22c55e;
+        background-color: color-mix(in srgb, var(--acc-success-500) 15%, var(--acc-surface-2));
+        border-left-color: var(--acc-success-500);
     }
 
     .leccion-container .alert-warning {
-        background-color: color-mix(in srgb, #f59e0b 15%, var(--biblioteca-secondary-dark));
-        border-left-color: #f59e0b;
+        background-color: color-mix(in srgb, var(--acc-warning-500) 15%, var(--acc-surface-2));
+        border-left-color: var(--acc-warning-500);
     }
 
     .leccion-container .alert-error {
-        background-color: color-mix(in srgb, #ef4444 15%, var(--biblioteca-secondary-dark));
-        border-left-color: #ef4444;
+        background-color: color-mix(in srgb, var(--acc-danger-500) 15%, var(--acc-surface-2));
+        border-left-color: var(--acc-danger-500);
     }
 
-    /* Fomentador (caja destacada) */
+    /* Fomentador */
     .fomentador,
     .leccion-container .fomentador {
         padding: 15px;
-        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--biblioteca-secondary-dark));
+        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--acc-surface-2));
         color: var(--acc-text);
-        border-left: 5px solid var(--biblioteca-border-color);
+        border-left: 5px solid var(--acc-border);
         border-radius: var(--acc-radius-sm);
         margin: 20px 0;
         font-size: 1rem;
@@ -372,20 +362,18 @@ a, .btn-link {
                 color: var(--acc-brand-700);
             }
 
-/*
-    BOTON EQUISDE
-*/
-.expand-btn{
-    margin: 1rem 0 1rem; 
+/* BOTON EQUISDE */
+.expand-btn {
+    margin: 1rem 0 1rem;
 }
-/* Iframe responsivo (corregido selector: era clase sin punto) */
+
 .responsive-iframe-no-modal {
     width: 100%;
-    aspect-ratio: 16 / 9; /* Mantiene proporción de video HD */
+    aspect-ratio: 16 / 9;
     border: none;
 }
 
-/* Fuentes personalizadas (comentarios corregidos) */
+/* Fuentes */
 @font-face {
     font-family: 'Nunito';
     font-style: normal;
@@ -397,16 +385,16 @@ a, .btn-link {
 
 @font-face {
     font-family: 'Graduate';
-    font-style: normal; /* import de la fuente personalizada */
+    font-style: normal;
     font-weight: 400;
     font-display: swap;
     src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Icono resumen (mantengo tu acento) */
+/* Icono resumen */
 .resumen .fa-solid {
-    color: #d0d122;
+    color: var(--acc-warning-icon);
 }
 
 /* Charp container */
@@ -417,51 +405,34 @@ a, .btn-link {
     max-width: 1200px;
 }
 
-
 /* -------------------------------------------------------
    ACC THEME — Única fuente de verdad (tokens + base)
    ---------------------------------------------------- */
 
-/* Alias de compatibilidad mientras migras (puedes retirarlos al final) */
-:root {
-    --biblioteca-primary-dark: #121218;
-    --biblioteca-secondary-dark: #1e1e2a; /* SUPERFICIES/TARJETAS OFICIAL */
-    --biblioteca-tertiary-dark: #282838;
-    --biblioteca-hover-dark: #32324a;
-    --biblioteca-primary-purple: #8b5cf6;
-    --biblioteca-secondary-purple: #7c3aed;
-    --biblioteca-primary-blue: #4f46e5;
-    --biblioteca-secondary-blue: #3730a3;
-    --biblioteca-text-white: #f8fafc;
-    --biblioteca-text-gray: #cbd5e1;
-    --biblioteca-border-color: #3f3f5a;
-    --biblioteca-transition-speed: 0.2s ease;
-}
-
 /* Tokens (variables) */
 :root {
     /* Paleta base (oscuros) */
-    --acc-bg-0: #0f0f0f; /* fondo raíz más profundo */
-    --acc-bg-1: #121218; /* fondo app (primario oscuro) */
-    --acc-bg-2: #1e1e2a; /* surfaces/tarjetas (SECUNDARIO OFICIAL) */
-    --acc-bg-3: #282838; /* elevación intermedia */
-    --acc-bg-hover: #32324a; /* hover sobre fondos oscuros */
+    --acc-bg-0: #0f0f0f;
+    --acc-bg-1: #121218;
+    --acc-bg-2: #1e1e2a;
+    --acc-bg-3: #282838;
+    --acc-bg-hover: #32324a;
     /* Bordes / separadores */
     --acc-border: #3f3f5a;
     /* Texto */
     --acc-text: #f8fafc;
     --acc-text-muted: #cbd5e1;
-    /* Marca (lila oficial y escalas) */
-    --acc-brand-600: #9926fe; /* ACENTO OFICIAL */
+    /* Marca */
+    --acc-brand-600: #9926fe;
     --acc-brand-700: #7c3aed;
     --acc-brand-800: #3d1f5c;
     --acc-brand-900: #2a003f;
-    /* Azul de apoyo (si se requiere) */
+    /* Azul de apoyo */
     --acc-blue-600: #4f46e5;
     --acc-blue-700: #3730a3;
-    /* Gradiente unificado (sidebar/top-row) */
+    /* Gradiente */
     --acc-grad-start: var(--acc-bg-0);
-    --acc-grad-mid: #1c0b33; /* azul violáceo que conversa con #9926fe */
+    --acc-grad-mid: #1c0b33;
     --acc-grad-end: var(--acc-brand-900);
     /* Dimensiones y motion */
     --acc-radius: 12px;
@@ -470,12 +441,29 @@ a, .btn-link {
     --acc-transition: 0.2s ease;
     /* Focus accesible */
     --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
+    /* ======================================================
+       NUEVOS TOKENS ACC (equivalencias de Biblioteca)
+       - para NO depender de --biblioteca-*
+       - valores copiados para NO cambiar look
+       ====================================================== */
+    /* Superficies */
+    --acc-surface-2: #1e1e2a; /* antes: --biblioteca-secondary-dark */
+    --acc-surface-3: #282838; /* antes: --biblioteca-tertiary-dark */
+    --acc-surface-hover: #32324a; /* antes: --biblioteca-hover-dark */
+    /* Bordes/texto auxiliares */
+    --acc-border-strong: #929292; /* antes: darker checkbox */
+    /* Semánticos */
+    --acc-success-500: #22c55e;
+    --acc-warning-500: #f59e0b;
+    --acc-danger-500: #ef4444;
+    /* Acentos puntuales existentes en tu CSS */
+    --acc-warning-accent: #ffcc00; /* antes highlight */
+    --acc-warning-icon: #d0d122; /* antes icono resumen */
+    /* Superficie de error boundary (se conserva visualmente) */
+    --acc-danger-surface: color-mix(in srgb, #b32121 85%, black);
 }
 
-
-/* -------------------------------------------------------
-   Reset suave & tipografía
-   ---------------------------------------------------- */
+/* Reset suave & tipografía */
 *,
 *::before,
 *::after {
@@ -512,9 +500,7 @@ button {
     font: inherit;
 }
 
-/* -------------------------------------------------------
-   Layouts clave: Top Row & Sidebar (mismo gradiente)
-   ---------------------------------------------------- */
+/* Layouts clave: Top Row & Sidebar */
 .top-row {
     background: linear-gradient(to right, var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end) );
     color: var(--acc-text);
@@ -527,14 +513,11 @@ button {
     border-right: 1px solid var(--acc-border);
 }
 
-/* -------------------------------------------------------
-   Superficies / Tarjetas / Componentes
-   (USAR SIEMPRE --biblioteca-secondary-dark)
-   ---------------------------------------------------- */
+/* Superficies / Tarjetas / Componentes */
 .card, .panel, .surface, .module, .component-surface {
-    background: var(--biblioteca-secondary-dark); /* tu regla oficial */
+    background: var(--acc-surface-2);
     color: var(--acc-text);
-    border: 1px solid var(--biblioteca-border-color);
+    border: 1px solid var(--acc-border);
     border-radius: var(--acc-radius);
     box-shadow: var(--acc-shadow);
 }
@@ -546,21 +529,19 @@ button {
 
 .section-header,
 .block-header {
-    background: color-mix(in srgb, var(--biblioteca-secondary-dark) 85%, black);
-    border-bottom: 1px solid var(--biblioteca-border-color);
+    background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
+    border-bottom: 1px solid var(--acc-border);
 }
 
 /* Separadores */
 .hr, hr {
     border: 0;
-    border-top: 1px solid var(--biblioteca-border-color);
+    border-top: 1px solid var(--acc-border);
     opacity: .7;
     margin: 1rem 0;
 }
 
-/* -------------------------------------------------------
-   Botón estándar ACC
-   ---------------------------------------------------- */
+/* Botón estándar ACC */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -574,9 +555,8 @@ button {
     transition: var(--acc-transition);
 }
 
-/* Estándar (Primario) — lila oficial */
 .btn--primary {
-    background-color: var(--acc-brand-600); /* #9926fe */
+    background-color: var(--acc-brand-600);
     color: #fff;
 }
 
@@ -593,7 +573,6 @@ button {
         box-shadow: var(--acc-focus);
     }
 
-/* Variante Ghost (para topbar o fondos muy oscuros) */
 .btn--ghost {
     background: transparent;
     color: var(--acc-text);
@@ -604,9 +583,8 @@ button {
         background: color-mix(in srgb, var(--acc-text) 6%, transparent);
     }
 
-/* Variante Danger (opcional) */
 .btn--danger {
-    background: #ef4444; /* rojo accesible */
+    background: var(--acc-danger-500);
     color: #fff;
 }
 
@@ -618,9 +596,7 @@ button {
         background: #b91c1c;
     }
 
-/* -------------------------------------------------------
-   Inputs / Selects / Textareas
-   ---------------------------------------------------- */
+/* Inputs / Selects / Textareas */
 .input,
 input[type="text"],
 input[type="email"],
@@ -629,9 +605,9 @@ input[type="search"],
 select,
 textarea {
     width: 100%;
-    background: var(--biblioteca-secondary-dark); /* consistente con surfaces */
+    background: var(--acc-surface-2);
     color: var(--acc-text);
-    border: 1px solid var(--biblioteca-border-color);
+    border: 1px solid var(--acc-border);
     border-radius: var(--acc-radius-sm);
     padding: .55rem .7rem;
     transition: var(--acc-transition);
@@ -640,7 +616,7 @@ textarea {
     .input::placeholder,
     input::placeholder,
     textarea::placeholder {
-        color: var(--biblioteca-text-gray);
+        color: var(--acc-text-muted);
     }
 
     .input:focus,
@@ -652,24 +628,21 @@ textarea {
         outline: none;
     }
 
-    /* Estados de validación simples */
     .input--error,
     input.is-invalid,
     select.is-invalid,
     textarea.is-invalid {
-        border-color: #ef4444;
+        border-color: var(--acc-danger-500);
     }
 
     .input--success,
     input.is-valid,
     select.is-valid,
     textarea.is-valid {
-        border-color: #22c55e;
+        border-color: var(--acc-success-500);
     }
 
-/* -------------------------------------------------------
-   Listas, enlaces de navegación, badges
-   ---------------------------------------------------- */
+/* Nav/list */
 .nav a,
 .menu a,
 .list a {
@@ -693,36 +666,32 @@ textarea {
     padding: .25rem .5rem;
     border-radius: 999px;
     font-weight: 600;
-    background: color-mix(in srgb, var(--acc-brand-600) 18%, var(--biblioteca-secondary-dark));
+    background: color-mix(in srgb, var(--acc-brand-600) 18%, var(--acc-surface-2));
     color: var(--acc-text);
-    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 40%, var(--biblioteca-secondary-dark));
+    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 40%, var(--acc-surface-2));
 }
 
-/* -------------------------------------------------------
-   Tablas (surfaces consistentes)
-   ---------------------------------------------------- */
+/* Tablas */
 .table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--biblioteca-secondary-dark);
-    border: 1px solid var(--biblioteca-border-color);
+    background: var(--acc-surface-2);
+    border: 1px solid var(--acc-border);
     border-radius: var(--acc-radius);
     overflow: hidden;
 }
 
     .table th, .table td {
         padding: .75rem .9rem;
-        border-bottom: 1px solid var(--biblioteca-border-color);
+        border-bottom: 1px solid var(--acc-border);
     }
 
     .table thead th {
-        background: color-mix(in srgb, var(--biblioteca-secondary-dark) 85%, black);
+        background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
         text-align: left;
     }
-    /*body*/
-/* -------------------------------------------------------
-   Utilidades mínimas
-   ---------------------------------------------------- */
+
+/* Utilidades */
 .text-muted {
     color: var(--acc-text-muted);
 }
@@ -740,17 +709,14 @@ textarea {
 }
 
 .border {
-    border: 1px solid var(--biblioteca-border-color);
+    border: 1px solid var(--acc-border);
 }
 
 .surface {
-    background: var(--biblioteca-secondary-dark);
+    background: var(--acc-surface-2);
 }
 
-
-/* ======================================================
-   ACC — Select refinado (versión responsive y accesible)
-   ====================================================== */
+/* Select refinado (con tokens ACC) */
 select {
     appearance: none;
     -webkit-appearance: none;
@@ -760,38 +726,31 @@ select {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    /* Colores y contraste */
-    color: var(--acc-text-primary, #ccc);
-    background-color: var(--acc-surface-100, #1e1e1e);
-    border: 1.5px solid var(--acc-brand-600, #9926fe);
+    color: var(--acc-text);
+    background-color: var(--acc-surface-2);
+    border: 1.5px solid var(--acc-brand-600);
     border-radius: 0.75rem;
-    padding: 0.6rem 2.5rem 0.6rem 1rem;
-    /* Icono de flecha */
-    background-image: linear-gradient(45deg, transparent 50%, var(--acc-brand-600, #9926fe) 50%), linear-gradient(135deg, var(--acc-brand-600, #9926fe) 50%, transparent 50%);
-    background-position: right 1rem center, right 0.75rem center;
-    background-size: 8px 8px, 8px 8px;
+    padding: 0.6rem 1rem;
+    background-image: none;
     background-repeat: no-repeat;
     transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 }
 
-    /* Hover y Focus */
     select:hover {
-        border-color: color-mix(in srgb, var(--acc-brand-600, #9926fe), white 25%);
+        border-color: color-mix(in srgb, var(--acc-brand-600), white 25%);
     }
 
     select:focus {
         outline: none;
-        border-color: var(--acc-brand-600, #9926fe);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600, #9926fe), transparent 75%);
+        border-color: var(--acc-brand-600);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600), transparent 75%);
     }
 
-    /* Opciones internas */
     select option {
-        background-color: var(--acc-surface-200, #2b2b2b);
-        color: var(--acc-text-primary, #ccc);
+        background-color: var(--acc-surface-3);
+        color: var(--acc-text);
     }
 
-/* Adaptabilidad */
 @media (max-width: 600px) {
     select {
         font-size: 0.95rem;

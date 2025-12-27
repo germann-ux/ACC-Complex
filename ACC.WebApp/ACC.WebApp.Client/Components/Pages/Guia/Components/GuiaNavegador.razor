@@ -32,7 +32,7 @@
         {
             // Carga paralela: módulos + (exámenes submódulo + módulo)
             var modulosTask = Navegacion.ObtenerModulosAsync();
-            var subTask = ExamenesService.ObtenerExamanesSubMAsync(); // ojo al nombre aquí
+            var subTask = ExamenesService.ObtenerExamanesSubMAsync();
             var modTask = ExamenesService.ObtenerExamenesModAsync();
 
             await Task.WhenAll(modulosTask, subTask, modTask);
@@ -43,7 +43,6 @@
         }
         catch (Exception ex)
         {
-            // Divide y vencerás: deja rastros distintos
             if (modulos.Count == 0) errorModulos = ex.Message;
             errorExamenes = ex.Message;
         }
@@ -57,7 +56,7 @@
     private void SeleccionarModulo(int idModulo)
     {
         moduloSeleccionadoId = idModulo;
-        // Más adelante: aquí puedes disparar carga específica por submódulo si lo deseas
+        // Más adelante: aquí se puede disparar carga específica por submódulo si es nesesario. 
         // await CargarExamenesDeSubmoduloAsync(idSubModulo);
     }
 }
@@ -116,9 +115,10 @@
         @if (examenesMod.Count > 0)
         {
             <ExamenesMain ExamenesModulo="@examenesMod" />
-        }
+        }        
         @if (examenesSubM.Count > 0)
         {
+            <br />
             <ExamenesMain ExamenesSubModulo="@examenesSubM" />
         }
     }

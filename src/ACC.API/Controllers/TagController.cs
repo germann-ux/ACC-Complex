@@ -40,13 +40,13 @@ namespace ACC.API.Controllers
         public async Task<ActionResult<Tag>> CreateTag(TagDto tag)
         {
             var createdTag = await _tagService.CreateTagAsync(tag);
-            return CreatedAtAction(nameof(GetTagById), new { id = createdTag.Id_Tag }, createdTag);
+            return CreatedAtAction(nameof(GetTagById), new { id = createdTag.IdTag }, createdTag);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTag(int id, TagDto tag)
         {
-            if (id != tag.Id_Tag)
+            if (id != tag.IdTag)
             {
                 return BadRequest();
             }
@@ -87,8 +87,8 @@ namespace ACC.API.Controllers
 
             var resultado = tags.Select(t => new
             {
-                t.Id_Tag,
-                t.NombreTag
+                t.IdTag,
+                t.Nombre
             });
 
             return Ok(resultado);

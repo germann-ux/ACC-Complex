@@ -5,46 +5,92 @@ using ACC.Shared.DTOs;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
-namespace ACC.API.Services
+
+namespace ACC.API.Services; 
+public class BibliotecaService : IBibliotecaService
 {
-    public class BibliotecaService : IBibliotecaService
+    private readonly ACCDbContext _contexto;
+    private readonly IMapper _mapper;
+
+    public BibliotecaService(ACCDbContext contexto, IMapper mapper)
     {
-        private readonly ACCDbContext _context;
-        private readonly IMapper _mapper;
+        _contexto = contexto;
+        _mapper = mapper;
+    }
 
-        public BibliotecaService(ACCDbContext context, IMapper mapper)
+    public async Task<ServiceResult<List<CapituloDto>>> ObtenerCapitulosAsync()
+    {
+        try
         {
-            _context = context;
-            _mapper = mapper;
+            var capitulos = await _contexto.Capitulos
+                .AsNoTracking()
+                .Include(c => c.Contenidos)
+                .Include(c => c.CapituloTags!)
+                    .ThenInclude(ct => ct.Tag)
+                .OrderBy(c => c.IdCapitulo)
+                .ToListAsync();
+
+            var dto = _mapper.Map<List<CapituloDto>>(capitulos);
+
+            return ServiceResult<List<CapituloDto>>.Ok(dto);
         }
-
-        public async Task<ServiceResult<List<ContenidoCapituloDto>>> ObtenerContenidosAsync()
+        catch (Exception ex)
         {
-            var contenidos = await _context.ContenidoCapitulos.ToListAsync();
-            //return _mapper.Map<List<ContenidoCapituloDto>>(contenidos);
-            var contenidosDto = _mapper.Map<List<ContenidoCapituloDto>>(contenidos);
-            if (contenidosDto.Count <= 0)
-            {
-                return ServiceResult<List<ContenidoCapituloDto>>.Fail("No se encontraron contenidos disponibles.", HttpStatusCodes.NotFound);
-            }
-            else
-            {
-                return ServiceResult<List<ContenidoCapituloDto>>.Ok(contenidosDto, "Contenidos obtenidos exitosamente.");
-            }
+            return ServiceResult<List<CapituloDto>>.Error(ex);
         }
+    }
 
-        public async Task<ServiceResult<ContenidoCapituloDto>> ObtenerCapituloAsync(int Id)
+    public async Task<ServiceResult<CapituloDto>> ObtenerCapituloPorIdAsync(int idCapitulo)
+    {
+        try
         {
-            var Capitulo = await _context.ContenidoCapitulos.FirstOrDefaultAsync(cap => cap.IdContenido == Id);
-            if (Capitulo.Titulo == null || Capitulo.Subtitulo == null || Capitulo.HtmlBody == null)
-            {
-                return ServiceResult<ContenidoCapituloDto>.Fail("El capitulo no cumple con los estandares de contenido", HttpStatusCodes.BadRequest); 
-            }
-            else
-            {
-                var CapituloDto = _mapper.Map<ContenidoCapituloDto>(Capitulo); 
-                return ServiceResult<ContenidoCapituloDto>.Ok(CapituloDto, "operacion realizada con exito"); 
-            }
+            var capitulo = await _contexto.Capitulos
+                .AsNoTracking()
+                .Include(c => c.Contenidos)
+                .Include(c => c.CapituloTags!)
+                    .ThenInclude(ct => ct.Tag)
+                .FirstOrDefaultAsync(c => c.IdCapitulo == idCapitulo);
+
+            if (capitulo is null)
+                return ServiceResult<CapituloDto>.NotFound("Capítulo no encontrado.");
+
+            var dto = _mapper.Map<CapituloDto>(capitulo);
+
+            return ServiceResult<CapituloDto>.Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<CapituloDto>.Error(ex);
+        }
+    }
+
+    public async Task<ServiceResult<List<ContenidoCapituloDto>>> ObtenerContenidosRecomendadosRandomAsync(int count, int? maxIdContenido)
+    {
+        try
+        {
+            // evita inputs absurdos
+            count = Math.Clamp(count, 1, 20);
+
+            var q = _contexto.ContenidoCapitulos
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (maxIdContenido.HasValue)
+                q = q.Where(x => x.IdContenido <= maxIdContenido.Value);
+
+            // Si tienes un campo "Publicado/Activo/EsVisible" aquí es el lugar perfecto para filtrar.
+
+            var contenidos = await q
+                .OrderBy(_ => Guid.NewGuid()) // random en SQL (NEWID)
+                .Take(count)
+                .ToListAsync();
+
+            var dto = _mapper.Map<List<ContenidoCapituloDto>>(contenidos);
+            return ServiceResult<List<ContenidoCapituloDto>>.Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<List<ContenidoCapituloDto>>.Error(ex);
         }
     }
 }

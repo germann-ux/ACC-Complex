@@ -79,7 +79,11 @@ public class ACCmappingProfile : Profile
         CreateMap<Tema, TemaDto>().ReverseMap();
 
         // Mapeo entre Capitulo y CapituloDto
-        CreateMap<Capitulo, CapituloDto>().ReverseMap();
+        CreateMap<Capitulo, CapituloDto>()
+            .ForMember(d => d.Tags, opt => opt.MapFrom
+            (s => s.CapituloTags != null ? s.CapituloTags.Select(ct => ct.Tag) : Enumerable.Empty<Tag?>()))
+            .ForMember(d => d.Contenidos, opt => opt.MapFrom(s => s.Contenidos));
+
 
         // Mapeo entre UsuarioSubTemas y UsuarioSubTemasDto
         CreateMap<UsuarioSubTemas, UsuarioSubTemasDto>().ReverseMap();
@@ -91,7 +95,7 @@ public class ACCmappingProfile : Profile
         CreateMap<UsuarioTemas, UsuarioTemasDto>().ReverseMap();
 
         // Mapeo entre CapituloTags y CapituloTagsDto
-        CreateMap<CapituloTags, CapituloTagsDto>().ReverseMap();
+        CreateMap<CapituloTag, CapituloTagsDto>().ReverseMap();
 
         // Mapeo entre ExamenHabilitado y ExamenHabilitadoDto
         CreateMap<ExamenHabilitado, ExamenHabilitadoDto>().ReverseMap();

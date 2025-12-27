@@ -26,44 +26,45 @@
     }
     else if (hijos?.Any() == true)
     {
-        <ul class="guia-main-list">
-            @foreach (var nodo in hijos)
+    <ul class="guia-main-list">
+    @foreach (var nodo in hijos)
+    {
+        bool completado = estadosSubtemas.TryGetValue(nodo.Id, out var estado) && estado;
+
+        <li class="guia-main-list-item @(nodo.Tipo == TipoNodoJerarquico.SubTema && completado ? "subtema-completado" : "")"
+            @onclick="async () => await IrANodo(nodo)">
+
+            <div class="guia-main-header">
+                <p><strong class="capitulo-strong">@nodo.Nombre</strong></p>
+            </div>
+
+            <span class="guia-main-badge">@nodo.Tipo</span>
+
+            <p class="guia-main-desc">@nodo.Descripcion</p>
+
+            @if (nodo.Tipo == TipoNodoJerarquico.SubTema && completado)
             {
-                bool completado = estadosSubtemas.TryGetValue(nodo.Id, out var estado) && estado;
-
-                <li @onclick="async () => await IrANodo(nodo)" class="guia-main-list-item @(nodo.Tipo == TipoNodoJerarquico.SubTema && completado ? "subtema-completado" : "")">
-                    <div class="guia-main-header">
-                        <strong class="capitulo-strong">
-                            @nodo.Nombre
-                            @if (nodo.Tipo == TipoNodoJerarquico.SubTema && completado)
-                            {
-                                <br />
-                                <span class="subtema-completado-badge">
-                                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                        <circle cx="10" cy="10" r="10" fill="#26b050" />
-                                        <path d="M6 10.5L9 13.5L14 8.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    Completado
-                                </span>
-                            }
-                        </strong>
-                        <span class="guia-main-badge">@nodo.Tipo</span>
-                    </div>
-
-                    <p>@nodo.Descripcion</p>
-
-                    @if (nodo.Tipo == TipoNodoJerarquico.SubTema)
-                    {
-                        if (!completado)
-                        {
-                            <div class="guia-main-footer">
-                                <BtnCompletarSubtema SubTemaId="@nodo.Id" />
-                            </div>
-                        }
-                    }
-                </li>
+                <span class="subtema-completado-badge subtema-completado-pos">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="10" fill="#26b050" />
+                        <path d="M6 10.5L9 13.5L14 8.5" stroke="white" stroke-width="2"
+                              stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Completado
+                </span>
             }
-        </ul>
+            else if (nodo.Tipo == TipoNodoJerarquico.SubTema)
+            {
+                @*<BtnCompletarSubtema SubModuloId="@nodo.IdPadre" SubTemaId="@nodo.Id"></BtnCompletarSubtema>
+            <span class="subtema-no-completado-badge subtema-no-completado-pos">
+                Sin completar
+            </span>*@
+                <BtnCompletarSubtema SubTemaId="@nodo.Id"
+                                     SubModuloId="@Id" />
+            }
+        </li>
+    }
+</ul>
     }
     else
     {

@@ -1,133 +1,10 @@
-﻿/*.guia-navegador-container {
-    background: var(--biblioteca-primary-dark);
-    border-radius: 14px;
-    padding: 32px 28px 24px 28px;
-    box-shadow: 0 4px 24px rgba(20, 20, 40, 0.10);
-    color: var(--biblioteca-text-white);
-    max-width: 600px;
-    margin: 32px auto 0 auto;
-    min-height: 220px;
-    transition: box-shadow 0.3s;
-}
-
-.guia-navegador-title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--biblioteca-primary-purple);
-    margin-bottom: 22px;
-    letter-spacing: 0.01em;
-    font-family: Nunito, Arial, sans-serif;
-    text-align: center;
-}
-
-.guia-navegador-loading {
-    color: var(--biblioteca-text-gray);
-    font-size: 1.1rem;
-    padding: 18px 0;
-    text-align: center;
-}
-
-.guia-navegador-btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    justify-content: center;
-    margin-bottom: 18px;
-}
-
-.guia-navegador-btn {
-    background: var(--biblioteca-secondary-dark);
-    color: var(--biblioteca-primary-purple);
-    border: 2px solid var(--biblioteca-primary-purple);
-    border-radius: 8px;
-    padding: 12px 28px;
-    font-size: 1.08rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px rgba(20, 20, 40, 0.04);
-    outline: none;
-}
-
-    .guia-navegador-btn:hover,
-    .guia-navegador-btn.selected {
-        background: var(--biblioteca-primary-purple);
-        color: #fff;
-        border-color: var(--biblioteca-primary-blue);
-        box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
-    }
-
-@media (max-width: 900px) {
-    .guia-navegador-container {
-        max-width: 98vw;
-        padding: 18px 8px 14px 8px;
-        margin: 18px auto 0 auto;
-    }
-
-    .guia-navegador-title {
-        font-size: 1.2rem;
-        margin-bottom: 14px;
-    }
-
-    .guia-navegador-btn {
-        padding: 10px 16px;
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 600px) {
-    .guia-navegador-container {
-        padding: 8px 2vw 8px 2vw;
-        margin: 10px 0 0 0;
-        min-height: 120px;
-    }
-
-    .guia-navegador-title {
-        font-size: 1.05rem;
-    }
-
-    .guia-navegador-btn-group {
-        gap: 8px;
-    }
-
-    .guia-navegador-btn {
-        padding: 8px 8px;
-        font-size: 0.95rem;
-        min-width: 90px;
-    }
-}*/
-
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-}
-
-:root {
-    --biblioteca-primary-dark: #121218;
-    --biblioteca-secondary-dark: #1e1e2a;
-    --biblioteca-tertiary-dark: #282838;
-    --biblioteca-hover-dark: #32324a;
-    --biblioteca-primary-purple: #8b5cf6;
-    --biblioteca-secondary-purple: #7c3aed;
-    --biblioteca-primary-blue: #4f46e5;
-    --biblioteca-secondary-blue: #3730a3;
-    --biblioteca-text-white: #f8fafc;
-    --biblioteca-text-gray: #cbd5e1;
-    --biblioteca-border-color: #3f3f5a;
-    --biblioteca-transition-speed: 0.2s;
-}
-
-/* --- Estilos para GuiaNavegador --- */
+﻿/* --- Estilos para GuiaNavegador --- */
 .card {
     background-color: var(--biblioteca-secondary-dark) /*var(--biblioteca-primary-dark);*/;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 24px rgba(20, 20, 40, 0.1);
     color: var(--biblioteca-text-white);
-/*    max-width: 1100px;*/
     margin: 32px auto;
     border: none; 
 }
@@ -168,6 +45,10 @@
     margin-bottom: 18px;
 }
 
+p{
+    font-size:1.2rem; 
+}
+
 .guia-navegador-loading {
     color: var(--biblioteca-text-gray);
     font-size: 0.95rem;
@@ -197,3 +78,7 @@
         color: var(--biblioteca-text-white);
         border-color: var(--biblioteca-primary-purple);
     }
+
+h3 {
+    font-family: 'Nunito', sans-serif;
+}

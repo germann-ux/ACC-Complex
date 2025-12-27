@@ -68,7 +68,6 @@ builder.Services.AddScoped<IProgresoUsuarioService, ProgresoUsuarioService>();
 builder.Services.AddScoped<ITipService, TipService>();
 builder.Services.AddScoped<IAvisosService, AvisosService>();
 builder.Services.AddScoped<INavegacionContenidoService, NavegacionContenidoService>();
-builder.Services.AddScoped<ICapitulosService, CapitulosService>();
 // --- Exámenes:
 builder.Services.AddScoped<IPrerrequisitosService, PrerrequisitosService>();
 builder.Services.AddScoped<IExamenesModService, ExamenesService>();

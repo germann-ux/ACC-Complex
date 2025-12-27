@@ -1,68 +1,90 @@
-﻿@* DocItem.razor *@
-@rendermode InteractiveServer
+﻿@rendermode InteractiveServer
 @using ACC.Shared.DTOs
-@inject NavigationManager nav; 
+@using ACC.Shared.Enums
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager nav
 
 <div class="biblioteca-doc-item">
     <div class="biblioteca-doc-header">
-        <span class="biblioteca-doc-type">@contenidoCapitulo.Tipo</span>
-        <h3 class="biblioteca-doc-title">@contenidoCapitulo.Titulo</h3>
-        <div class="biblioteca-doc-subtitle">@contenidoCapitulo.Subtitulo</div>
+        <span class="biblioteca-doc-type">@GetDisplayName(item.Contenido.Tipo)</span>
+        <h3 class="biblioteca-doc-title">@item.Contenido.Titulo</h3>
+        <div class="biblioteca-doc-subtitle">@item.Contenido.Subtitulo</div>
     </div>
+
     <div class="biblioteca-doc-content">
-        <p class="biblioteca-doc-description">@contenidoCapitulo.Descripcion</p>
+        <p class="biblioteca-doc-description">@item.Contenido.Descripcion</p>
+
         <div class="biblioteca-doc-meta">
-            <div class="biblioteca-doc-meta-item">
-                <i class="far fa-clock"></i>
-                <span>@contenidoCapitulo.Duracion</span>
-            </div>
-            @if (!string.IsNullOrEmpty(contenidoCapitulo.FechaActualizacion.ToShortDateString()))
+            @if (!string.IsNullOrWhiteSpace(item.Contenido.Duracion))
             {
                 <div class="biblioteca-doc-meta-item">
-                    <i class="far fa-calendar-alt"></i>
-                    <span>@contenidoCapitulo.FechaActualizacion</span>
+                    <i class="far fa-clock"></i>
+                    <span>@item.Contenido.Duracion</span>
                 </div>
             }
-            @if (!string.IsNullOrEmpty(contenidoCapitulo.Dificultad))
+
+            <div class="biblioteca-doc-meta-item">
+                <i class="far fa-calendar-alt"></i>
+                <span>@item.Contenido.FechaActualizacion</span>
+            </div>
+
+            @if (item.Contenido.Dificultad is not null)
             {
                 <div class="biblioteca-doc-meta-item">
                     <i class="fas fa-signal"></i>
-                    <span>Dificultad: @contenidoCapitulo.Dificultad</span>
+                    <span>Dificultad: @GetDisplayName(item.Contenido.Dificultad.Value)</span>
                 </div>
             }
-            @if (!string.IsNullOrEmpty(contenidoCapitulo.Tags))
+
+            @if (item.Tags is not null && item.Tags.Count > 0)
             {
                 <div class="biblioteca-doc-meta-item">
                     <i class="fas fa-tags"></i>
-                    <span>@contenidoCapitulo.Tags</span>
+                    <span>@string.Join(", ", item.Tags.Select(t => t.Nombre))</span>
                 </div>
             }
         </div>
     </div>
+
     <div class="biblioteca-doc-footer">
         <div class="biblioteca-doc-actions">
             <button class="biblioteca-doc-action-btn" aria-label="Marcar como favorito">
                 <i class="far fa-bookmark"></i>
             </button>
+
             <button class="biblioteca-doc-action-btn" aria-label="Marcar como completado">
                 <i class="far fa-check-circle"></i>
             </button>
-            <button @onclick="()=> NavegarAcontenidoCapitulo(contenidoCapitulo.IdContenido)" class="biblioteca-doc-action-btn" aria-label="Navegar al contenido del capitulo">
+
+            <button @onclick="() => NavegarAContenido(item.Contenido.IdContenido)"
+                    class="biblioteca-doc-action-btn"
+                    aria-label="Navegar al contenido del capitulo">
                 Ir a el capitulo
             </button>
         </div>
+
         <div class="biblioteca-doc-badge">
-            <i class="@contenidoCapitulo.IconoBadge"></i>
-            <span>@contenidoCapitulo.EtiquetaNivel</span>
+            <i class="@item.Contenido.IconoBadge"></i>
+            <span>@GetDisplayName(item.Contenido.Nivel)</span>
         </div>
     </div>
 </div>
 
 @code {
-    [Parameter] public ContenidoCapituloDto contenidoCapitulo { get; set; } = default!;
+    [Parameter] public DocList.ContenidoListItem item { get; set; } = default!;
 
-    private void NavegarAcontenidoCapitulo(int Id)
+    private void NavegarAContenido(int idContenido)
+        => nav.NavigateTo($"Capitulo/Contenido/{idContenido}");
+
+    private static string GetDisplayName<TEnum>(TEnum value) where TEnum : struct, Enum
     {
-        nav.NavigateTo($"Capitulo/Contenido/{Id}"); 
+        var member = typeof(TEnum).GetMember(value.ToString()).FirstOrDefault();
+        if (member == null) return value.ToString();
+
+        var attr = member.GetCustomAttributes(typeof(DisplayAttribute), false)
+                         .Cast<DisplayAttribute>()
+                         .FirstOrDefault();
+
+        return attr?.Name ?? value.ToString();
     }
 }

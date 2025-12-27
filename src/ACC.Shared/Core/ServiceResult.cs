@@ -39,7 +39,7 @@
         }
 
         // Método estático para crear un resultado fallido
-        public static ServiceResult<T> Fail(string message, int? statusCode = 400)
+        public static ServiceResult<T> Fail(string message)
         {
             return new ServiceResult<T>
             {

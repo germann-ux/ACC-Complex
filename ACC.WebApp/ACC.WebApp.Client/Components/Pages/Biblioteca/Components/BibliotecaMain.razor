@@ -1,19 +1,21 @@
 ﻿@page "/Biblioteca"
 @rendermode InteractiveServer
-@using ACC.Shared.DTOs;
-@using ACC.Shared.Core;
-@using ACC.WebApp.Client.Components.Pages.Biblioteca.Components;
-@using ACC.WebApp.Client.Services;
-@inject BibliotecaService BibliotecaService
+@using ACC.Shared.DTOs
+@using ACC.Shared.Core
+@using ACC.WebApp.Client.Components.Pages.Biblioteca.Components
+@using ACC.WebApp.Client.Services
+@inject BibliotecaClientService BibliotecaService
 
 <div class="content biblioteca-app-container">
     <main class="biblioteca-main-content">
         <div class="biblioteca-header">
             <h1 class="biblioteca-section-title">Biblioteca de ACC</h1>
             <p class="biblioteca-section-description">Explora documentación, ejercicios y proyectos en un formato comodo de capitulos.</p>
+
             <ViewToggle FiltrosSeleccionados="@filtrosSeleccionados"
                         OnFiltrosCambiados="OnFiltrosCambiados" />
         </div>
+
         @if (cargando)
         {
             <p>Cargando contenido...</p>
@@ -27,7 +29,7 @@
         }
         else if (todosLosCapitulos?.Data != null)
         {
-            <DocList contenidoCapitulos="@todosLosCapitulos.Data"
+            <DocList capitulos="@todosLosCapitulos.Data"
                      FiltrosSeleccionados="@filtrosSeleccionados" />
         }
         else
@@ -35,19 +37,18 @@
             <p>No hay contenido disponible.</p>
         }
     </main>
+
     <SidebarFiltros OnFiltrosCambiados="OnFiltrosCambiados" />
 </div>
 
 @code {
     private List<string> filtrosSeleccionados = new();
-    private ServiceResult<List<ContenidoCapituloDto>>? todosLosCapitulos;
+    private ServiceResult<List<CapituloDto>>? todosLosCapitulos;
     private bool cargando = true;
     private string? mensajeError;
 
     protected override async Task OnInitializedAsync()
-    {
-        await CargarContenido();
-    }
+        => await CargarContenido();
 
     private async Task CargarContenido()
     {
@@ -56,13 +57,10 @@
             cargando = true;
             mensajeError = null;
 
-            todosLosCapitulos = await BibliotecaService.ObtenerContenidosAsync();
+            todosLosCapitulos = await BibliotecaService.ObtenerCapitulosAsync();
 
             if (!todosLosCapitulos.Success)
-            {
                 mensajeError = todosLosCapitulos.Message ?? "Error desconocido al cargar el contenido";
-                Console.WriteLine($"Error en BibliotecaService: {mensajeError}");
-            }
         }
         catch (Exception ex)
         {
@@ -76,10 +74,7 @@
         }
     }
 
-    private async Task RecargarContenido()
-    {
-        await CargarContenido();
-    }
+    private async Task RecargarContenido() => await CargarContenido();
 
     private void OnFiltrosCambiados(List<string> filtros)
     {

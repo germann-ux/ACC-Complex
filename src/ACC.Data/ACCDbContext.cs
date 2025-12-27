@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ACC.Data.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ACC.Data
 {
@@ -40,15 +41,16 @@ namespace ACC.Data
 
         /// <summary>Tags reutilizables para etiquetar módulos, temas, capítulos, etc.</summary>
         public DbSet<Tag> Tags => Set<Tag>();
+        
+        public DbSet<CapituloTag> CapituloTags => Set<CapituloTag>();
 
-        public DbSet<ModuloTags> ModuloTags => Set<ModuloTags>();
-        public DbSet<TemaTags> TemaTags => Set<TemaTags>();
-        public DbSet<CapituloTags> CapituloTags => Set<CapituloTags>();
+        //public DbSet<ModuloTags> ModuloTags => Set<ModuloTags>();
+        //public DbSet<TemaTags> TemaTags => Set<TemaTags>();
 
         // ============================================================
         // DbSets: Progreso y relación Usuario–Contenido
         // ============================================================
-
+        //ModuloTags
         public DbSet<UsuarioModulos> UsuarioModulos => Set<UsuarioModulos>();
         public DbSet<UsuarioSubModulos> UsuarioSubModulos => Set<UsuarioSubModulos>();
         public DbSet<UsuarioTemas> UsuarioTemas => Set<UsuarioTemas>();
@@ -114,7 +116,7 @@ namespace ACC.Data
             modelBuilder.Entity<Tema>().HasKey(t => t.Id_Tema);
             modelBuilder.Entity<Modulo>().HasKey(m => m.Id_Modulo);
             modelBuilder.Entity<SubModulo>().HasKey(sm => sm.Id_SubModulo);
-            modelBuilder.Entity<Tag>().HasKey(t => t.Id_Tag);
+            modelBuilder.Entity<Tag>().HasKey(t => t.IdTag);
 
             modelBuilder.Entity<UsuarioModulos>().HasKey(um => new { um.Id_Usuario, um.Id_Modulo });
             modelBuilder.Entity<UsuarioSubModulos>().HasKey(usm => new { usm.Id_Usuario, usm.Id_SubModulo });
@@ -124,6 +126,11 @@ namespace ACC.Data
             modelBuilder.Entity<Leccion>().HasKey(l => l.IdLeccion);
             modelBuilder.Entity<Capitulo>().HasKey(c => c.IdCapitulo);
 
+            // TAGS:
+            modelBuilder.Entity<CapituloTag>().HasKey(cc => new { cc.TagId, cc.CapituloId }); 
+            modelBuilder.Entity<ModuloTags>().HasKey(md => new { md.Id_Tag, md.Id_Modulo });
+            modelBuilder.Entity<TemaTags>().HasKey(tm => new { tm.Id_Tag, tm.Id_Tema });  
+            
             modelBuilder.Entity<ProgresoUsuario>().HasKey(p => p.IdProgreso);
             modelBuilder.Entity<HistorialCalificaciones>().HasKey(h => h.Id_Historial);
 
@@ -238,55 +245,76 @@ namespace ACC.Data
             // Many-to-Many: Tags
             // --------------------------------------------------------
 
-            modelBuilder.Entity<ModuloTags>(e =>
-            {
-                e.HasKey(mt => new { mt.Id_Modulo, mt.Id_Tag });
-                e.HasIndex(mt => new { mt.Id_Modulo, mt.Id_Tag }).IsUnique();
+            //modelBuilder.Entity<ModuloTags>(e =>
+            //{
+            //    e.HasKey(mt => new { mt.Id_Modulo, mt.Id_Tag });
+            //    e.HasIndex(mt => new { mt.Id_Modulo, mt.Id_Tag }).IsUnique();
 
-                e.HasOne(mt => mt.Modulo)
-                 .WithMany(m => m.ModuloTags)
-                 .HasForeignKey(mt => mt.Id_Modulo);
+            //    e.HasOne(mt => mt.Modulo)
+            //     .WithMany(m => m.ModuloTags)
+            //     .HasForeignKey(mt => mt.Id_Modulo);
 
-                e.HasOne(mt => mt.Tag)
-                 .WithMany(t => t.ModuloTags)
-                 .HasForeignKey(mt => mt.Id_Tag);
-            });
+            //    e.HasOne(mt => mt.Tag)
+            //     .WithMany(t => t.ModuloTags)
+            //     .HasForeignKey(mt => mt.Id_Tag);
+            //});
 
-            modelBuilder.Entity<TemaTags>(e =>
-            {
-                e.HasKey(tt => new { tt.Id_Tema, tt.Id_Tag });
-                e.HasIndex(tt => new { tt.Id_Tema, tt.Id_Tag }).IsUnique();
+            //modelBuilder.Entity<TemaTags>(e =>
+            //{
+            //    e.HasKey(tt => new { tt.Id_Tema, tt.Id_Tag });
+            //    e.HasIndex(tt => new { tt.Id_Tema, tt.Id_Tag }).IsUnique();
 
-                e.HasOne(tt => tt.Tema)
-                 .WithMany(t => t.TemaTags)
-                 .HasForeignKey(tt => tt.Id_Tema);
+            //    e.HasOne(tt => tt.Tema)
+            //     .WithMany(t => t.TemaTags)
+            //     .HasForeignKey(tt => tt.Id_Tema);
 
-                e.HasOne(tt => tt.Tag)
-                 .WithMany(t => t.TemaTags)
-                 .HasForeignKey(tt => tt.Id_Tag);
-            });
+            //    e.HasOne(tt => tt.Tag)
+            //     .WithMany(t => t.TemaTags)
+            //     .HasForeignKey(tt => tt.Id_Tag);
+            //});
 
             // Mapeo explícito para CapituloTags
-            modelBuilder.Entity<CapituloTags>(e =>
-            {
-                e.ToTable("CapituloTags", "acc_academic");
-                e.HasKey(x => new { x.Id_Capitulo, x.Id_Tag });
+            //modelBuilder.Entity<CapituloTags>(e =>
+            //{
+            //    e.ToTable("CapituloTags", "acc_academic");
+            //    e.HasKey(x => new { x.Id_Capitulo, x.Id_Tag });
 
-                e.Property(x => x.Id_Capitulo).HasColumnName("Id_Capitulo");
-                e.Property(x => x.Id_Tag).HasColumnName("Id_Tag");
+            //    e.Property(x => x.Id_Capitulo).HasColumnName("Id_Capitulo");
+            //    e.Property(x => x.Id_Tag).HasColumnName("Id_Tag");
 
-                e.HasOne(x => x.Capitulo)
-                 .WithMany(c => c.CapituloTags)
-                 .HasForeignKey(x => x.Id_Capitulo)
-                 .OnDelete(DeleteBehavior.Cascade);
+            //    e.HasOne(x => x.Capitulo)
+            //     .WithMany(c => c.CapituloTags)
+            //     .HasForeignKey(x => x.Id_Capitulo)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
-                e.HasOne(x => x.Tag)
-                 .WithMany(t => t.CapituloTags)
-                 .HasForeignKey(x => x.Id_Tag)
-                 .OnDelete(DeleteBehavior.Cascade);
+            //    e.HasOne(x => x.Tag)
+            //     .WithMany(t => t.CapituloTags)
+            //     .HasForeignKey(x => x.Id_Tag)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
-                e.HasIndex(x => x.Id_Tag);
-            });
+            //    e.HasIndex(x => x.Id_Tag);
+            //});
+
+            modelBuilder.Entity<CapituloTag>()
+                .ToTable("CapituloTags");
+
+            modelBuilder.Entity<CapituloTag>()
+                .HasOne(ct => ct.Capitulo)
+                .WithMany(c => c.CapituloTags)
+                .HasForeignKey(ct => ct.CapituloId);
+
+            modelBuilder.Entity<CapituloTag>()
+                .HasOne(ct => ct.Tag)
+                .WithMany(t => t.CapituloTags)
+                .HasForeignKey(ct => ct.TagId);
+
+            // Recomendación: nombre único del Tag (evita duplicados tipo "LINQ" vs "Linq")
+            modelBuilder.Entity<Tag>()
+                .ToTable("Tags"); 
+
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.Nombre)
+                .IsUnique();
 
             // --------------------------------------------------------
             // Progreso e historial de calificaciones

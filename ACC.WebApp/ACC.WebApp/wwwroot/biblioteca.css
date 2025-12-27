@@ -14,7 +14,7 @@
     font-display: swap;
 }
 
-/* Si ya definiste los tokens globales, estos alias ya existen. Mantengo por compatibilidad.
+/* Si ya definiste los tokens globales, estos alias ya existen. Mantengo por compatibilidad.*/
 :root {
   --biblioteca-primary-dark: #121218;
   --biblioteca-secondary-dark: #1e1e2a;
@@ -29,7 +29,7 @@
   --biblioteca-border-color: #3f3f5a;
   --biblioteca-transition-speed: 0.3s;
 }
-*/
+/**/
 
 /* ======================================================
    Layout general
@@ -39,7 +39,8 @@
     display: flex;
     height: 100vh;
     margin: 0 auto;
-    max-width: 1400px;
+    width: 80rem; 
+    max-width: 1500px;
 }
 
 .biblioteca-app-container span {

@@ -1,5 +1,7 @@
 ﻿@rendermode InteractiveServer
 @using ACC.Shared.DTOs;
+@using ACC.Shared.Enums; 
+@using ACC.Shared.Utils; 
 @using ACC.WebApp.Client.Components.Pages.ACC_Compiler;
 @using ACC.WebApp.Client.Components.Pages.Guia.Modals;
 
@@ -12,6 +14,7 @@
     {
         urlActividadActual = url;
         ModalActividad?.OpenModal();
+        //TODO: Seguir implementando las fucniones restantes y la division del bloque de html original.
     }
 }
 
@@ -22,11 +25,36 @@
     {
         switch (seccion)
         {
-            case "html":
-                <div class="contenido-html">@((MarkupString)Leccion.HtmlBody)</div>
+            case SeccionesContenido.CharpDialog:
+                <CharpDialog Texto ="@Leccion.CharpDialog"/>
                 break;
 
-            case "actividad":
+            case SeccionesContenido.CharpTip:
+                 <CharpTip Texto="@Leccion.CharpTip"/>
+                break;
+
+            case SeccionesContenido.Teoria:
+                if (!string.IsNullOrEmpty(Leccion.Teoria))
+                {
+                    @((MarkupString)Leccion.Teoria)
+                }
+                break;
+
+            case SeccionesContenido.Ejemplo:
+                if (!string.IsNullOrEmpty(Leccion.Ejemplo))
+                {
+                    @((MarkupString)Leccion.Ejemplo)
+                }
+                break;
+
+            case SeccionesContenido.Practica:
+            if (!string.IsNullOrEmpty(Leccion.Practica))
+                {
+                    @((MarkupString)Leccion.Practica)
+                }
+                break;
+
+            case SeccionesContenido.Actividad:
                 if (Leccion.TieneActividad && !string.IsNullOrEmpty(Leccion.UrlActividad))
                 {
                     <button class="expand-btn" @onclick="() => ShowActivity(Leccion.UrlActividad!)">
@@ -35,17 +63,17 @@
                 }
                 break;
 
-            case "compilador":
+            case SeccionesContenido.Compilador:
                 if (Leccion.TieneCompilador)
                 {
                     <CompiladorACC />
                 }
                 break;
 
-            case "evaluacion":
+            case SeccionesContenido.Evaluacion:
                 if (Leccion.TieneEvaluacion && Leccion.IdEvaluacion.HasValue)
                 {
-                    // IMPLEMENTAR LAS PREGUNTAS DE EVALUACION ---> sencillas
+                    <p>TODO: render evaluación</p>
                 }
                 break;
 

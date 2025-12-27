@@ -1,18 +1,21 @@
 ﻿@rendermode InteractiveServer
 @using ACC.Shared.DTOs
+@using ACC.Shared.Enums
 
 <div class="biblioteca-doc-list">
-    @if (contenidoCapitulos != null && contenidoCapitulos.Count > 0)
+    @if (capitulos != null && capitulos.Count > 0)
     {
-        var docsFiltrados = contenidoCapitulos
-            .Where(d => FiltrosSeleccionados == null || FiltrosSeleccionados.Count == 0 || FiltrosSeleccionados.Contains(d.Tipo))
+        var items = Flatten(capitulos);
+
+        var docsFiltrados = items
+            .Where(i => FiltrosSeleccionados == null || FiltrosSeleccionados.Count == 0 || MatchFiltros(i, FiltrosSeleccionados))
             .ToList();
 
         @if (docsFiltrados.Count > 0)
         {
-            @foreach (var doc in docsFiltrados)
+            @foreach (var item in docsFiltrados)
             {
-                <DocItem contenidoCapitulo="doc" />
+                <DocItem item="item" />
                 <br />
             }
         }
@@ -40,6 +43,76 @@
 </div>
 
 @code {
-    [Parameter] public List<ContenidoCapituloDto> contenidoCapitulos { get; set; } = new();
+    [Parameter] public List<CapituloDto> capitulos { get; set; } = new();
     [Parameter] public List<string> FiltrosSeleccionados { get; set; } = new();
+
+    private static List<ContenidoListItem> Flatten(List<CapituloDto> caps)
+    {
+        var list = new List<ContenidoListItem>();
+
+        foreach (var cap in caps)
+        {
+            if (cap.Contenidos == null) continue;
+
+            foreach (var cont in cap.Contenidos)
+            {
+                list.Add(new ContenidoListItem
+                {
+                    CapituloId = cap.IdCapitulo,
+                    CapituloTitulo = cap.TituloCapitulo,
+                    Tags = cap.Tags ?? new(),
+                    Contenido = cont
+                });
+            }
+        }
+
+        return list;
+    }
+
+    private static bool MatchFiltros(ContenidoListItem item, List<string> filtros)
+    {
+        // Macro-filtros basados en strings actuales del UI
+        // Puedes afinarlos cuando migres los filtros a enums reales.
+        var set = filtros.Where(f => !string.IsNullOrWhiteSpace(f))
+                         .Select(f => f.Trim())
+                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // Si no hay filtros, ya pasó por el guard.
+        if (set.Count == 0) return true;
+
+        var tipo = item.Contenido.Tipo;
+
+        bool matchTipoContenido =
+            (set.Contains("Documentación") && TipoEsDocumentacion(tipo)) ||
+            (set.Contains("Ejercicios") && TipoEsEjercicio(tipo)) ||
+            (set.Contains("Ejemplos") && tipo == TipoContenidoCapitulo.Ejemplo) ||
+            (set.Contains("Proyectos") && false); // por ahora no existe un tipo “Proyecto” en enum
+
+        return matchTipoContenido;
+    }
+
+    private static bool TipoEsEjercicio(TipoContenidoCapitulo tipo)
+        => tipo is TipoContenidoCapitulo.Ejercicio or TipoContenidoCapitulo.Checklist;
+
+    private static bool TipoEsDocumentacion(TipoContenidoCapitulo tipo)
+        => tipo is
+            TipoContenidoCapitulo.Documentacion or
+            TipoContenidoCapitulo.Concepto or
+            TipoContenidoCapitulo.ModeloMental or
+            TipoContenidoCapitulo.Sintaxis or
+            TipoContenidoCapitulo.ErroresComunes or
+            TipoContenidoCapitulo.BuenasPracticas or
+            TipoContenidoCapitulo.Performance or
+            TipoContenidoCapitulo.Seguridad or
+            TipoContenidoCapitulo.Referencias or
+            TipoContenidoCapitulo.FAQ or
+            TipoContenidoCapitulo.Glosario;
+
+    public class ContenidoListItem
+    {
+        public int CapituloId { get; set; }
+        public string CapituloTitulo { get; set; } = string.Empty;
+        public List<TagDto> Tags { get; set; } = new();
+        public ContenidoCapituloDto Contenido { get; set; } = default!;
+    }
 }

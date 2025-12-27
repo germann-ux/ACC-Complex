@@ -1,0 +1,82 @@
+﻿.charp-dialog-overlay {
+    position: relative;
+    margin: 2rem 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 2rem;
+    border-radius: 15px;
+    animation: fadeIn 0.4s ease-out forwards;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    overflow: hidden;
+}
+
+.charp-dialog-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+.charp-dialog-img {
+    width: 150px;
+    height: auto;
+    transform: translateY(10px);
+    animation: floatIn 0.5s ease-out;
+    border-radius: 10px;
+}
+
+.charp-dialog-text {
+    background-color: rgba(43, 46, 59, 0.95);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    color: #f1f3f5;
+    font-size: 1.1rem;
+    max-width: 600px;
+    animation: typeIn 1s steps(20);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes floatIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes typeIn {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}

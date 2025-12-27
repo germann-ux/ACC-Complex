@@ -9,12 +9,14 @@
 .capitulo {
     --cap-accent-cyan: color-mix(in srgb, var(--acc-brand-600) 10%, #5eead4);
     --cap-accent-pink: color-mix(in srgb, var(--acc-brand-600) 22%, #f472b6);
-    --cap-shadow: 0 4px 24px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
+    /* Ajuste: sombra más neutra y menos “bruma” de marca (mantiene premium sin sobrecargar) */
+    --cap-shadow: 0 10px 30px rgba(0, 0, 0, .45);
 }
 
 /* Contenedor principal */
 .contenido-capitulo {
-    background: linear-gradient(120deg, var(--biblioteca-secondary-dark) 80%, var(--biblioteca-tertiary-dark) 100%);
+    /* Ajuste: degradado direccional + menos intensidad, con base sólida */
+    background: linear-gradient(135deg, color-mix(in srgb, var(--biblioteca-secondary-dark) 92%, white) 0%, var(--biblioteca-secondary-dark) 55%, color-mix(in srgb, var(--biblioteca-tertiary-dark) 70%, var(--biblioteca-secondary-dark)) 100% );
     color: var(--biblioteca-text-gray);
     padding: 2.5rem 1.5rem;
     border-radius: 18px;
@@ -22,7 +24,7 @@
     max-width: 1100px;
     text-align: justify;
     box-shadow: var(--cap-shadow);
-    transition: background 0.5s;
+    transition: background .4s;
     border: 1px solid var(--biblioteca-border-color);
 }
 
@@ -89,15 +91,17 @@
 /* Citas */
 .capitulo-blockquote {
     border-left: 5px solid var(--cap-accent-cyan);
-    background: linear-gradient(90deg, color-mix(in srgb, var(--acc-brand-600) 10%, transparent) 60%, color-mix(in srgb, var(--cap-accent-cyan) 15%, transparent) 100%);
+    /* Ajuste: mantiene el look, pero baja el tint para que no “ensucie” todo */
+    background: linear-gradient(90deg, color-mix(in srgb, var(--acc-brand-600) 6%, transparent) 0%, color-mix(in srgb, var(--cap-accent-cyan) 8%, transparent) 100% );
     color: var(--biblioteca-text-white);
     margin: 1.7rem 0;
     padding: 1.2rem 2rem;
     border-radius: 10px;
     font-size: 1.08rem;
     font-style: italic;
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--cap-accent-cyan) 7%, transparent);
-    transition: background .4s;
+    /* Ajuste: sin glow de marca (o muy leve). Esto limpia muchísimo. */
+    box-shadow: none;
+    transition: background .35s;
 }
 
 /* Énfasis */
@@ -126,11 +130,13 @@
     padding: .18em .5em;
     border-radius: 5px;
     font-size: 1em;
-    box-shadow: 0 1px 4px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
+    /* Ajuste: sombra neutra mínima */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
 }
 
 .capitulo-pre {
-    background: linear-gradient(90deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-hover-dark) 100%);
+    /* Ajuste: superficie más “plana” y estable (menos gradiente + menos tinte) */
+    background: rgba(0, 0, 0, 0.22);
     color: var(--biblioteca-text-white);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     padding: 1.2rem;
@@ -138,7 +144,9 @@
     overflow-x: auto;
     margin: 1.7rem 0;
     font-size: 1em;
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
+    /* Ajuste: sombra neutra (no brand) */
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* Tablas */
@@ -150,7 +158,8 @@
     margin: 2rem 0;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--biblioteca-primary-blue) 7%, transparent);
+    /* Ajuste: sombra neutra y menos glow */
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
     border: 1px solid var(--biblioteca-border-color);
 }
 
@@ -223,20 +232,24 @@
 .capitulo-nav {
     margin: 1.7rem 0;
     padding: 1.1rem;
-    background: linear-gradient(90deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-hover-dark) 100%);
+    /* Ajuste: panel interno plano para evitar “degradado dentro de degradado” */
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 10px;
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
-    border: 1px solid var(--biblioteca-border-color);
+    /* Ajuste: sin glow */
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .capitulo-section {
     margin: 2.5rem 0;
     padding: 2rem 1.5rem;
-    background: none; /*linear-gradient(120deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-secondary-dark) 100%);*/
+    /* Ajuste: vuelve a ser “tarjeta” pero sobria (ya no compite con el contenedor) */
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 14px;
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
-    transition: background .5s;
-    border: 2px solid var(--biblioteca-border-color);
+    /* Ajuste: sin bruma de marca; profundidad muy leve y neutra */
+    box-shadow: none;
+    transition: background .35s;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .capitulo-span {
@@ -249,7 +262,8 @@
     max-width: 100%;
     border-radius: 10px;
     margin: 1.2rem 0;
-    box-shadow: 0 2px 16px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
+    /* Ajuste: sombra neutra (mantiene profundidad sin saturar) */
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .40);
     display: block;
     border: 2px solid var(--acc-brand-600);
     transition: border .3s;
@@ -277,7 +291,8 @@
     margin: 2rem 0;
     background: var(--biblioteca-tertiary-dark);
     display: block;
-    box-shadow: 0 2px 12px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
+    /* Ajuste: sombra neutra leve */
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
     border: 1px solid var(--biblioteca-border-color);
 }
 
@@ -322,6 +337,7 @@
         background: none;
         border-radius: 10px;
         box-shadow: none;
+        border: none;
     }
 
     .modo-lectura-activa .capitulo-p {
@@ -367,7 +383,6 @@
     border: 2.5px solid var(--biblioteca-border-color);
 */
 
-
 /* Responsive */
 @media (max-width: 900px) {
     .contenido-capitulo {
@@ -387,8 +402,9 @@
 
     .capitulo-section {
         padding: .7rem .2rem;
-        /*border-radius: 0;*/
-        border:none; 
+        border: none;
+        background: none;
+        box-shadow: none;
     }
 
     .capitulo-h2 {

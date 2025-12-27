@@ -1,13 +1,12 @@
 ﻿@page "/Capitulo/Contenido/{Id:int}"
-
-@using ACC.WebApp.Client.Services;
-@using ACC.Shared.DTOs;
-
-@inject BibliotecaService bibliotecaService
-
 @rendermode InteractiveServer
 
-@if (Capitulo is null)
+@using ACC.WebApp.Client.Services
+@using ACC.Shared.DTOs
+
+@inject BibliotecaClientService bibliotecaService
+
+@if (Contenido is null)
 {
     <p>Cargando contenido...</p>
 }
@@ -15,29 +14,34 @@ else
 {
     <div class="contenido-capitulo @(modoLecturaActivo ? "modo-lectura-activa" : "")">
         <button class="modo-lectura-btn" @onclick="ActivarLectura">🕮 Modo lectura</button>
-        @((MarkupString)Capitulo.HtmlBody)
+        @((MarkupString)Contenido.HtmlBody)
     </div>
 }
 
 @code {
     [Parameter] public int Id { get; set; }
-    private ContenidoCapituloDto? Capitulo;
+    private ContenidoCapituloDto? Contenido;
 
     protected override async Task OnInitializedAsync()
-    {
-        await ObtenerDatosAsync();
-    }
+        => await ObtenerDatosAsync();
 
     private async Task ObtenerDatosAsync()
     {
-        var resultado = await bibliotecaService.ObtenerCapituloAsync(Id);
-        Capitulo = resultado.Data;
+        var result = await bibliotecaService.ObtenerCapitulosAsync();
+
+        if (!result.Success || result.Data is null)
+        {
+            Contenido = null;
+            return;
+        }
+
+        Contenido = result.Data
+            .SelectMany(c => c.Contenidos)
+            .FirstOrDefault(x => x.IdContenido == Id);
     }
 
     private bool modoLecturaActivo = false;
 
     private void ActivarLectura()
-    {
-        modoLecturaActivo = !modoLecturaActivo;
-    }
+        => modoLecturaActivo = !modoLecturaActivo;
 }

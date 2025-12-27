@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ACC.Shared.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,28 +7,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ACC.Data.Entities
+namespace ACC.Data.Entities;
+/// <summary>
+/// Representa un Tag para categorizar Capitulos.
+/// </summary>
+public class Tag
 {
-    // Representa un Tag para categorizar Modulos o Temas
-    public class Tag
-    {
-        [Key]
-        public int Id_Tag { get; set; }
+    [Key]
+    public int IdTag { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        public string NombreTag { get; set; }
+    [Required]
+    [MaxLength(100)]
+    public string Nombre { get; set; } = string.Empty;
 
-        [MaxLength(500)]
-        public string DescripcionTag { get; set; }
+    [MaxLength(500)]
+    public string? Descripcion { get; set; }
 
-        // Relación N:M con Modulo
-        public ICollection<ModuloTags>? ModuloTags { get; set; }
+    [Required]
+    public CategoriaTag Categoria { get; set; }
 
-        // Relación N:M con Tema
-        public ICollection<TemaTags>? TemaTags { get; set; }
+    /// <summary>
+    /// Identificador visual del tag en fontawensome(ej. "fas fa-bolt", "fas fa-code").
+    /// </summary>
+    [MaxLength(100)]
+    public string? Icono { get; set; }
 
-        // Relación N:M con Capitulo
-        public ICollection<CapituloTags>? CapituloTags { get; set; }
-    }
+    // M:N con Capitulo => tabla puente CapituloTag
+    public ICollection<CapituloTag>? CapituloTags { get; set; }
 }

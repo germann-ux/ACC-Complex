@@ -52,7 +52,7 @@ namespace ACC.Shared.DTOs
         /// Contenido HTML principal (modo antiguo, sigue siendo compatible).
         /// </summary>
         [Obsolete("Se remplazara por propiedades separadas, Teoria, practica y Ejemplo")]
-        public string HtmlBody { get; set; } = string.Empty;
+        public string? HtmlBody { get; set; } = string.Empty;
         //  |
         //  |
         // \ /
@@ -68,6 +68,20 @@ namespace ACC.Shared.DTOs
         /// Seccion de ejemplos en la leccion, simples y sencillos o mas extensos si es nesesario.
         /// </summary>
         public string Ejemplo { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Agregado para manejar el tip Charp en las lecciones.
+        /// </summary>
+        public string? CharpTip { get; set; } = null;
+        /// <summary>
+        /// Añadido para manejar el diálogo Charp en las lecciones.
+        /// </summary>
+        public string? CharpDialog { get; set; } = null;
+
+        /// <summary>
+        /// El nivel de la taxonomia de Bloom.
+        /// </summary>
+        public string? NivelBloom { get; set; } = null;
 
         /// <summary>
         /// ¿Tiene actividad externa?

@@ -1,56 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ACC.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ACC.Data.Entities
+namespace ACC.Data.Entities; 
+public class ContenidoCapitulo
 {
-    public class ContenidoCapitulo
-    {
-        [Key]
-        public int IdContenido { get; set; }
+    [Key]
+    public int IdContenido { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string Tipo { get; set; } = string.Empty; // Documentación, Ejercicios, Ejemplos, etc.
+    /// <summary>
+    /// Tipo de contenido del capítulo (enum cerrado)
+    /// </summary>
+    [Required]
+    public TipoContenidoCapitulo Tipo { get; set; } = TipoContenidoCapitulo.Documentacion;
 
-        [Required]
-        [MaxLength(100)]
-        public string Titulo { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(100)]
+    public string Titulo { get; set; } = string.Empty;
 
-        [MaxLength(100)]
-        public string Subtitulo { get; set; } = string.Empty;
+    [MaxLength(100)]
+    public string Subtitulo { get; set; } = string.Empty;
 
-        [MaxLength(500)]
-        public string Descripcion { get; set; } = string.Empty;
+    [MaxLength(500)]
+    public string Descripcion { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        public string Duracion { get; set; } = string.Empty;
+    /// <summary>
+    /// Duración sugerida (texto corto, ej. "5 min", "10–15 min")
+    /// </summary>
+    [MaxLength(20)]
+    public string Duracion { get; set; } = string.Empty;
 
-        public string? Dificultad { get; set; } // Opcional (solo para ejercicios)
+    /// <summary>
+    /// Dificultad (solo aplica cuando Tipo == Ejercicio).
+    /// Mantener nullable para no forzar en DB; validar en capa de aplicación.
+    /// </summary>
+    public DificultadContenido? Dificultad { get; set; }
 
-        public string? Tags { get; set; } // HTML, CSS, JS, etc.
+    /// <summary>
+    /// Nivel/audiencia del contenido (profundidad)
+    /// </summary>
+    [Required]
+    public NivelContenido Nivel { get; set; } = NivelContenido.General;
 
-        [MaxLength(100)]
-        public string IconoBadge { get; set; } = "fas fa-file";
+    /// <summary>
+    /// Icono del contenido (clase FontAwesome u otro identificador visual)
+    /// </summary>
+    [MaxLength(100)]
+    public string IconoBadge { get; set; } = "fas fa-file";
 
-        [MaxLength(50)]
-        public string EtiquetaNivel { get; set; } = "General";
+    public DateTime FechaActualizacion { get; set; } = DateTime.UtcNow;
+    public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
-        public DateTime FechaActualizacion { get; set; } = DateTime.Now;
+    // Relación con Capitulo
+    public int CapituloId { get; set; }
+    public Capitulo Capitulo { get; set; } = null!;
 
-        // Relación con Capitulo
-        [Required]
-        public int CapituloId { get; set; }
-
-        [Required]
-        public string HtmlBody { get; set; } = string.Empty; // Contenido en formato HTML
-
-        [ForeignKey("CapituloId")]
-        public Capitulo Capitulo { get; set; } = null!;
-    }
-
+    [Required]
+    public string HtmlBody { get; set; } = string.Empty;
 }
