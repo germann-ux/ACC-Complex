@@ -49,5 +49,8 @@ public enum TipoContenidoCapitulo
     FAQ = 13,
 
     [Display(Name = "Glosario")]
-    Glosario = 14
+    Glosario = 14,
+
+    [Display(Name = "Proyecto")]
+    Proyecto = 15
 }

@@ -23,12 +23,14 @@ public class BibliotecaClientService(HttpClient http)
     /// <summary>
     /// Obtiene un capítulo por id (con tags + contenidos).
     /// </summary>
+    /// <param name="idCapitulo"></param>
     public async Task<ServiceResult<CapituloDto>> ObtenerCapituloAsync(int idCapitulo)
     {
         return await _http.GetFromJsonAsync<ServiceResult<CapituloDto>>(
             $"{_baseUrl}/capitulos/{idCapitulo}", Options._jsonOptions
         ) ?? ServiceResult<CapituloDto>.Fail("Respuesta nula del servidor.");
     }
+
     /// <summary>
     /// Metodo para obtener contenidos de capitulos recomendados.
     /// </summary>

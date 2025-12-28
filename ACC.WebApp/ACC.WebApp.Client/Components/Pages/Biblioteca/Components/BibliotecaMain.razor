@@ -1,4 +1,5 @@
-﻿@page "/Biblioteca"
+﻿@*BibliotecaMain.razor*@
+@page "/Biblioteca"
 @rendermode InteractiveServer
 @using ACC.Shared.DTOs
 @using ACC.Shared.Core
@@ -12,7 +13,7 @@
             <h1 class="biblioteca-section-title">Biblioteca de ACC</h1>
             <p class="biblioteca-section-description">Explora documentación, ejercicios y proyectos en un formato comodo de capitulos.</p>
 
-            <ViewToggle FiltrosSeleccionados="@filtrosSeleccionados"
+            <ViewToggle Filtros="@filtros"
                         OnFiltrosCambiados="OnFiltrosCambiados" />
         </div>
 
@@ -30,7 +31,7 @@
         else if (todosLosCapitulos?.Data != null)
         {
             <DocList capitulos="@todosLosCapitulos.Data"
-                     FiltrosSeleccionados="@filtrosSeleccionados" />
+                     Filtros="@filtros" />
         }
         else
         {
@@ -38,11 +39,13 @@
         }
     </main>
 
-    <SidebarFiltros OnFiltrosCambiados="OnFiltrosCambiados" />
+    <SidebarFiltros OnFiltrosCambiados="OnFiltrosCambiados"
+                    Filtros="@filtros"/>
 </div>
 
 @code {
-    private List<string> filtrosSeleccionados = new();
+    //private List<string> filtrosSeleccionados = new();
+    private BibliotecaFiltros filtros = new();
     private ServiceResult<List<CapituloDto>>? todosLosCapitulos;
     private bool cargando = true;
     private string? mensajeError;
@@ -76,9 +79,9 @@
 
     private async Task RecargarContenido() => await CargarContenido();
 
-    private void OnFiltrosCambiados(List<string> filtros)
+    private void OnFiltrosCambiados(BibliotecaFiltros nuevos)
     {
-        filtrosSeleccionados = filtros != null ? new List<string>(filtros) : new List<string>();
-        StateHasChanged();
+        filtros = nuevos ?? new BibliotecaFiltros();
+        StateHasChanged(); 
     }
 }

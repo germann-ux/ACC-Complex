@@ -1,9 +1,11 @@
 ﻿@* ViewToggle.razor *@
+@using ACC.Shared.Core
+@using ACC.Shared.Enums
 @rendermode InteractiveServer
 <div class="biblioteca-view-toggle">
-    @foreach (var tipo in Tipos)
+    @foreach (var tipo in TiposRapidos)
     {
-        <button class="biblioteca-toggle-btn @(FiltrosSeleccionados.Contains(tipo) ? "active" : null)"
+        <button class="biblioteca-toggle-btn @(Filtros.Tipos.Contains(tipo) ? "active" : null)"
                 @onclick="() => CambiarFiltro(tipo)">
             @tipo
         </button>
@@ -11,18 +13,26 @@
 </div>
 
 @code {
-    [Parameter] public List<string> FiltrosSeleccionados { get; set; } = new();
-    [Parameter] public EventCallback<List<string>> OnFiltrosCambiados { get; set; }
+    [Parameter, EditorRequired] public BibliotecaFiltros Filtros { get; set; } = default!;
+    [Parameter] public EventCallback<BibliotecaFiltros> OnFiltrosCambiados { get; set; }
 
-    private readonly string[] Tipos = ["Documentación", "Ejercicios", "Ejemplos", "Proyectos"];
+    // Filtros rapidos
+    private static readonly TipoContenidoCapitulo[] TiposRapidos =
+        [
+        TipoContenidoCapitulo.Documentacion,
+        TipoContenidoCapitulo.Concepto,
+        TipoContenidoCapitulo.Ejemplo,
+        TipoContenidoCapitulo.Ejercicio,
+        TipoContenidoCapitulo.Proyecto
+        ];
 
-    private void CambiarFiltro(string tipo)
+    private async Task CambiarFiltro(TipoContenidoCapitulo tipo)
     {
-        if (FiltrosSeleccionados.Contains(tipo))
-            FiltrosSeleccionados.Remove(tipo);
-        else
-            FiltrosSeleccionados.Add(tipo);
+        var nuevo = Filtros.Clone();
 
-        OnFiltrosCambiados.InvokeAsync(FiltrosSeleccionados.ToList());
+        if (!nuevo.Tipos.Add(tipo))
+            nuevo.Tipos.Remove(tipo);
+
+        await OnFiltrosCambiados.InvokeAsync(nuevo); 
     }
 }

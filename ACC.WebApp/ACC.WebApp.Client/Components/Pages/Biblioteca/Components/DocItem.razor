@@ -1,4 +1,5 @@
-﻿@rendermode InteractiveServer
+﻿@*DocItem.razor*@
+@rendermode InteractiveServer
 @using ACC.Shared.DTOs
 @using ACC.Shared.Enums
 @using System.ComponentModel.DataAnnotations
@@ -25,7 +26,7 @@
 
             <div class="biblioteca-doc-meta-item">
                 <i class="far fa-calendar-alt"></i>
-                <span>@item.Contenido.FechaActualizacion</span>
+                <span>@item.Contenido.FechaActualizacion.ToString("dd MM yyyy")</span>
             </div>
 
             @if (item.Contenido.Dificultad is not null)

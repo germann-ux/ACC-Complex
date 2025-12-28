@@ -1,4 +1,5 @@
-﻿@rendermode InteractiveServer
+﻿@*DocList.razor*@
+@rendermode InteractiveServer
 @using ACC.Shared.DTOs
 @using ACC.Shared.Enums
 
@@ -8,8 +9,8 @@
         var items = Flatten(capitulos);
 
         var docsFiltrados = items
-            .Where(i => FiltrosSeleccionados == null || FiltrosSeleccionados.Count == 0 || MatchFiltros(i, FiltrosSeleccionados))
-            .ToList();
+            .Where(i => Filtros is null || Filtros.IsEmpty || MatchFiltros(i, Filtros))
+            .ToList(); 
 
         @if (docsFiltrados.Count > 0)
         {
@@ -44,7 +45,8 @@
 
 @code {
     [Parameter] public List<CapituloDto> capitulos { get; set; } = new();
-    [Parameter] public List<string> FiltrosSeleccionados { get; set; } = new();
+    //[Parameter] public List<string> FiltrosSeleccionados { get; set; } = new();
+    [Parameter] public BibliotecaFiltros Filtros { get; set; } = new();
 
     private static List<ContenidoListItem> Flatten(List<CapituloDto> caps)
     {
@@ -69,30 +71,31 @@
         return list;
     }
 
-    private static bool MatchFiltros(ContenidoListItem item, List<string> filtros)
+    private static bool MatchFiltros(ContenidoListItem item, BibliotecaFiltros f)
     {
-        // Macro-filtros basados en strings actuales del UI
-        // Puedes afinarlos cuando migres los filtros a enums reales.
-        var set = filtros.Where(f => !string.IsNullOrWhiteSpace(f))
-                         .Select(f => f.Trim())
-                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        // AND entre grupos:
+        // - si el grupo tiene selecciones, debe matchear
+        // - si está vacío, no filtra
 
-        // Si no hay filtros, ya pasó por el guard.
-        if (set.Count == 0) return true;
+        if (f.Tipos.Count > 0 && !f.Tipos.Contains(item.Contenido.Tipo))
+            return false;
 
-        var tipo = item.Contenido.Tipo;
+        if (f.Niveles.Count > 0 && !f.Niveles.Contains(item.Contenido.Nivel))
+            return false;
 
-        bool matchTipoContenido =
-            (set.Contains("Documentación") && TipoEsDocumentacion(tipo)) ||
-            (set.Contains("Ejercicios") && TipoEsEjercicio(tipo)) ||
-            (set.Contains("Ejemplos") && tipo == TipoContenidoCapitulo.Ejemplo) ||
-            (set.Contains("Proyectos") && false); // por ahora no existe un tipo “Proyecto” en enum
+        // Dificultad es nullable: si estás filtrando por dificultad,
+        // un contenido sin dificultad debe excluirse.
+        if (f.Dificultades.Count > 0)
+        {
+            if (!item.Contenido.Dificultad.HasValue) return false;
+            if (!f.Dificultades.Contains(item.Contenido.Dificultad.Value)) return false;
+        }
 
-        return matchTipoContenido;
+        return true;
     }
 
     private static bool TipoEsEjercicio(TipoContenidoCapitulo tipo)
-        => tipo is TipoContenidoCapitulo.Ejercicio or TipoContenidoCapitulo.Checklist;
+    => tipo is TipoContenidoCapitulo.Ejercicio or TipoContenidoCapitulo.Checklist;
 
     private static bool TipoEsDocumentacion(TipoContenidoCapitulo tipo)
         => tipo is

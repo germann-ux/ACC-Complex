@@ -1,81 +1,125 @@
-﻿@* SidebarFiltros.razor *@
-@rendermode InteractiveServer
+﻿@rendermode InteractiveServer
+@using ACC.Shared.Enums
+@using ACC.Shared.Core
+
 <div class="biblioteca-sidebar">
     <div class="biblioteca-sidebar-header">
         <h2 class="biblioteca-sidebar-title">Filtros</h2>
     </div>
+
     <div class="biblioteca-sidebar-content">
-        @foreach (var grupo in Filtros)
-        {
-            <div class="biblioteca-filter-group">
-                <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(grupo.Nombre)">
-                    <span>@grupo.Nombre</span>
-                    <i class="fas @(grupo.Expandido ? "fa-chevron-up" : "fa-chevron-down")"></i>
-                </div>
-                @if (grupo.Expandido)
-                {
-                    <div class="biblioteca-filter-items">
-                        @foreach (var item in grupo.Items)
-                        {
-                            <div class="biblioteca-filter-item @(item.Activo ? "active" : "")" @onclick="() => CambiarFiltro(item)">
-                                <span class="biblioteca-filter-checkbox"></span>
-                                <span>@item.Nombre</span>
-                            </div>
-                        }
-                    </div>
-                }
+
+        <!-- TIPOS -->
+        <div class="biblioteca-filter-group">
+            <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(TipoContenidoCapitulo))">
+                <span>Tipo de contenido</span>
+                <i class="fas @(ExpandTipo ? "fa-chevron-up" : "fa-chevron-down")"></i>
             </div>
-        }
+
+            @if (ExpandTipo)
+            {
+                <div class="biblioteca-filter-items">
+                    @foreach (var t in Tipos)
+                    {
+                        <div class="biblioteca-filter-item @(Filtros.Tipos.Contains(t) ? "active" : "")"
+                             @onclick="() => ToggleTipo(t)">
+                            <span class="biblioteca-filter-checkbox"></span>
+                            <span>@EnumDisplay.Name(t)</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- NIVELES -->
+        <div class="biblioteca-filter-group">
+            <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(NivelContenido))">
+                <span>Nivel</span>
+                <i class="fas @(ExpandNivel ? "fa-chevron-up" : "fa-chevron-down")"></i>
+            </div>
+
+            @if (ExpandNivel)
+            {
+                <div class="biblioteca-filter-items">
+                    @foreach (var n in Niveles)
+                    {
+                        <div class="biblioteca-filter-item @(Filtros.Niveles.Contains(n) ? "active" : "")"
+                             @onclick="() => ToggleNivel(n)">
+                            <span class="biblioteca-filter-checkbox"></span>
+                            <span>@EnumDisplay.Name(n)</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- DIFICULTAD -->
+        <div class="biblioteca-filter-group">
+            <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(DificultadContenido))">
+                <span>Dificultad</span>
+                <i class="fas @(ExpandDificultad ? "fa-chevron-up" : "fa-chevron-down")"></i>
+            </div>
+
+            @if (ExpandDificultad)
+            {
+                <div class="biblioteca-filter-items">
+                    @foreach (var d in Dificultades)
+                    {
+                        <div class="biblioteca-filter-item @(Filtros.Dificultades.Contains(d) ? "active" : "")"
+                             @onclick="() => ToggleDificultad(d)">
+                            <span class="biblioteca-filter-checkbox"></span>
+                            <span>@EnumDisplay.Name(d)</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
     </div>
 </div>
 
 @code {
-    [Parameter] public EventCallback<List<string>> OnFiltrosCambiados { get; set; }
+    [Parameter, EditorRequired] public BibliotecaFiltros Filtros { get; set; } = default!;
+    [Parameter] public EventCallback<BibliotecaFiltros> OnFiltrosCambiados { get; set; }
 
-    private List<FiltroGrupo> Filtros = new()
-{
-        new("Tipo de Contenido", new[] { "Documentación", "Ejercicios", "Ejemplos", "Proyectos" })
-    };
+    private bool ExpandTipo = true;
+    private bool ExpandNivel = true;
+    private bool ExpandDificultad = true;
 
-    private void CambiarFiltro(FiltroItem item)
-    {
-        item.Activo = !item.Activo;
-        OnFiltrosCambiados.InvokeAsync(GetFiltrosActivos());
-    }
+    private static readonly TipoContenidoCapitulo[] Tipos =
+        Enum.GetValues<TipoContenidoCapitulo>().OrderBy(x => (int)x).ToArray();
 
-    private List<string> GetFiltrosActivos()
-    {
-        return Filtros.SelectMany(g => g.Items)
-                      .Where(i => i.Activo)
-                      .Select(i => i.Nombre)
-                      .ToList();
-    }
+    private static readonly NivelContenido[] Niveles =
+        Enum.GetValues<NivelContenido>().OrderBy(x => (int)x).ToArray();
+
+    private static readonly DificultadContenido[] Dificultades =
+        Enum.GetValues<DificultadContenido>().OrderBy(x => (int)x).ToArray();
 
     private void ToggleGrupo(string nombre)
     {
-        var grupo = Filtros.FirstOrDefault(f => f.Nombre == nombre);
-        if (grupo != null)
-        {
-            grupo.Expandido = !grupo.Expandido;
-        }
+        if (nombre == nameof(TipoContenidoCapitulo)) ExpandTipo = !ExpandTipo;
+        if (nombre == nameof(NivelContenido)) ExpandNivel = !ExpandNivel;
+        if (nombre == nameof(DificultadContenido)) ExpandDificultad = !ExpandDificultad;
     }
 
-    private class FiltroGrupo
+    private async Task ToggleTipo(TipoContenidoCapitulo t)
     {
-        public string Nombre { get; set; }
-        public List<FiltroItem> Items { get; set; }
-        public bool Expandido { get; set; } = true;
-
-        public FiltroGrupo(string nombre, IEnumerable<string> items)
-        {
-            Nombre = nombre;
-            Items = items.Select(i => new FiltroItem { Nombre = i }).ToList();
-        }
+        var nuevo = Filtros.Clone();
+        if (!nuevo.Tipos.Add(t)) nuevo.Tipos.Remove(t);
+        await OnFiltrosCambiados.InvokeAsync(nuevo);
     }
 
-    private class FiltroItem
+    private async Task ToggleNivel(NivelContenido n)
     {
-        public string Nombre { get; set; }
-        public bool Activo { get; set; }
+        var nuevo = Filtros.Clone();
+        if (!nuevo.Niveles.Add(n)) nuevo.Niveles.Remove(n);
+        await OnFiltrosCambiados.InvokeAsync(nuevo);
+    }
+
+    private async Task ToggleDificultad(DificultadContenido d)
+    {
+        var nuevo = Filtros.Clone();
+        if (!nuevo.Dificultades.Add(d)) nuevo.Dificultades.Remove(d);
+        await OnFiltrosCambiados.InvokeAsync(nuevo);
     }
 }
