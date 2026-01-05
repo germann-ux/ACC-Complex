@@ -31,7 +31,7 @@
 
 ## 📖 Descripción
 
-**ACC-Complex** es una plataforma educativa completa diseñada para enseñar C# de manera interactiva y personalizada. Cuenta con un asistente de IA educativo llamado **Charp** 🦈, que guía a los estudiantes a través de un currículo estructurado basado en la **Taxonomía de Bloom**.
+**Aprendiendo C# con Charp** es una plataforma educativa completa diseñada para enseñar C# de manera interactiva y personalizada. Cuenta con un asistente de IA educativo llamado **Charp** 🦈, que asiste a los estudiantes a través de un currículo estructurado basado en la **Taxonomía de Bloom**.
 
 La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones teóricas hasta compilación de código en tiempo real, evaluaciones automatizadas y aulas virtuales para colaboración entre estudiantes y docentes.
 
@@ -83,7 +83,6 @@ La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones te�
 
 La solución sigue un enfoque de **Clean Architecture distribuida** con servicios orquestados mediante **.NET Aspire**.
 
-```mermaid
 graph TB
     subgraph Clients["🖥️ Clientes"]
         WASM[Blazor WASM]
@@ -101,7 +100,8 @@ graph TB
     end
     
     subgraph Infrastructure["🗄️ Infraestructura"]
-        SQL[(SQL Server)]
+        SQL_Id[(SQL Identity<br/>Auth DB)]
+        SQL_Acad[(SQL Academic<br/>Data DB)]
         Redis[(Redis Cache)]
     end
     
@@ -122,16 +122,20 @@ graph TB
     AppHost -.-> WebApp
     AppHost -.-> API
     AppHost -.-> Compiler
-    AppHost -.-> SQL
+    AppHost -.-> SQL_Id
+    AppHost -.-> SQL_Acad
     AppHost -.-> Redis
     
     WebApp --> Data
     API --> Data
     API --> SharedLib
     WebApp --> SharedLib
-    Data --> SQL
+    
+    Data --> SQL_Id
+    Data --> SQL_Acad
+    
+    WebApp -.->|Sync| SQL_Acad
     Compiler --> Redis
-```
 
 ### 📌 Descripción de Proyectos
 
@@ -226,7 +230,7 @@ ACC-Complex/
 
 ---
 
-## � Tecnologías
+## 👨‍💻 Tecnologías
 
 ### Backend
 | Tecnología | Versión | Uso |
@@ -251,7 +255,7 @@ ACC-Complex/
 | Tecnología | Versión | Uso |
 |------------|---------|-----|
 | .NET Aspire | 9.2 | Orquestación de servicios |
-| SQL Server | 2022 | Base de datos principal |
+| SQL Server | 2022 | Bases de datos (Identity + Académica) |
 | Redis | 7.x | Caché distribuido |
 | Docker | Latest | Contenedorización |
 
@@ -259,32 +263,41 @@ ACC-Complex/
 
 ## 🔄 Flujo de Trabajo
 
-```mermaid
 sequenceDiagram
     participant U as Usuario
     participant C as Cliente (Blazor/MAUI)
     participant A as ACC.WebApp (Auth)
-    participant E as ACC.API (Educativo)
-    participant R as API_CompilerACC (Roslyn)
-    participant D as Base de Datos
+    participant S as SyncService
+    participant IdDB as DB Identity
+    participant AcDB as DB Académica
     
-    U->>C: Inicia sesión
-    C->>A: POST /auth/login
-    A->>D: Validar credenciales
-    D-->>A: Usuario válido
-    A-->>C: JWT Token + Roles
+    Note over U, AcDB: Flujo de Registro y Sincronización
     
-    U->>C: Accede a lección
-    C->>E: GET /api/lecciones/{id}
-    E->>D: Consultar contenido
-    D-->>E: Datos de lección
-    E-->>C: LeccionDTO
+    U->>C: Completa Registro
+    C->>A: POST /Account/Register
+    A->>IdDB: Crear Usuario (Identity)
+    IdDB-->>A: Usuario Creado
     
-    U->>C: Ejecuta código C#
-    C->>R: POST /api/compile
-    R->>R: Compilar con Roslyn
-    R-->>C: Resultado/Errores
-```
+    A->>S: SincronizarUsuarioAsync()
+    S->>AcDB: Crear Perfil Académico
+    AcDB-->>S: Perfil Sincronizado
+    
+    A->>U: Enviar Email Confirmación
+    A-->>C: Registro Exitoso
+
+    Note over U, AcDB: Flujo de Acceso a Contenido
+
+    U->>C: Inicia Sesión
+    C->>A: Login
+    A->>IdDB: Validar Credenciales
+    IdDB-->>A: OK
+    A-->>C: Token JWT
+    
+    C->>E: GET /api/lecciones (con Token)
+    participant E as ACC.API
+    E->>AcDB: Consultar Progreso/Contenido
+    AcDB-->>E: Datos
+    E-->>C: Retorna Lección
 
 ---
 
