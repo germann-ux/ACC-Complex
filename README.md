@@ -3,7 +3,6 @@
   <img src="https://img.shields.io/badge/Blazor-WebAssembly-512BD4?style=for-the-badge&logo=blazor" alt="Blazor WASM">
   <img src="https://img.shields.io/badge/MAUI-Blazor-512BD4?style=for-the-badge&logo=dotnet" alt="MAUI">
   <img src="https://img.shields.io/badge/Aspire-9.2-512BD4?style=for-the-badge&logo=dotnet" alt="Aspire">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
 </p>
 
 <h1 align="center">🦈 Aprendiendo C# con Charp</h1>
@@ -224,7 +223,7 @@ ACC-Complex/
 │   └── ACC.Tests/            # Pruebas unitarias
 │
 ├── 📄 ACC.sln                # Solución principal
-├── 📄 LICENSE.txt            # Licencia MIT
+
 └── 📄 README.md              # Este archivo
 ```
 
@@ -362,19 +361,10 @@ dotnet test --filter "FullyQualifiedName~ACC.Tests.NombreDelTest"
 
 ---
 
-## 📄 Licencia
+## 📄 Propiedad Intelectual
 
-Este proyecto está licenciado bajo la **Licencia MIT** - ver el archivo [LICENSE.txt](LICENSE.txt) para más detalles.
-
-```
-MIT License
-
-Copyright (c) 2025 Germán Uriel Evangelista Martínez
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
-```
+Este proyecto es propiedad intelectual exclusiva. Todos los derechos están reservados.
+La licencia MIT ya no está vigente para este proyecto.
 
 ---
 
