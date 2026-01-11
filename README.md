@@ -81,60 +81,102 @@ La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones te�
 ## 🏗 Arquitectura
 
 La solución sigue un enfoque de **Clean Architecture distribuida** con servicios orquestados mediante **.NET Aspire**.
+```mermaid
+%%{init: {
+  "theme": "dark",
+  "themeVariables": {
+    "background": "#0a0a0f",
+    "mainBkg": "#141420",
+    "secondBkg": "#10101a",
+
+    "primaryColor": "#141420",
+    "primaryTextColor": "#e5e7eb",
+    "primaryBorderColor": "#2a2a40",
+
+    "lineColor": "#4cc9f0",
+
+    "clusterBkg": "#0f0f1a",
+    "clusterBorder": "#2a2a40",
+
+    "titleColor": "#cbd5e1",
+    "edgeLabelBackground": "#0a0a0f",
+    "nodeTextColor": "#e5e7eb"
+  }
+}}%%
 
 graph TB
-    subgraph Clients["🖥️ Clientes"]
-        WASM[Blazor WASM]
-        MAUI[MAUI Blazor]
-    end
-    
-    subgraph Orchestration["🎯 Orquestación"]
-        AppHost[ACC.AppHost<br/>Aspire Orchestrator]
-    end
-    
-    subgraph Services["⚙️ Servicios"]
-        WebApp[ACC.WebApp<br/>Autenticación]
-        API[ACC.API<br/>Contenido Educativo]
-        Compiler[API_CompilerACC<br/>Roslyn Compiler]
-    end
-    
-    subgraph Infrastructure["🗄️ Infraestructura"]
-        SQL_Id[(SQL Identity<br/>Auth DB)]
-        SQL_Acad[(SQL Academic<br/>Data DB)]
-        Redis[(Redis Cache)]
-    end
-    
-    subgraph Shared["📦 Compartido"]
-        Data[ACC.Data]
-        SharedLib[ACC.Shared]
-        Defaults[ACC.ServiceDefaults]
-        External[ACC.ExternalClients]
-    end
-    
-    WASM --> WebApp
-    WASM --> API
-    WASM --> Compiler
-    MAUI --> WebApp
-    MAUI --> API
-    MAUI --> Compiler
-    
-    AppHost -.-> WebApp
-    AppHost -.-> API
-    AppHost -.-> Compiler
-    AppHost -.-> SQL_Id
-    AppHost -.-> SQL_Acad
-    AppHost -.-> Redis
-    
+    %% Clientes
+    WASM["Blazor WebAssembly"]
+    MAUI["MAUI Blazor"]
+
+    %% Orquestación
+    AppHost["ACC.AppHost<br/>Orchestrator (Aspire)"]
+
+    %% Servicios
+    WebApp["ACC.WebApp<br/>Authentication"]
+    API["ACC.API<br/>Educational Content"]
+    Compiler["API_CompilerACC<br/>Roslyn Compiler"]
+
+    %% Compartidos
+    Data["ACC.Data<br/>Data Layer"]
+    SharedLib["ACC.Shared<br/>Shared Library"]
+    Defaults["ServiceDefaults<br/>Configuration"]
+    External["ExternalClients<br/>External APIs"]
+
+    %% Infraestructura
+    SQL_Id[("SQL Server<br/>Identity DB")]
+    SQL_Acad[("SQL Server<br/>Academic DB")]
+    Redis[("Redis<br/>Cache")]
+
+    %% Cliente -> Servicios
+    WASM -->|HTTPS API| WebApp
+    WASM -->|HTTPS API| API
+    WASM -->|HTTPS API| Compiler
+
+    MAUI -->|HTTPS API| WebApp
+    MAUI -->|HTTPS API| API
+    MAUI -->|HTTPS API| Compiler
+
+    %% Orquestación
+    AppHost -.->|orchestrate| WebApp
+    AppHost -.->|orchestrate| API
+    AppHost -.->|orchestrate| Compiler
+    AppHost -.->|provision| SQL_Id
+    AppHost -.->|provision| SQL_Acad
+    AppHost -.->|provision| Redis
+
+    %% Servicios -> Compartidos
     WebApp --> Data
+    WebApp --> SharedLib
+    WebApp --> Defaults
+
     API --> Data
     API --> SharedLib
-    WebApp --> SharedLib
-    
-    Data --> SQL_Id
-    Data --> SQL_Acad
-    
-    WebApp -.->|Sync| SQL_Acad
+    API --> Defaults
+
+    Compiler --> Defaults
     Compiler --> Redis
+
+    %% Data -> DBs
+    Data -->|EF Core| SQL_Id
+    Data -->|EF Core| SQL_Acad
+
+    %% Sincronización
+    WebApp -.->|sync| SQL_Acad
+
+    %% Estilos ACC
+    classDef client fill:#141420,stroke:#4cc9f0,stroke-width:1.5px,color:#e5e7eb
+    classDef orchestration fill:#1a1a2e,stroke:#4cc9f0,stroke-width:2px,color:#e5e7eb
+    classDef service fill:#121224,stroke:#3a3a5a,stroke-width:1.5px,color:#e5e7eb
+    classDef shared fill:#0f0f1f,stroke:#2a2a40,stroke-width:1.2px,color:#e5e7eb
+    classDef infra fill:#0b0b16,stroke:#2a2a40,stroke-width:1.2px,color:#e5e7eb
+
+    class WASM,MAUI client
+    class AppHost orchestration
+    class WebApp,API,Compiler service
+    class Data,SharedLib,Defaults,External shared
+    class SQL_Id,SQL_Acad,Redis infra
+```
 
 ### 📌 Descripción de Proyectos
 
@@ -261,43 +303,101 @@ ACC-Complex/
 ---
 
 ## 🔄 Flujo de Trabajo
+```mermaid
+%%{init: {
+  "theme": "dark",
+  "themeVariables": {
+    "background": "#0a0a0f",
+    "mainBkg": "#141420",
+    "secondBkg": "#10101a",
+
+    "actorBkg": "#141420",
+    "actorBorder": "#4cc9f0",
+    "actorTextColor": "#e5e7eb",
+    "actorLineColor": "#4cc9f0",
+
+    "signalColor": "#e5e7eb",
+    "signalTextColor": "#e5e7eb",
+
+    "labelBoxBkgColor": "#10101a",
+    "labelBoxBorderColor": "#2a2a40",
+    "labelTextColor": "#cbd5e1",
+
+    "noteBorderColor": "#2a2a40",
+    "noteBkgColor": "#0f0f1a",
+    "noteTextColor": "#cbd5e1",
+
+    "activationBorderColor": "#4cc9f0",
+    "activationBkgColor": "#141420",
+
+    "loopTextColor": "#cbd5e1",
+    "sequenceNumberColor": "#7dd3fc",
+    "lineColor": "#4cc9f0",
+    "textColor": "#e5e7eb",
+    "fontSize": "14px"
+  }
+}}%%
 
 sequenceDiagram
+    autonumber
+
     participant U as Usuario
-    participant C as Cliente (Blazor/MAUI)
-    participant A as ACC.WebApp (Auth)
+    participant C as Cliente<br/>Blazor / MAUI
+    participant A as ACC.WebApp<br/>Auth Service
     participant S as SyncService
-    participant IdDB as DB Identity
-    participant AcDB as DB Académica
-    
-    Note over U, AcDB: Flujo de Registro y Sincronización
-    
-    U->>C: Completa Registro
-    C->>A: POST /Account/Register
-    A->>IdDB: Crear Usuario (Identity)
-    IdDB-->>A: Usuario Creado
-    
-    A->>S: SincronizarUsuarioAsync()
-    S->>AcDB: Crear Perfil Académico
-    AcDB-->>S: Perfil Sincronizado
-    
-    A->>U: Enviar Email Confirmación
-    A-->>C: Registro Exitoso
+    participant IdDB as Identity DB
+    participant AcDB as Academic DB
+    participant E as ACC.API<br/>Content Service
 
-    Note over U, AcDB: Flujo de Acceso a Contenido
+    rect rgb(20,20,40)
+    Note over U,AcDB: Phase 1 — User Registration and Academic Profile Sync
+    end
 
-    U->>C: Inicia Sesión
-    C->>A: Login
-    A->>IdDB: Validar Credenciales
-    IdDB-->>A: OK
-    A-->>C: Token JWT
-    
-    C->>E: GET /api/lecciones (con Token)
-    participant E as ACC.API
-    E->>AcDB: Consultar Progreso/Contenido
-    AcDB-->>E: Datos
-    E-->>C: Retorna Lección
+    U->>+C: Complete registration form
+    C->>+A: POST /Account/Register<br/>{ email, password, profile }
 
+    A->>+IdDB: Create Identity user
+    IdDB-->>-A: User created (userId)
+
+    A->>+S: SyncUserAsync(userId)
+    S->>+AcDB: INSERT academic profile<br/>linked to Identity ID
+    AcDB-->>-S: Academic profile created
+    S-->>-A: Sync completed
+
+    A->>U: Send confirmation email
+    A-->>-C: Registration success
+    C-->>-U: Show confirmation message
+
+
+    rect rgb(18,18,34)
+    Note over U,E: Phase 2 — Authentication and Session Establishment
+    end
+
+    U->>+C: Enter credentials and login
+    C->>+A: POST /Account/Login<br/>{ email, password }
+
+    A->>+IdDB: Validate credentials<br/>and retrieve claims
+    IdDB-->>-A: User valid + roles
+
+    A-->>-C: JWT + RefreshToken<br/>{ token, expiry, user }
+    C-->>-U: Login success
+
+
+    rect rgb(16,16,30)
+    Note over C,E: Phase 3 — Secure Educational Content Access
+    end
+
+    U->>+C: Navigate to lessons
+    C->>+E: GET /api/lessons<br/>Authorization: Bearer {token}
+
+    E->>E: Validate JWT<br/>and extract userId
+
+    E->>+AcDB: Query lessons and progress<br/>WHERE userId = {id}
+    AcDB-->>-E: Lessons + progress data
+
+    E-->>-C: 200 OK<br/>{ lessons, progress, stats }
+    C-->>-U: Render content and progress UI
+```
 ---
 
 ## 📖 Metodología de Lecciones
