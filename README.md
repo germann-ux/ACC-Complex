@@ -35,46 +35,42 @@
 La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones teóricas hasta compilación de código en tiempo real, evaluaciones automatizadas y aulas virtuales para colaboración entre estudiantes y docentes.
 
 ---
+## Características principales
 
-## ✨ Características Principales
+### Asistente educativo con IA
+- Asistente **Charp** integrado a servicios externos de IA.
+- Retroalimentación contextual durante prácticas y evaluaciones.
+- Recomendaciones de estudio basadas en progreso y desempeño.
 
-### 🤖 Inteligencia Artificial Educativa
-- Asistente **Charp** integrado con servicios de IA externos
-- Retroalimentación personalizada y adaptativa
-- Sugerencias de aprendizaje basadas en el progreso del estudiante
+### Lecciones dinámicas basadas en bloques
+- Renderizado por secciones con orden configurable mediante `OrdenSecciones`.
+- Flujo pedagógico consistente: teoría → ejemplos → práctica → evaluación.
+- Componentes didácticos reutilizables (alertas, tips, actividades y evaluaciones) con estilo uniforme.
 
-### 📚 Sistema de Lecciones Dinámicas
-- Contenido basado en bloques ordenados con `OrdenSecciones`
-- Metodología estructurada: teoría → ejemplos → práctica → evaluación
-- Estilos visuales consistentes con alertas didácticas
+### Compilación y ejecución de C# en tiempo real
+- Compilación con **Roslyn** para prácticas interactivas.
+- Ejecución aislada en contenedores para seguridad y consistencia.
+- Retroalimentación inmediata (errores, salida del programa y validaciones).
 
-### 🧪 Compilador en Tiempo Real
-- Compilación de código C# usando **Roslyn**
-- Ejecución segura en contenedor aislado
-- Retroalimentación inmediata de errores y resultados
+### Gestión académica
+- Agenda académica y seguimiento de progreso.
+- Aulas virtuales: gestión de grupos, estudiantes y contenido.
+- Sistema de tareas, evaluaciones y reportes de desempeño.
 
-### 📅 Gestión Académica Completa
-- Agenda y seguimiento de progreso
-- Aulas virtuales y gestión de grupos
-- Sistema de tareas y evaluaciones
-- Reportes de desempeño
+### Autenticación y control de acceso
+- **ASP.NET Identity** con roles (estudiante, docente, administrador).
+- Autenticación basada en **JWT** y refresh tokens.
+- Autorización granular por políticas y permisos.
 
-### 🔐 Sistema de Autenticación Robusto
-- ASP.NET Identity con roles (estudiante, docente, administrador)
-- Autenticación basada en tokens JWT
-- Gestión de permisos granular
+### Multiplataforma
+- Web: **Blazor WebAssembly (SPA)**.
+- App: **MAUI Blazor** para escritorio (Windows, macOS, Linux) y móvil (Android, iOS) con base de UI compartida.
 
-### 🌐 Multiplataforma
-- **Web**: Blazor WebAssembly (SPA)
-- **Escritorio**: Windows, macOS, Linux
-- **Móvil**: Android, iOS
-- Todo a través de MAUI Blazor
-
-### 📊 Observabilidad y Resiliencia
-- Telemetría distribuida con **OpenTelemetry**
-- Logging estructurado con **Serilog**
-- Health checks automáticos
-- Políticas de resiliencia integradas
+### Observabilidad y resiliencia
+- Telemetría distribuida con **OpenTelemetry**.
+- Logging estructurado con **Serilog**.
+- Health checks y monitoreo de servicios.
+- Políticas de resiliencia (timeouts, retries, circuit breaker) donde aplique.
 
 ---
 
