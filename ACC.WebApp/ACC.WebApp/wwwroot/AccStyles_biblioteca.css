@@ -14,22 +14,20 @@
     font-display: swap;
 }
 
-/* Si ya definiste los tokens globales, estos alias ya existen. Mantengo por compatibilidad.*/
 :root {
-  --biblioteca-primary-dark: #121218;
-  --biblioteca-secondary-dark: #1e1e2a;
-  --biblioteca-tertiary-dark: #282838;
-  --biblioteca-hover-dark: #32324a;
-  --biblioteca-primary-purple: #8b5cf6;
-  --biblioteca-secondary-purple: #7c3aed;
-  --biblioteca-primary-blue: #4f46e5;
-  --biblioteca-secondary-blue: #3730a3;
-  --biblioteca-text-white: #f8fafc;
-  --biblioteca-text-gray: #cbd5e1;
-  --biblioteca-border-color: #3f3f5a;
-  --biblioteca-transition-speed: 0.3s;
+    --biblioteca-primary-dark: #121218;
+    --biblioteca-secondary-dark: #1e1e2a;
+    --biblioteca-tertiary-dark: #282838;
+    --biblioteca-hover-dark: #32324a;
+    --biblioteca-primary-purple: #8b5cf6;
+    --biblioteca-secondary-purple: #7c3aed;
+    --biblioteca-primary-blue: #4f46e5;
+    --biblioteca-secondary-blue: #3730a3;
+    --biblioteca-text-white: #f8fafc;
+    --biblioteca-text-gray: #cbd5e1;
+    --biblioteca-border-color: #3f3f5a;
+    --biblioteca-transition-speed: 0.3s;
 }
-/**/
 
 /* ======================================================
    Layout general
@@ -39,7 +37,7 @@
     display: flex;
     height: 100vh;
     margin: 0 auto;
-    width: 80rem; 
+    width: 80rem;
     max-width: 1500px;
 }
 
@@ -72,7 +70,8 @@
 .biblioteca-sidebar-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--acc-brand-600); /* lila oficial */
+    color: var(--acc-brand-600);
+    /* lila oficial */
 }
 
 .biblioteca-sidebar-toggle {
@@ -116,14 +115,14 @@
     transition: background-color var(--biblioteca-transition-speed);
 }
 
-    .biblioteca-filter-item:hover {
-        background-color: var(--biblioteca-hover-dark);
-    }
+.biblioteca-filter-item:hover {
+    background-color: var(--biblioteca-hover-dark);
+}
 
-    .biblioteca-filter-item.active {
-        background-color: var(--acc-brand-600);
-        color: #fff;
-    }
+.biblioteca-filter-item.active {
+    background-color: var(--acc-brand-600);
+    color: #fff;
+}
 
 .biblioteca-filter-checkbox {
     margin-right: 10px;
@@ -140,15 +139,15 @@
     border-color: var(--biblioteca-primary-blue);
 }
 
-    .biblioteca-filter-item.active .biblioteca-filter-checkbox::after {
-        content: '✓';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 0.7rem;
-        color: #fff;
-    }
+.biblioteca-filter-item.active .biblioteca-filter-checkbox::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    color: #fff;
+}
 
 /* ======================================================
    Main Content
@@ -176,14 +175,14 @@
     color: var(--biblioteca-text-gray);
 }
 
-    .biblioteca-breadcrumb-item a {
-        color: var(--biblioteca-text-gray);
-        text-decoration: none;
-    }
+.biblioteca-breadcrumb-item a {
+    color: var(--biblioteca-text-gray);
+    text-decoration: none;
+}
 
-        .biblioteca-breadcrumb-item a:hover {
-            color: var(--acc-brand-600);
-        }
+.biblioteca-breadcrumb-item a:hover {
+    color: var(--acc-brand-600);
+}
 
 .biblioteca-breadcrumb-separator {
     margin: 0 8px;
@@ -219,10 +218,10 @@
     transition: all var(--biblioteca-transition-speed);
 }
 
-    .biblioteca-toggle-btn.active {
-        background-color: var(--biblioteca-primary-blue);
-        color: #fff;
-    }
+.biblioteca-toggle-btn.active {
+    background-color: var(--biblioteca-primary-blue);
+    color: #fff;
+}
 
 /* ======================================================
    Documentation Items (tarjetas/surfaces)
@@ -241,10 +240,10 @@
     border: 1px solid var(--biblioteca-border-color);
 }
 
-    .biblioteca-doc-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,.2);
-    }
+.biblioteca-doc-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .2);
+}
 
 .biblioteca-doc-header {
     padding: 15px;
@@ -257,7 +256,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: .1em;
-    background-color: rgba(255,255,255,.2);
+    background-color: rgba(255, 255, 255, .2);
     padding: 3px 8px;
     border-radius: 4px;
     margin-bottom: 8px;
@@ -298,10 +297,10 @@
     align-items: center;
 }
 
-    .biblioteca-doc-meta-item i {
-        margin-right: 5px;
-        font-size: .9rem;
-    }
+.biblioteca-doc-meta-item i {
+    margin-right: 5px;
+    font-size: .9rem;
+}
 
 .biblioteca-doc-footer {
     padding: 12px 15px;
@@ -324,10 +323,10 @@
     transition: color var(--biblioteca-transition-speed);
 }
 
-    .biblioteca-doc-action-btn:hover,
-    .biblioteca-doc-action-btn.active {
-        color: var(--acc-brand-600);
-    }
+.biblioteca-doc-action-btn:hover,
+.biblioteca-doc-action-btn.active {
+    color: var(--acc-brand-600);
+}
 
 .biblioteca-doc-badge {
     padding: 3px 8px;
@@ -339,9 +338,9 @@
     align-items: center;
 }
 
-    .biblioteca-doc-badge i {
-        margin-right: 4px;
-    }
+.biblioteca-doc-badge i {
+    margin-right: 4px;
+}
 
 /* ======================================================
    Botón flotante e Historial
@@ -361,20 +360,20 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .3);
     transition: transform var(--biblioteca-transition-speed), background-color var(--biblioteca-transition-speed);
     z-index: 100;
 }
 
-    .biblioteca-history-btn:hover {
-        transform: scale(1.1);
-        background-color: var(--biblioteca-secondary-purple);
-    }
+.biblioteca-history-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--biblioteca-secondary-purple);
+}
 
 .biblioteca-history-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0,0,0,.7);
+    background-color: rgba(0, 0, 0, .7);
     display: none;
     justify-content: center;
     align-items: center;
@@ -388,7 +387,7 @@
     max-width: 500px;
     max-height: 80vh;
     padding: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .5);
     border: 1px solid var(--biblioteca-border-color);
 }
 
@@ -416,9 +415,9 @@
     transition: color var(--biblioteca-transition-speed);
 }
 
-    .biblioteca-close-history:hover {
-        color: var(--acc-brand-600);
-    }
+.biblioteca-close-history:hover {
+    color: var(--acc-brand-600);
+}
 
 .biblioteca-history-list {
     display: flex;
@@ -437,9 +436,10 @@
     transition: background-color var(--biblioteca-transition-speed);
 }
 
-    .biblioteca-history-item:hover {
-        background-color: var(--biblioteca-hover-dark);
-    }
+.biblioteca-history-item:hover {
+    background-color: var(--biblioteca-hover-dark);
+}
+
 /*body*/
 .biblioteca-history-item-info {
     flex: 1;
@@ -543,9 +543,9 @@
         max-height: 60px;
     }
 
-        .biblioteca-sidebar.expanded {
-            max-height: 70vh;
-        }
+    .biblioteca-sidebar.expanded {
+        max-height: 70vh;
+    }
 
     .biblioteca-sidebar-header {
         padding: 15px;
@@ -564,10 +564,13 @@
    Scrollbars (opcional — ocultos)
    ====================================================== */
 
-html, body {
+html,
+body {
     /*overflow: visible !important;*/
-    /*scrollbar-width: none;*/ /* Firefox */
-    /*-ms-overflow-style: none;*/ /* IE/Edge */
+    /*scrollbar-width: none;*/
+    /* Firefox */
+    /*-ms-overflow-style: none;*/
+    /* IE/Edge */
 }
 
 ::-webkit-scrollbar {
@@ -603,9 +606,9 @@ html, body {
     border: 1px solid var(--biblioteca-border-color);
 }
 
-    .guia-main-list-item:hover {
-        background-color: var(--biblioteca-hover-dark);
-    }
+.guia-main-list-item:hover {
+    background-color: var(--biblioteca-hover-dark);
+}
 
 .guia-main-header {
     display: flex;
@@ -638,18 +641,18 @@ html, body {
     border: 1px solid transparent;
 }
 
-    .biblioteca-btn-completar-subtema:disabled,
-    .biblioteca-btn-completar-subtema[disabled] {
-        background-color: var(--biblioteca-secondary-dark);
-        color: var(--biblioteca-text-gray);
-        cursor: not-allowed;
-        opacity: .7;
-    }
+.biblioteca-btn-completar-subtema:disabled,
+.biblioteca-btn-completar-subtema[disabled] {
+    background-color: var(--biblioteca-secondary-dark);
+    color: var(--biblioteca-text-gray);
+    cursor: not-allowed;
+    opacity: .7;
+}
 
-    .biblioteca-btn-completar-subtema:hover:not(:disabled) {
-        background-color: var(--biblioteca-secondary-purple);
-        color: #fff;
-    }
+.biblioteca-btn-completar-subtema:hover:not(:disabled) {
+    background-color: var(--biblioteca-secondary-purple);
+    color: #fff;
+}
 
 .biblioteca-mensaje-completado {
     display: block;
@@ -671,7 +674,7 @@ html, body {
     border-radius: 12px;
     padding: 18px 0;
     margin-bottom: 30px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
     max-width: 320px;
     margin-inline: auto;
 }
@@ -680,7 +683,7 @@ html, body {
     background: var(--biblioteca-primary-dark);
     border-radius: 12px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
     max-width: 700px;
     margin-inline: auto;
     padding: 0;
@@ -711,13 +714,13 @@ html, body {
     margin-bottom: -2px;
 }
 
-    .biblioteca-nav-tab.active,
-    .biblioteca-nav-tab:hover {
-        background: var(--biblioteca-primary-dark);
-        color: var(--acc-brand-600);
-        border-bottom: 2px solid var(--acc-brand-600);
-        z-index: 1;
-    }
+.biblioteca-nav-tab.active,
+.biblioteca-nav-tab:hover {
+    background: var(--biblioteca-primary-dark);
+    color: var(--acc-brand-600);
+    border-bottom: 2px solid var(--acc-brand-600);
+    z-index: 1;
+}
 
 .biblioteca-nav-tab-icon {
     font-size: 1.2rem;

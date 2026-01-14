@@ -5,7 +5,6 @@
    - NO se modifica estructura (paddings/margins/rem/layout)
    ====================================================== */
 
-/* Compatibilidad con tu preferencia en <h3> y labels */
 label {
     color: var(--acc-text);
 }
@@ -28,13 +27,15 @@ h3 {
 }
 
 /* Enlaces */
-a, .btn-link {
+a,
+.btn-link {
     color: var(--acc-brand-600);
 }
 
-    a:hover, .btn-link:hover {
-        color: var(--acc-brand-700);
-    }
+a:hover,
+.btn-link:hover {
+    color: var(--acc-brand-700);
+}
 
 /* Botones - mapeo a tu sistema (no romper legacy) */
 .btn-primary {
@@ -43,10 +44,10 @@ a, .btn-link {
     border-color: var(--acc-brand-700);
 }
 
-    .btn-primary:hover {
-        background-color: var(--acc-brand-700);
-        border-color: var(--acc-brand-800);
-    }
+.btn-primary:hover {
+    background-color: var(--acc-brand-700);
+    border-color: var(--acc-brand-800);
+}
 
 /* Estándar de foco accesible */
 .btn:focus,
@@ -113,9 +114,9 @@ a, .btn-link {
     border-radius: var(--acc-radius);
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred.";
-    }
+.blazor-error-boundary::after {
+    content: "An error has occurred.";
+}
 
 /* -----------------------------
    Subtemas (superficies unificadas)
@@ -132,15 +133,16 @@ a, .btn-link {
     border: 1px solid var(--acc-border);
 }
 
-    .subtema-container h3 {
-        text-align: center;
-        color: var(--acc-text);
-        font-size: 1.8rem;
-        margin-bottom: 20px;
-        font-family: 'Graduate', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    }
+.subtema-container h3 {
+    text-align: center;
+    color: var(--acc-text);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-family: 'Graduate', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
 
-.loading, .no-subtemas {
+.loading,
+.no-subtemas {
     text-align: center;
     color: var(--acc-text-muted);
     font-size: 1.2rem;
@@ -162,10 +164,10 @@ a, .btn-link {
     transition: transform var(--acc-transition), box-shadow var(--acc-transition);
 }
 
-    .subtema-item:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 18px rgba(0,0,0,.45);
-    }
+.subtema-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
+}
 
 .subtema-title {
     display: block;
@@ -181,7 +183,15 @@ a, .btn-link {
 }
 
 .subtema-item button {
-    composes: btn btn--primary;
+    /* Replaces 'composes: btn btn--primary' which is not supported in standard CSS */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--acc-transition);
+
     background: var(--acc-brand-600);
     color: #fff;
     border: none;
@@ -190,189 +200,35 @@ a, .btn-link {
     padding: .5rem .8rem;
 }
 
-/* -----------------------------
-   Lecciones (superficies, tablas, code, alerts)
-   ----------------------------- */
-.leccion-container {
-    font-family: Arial, sans-serif;
-    max-width: 1200px;
-    background-color: var(--acc-surface-2);
-    border-left: 5px solid var(--acc-border);
-    border-radius: var(--acc-radius-sm);
-    padding: 15px;
+.subtema-item button:hover {
+    background-color: var(--acc-brand-700);
+}
+
+.subtema-item button:active {
+    background-color: var(--acc-brand-800);
+}
+
+.subtema-item button:focus-visible {
+    outline: none;
+    box-shadow: var(--acc-focus);
+}
+
+/* Icono resumen */
+.resumen .fa-solid {
+    color: var(--acc-warning-icon);
+}
+
+/* Charp container (layout) */
+.content .charp-container {
+    display: flex;
+    flex-direction: column;
     margin: 0 auto;
-    border: 1px solid var(--acc-border);
-    box-shadow: var(--acc-shadow);
+    max-width: 1200px;
 }
 
-    .leccion-container .leccion-teoria,
-    .leccion-container .leccion-ejemplos,
-    .leccion-container .leccion-practicas {
-        margin-bottom: 20px;
-        padding: 20px;
-        background-color: var(--acc-surface-2);
-        border-left: 5px solid var(--acc-border);
-        border-radius: var(--acc-radius-sm);
-        box-shadow: var(--acc-shadow);
-        align-content: center;
-    }
-
-    .leccion-container h3 {
-        color: var(--acc-brand-600);
-        font-family: 'Nunito', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-        font-weight: 700;
-    }
-
-    .leccion-container p {
-        color: var(--acc-text-muted);
-        font-size: 1rem;
-        margin-bottom: 10px;
-        line-height: 1.6;
-    }
-
-    .leccion-container ul {
-        margin: 0 0 10px 20px;
-        padding: 0;
-        list-style-type: disc;
-    }
-
-    .leccion-container li {
-        margin-bottom: 8px;
-        font-size: 1rem;
-        color: var(--acc-text);
-    }
-
-    .leccion-container table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        background-color: var(--acc-surface-2);
-        border: 1px solid var(--acc-border);
-        color: var(--acc-text);
-    }
-
-        .leccion-container table th,
-        .leccion-container table td {
-            border: 1px solid var(--acc-border);
-            padding: 10px;
-            text-align: left;
-        }
-
-        .leccion-container table thead th {
-            background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
-            color: var(--acc-text);
-            font-weight: 700;
-        }
-
-    .leccion-container pre,
-    .leccion-container code {
-        background-color: var(--acc-bg-3);
-        color: var(--acc-text);
-        border-radius: var(--acc-radius-sm);
-        padding: 10px;
-        font-size: 0.9rem;
-        display: block;
-        overflow-x: auto;
-        margin: 10px 0;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
-    }
-
-    .leccion-container button {
-        padding: .6rem 1rem;
-        background-color: var(--acc-brand-600);
-        color: #fff;
-        border: none;
-        border-radius: var(--acc-radius-sm);
-        cursor: pointer;
-        font-size: 1rem;
-        transition: var(--acc-transition);
-    }
-
-        .leccion-container button:hover {
-            background-color: var(--acc-brand-700);
-        }
-
-    .leccion-container img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 10px 0;
-        border-radius: var(--acc-radius-sm);
-    }
-
-    /* Destacados */
-    .leccion-container .highlight {
-        color: var(--acc-warning-accent);
-        font-weight: bold;
-    }
-
-    /* Alertas */
-    .leccion-container .alert {
-        padding: 15px;
-        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--acc-surface-2));
-        color: var(--acc-text);
-        border-left: 5px solid var(--acc-brand-700);
-        border-radius: var(--acc-radius-sm);
-        margin-bottom: 20px;
-        box-shadow: var(--acc-shadow);
-    }
-
-    .leccion-container .alert-info {
-        background-color: color-mix(in srgb, var(--acc-blue-600) 15%, var(--acc-surface-2));
-        border-left-color: var(--acc-blue-600);
-    }
-
-    .leccion-container .alert-success {
-        background-color: color-mix(in srgb, var(--acc-success-500) 15%, var(--acc-surface-2));
-        border-left-color: var(--acc-success-500);
-    }
-
-    .leccion-container .alert-warning {
-        background-color: color-mix(in srgb, var(--acc-warning-500) 15%, var(--acc-surface-2));
-        border-left-color: var(--acc-warning-500);
-    }
-
-    .leccion-container .alert-error {
-        background-color: color-mix(in srgb, var(--acc-danger-500) 15%, var(--acc-surface-2));
-        border-left-color: var(--acc-danger-500);
-    }
-
-    /* Fomentador */
-    .fomentador,
-    .leccion-container .fomentador {
-        padding: 15px;
-        background-color: color-mix(in srgb, var(--acc-text) 6%, var(--acc-surface-2));
-        color: var(--acc-text);
-        border-left: 5px solid var(--acc-border);
-        border-radius: var(--acc-radius-sm);
-        margin: 20px 0;
-        font-size: 1rem;
-        line-height: 1.5;
-        box-shadow: var(--acc-shadow);
-    }
-
-        .leccion-container .fomentador a {
-            color: var(--acc-brand-600);
-            text-decoration: none;
-            font-weight: 700;
-            transition: color var(--acc-transition);
-        }
-
-            .leccion-container .fomentador a:hover {
-                color: var(--acc-brand-700);
-            }
-
-/* BOTON EQUISDE */
-.expand-btn {
-    margin: 1rem 0 1rem;
-}
-
-.responsive-iframe-no-modal {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border: none;
-}
-
+/* -------------------------------------------------------
+   ACC THEME — Única fuente de verdad (tokens + base)
+   ---------------------------------------------------- */
 /* Fuentes */
 @font-face {
     font-family: 'Nunito';
@@ -391,23 +247,6 @@ a, .btn-link {
     src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
-/* Icono resumen */
-.resumen .fa-solid {
-    color: var(--acc-warning-icon);
-}
-
-/* Charp container */
-.content .charp-container {
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-    max-width: 1200px;
-}
-
-/* -------------------------------------------------------
-   ACC THEME — Única fuente de verdad (tokens + base)
-   ---------------------------------------------------- */
 
 /* Tokens (variables) */
 :root {
@@ -437,7 +276,7 @@ a, .btn-link {
     /* Dimensiones y motion */
     --acc-radius: 12px;
     --acc-radius-sm: 8px;
-    --acc-shadow: 0 8px 24px rgba(0,0,0,.35);
+    --acc-shadow: 0 8px 24px rgba(0, 0, 0, .35);
     --acc-transition: 0.2s ease;
     /* Focus accesible */
     --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
@@ -447,18 +286,24 @@ a, .btn-link {
        - valores copiados para NO cambiar look
        ====================================================== */
     /* Superficies */
-    --acc-surface-2: #1e1e2a; /* antes: --biblioteca-secondary-dark */
-    --acc-surface-3: #282838; /* antes: --biblioteca-tertiary-dark */
-    --acc-surface-hover: #32324a; /* antes: --biblioteca-hover-dark */
+    --acc-surface-2: #1e1e2a;
+    /* antes: --biblioteca-secondary-dark */
+    --acc-surface-3: #282838;
+    /* antes: --biblioteca-tertiary-dark */
+    --acc-surface-hover: #32324a;
+    /* antes: --biblioteca-hover-dark */
     /* Bordes/texto auxiliares */
-    --acc-border-strong: #929292; /* antes: darker checkbox */
+    --acc-border-strong: #929292;
+    /* antes: darker checkbox */
     /* Semánticos */
     --acc-success-500: #22c55e;
     --acc-warning-500: #f59e0b;
     --acc-danger-500: #ef4444;
     /* Acentos puntuales existentes en tu CSS */
-    --acc-warning-accent: #ffcc00; /* antes highlight */
-    --acc-warning-icon: #d0d122; /* antes icono resumen */
+    --acc-warning-accent: #ffcc00;
+    /* antes highlight */
+    --acc-warning-icon: #d0d122;
+    /* antes icono resumen */
     /* Superficie de error boundary (se conserva visualmente) */
     --acc-danger-surface: color-mix(in srgb, #b32121 85%, black);
 }
@@ -476,7 +321,8 @@ a, .btn-link {
     flex-direction: column;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     background-color: var(--acc-bg-0);
     color: var(--acc-text);
@@ -502,19 +348,23 @@ button {
 
 /* Layouts clave: Top Row & Sidebar */
 .top-row {
-    background: linear-gradient(to right, var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end) );
+    background: linear-gradient(to right, var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end));
     color: var(--acc-text);
     border-bottom: 1px solid var(--acc-border);
 }
 
 .sidebar {
-    background: linear-gradient( var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end) );
+    background: linear-gradient(var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end));
     color: var(--acc-text);
     border-right: 1px solid var(--acc-border);
 }
 
 /* Superficies / Tarjetas / Componentes */
-.card, .panel, .surface, .module, .component-surface {
+.card,
+.panel,
+.surface,
+.module,
+.component-surface {
     background: var(--acc-surface-2);
     color: var(--acc-text);
     border: 1px solid var(--acc-border);
@@ -522,7 +372,8 @@ button {
     box-shadow: var(--acc-shadow);
 }
 
-.card--flat, .surface--flat {
+.card--flat,
+.surface--flat {
     box-shadow: none;
     border-radius: var(--acc-radius-sm);
 }
@@ -534,7 +385,8 @@ button {
 }
 
 /* Separadores */
-.hr, hr {
+.hr,
+hr {
     border: 0;
     border-top: 1px solid var(--acc-border);
     opacity: .7;
@@ -560,18 +412,18 @@ button {
     color: #fff;
 }
 
-    .btn--primary:hover {
-        background-color: var(--acc-brand-700);
-    }
+.btn--primary:hover {
+    background-color: var(--acc-brand-700);
+}
 
-    .btn--primary:active {
-        background-color: var(--acc-brand-800);
-    }
+.btn--primary:active {
+    background-color: var(--acc-brand-800);
+}
 
-    .btn--primary:focus-visible {
-        outline: none;
-        box-shadow: var(--acc-focus);
-    }
+.btn--primary:focus-visible {
+    outline: none;
+    box-shadow: var(--acc-focus);
+}
 
 .btn--ghost {
     background: transparent;
@@ -579,22 +431,22 @@ button {
     border-color: var(--acc-border);
 }
 
-    .btn--ghost:hover {
-        background: color-mix(in srgb, var(--acc-text) 6%, transparent);
-    }
+.btn--ghost:hover {
+    background: color-mix(in srgb, var(--acc-text) 6%, transparent);
+}
 
 .btn--danger {
     background: var(--acc-danger-500);
     color: #fff;
 }
 
-    .btn--danger:hover {
-        background: #dc2626;
-    }
+.btn--danger:hover {
+    background: #dc2626;
+}
 
-    .btn--danger:active {
-        background: #b91c1c;
-    }
+.btn--danger:active {
+    background: #b91c1c;
+}
 
 /* Inputs / Selects / Textareas */
 .input,
@@ -613,34 +465,34 @@ textarea {
     transition: var(--acc-transition);
 }
 
-    .input::placeholder,
-    input::placeholder,
-    textarea::placeholder {
-        color: var(--acc-text-muted);
-    }
+.input::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: var(--acc-text-muted);
+}
 
-    .input:focus,
-    input:focus,
-    select:focus,
-    textarea:focus {
-        border-color: var(--acc-brand-600);
-        box-shadow: var(--acc-focus);
-        outline: none;
-    }
+.input:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--acc-brand-600);
+    box-shadow: var(--acc-focus);
+    outline: none;
+}
 
-    .input--error,
-    input.is-invalid,
-    select.is-invalid,
-    textarea.is-invalid {
-        border-color: var(--acc-danger-500);
-    }
+.input--error,
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: var(--acc-danger-500);
+}
 
-    .input--success,
-    input.is-valid,
-    select.is-valid,
-    textarea.is-valid {
-        border-color: var(--acc-success-500);
-    }
+.input--success,
+input.is-valid,
+select.is-valid,
+textarea.is-valid {
+    border-color: var(--acc-success-500);
+}
 
 /* Nav/list */
 .nav a,
@@ -655,11 +507,11 @@ textarea {
     transition: var(--acc-transition);
 }
 
-    .nav a:hover,
-    .menu a:hover,
-    .list a:hover {
-        background: var(--acc-bg-hover);
-    }
+.nav a:hover,
+.menu a:hover,
+.list a:hover {
+    background: var(--acc-bg-hover);
+}
 
 .badge {
     display: inline-block;
@@ -681,15 +533,16 @@ textarea {
     overflow: hidden;
 }
 
-    .table th, .table td {
-        padding: .75rem .9rem;
-        border-bottom: 1px solid var(--acc-border);
-    }
+.table th,
+.table td {
+    padding: .75rem .9rem;
+    border-bottom: 1px solid var(--acc-border);
+}
 
-    .table thead th {
-        background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
-        text-align: left;
-    }
+.table thead th {
+    background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
+    text-align: left;
+}
 
 /* Utilidades */
 .text-muted {
@@ -736,20 +589,20 @@ select {
     transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 }
 
-    select:hover {
-        border-color: color-mix(in srgb, var(--acc-brand-600), white 25%);
-    }
+select:hover {
+    border-color: color-mix(in srgb, var(--acc-brand-600), white 25%);
+}
 
-    select:focus {
-        outline: none;
-        border-color: var(--acc-brand-600);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600), transparent 75%);
-    }
+select:focus {
+    outline: none;
+    border-color: var(--acc-brand-600);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600), transparent 75%);
+}
 
-    select option {
-        background-color: var(--acc-surface-3);
-        color: var(--acc-text);
-    }
+select option {
+    background-color: var(--acc-surface-3);
+    color: var(--acc-text);
+}
 
 @media (max-width: 600px) {
     select {
