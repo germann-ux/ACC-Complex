@@ -3,7 +3,6 @@
   <img src="https://img.shields.io/badge/Blazor-WebAssembly-512BD4?style=for-the-badge&logo=blazor" alt="Blazor WASM">
   <img src="https://img.shields.io/badge/MAUI-Blazor-512BD4?style=for-the-badge&logo=dotnet" alt="MAUI">
   <img src="https://img.shields.io/badge/Aspire-9.2-512BD4?style=for-the-badge&logo=dotnet" alt="Aspire">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
 </p>
 
 <h1 align="center">🦈 Aprendiendo C# con Charp</h1>
@@ -31,106 +30,148 @@
 
 ## 📖 Descripción
 
-**ACC-Complex** es una plataforma educativa completa diseñada para enseñar C# de manera interactiva y personalizada. Cuenta con un asistente de IA educativo llamado **Charp** 🦈, que guía a los estudiantes a través de un currículo estructurado basado en la **Taxonomía de Bloom**.
+**Aprendiendo C# con Charp** es una plataforma educativa completa diseñada para enseñar C# de manera interactiva y personalizada. Cuenta con un asistente de IA educativo llamado **Charp** 🦈, que asiste a los estudiantes a través de un currículo estructurado basado en la **Taxonomía de Bloom**.
 
 La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones teóricas hasta compilación de código en tiempo real, evaluaciones automatizadas y aulas virtuales para colaboración entre estudiantes y docentes.
 
 ---
+## Características principales
 
-## ✨ Características Principales
+### Asistente educativo con IA
+- Asistente **Charp** integrado a servicios externos de IA.
+- Retroalimentación contextual durante prácticas y evaluaciones.
+- Recomendaciones de estudio basadas en progreso y desempeño.
 
-### 🤖 Inteligencia Artificial Educativa
-- Asistente **Charp** integrado con servicios de IA externos
-- Retroalimentación personalizada y adaptativa
-- Sugerencias de aprendizaje basadas en el progreso del estudiante
+### Lecciones dinámicas basadas en bloques
+- Renderizado por secciones con orden configurable mediante `OrdenSecciones`.
+- Flujo pedagógico consistente: teoría → ejemplos → práctica → evaluación.
+- Componentes didácticos reutilizables (alertas, tips, actividades y evaluaciones) con estilo uniforme.
 
-### 📚 Sistema de Lecciones Dinámicas
-- Contenido basado en bloques ordenados con `OrdenSecciones`
-- Metodología estructurada: teoría → ejemplos → práctica → evaluación
-- Estilos visuales consistentes con alertas didácticas
+### Compilación y ejecución de C# en tiempo real
+- Compilación con **Roslyn** para prácticas interactivas.
+- Ejecución aislada en contenedores para seguridad y consistencia.
+- Retroalimentación inmediata (errores, salida del programa y validaciones).
 
-### 🧪 Compilador en Tiempo Real
-- Compilación de código C# usando **Roslyn**
-- Ejecución segura en contenedor aislado
-- Retroalimentación inmediata de errores y resultados
+### Gestión académica
+- Agenda académica y seguimiento de progreso.
+- Aulas virtuales: gestión de grupos, estudiantes y contenido.
+- Sistema de tareas, evaluaciones y reportes de desempeño.
 
-### 📅 Gestión Académica Completa
-- Agenda y seguimiento de progreso
-- Aulas virtuales y gestión de grupos
-- Sistema de tareas y evaluaciones
-- Reportes de desempeño
+### Autenticación y control de acceso
+- **ASP.NET Identity** con roles (estudiante, docente, administrador).
+- Autenticación basada en **JWT** y refresh tokens.
+- Autorización granular por políticas y permisos.
 
-### 🔐 Sistema de Autenticación Robusto
-- ASP.NET Identity con roles (estudiante, docente, administrador)
-- Autenticación basada en tokens JWT
-- Gestión de permisos granular
+### Multiplataforma
+- Web: **Blazor WebAssembly (SPA)**.
+- App: **MAUI Blazor** para escritorio (Windows, macOS, Linux) y móvil (Android, iOS) con base de UI compartida.
 
-### 🌐 Multiplataforma
-- **Web**: Blazor WebAssembly (SPA)
-- **Escritorio**: Windows, macOS, Linux
-- **Móvil**: Android, iOS
-- Todo a través de MAUI Blazor
-
-### 📊 Observabilidad y Resiliencia
-- Telemetría distribuida con **OpenTelemetry**
-- Logging estructurado con **Serilog**
-- Health checks automáticos
-- Políticas de resiliencia integradas
+### Observabilidad y resiliencia
+- Telemetría distribuida con **OpenTelemetry**.
+- Logging estructurado con **Serilog**.
+- Health checks y monitoreo de servicios.
+- Políticas de resiliencia (timeouts, retries, circuit breaker) donde aplique.
 
 ---
 
 ## 🏗 Arquitectura
 
 La solución sigue un enfoque de **Clean Architecture distribuida** con servicios orquestados mediante **.NET Aspire**.
-
 ```mermaid
+%%{init: {
+  "theme": "dark",
+  "themeVariables": {
+    "background": "#0a0a0f",
+    "mainBkg": "#141420",
+    "secondBkg": "#10101a",
+
+    "primaryColor": "#141420",
+    "primaryTextColor": "#e5e7eb",
+    "primaryBorderColor": "#2a2a40",
+
+    "lineColor": "#4cc9f0",
+
+    "clusterBkg": "#0f0f1a",
+    "clusterBorder": "#2a2a40",
+
+    "titleColor": "#cbd5e1",
+    "edgeLabelBackground": "#0a0a0f",
+    "nodeTextColor": "#e5e7eb"
+  }
+}}%%
+
 graph TB
-    subgraph Clients["🖥️ Clientes"]
-        WASM[Blazor WASM]
-        MAUI[MAUI Blazor]
-    end
-    
-    subgraph Orchestration["🎯 Orquestación"]
-        AppHost[ACC.AppHost<br/>Aspire Orchestrator]
-    end
-    
-    subgraph Services["⚙️ Servicios"]
-        WebApp[ACC.WebApp<br/>Autenticación]
-        API[ACC.API<br/>Contenido Educativo]
-        Compiler[API_CompilerACC<br/>Roslyn Compiler]
-    end
-    
-    subgraph Infrastructure["🗄️ Infraestructura"]
-        SQL[(SQL Server)]
-        Redis[(Redis Cache)]
-    end
-    
-    subgraph Shared["📦 Compartido"]
-        Data[ACC.Data]
-        SharedLib[ACC.Shared]
-        Defaults[ACC.ServiceDefaults]
-        External[ACC.ExternalClients]
-    end
-    
-    WASM --> WebApp
-    WASM --> API
-    WASM --> Compiler
-    MAUI --> WebApp
-    MAUI --> API
-    MAUI --> Compiler
-    
-    AppHost -.-> WebApp
-    AppHost -.-> API
-    AppHost -.-> Compiler
-    AppHost -.-> SQL
-    AppHost -.-> Redis
-    
+    %% Clientes
+    WASM["Blazor WebAssembly"]
+    MAUI["MAUI Blazor"]
+
+    %% Orquestación
+    AppHost["ACC.AppHost<br/>Orchestrator (Aspire)"]
+
+    %% Servicios
+    WebApp["ACC.WebApp<br/>Authentication"]
+    API["ACC.API<br/>Educational Content"]
+    Compiler["API_CompilerACC<br/>Roslyn Compiler"]
+
+    %% Compartidos
+    Data["ACC.Data<br/>Data Layer"]
+    SharedLib["ACC.Shared<br/>Shared Library"]
+    Defaults["ServiceDefaults<br/>Configuration"]
+    External["ExternalClients<br/>External APIs"]
+
+    %% Infraestructura
+    SQL_Id[("SQL Server<br/>Identity DB")]
+    SQL_Acad[("SQL Server<br/>Academic DB")]
+    Redis[("Redis<br/>Cache")]
+
+    %% Cliente -> Servicios
+    WASM -->|HTTPS API| WebApp
+    WASM -->|HTTPS API| API
+    WASM -->|HTTPS API| Compiler
+
+    MAUI -->|HTTPS API| WebApp
+    MAUI -->|HTTPS API| API
+    MAUI -->|HTTPS API| Compiler
+
+    %% Orquestación
+    AppHost -.->|orchestrate| WebApp
+    AppHost -.->|orchestrate| API
+    AppHost -.->|orchestrate| Compiler
+    AppHost -.->|provision| SQL_Id
+    AppHost -.->|provision| SQL_Acad
+    AppHost -.->|provision| Redis
+
+    %% Servicios -> Compartidos
     WebApp --> Data
+    WebApp --> SharedLib
+    WebApp --> Defaults
+
     API --> Data
     API --> SharedLib
-    WebApp --> SharedLib
-    Data --> SQL
+    API --> Defaults
+
+    Compiler --> Defaults
     Compiler --> Redis
+
+    %% Data -> DBs
+    Data -->|EF Core| SQL_Id
+    Data -->|EF Core| SQL_Acad
+
+    %% Sincronización
+    WebApp -.->|sync| SQL_Acad
+
+    %% Estilos ACC
+    classDef client fill:#141420,stroke:#4cc9f0,stroke-width:1.5px,color:#e5e7eb
+    classDef orchestration fill:#1a1a2e,stroke:#4cc9f0,stroke-width:2px,color:#e5e7eb
+    classDef service fill:#121224,stroke:#3a3a5a,stroke-width:1.5px,color:#e5e7eb
+    classDef shared fill:#0f0f1f,stroke:#2a2a40,stroke-width:1.2px,color:#e5e7eb
+    classDef infra fill:#0b0b16,stroke:#2a2a40,stroke-width:1.2px,color:#e5e7eb
+
+    class WASM,MAUI client
+    class AppHost orchestration
+    class WebApp,API,Compiler service
+    class Data,SharedLib,Defaults,External shared
+    class SQL_Id,SQL_Acad,Redis infra
 ```
 
 ### 📌 Descripción de Proyectos
@@ -220,13 +261,13 @@ ACC-Complex/
 │   └── ACC.Tests/            # Pruebas unitarias
 │
 ├── 📄 ACC.sln                # Solución principal
-├── 📄 LICENSE.txt            # Licencia MIT
+
 └── 📄 README.md              # Este archivo
 ```
 
 ---
 
-## � Tecnologías
+## 👨‍💻 Tecnologías
 
 ### Backend
 | Tecnología | Versión | Uso |
@@ -251,41 +292,108 @@ ACC-Complex/
 | Tecnología | Versión | Uso |
 |------------|---------|-----|
 | .NET Aspire | 9.2 | Orquestación de servicios |
-| SQL Server | 2022 | Base de datos principal |
+| SQL Server | 2022 | Bases de datos (Identity + Académica) |
 | Redis | 7.x | Caché distribuido |
 | Docker | Latest | Contenedorización |
 
 ---
 
 ## 🔄 Flujo de Trabajo
-
 ```mermaid
-sequenceDiagram
-    participant U as Usuario
-    participant C as Cliente (Blazor/MAUI)
-    participant A as ACC.WebApp (Auth)
-    participant E as ACC.API (Educativo)
-    participant R as API_CompilerACC (Roslyn)
-    participant D as Base de Datos
-    
-    U->>C: Inicia sesión
-    C->>A: POST /auth/login
-    A->>D: Validar credenciales
-    D-->>A: Usuario válido
-    A-->>C: JWT Token + Roles
-    
-    U->>C: Accede a lección
-    C->>E: GET /api/lecciones/{id}
-    E->>D: Consultar contenido
-    D-->>E: Datos de lección
-    E-->>C: LeccionDTO
-    
-    U->>C: Ejecuta código C#
-    C->>R: POST /api/compile
-    R->>R: Compilar con Roslyn
-    R-->>C: Resultado/Errores
-```
+%%{init: {
+  "theme": "dark",
+  "themeVariables": {
+    "background": "#0a0a0f",
+    "mainBkg": "#141420",
+    "secondBkg": "#10101a",
 
+    "actorBkg": "#141420",
+    "actorBorder": "#4cc9f0",
+    "actorTextColor": "#e5e7eb",
+    "actorLineColor": "#4cc9f0",
+
+    "signalColor": "#e5e7eb",
+    "signalTextColor": "#e5e7eb",
+
+    "labelBoxBkgColor": "#10101a",
+    "labelBoxBorderColor": "#2a2a40",
+    "labelTextColor": "#cbd5e1",
+
+    "noteBorderColor": "#2a2a40",
+    "noteBkgColor": "#0f0f1a",
+    "noteTextColor": "#cbd5e1",
+
+    "activationBorderColor": "#4cc9f0",
+    "activationBkgColor": "#141420",
+
+    "loopTextColor": "#cbd5e1",
+    "sequenceNumberColor": "#7dd3fc",
+    "lineColor": "#4cc9f0",
+    "textColor": "#e5e7eb",
+    "fontSize": "14px"
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+
+    participant U as Usuario
+    participant C as Cliente<br/>Blazor / MAUI
+    participant A as ACC.WebApp<br/>Auth Service
+    participant S as SyncService
+    participant IdDB as Identity DB
+    participant AcDB as Academic DB
+    participant E as ACC.API<br/>Content Service
+
+    rect rgb(20,20,40)
+    Note over U,AcDB: Phase 1 — User Registration and Academic Profile Sync
+    end
+
+    U->>+C: Complete registration form
+    C->>+A: POST /Account/Register<br/>{ email, password, profile }
+
+    A->>+IdDB: Create Identity user
+    IdDB-->>-A: User created (userId)
+
+    A->>+S: SyncUserAsync(userId)
+    S->>+AcDB: INSERT academic profile<br/>linked to Identity ID
+    AcDB-->>-S: Academic profile created
+    S-->>-A: Sync completed
+
+    A->>U: Send confirmation email
+    A-->>-C: Registration success
+    C-->>-U: Show confirmation message
+
+
+    rect rgb(18,18,34)
+    Note over U,E: Phase 2 — Authentication and Session Establishment
+    end
+
+    U->>+C: Enter credentials and login
+    C->>+A: POST /Account/Login<br/>{ email, password }
+
+    A->>+IdDB: Validate credentials<br/>and retrieve claims
+    IdDB-->>-A: User valid + roles
+
+    A-->>-C: JWT + RefreshToken<br/>{ token, expiry, user }
+    C-->>-U: Login success
+
+
+    rect rgb(16,16,30)
+    Note over C,E: Phase 3 — Secure Educational Content Access
+    end
+
+    U->>+C: Navigate to lessons
+    C->>+E: GET /api/lessons<br/>Authorization: Bearer {token}
+
+    E->>E: Validate JWT<br/>and extract userId
+
+    E->>+AcDB: Query lessons and progress<br/>WHERE userId = {id}
+    AcDB-->>-E: Lessons + progress data
+
+    E-->>-C: 200 OK<br/>{ lessons, progress, stats }
+    C-->>-U: Render content and progress UI
+```
 ---
 
 ## 📖 Metodología de Lecciones
@@ -349,19 +457,10 @@ dotnet test --filter "FullyQualifiedName~ACC.Tests.NombreDelTest"
 
 ---
 
-## 📄 Licencia
+## 📄 Propiedad Intelectual
 
-Este proyecto está licenciado bajo la **Licencia MIT** - ver el archivo [LICENSE.txt](LICENSE.txt) para más detalles.
-
-```
-MIT License
-
-Copyright (c) 2025 Germán Uriel Evangelista Martínez
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
-```
+Este proyecto es propiedad intelectual exclusiva. Todos los derechos están reservados.
+La licencia MIT ya no está vigente para este proyecto.
 
 ---
 
