@@ -34,12 +34,13 @@
 }
 
 /* Títulos y texto */
-.leccion-container h3 {
-    color: var(--acc-brand-600);
-    font-weight: 800;
-    margin: 0 0 10px;
-    letter-spacing: .2px;
-}
+    .leccion-container h3 {
+        color: var(--acc-brand-600);
+        font-weight: 800;
+        margin: 0 0 10px;
+        letter-spacing: .2px;
+        font-family: 'Nunito';
+    }
 
 .leccion-container p {
     color: var(--acc-text-muted);
@@ -258,4 +259,76 @@
     width: 100%;
     aspect-ratio: 16 / 9;
     border: none;
+}
+
+.leccion-container .nivel-bloom {
+    display: flex;
+    justify-content: flex-end; 
+}
+
+.leccion-container .nivel-bloom p {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    border: 2px solid;
+}
+
+    .leccion-container .nivel-bloom p {
+        box-shadow: 0 0 0 0 transparent;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        will-change: transform, box-shadow;
+    }
+
+        .leccion-container .nivel-bloom p:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+            filter: brightness(1.06) saturate(1.05);
+        }
+
+
+/* RECORDAR */
+.nivel-bloom.Recordar p {
+    color: #ffffff;
+    border-color: #64748b;
+    background-color: rgba(71, 85, 105, 0.68);
+}
+
+/* COMPRENDER */
+.nivel-bloom.Comprender p {
+    color: #ffffff;
+    border-color: #2563eb;
+    background-color: rgba(29, 78, 216, 0.68);
+}
+
+/* APLICAR */
+.nivel-bloom.Aplicar p {
+    color: #ffffff;
+    border-color: #22c55e;
+    background-color: rgba(22, 163, 74, 0.68);
+}
+
+/* ANALIZAR */
+.nivel-bloom.Analizar p {
+    color: #000000;
+    border-color: #f59e0b;
+    background-color: rgba(250, 204, 21, 0.68);
+}
+
+/* EVALUAR */
+.nivel-bloom.Evaluar p {
+    color: #ffffff;
+    border-color: #e11d48;
+    background-color: rgba(190, 18, 60, 0.68);
+}
+
+/* CREAR */
+.nivel-bloom.Crear p {
+    color: #ffffff;
+    border-color: #8b5cf6;
+    background-color: rgba(109, 40, 217, 0.68);
 }

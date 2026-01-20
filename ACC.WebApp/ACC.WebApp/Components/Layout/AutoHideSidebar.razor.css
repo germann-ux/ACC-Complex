@@ -14,9 +14,6 @@
     z-index: 999;
     display: flex;
     flex-direction: column;
-    /*background: linear-gradient(darkcyan, darkblue);*/
-    /*background: linear-gradient(#0f0f0f, #2a003f);*/
-    /*background: linear-gradient(#0f0f0f, #3d1f5c);*/
     background: linear-gradient(#0f0f0f, #1c0b33, #2a003f);
     padding: 1rem;
     border-radius: 0 15px 15px 0;
@@ -99,70 +96,41 @@ button {
         margin-top: 0.5%;
     }
 }
-/*ANTERIOR IMPLEMENTACION QUE FUE OPTIMIZADA*/
 
-/* Efecto hover general para texto */
-/*.menu-item:hover .menu-inicio,
-.menu-item:hover .menu-AI,
-.menu-item:hover .menu-Cuenta,
-.menu-item:hover .menu-temas,
-.menu-item:hover .menu-Agenda,
-.menu-item:hover .menu-Lecciones {
-    color: #a6bddc;
-    transform: scale(1.2);
-}*/
+:root {
+    --mobile-nav-h: 4.2rem;
+}
 
-/* Efecto hover general para iconos */
-/*.menu-item:hover .menu-icon-Inicio,
-.menu-item:hover .menu-icon-AI,
-.menu-item:hover .menu-icon-Cuenta,
-.menu-item:hover .menu-icon-Agenda,
-.menu-item:hover .menu-icon-Lecciones {
-    color: #a6bddc;
-    transform: scale(1.2);
-}*/
-/*.expand .menu-inicio,
-.expand .menu-AI,
-.expand .menu-Cuenta,
-.expand .menu-temas,
-.expand .menu-Agenda {
-    visibility: visible;
-}*/
-/*.menu-icon-Inicio,
-.menu-icon-AI,
-.menu-icon-Cuenta,
-.menu-icon-Agenda,
-.menu-icon-Lecciones {
-    color: white;
-    width: 20px;
-    margin-top: 1rem;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}*/
-/*.menu-inicio, .menu-AI, .menu-Cuenta, .menu-temas, .menu-Agenda {
-    font-family: Graduate;
-    color: white;
-    visibility: hidden;
-}*/
-/* .menu-inicio,
-    .menu-temas,
-    .menu-Agenda,
-    .menu-Cuenta,
-    .menu-AI {
-        font-family: Graduate;
-        color: white;
-        visibility: visible;
-        font-size: 0.8rem;
-    }*/
+@media (max-width: 768px) {
+    .container {
+        margin-top: 0 !important;
+    }
+}
 
-/*span .menu-AI,
-    span .menu-Cuenta,
-    span .menu-Agenda,
-    span .menu-temas,
-    span .menu-inicio {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin-top: 0.5%;
-    }*/
+
+/* Menú inferior fijo */
+@media (max-width: 768px) {
+    .container {
+        height: var(--mobile-nav-h);
+    }
+
+    /* Empuja el contenido del área que scrollea (elige uno o varios de estos) */
+    main,
+    .page,
+    .content,
+    .main-content,
+    .app-content,
+    .layout-content {
+        padding-bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom));
+    }
+
+    /* Si tu scroll está en un contenedor con overflow, esto ayuda a que el scroll "respete" el fondo */
+    main,
+    .page,
+    .content,
+    .main-content,
+    .app-content,
+    .layout-content {
+        scroll-padding-bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom));
+    }
+}

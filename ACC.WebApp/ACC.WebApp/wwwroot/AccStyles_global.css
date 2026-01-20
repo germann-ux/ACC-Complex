@@ -5,6 +5,68 @@
    - NO se modifica estructura (paddings/margins/rem/layout)
    ====================================================== */
 
+/* Tokens (variables) */
+:root {
+    /* Paleta base (oscuros) */
+    --acc-bg-0: #0f0f0f;
+    --acc-bg-1: #121218;
+    --acc-bg-2: #1e1e2a;
+    --acc-bg-3: #282838;
+    --acc-bg-hover: #32324a;
+    /* Bordes / separadores */
+    --acc-border: #3f3f5a;
+    /* Texto */
+    --acc-text: #f8fafc;
+    --acc-text-muted: #cbd5e1;
+    /* Marca */
+    --acc-brand-500: #8b5cf6;
+    --acc-brand-600: #9926fe;
+    --acc-brand-700: #7c3aed;
+    --acc-brand-800: #3d1f5c;
+    --acc-brand-900: #2a003f;
+    /* Azul de apoyo */
+    --acc-blue-600: #4f46e5;
+    --acc-blue-700: #3730a3;
+    /* Gradiente */
+    --acc-grad-start: var(--acc-bg-0);
+    --acc-grad-mid: #1c0b33;
+    --acc-grad-end: var(--acc-brand-900);
+    /* Dimensiones y motion */
+    --acc-radius: 12px;
+    --acc-radius-sm: 8px;
+    --acc-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+    --acc-transition: 0.2s ease;
+    --acc-transition-3s: 0.3s ease;
+    /* Focus accesible */
+    --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
+    /* ======================================================
+       NUEVOS TOKENS ACC (equivalencias de Biblioteca)
+       - para NO depender de --biblioteca-*
+       - valores copiados para NO cambiar look
+       ====================================================== */
+    /* Superficies */
+    --acc-surface-2: #1e1e2a;
+    /* antes: --biblioteca-secondary-dark */
+    --acc-surface-3: #282838;
+    /* antes: --biblioteca-tertiary-dark */
+    --acc-surface-hover: #32324a;
+    /* antes: --biblioteca-hover-dark */
+    /* Bordes/texto auxiliares */
+    --acc-border-strong: #929292;
+    /* antes: darker checkbox */
+    /* Semánticos */
+    --acc-success-500: #22c55e;
+    --acc-warning-500: #f59e0b;
+    --acc-danger-500: #ef4444;
+    /* Acentos puntuales existentes en tu CSS */
+    --acc-warning-accent: #ffcc00;
+    /* antes highlight */
+    --acc-warning-icon: #d0d122;
+    /* antes icono resumen */
+    /* Superficie de error boundary (se conserva visualmente) */
+    --acc-danger-surface: color-mix(in srgb, #b32121 85%, black);
+}
+
 label {
     color: var(--acc-text);
 }
@@ -14,7 +76,7 @@ h3 {
     color: color-mix(in srgb, var(--acc-brand-600) 65%, white);
     margin: .8rem 0 .5rem;
 }
-
+/*--acc-surface-2*/
 /* Página / contenedor principal */
 .page {
     background-color: var(--acc-bg-1);
@@ -246,66 +308,6 @@ a:hover,
     font-display: swap;
     src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Tokens (variables) */
-:root {
-    /* Paleta base (oscuros) */
-    --acc-bg-0: #0f0f0f;
-    --acc-bg-1: #121218;
-    --acc-bg-2: #1e1e2a;
-    --acc-bg-3: #282838;
-    --acc-bg-hover: #32324a;
-    /* Bordes / separadores */
-    --acc-border: #3f3f5a;
-    /* Texto */
-    --acc-text: #f8fafc;
-    --acc-text-muted: #cbd5e1;
-    /* Marca */
-    --acc-brand-600: #9926fe;
-    --acc-brand-700: #7c3aed;
-    --acc-brand-800: #3d1f5c;
-    --acc-brand-900: #2a003f;
-    /* Azul de apoyo */
-    --acc-blue-600: #4f46e5;
-    --acc-blue-700: #3730a3;
-    /* Gradiente */
-    --acc-grad-start: var(--acc-bg-0);
-    --acc-grad-mid: #1c0b33;
-    --acc-grad-end: var(--acc-brand-900);
-    /* Dimensiones y motion */
-    --acc-radius: 12px;
-    --acc-radius-sm: 8px;
-    --acc-shadow: 0 8px 24px rgba(0, 0, 0, .35);
-    --acc-transition: 0.2s ease;
-    /* Focus accesible */
-    --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
-    /* ======================================================
-       NUEVOS TOKENS ACC (equivalencias de Biblioteca)
-       - para NO depender de --biblioteca-*
-       - valores copiados para NO cambiar look
-       ====================================================== */
-    /* Superficies */
-    --acc-surface-2: #1e1e2a;
-    /* antes: --biblioteca-secondary-dark */
-    --acc-surface-3: #282838;
-    /* antes: --biblioteca-tertiary-dark */
-    --acc-surface-hover: #32324a;
-    /* antes: --biblioteca-hover-dark */
-    /* Bordes/texto auxiliares */
-    --acc-border-strong: #929292;
-    /* antes: darker checkbox */
-    /* Semánticos */
-    --acc-success-500: #22c55e;
-    --acc-warning-500: #f59e0b;
-    --acc-danger-500: #ef4444;
-    /* Acentos puntuales existentes en tu CSS */
-    --acc-warning-accent: #ffcc00;
-    /* antes highlight */
-    --acc-warning-icon: #d0d122;
-    /* antes icono resumen */
-    /* Superficie de error boundary (se conserva visualmente) */
-    --acc-danger-surface: color-mix(in srgb, #b32121 85%, black);
 }
 
 /* Reset suave & tipografía */
