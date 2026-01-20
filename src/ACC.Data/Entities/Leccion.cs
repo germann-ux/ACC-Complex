@@ -39,8 +39,8 @@ namespace ACC.Data.Entities
         /// <summary>
         /// Contenido principal de la lección el cual es renderizado (puede incluir HTML, markdown, etc.).
         /// </summary>
-        [Obsolete("Campo obsoleto, se fragmento en las nuevas propiedades 'Teoria', 'Practica', 'Ejemplo'")]
-        public string? HtmlBody { get; set; }
+        //[Obsolete("Campo obsoleto, se fragmento en las nuevas propiedades 'Teoria', 'Practica', 'Ejemplo'")]
+        //public string? HtmlBody { get; set; }
         
         /// <summary>
         /// Indica si la lección tiene una actividad asociada.
@@ -53,16 +53,6 @@ namespace ACC.Data.Entities
         /// </summary>
         [AllowNull]
         public string? UrlActividad { get; set; } = null;
-
-        /// <summary>
-        /// Indica si la lección tiene una evaluación asociada.
-        /// </summary>
-        public bool TieneEvaluacion { get; set; } = false;
-
-        /// <summary>
-        /// Identificador de la evaluación asociada, si existe.
-        /// </summary>
-        //public int? IdEvaluacion { get; set; } = null;
 
         /// <summary>
         /// Indica si la lección incluye un compilador interactivo.
@@ -91,13 +81,6 @@ namespace ACC.Data.Entities
         /// Colección de capítulos que pueden estar asociados a esta lección (relación inversa).
         /// </summary>
         public ICollection<Capitulo>? Capitulos { get; set; }
-
-        /// <summary>
-        /// propiedad para manejar el cuerpo de las evaluaciones y renderizarlas luego
-        /// </summary>
-        //public string? CuerpoEvaluacion { get; set; } = null;
-
-
 
         /// <summary>
         /// Seccion teorica de las lecciones, en formato html
@@ -129,6 +112,14 @@ namespace ACC.Data.Entities
         /// Recordar, Comprender, Aplicar, Analizar, Evaluar, Crear
         /// </summary>
         public string NivelBloom { get; set; } = string.Empty;
+        /// <summary>
+        /// Id del video de youtube que se desee mostrar en la lección.
+        /// </summary>
+        public string? VideoId { get; set; }
+        /// <summary>
+        /// flag para saber si la lección tiene video asociado.
+        /// </summary>
+        public bool TieneVideo { get; set; }
 
 
         // --- // ------------------ Implementación de la interfaz INodoJerarquico ------------------ // --- //

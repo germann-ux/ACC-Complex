@@ -15,5 +15,6 @@ public enum TipoSeccionContenido
     Compilador,
     Evaluacion,
     CharpTip,
-    CharpDialog
+    CharpDialog, 
+    Video
 }

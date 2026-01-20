@@ -42,20 +42,10 @@ namespace ACC.Shared.DTOs
         /// Título de la lección.
         /// </summary>
         public string TituloLeccion { get; set; } = string.Empty;
-
         /// <summary>
         /// Descripción de la lección.
         /// </summary>
         public string DescripcionLeccion { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Contenido HTML principal (modo antiguo, sigue siendo compatible).
-        /// </summary>
-        [Obsolete("Se remplazara por propiedades separadas, Teoria, practica y Ejemplo")]
-        public string? HtmlBody { get; set; } = string.Empty;
-        //  |
-        //  |
-        // \ /
         /// <summary>
         /// Seccion teorica de las lecciones, en formato html
         /// </summary>
@@ -94,19 +84,17 @@ namespace ACC.Shared.DTOs
         public string? UrlActividad { get; set; }
 
         /// <summary>
-        /// ¿Tiene evaluación posterior?
-        /// </summary>
-        public bool TieneEvaluacion { get; set; }
-
-        /// <summary>
-        /// Id de evaluación, si aplica.
-        /// </summary>
-        public int? IdEvaluacion { get; set; }
-
-        /// <summary>
         /// ¿Incluye el compilador ACC?
         /// </summary>
         public bool TieneCompilador { get; set; }
+        /// <summary>
+        /// Contiene un video de youtube?
+        /// </summary>
+        public bool TieneVideo { get; set; }
+        /// <summary>
+        /// id del video de youtube asociado.
+        /// </summary>
+        public string? VideoId { get; set; }
 
         /// <summary>
         /// Lista ordenada de secciones a renderizar (modo clásico).
