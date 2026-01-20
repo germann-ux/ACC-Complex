@@ -45,7 +45,7 @@ var redis = builder.AddRedis("acc-redis")
     .WithContainerName("acc-redis-container");
 
 // === Servicios === //
-var compilerApi = builder.AddProject<Projects.API_CompilerACC>("acc-compiler")
+var compilerApi = builder.AddProject<Projects.ACC_Compiler>("acc-compiler")
     .WithReference(redis);
 
 var accApi = builder.AddProject<Projects.ACC_API>("acc-api")

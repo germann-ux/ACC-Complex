@@ -20,7 +20,7 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\..\ACC.WebApp\ACC.WebApp\ACC.WebApp.csproj" />
-    <ProjectReference Include="..\API_CompilerACC\API_CompilerACC.csproj" />
+    <ProjectReference Include="..\API_CompilerACC\ACC.Compiler.csproj" />
     <ProjectReference Include="..\ACC.API\ACC.API.csproj" />
   </ItemGroup>
 

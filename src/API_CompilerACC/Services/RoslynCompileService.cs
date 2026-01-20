@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Reflection;
 using System.Text;
 
+namespace API_CompilerACC.Services;
+
 public class RoslynCompileService : ICompileService
 {
     public async Task<string> CompileAndRunAsync(string code, string input)

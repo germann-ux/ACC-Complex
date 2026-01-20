@@ -10,7 +10,7 @@
         <title>ACC</title>
 
         <!--Pagina base de la aplicacion web-->
-        <base href="/" />
+        <base href="/"/>
 
         <!--Estilos globales de la aplicacion web-->
         <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
@@ -19,7 +19,9 @@
         <link rel="stylesheet" href="AccStyles_cuentas.css" />
         <link rel="stylesheet" href="AccStyles_aulas_docentes.css" />
         <link rel="stylesheet" href="AccStyles_capitulos.css" />
-        <link rel="styleshhet" href="AccStyles_lecciones"/>
+        <link rel="stylesheet" href="AccStyles_lecciones.css" />
+        <link rel="stylesheet" href="ACC.WebApp.styles.css" />
+        <link rel="stylesheet" href="ACC.WebApp.Client.styles.css" />
 
         <!--CSS de codeMirror-->
         <link rel="stylesheet" href="JS/CodeMirror/codemirror.min.css" />
@@ -63,7 +65,8 @@
         <script src="JS/CodeMirror/CodeMirrorInit.js"></script>
         <script src="JS/CodeMirror/codemirror.min.js"></script>
         <script src="JS/CodeMirror/clike.min.js"></script>
-
+        <!-- Script para iframes mas ligeros, para las lecciones -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script>
         <!-- Scripts para la inteligencia artificial Charp -->
         <script>
             window.embeddedChatbotConfig = {
