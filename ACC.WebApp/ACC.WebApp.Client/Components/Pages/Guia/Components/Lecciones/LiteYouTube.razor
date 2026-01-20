@@ -1,0 +1,12 @@
+﻿@if (!string.IsNullOrWhiteSpace(VideoId))
+{
+    <lite-youtube videoid="@VideoId"
+                  videoplay="Reproducir"
+                  nocookie
+                  autoload>
+    </lite-youtube>
+}
+
+@code {
+    [Parameter, EditorRequired] public string VideoId { get; set; } = default!;
+}

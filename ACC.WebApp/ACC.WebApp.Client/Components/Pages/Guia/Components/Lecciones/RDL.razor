@@ -9,18 +9,19 @@
     [Parameter] public LeccionDto Leccion { get; set; } = default!;
     private ModalActividades? ModalActividad;
     private string? urlActividadActual;
-
+    private string mensajeError = string.Empty;
     private void ShowActivity(string url)
     {
         urlActividadActual = url;
         ModalActividad?.OpenModal();
-        //TODO: Seguir implementando las fucniones restantes y la division del bloque de html original.
     }
 }
 
 @* Renderiza el modal una sola vez, fuera del bucle *@
 <ModalActividades Url="@urlActividadActual" @ref="ModalActividad" />
-<div class="leccion-container">
+<div class="content leccion-container">
+    <div class="nivel-bloom @Leccion.NivelBloom"><p>Nivel de bloom: @Leccion.NivelBloom</p></div>
+    @* <br /> *@
     @foreach (var seccion in Leccion.OrdenSecciones)
     {
         switch (seccion)
@@ -70,15 +71,21 @@
                 }
                 break;
 
-            case SeccionesContenido.Evaluacion:
-                if (Leccion.TieneEvaluacion && Leccion.IdEvaluacion.HasValue)
+            case SeccionesContenido.Video:
+                if (!string.IsNullOrEmpty(Leccion.VideoId))
                 {
-                    <p>TODO: render evaluación</p>
+                    <LiteYouTube VideoId="@Leccion.VideoId" />
                 }
                 break;
 
-            default:
-                <p style="color:red">[Sección desconocida: @seccion]</p>
+            default: 
+                mensajeError = $"La seccion '{seccion}' no es reconocida y no se puede mostrar";
+                @* <p style="color:red">[Sección desconocida: @seccion]</p> *@
+                <InfoComponent 
+                    Title="Sección desconocida"
+                    Message=@mensajeError
+                    StatusCode="400" ReturnUrl="/Guia" />
+
                 break;
         }
     }

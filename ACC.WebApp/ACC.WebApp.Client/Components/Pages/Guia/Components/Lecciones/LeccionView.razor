@@ -3,24 +3,33 @@
 @rendermode InteractiveServer
 @using ACC.WebApp.Client.Services
 @using ACC.Shared.DTOs
+@using ACC.Shared.Core
 @inject NavegacionContenidoClient Navegacion
 
 @code {
     [Parameter] public int Id { get; set; }
-    private LeccionDto? leccion;
+    private ServiceResult<LeccionDto>? leccionResult;
 
     protected override async Task OnParametersSetAsync()
     {
-        leccion = await Navegacion.ObtenerLeccionAsync(Id);
+        leccionResult = await Navegacion.ObtenerLeccionAsync(Id);
     }
 }
 
-@if (leccion == null)
+@if (leccionResult == null)
 {
-    <p>Cargando lección...</p>
+    <p>Cargando leccion...</p>
+}
+else if (!leccionResult.Success)
+{
+    <p>Error al cargar la leccion: @leccionResult.Message</p>
+}
+else if (leccionResult.Data == null)
+{
+    <p>No se encontro la leccion solicitada.</p>
 }
 else
 {
     // Renderizador Dinamico de Lecciones => RDL
-    <RDL Leccion="@leccion"/>
+    <RDL Leccion="@leccionResult.Data"/>
 }
