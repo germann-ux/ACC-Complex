@@ -1,0 +1,142 @@
+﻿/* ==============================
+   Página de Error – ACC
+   Componente: Prueba.razor
+   ============================== */
+
+/* Contenedor principal */
+.content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 2rem;
+    text-align: center;
+    color: var(--acc-text);
+}
+
+/* Caja de contenido */
+.error-container {
+    width: 100%;
+    max-width: 820px;
+    padding: 2.5rem 2rem;
+}
+
+/* Código de error */
+.error-code {
+    font-size: 12rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 1.2rem;
+    color: var(--acc-brand-500);
+}
+
+/* Título */
+.error-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--acc-text);
+}
+
+/* Mensaje */
+.error-message {
+    color: var(--acc-text-muted);
+    margin-bottom: 2rem;
+    font-size: 1.25rem;
+    line-height: 1.55;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Botón */
+.error-button {
+    background-color: var(--acc-brand-500);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.9rem 2rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1.5rem;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+    .error-button:hover {
+        background-color: var(--acc-brand-700);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+    }
+
+/* ==============================
+   Decoración de fondo
+   ============================== */
+
+.background-decoration {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--acc-brand-500);
+    opacity: 0.06;
+    filter: blur(1px);
+}
+
+/* Círculos */
+.circle-1 {
+    width: 320px;
+    height: 320px;
+    top: -120px;
+    left: -120px;
+}
+
+.circle-2 {
+    width: 520px;
+    height: 520px;
+    bottom: -220px;
+    right: -220px;
+}
+
+.circle-3 {
+    width: 220px;
+    height: 220px;
+    top: 30%;
+    right: 12%;
+}
+
+/* ==============================
+   Responsive
+   ============================== */
+
+@media (max-width: 768px) {
+
+    .error-code {
+        font-size: 7.5rem;
+    }
+
+    .error-title {
+        font-size: 2rem;
+    }
+
+    .error-message {
+        font-size: 1.05rem;
+    }
+
+    .error-container {
+        padding: 2rem 1.2rem;
+    }
+}

@@ -1,0 +1,26 @@
+﻿@page "/Prueba"
+@rendermode InteractiveServer
+
+@code {
+    [Parameter] public string? ReturnUrl { get; set; } = "/Resumen";
+    [Parameter] public string? Title { get; set; } = "Página no encontrada";
+    [Parameter] public string? Message { get; set; } = "Lo sentimos, la página que estás buscando no existe o ha sido movida a otra ubicación.";
+    [Parameter] public int? StatusCode { get; set; } = 404;
+}
+
+<PageTitle>@StatusCode - @Title</PageTitle>
+
+<div class="background-decoration">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    <div class="decoration-circle circle-3"></div>
+</div>
+
+<div class="content">
+    <div class="error-container">
+        <div class="error-code">@StatusCode</div>
+        <h1 class="error-title">@Title</h1>
+        <p class="error-message">@Message</p>
+        <a href="@ReturnUrl" class="error-button">Volver al inicio</a>
+    </div>
+</div>
