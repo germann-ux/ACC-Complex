@@ -5,6 +5,7 @@
 @using ACC.Shared.Enums
 @using ACC.WebApp.Client.Services
 @using ACC.Shared.DTOs
+@using ACC.Shared.Core
 
 @inject NavegacionContenidoClient Navegacion
 @inject ExamenesServiceClient ExamenesService
@@ -14,6 +15,8 @@
     private List<NodoJerarquicoDto> modulos = new();
     private List<ExamenSubModuloDto> examenesSubM = new();
     private List<ExamenModuloDto> examenesMod = new();
+
+    private ServiceResult<List<NodoJerarquicoDto>>? modulosResult;
 
     private int? moduloSeleccionadoId;
 
@@ -27,23 +30,43 @@
     {
         loadingModulos = true;
         loadingExamenes = true;
+        errorModulos = null;
+        errorExamenes = null;
+
+        Task<ServiceResult<List<NodoJerarquicoDto>>>? modulosTask = null;
+        Task<List<ExamenSubModuloDto>>? subTask = null;
+        Task<List<ExamenModuloDto>>? modTask = null;
 
         try
         {
             // Carga paralela: módulos + (exámenes submódulo + módulo)
-            var modulosTask = Navegacion.ObtenerModulosAsync();
-            var subTask = ExamenesService.ObtenerExamanesSubMAsync();
-            var modTask = ExamenesService.ObtenerExamenesModAsync();
+            modulosTask = Navegacion.ObtenerModulosAsync();
+            subTask = ExamenesService.ObtenerExamanesSubMAsync();
+            modTask = ExamenesService.ObtenerExamenesModAsync();
 
-            await Task.WhenAll(modulosTask, subTask, modTask);
+            await Task.WhenAll(modulosTask!, subTask!, modTask!);
 
-            modulos = modulosTask.Result ?? new();
+            modulosResult = modulosTask.Result;
+            modulos = modulosResult.Data ?? new();
             examenesSubM = subTask.Result ?? new();
             examenesMod = modTask.Result ?? new();
+
+            if (!modulosResult.Success)
+                errorModulos = modulosResult.Message;
         }
         catch (Exception ex)
         {
-            if (modulos.Count == 0) errorModulos = ex.Message;
+            if (modulosTask is not null && modulosTask.IsCompletedSuccessfully)
+            {
+                modulosResult = modulosTask.Result;
+                modulos = modulosResult.Data ?? new();
+                if (!modulosResult.Success)
+                    errorModulos = modulosResult.Message;
+            }
+            else
+            {
+                errorModulos = ex.Message;
+            }
             errorExamenes = ex.Message;
         }
         finally

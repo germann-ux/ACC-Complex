@@ -1,5 +1,6 @@
 ﻿using ACC.API.Services;
 using ACC.Shared.Core;
+using ACC.Shared.DTOs;
 using ACC.Shared.Enums;
 using ACC.Shared.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -18,67 +19,45 @@ namespace ACC.API.Controllers
         }
 
         [HttpGet("hijos/{tipo}/{id}")]
-        public async Task<IActionResult> ObtenerHijos(TipoNodoJerarquico tipo, int id)
+        public async Task<ActionResult<ServiceResult<List<NodoJerarquicoDto>>>> ObtenerHijos(TipoNodoJerarquico tipo, int id)
         {
-            if (id <= 0)
-            {
-                return BadRequest("El ID debe ser mayor a 0.");
-            }
-
-            var hijos = await _servicio.ObtenerHijosAsync(id, tipo);
-            return hijos.Count != 0 ? Ok(hijos) : NotFound("No se encontraron hijos para el nodo especificado.");
+            var result = await _servicio.ObtenerHijosAsync(id, tipo);
+            return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
         }
 
         [HttpGet("modulos")]
-        public async Task<IActionResult> ObtenerModulos()
+        public async Task<ActionResult<ServiceResult<List<NodoJerarquicoDto>>>> ObtenerModulos()
         {
-            var modulos = await _servicio.ObtenerModulosAsync();
-            return modulos.Count != 0 ? Ok(modulos) : NotFound("No se encontraron módulos.");
+            var result = await _servicio.ObtenerModulosAsync();
+            return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
         }
 
         [HttpGet("padre/{tipo}/{id}")]
-        public async Task<IActionResult> ObtenerPadre(TipoNodoJerarquico tipo, int id)
+        public async Task<ActionResult<ServiceResult<NodoJerarquicoDto>>> ObtenerPadre(TipoNodoJerarquico tipo, int id)
         {
-            if (id <= 0)
-            {
-                return BadRequest("El ID debe ser mayor a 0.");
-            }
-
-            var padre = await _servicio.ObtenerPadreAsync(id, tipo);
-            return padre != null ? Ok(padre) : NotFound("No se encontró el nodo padre.");
+            var result = await _servicio.ObtenerPadreAsync(id, tipo);
+            return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
         }
 
         [HttpGet("leccion/{leccionId}")]
-        public async Task<IActionResult> ObtenerLeccion(int leccionId)
+        public async Task<ActionResult<ServiceResult<LeccionDto>>> ObtenerLeccion(int leccionId)
         {
-            if (leccionId <= 0)
-            {
-                return BadRequest("El ID de la lección debe ser mayor a 0.");
-            }
-            var leccion = await _servicio.ObtenerLeccionAsync(leccionId);
-            return leccion != null ? Ok(leccion) : NotFound("No se encontró la lección especificada.");
+            var result = await _servicio.ObtenerLeccionAsync(leccionId);
+            return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
         }
 
         [HttpGet("ruta/{tipo}/{id}")]
-        public async Task<IActionResult> ObtenerRuta(TipoNodoJerarquico tipo, int id)
+        public async Task<ActionResult<ServiceResult<List<NodoJerarquicoDto>>>> ObtenerRuta(TipoNodoJerarquico tipo, int id)
         {
-            if (id <= 0)
-            {
-                return BadRequest("El ID debe ser mayor a 0.");
-            }
-
-            var ruta = await _servicio.ObtenerRutaDesdeRaizAsync(id, tipo);
-            return ruta.Count != 0 ? Ok(ruta) : NotFound("No se encontró una ruta desde la raíz para el nodo especificado.");
+            var result = await _servicio.ObtenerRutaDesdeRaizAsync(id, tipo);
+            return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
         }
 
         [HttpPost("tema/{id}/registrar-ultima-visita")]
-        public async Task<IActionResult> RegistrarUltimaVisitaTema(int id)
+        public async Task<ActionResult<ServiceResult>> RegistrarUltimaVisitaTema(int id)
         {
-            var exito = await _servicio.RegistrarUltimaVisitaTemaAsync(id);
-            if (!exito)
-                return NotFound(ServiceResult.Fail("Tema no encontrado"));
-
-            return Ok(ServiceResult.Ok("Fecha de última visita actualizada"));
+            var result = await _servicio.RegistrarUltimaVisitaTemaAsync(id);
+            return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
         }
     }
 }

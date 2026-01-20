@@ -24,7 +24,11 @@
     {
         <p class="guia-main-error">Tipo no válido: @Tipo</p>
     }
-    else if (hijos?.Any() == true)
+    else if (hijosResult is not null && !hijosResult.Success && hijosResult.StatusCode != HttpStatusCodes.NotFound)
+    {
+        <p class="guia-main-error">@hijosResult.Message</p>
+    }
+    else if (hijos.Count > 0)
     {
     <ul class="guia-main-list">
     @foreach (var nodo in hijos)
@@ -55,10 +59,6 @@
             }
             else if (nodo.Tipo == TipoNodoJerarquico.SubTema)
             {
-                @*<BtnCompletarSubtema SubModuloId="@nodo.IdPadre" SubTemaId="@nodo.Id"></BtnCompletarSubtema>
-            <span class="subtema-no-completado-badge subtema-no-completado-pos">
-                Sin completar
-            </span>*@
                 <BtnCompletarSubtema SubTemaId="@nodo.Id"
                                      SubModuloId="@Id" />
             }
@@ -68,7 +68,11 @@
     }
     else
     {
-        <p class="guia-main-empty">No se encontraron elementos hijos.</p>
+        @* <p class="guia-main-empty">No se encontraron elementos hijos.</p> *@
+        <InfoComponent 
+            Title="No hay contenido disponible"
+            Message="No se encontraron elementos hijos para este nodo."
+            StatusCode="204" ReturnUrl="/Guia" />
     }
 </div>
 
@@ -76,7 +80,8 @@
     [Parameter] public string Tipo { get; set; } = string.Empty;
     [Parameter] public int Id { get; set; }
 
-    private List<NodoJerarquicoDto>? hijos;
+    private ServiceResult<List<NodoJerarquicoDto>>? hijosResult;
+    private List<NodoJerarquicoDto> hijos = new();
     private bool isLoading = true;
     private bool enumValido = true;
     private string? userId;
@@ -104,14 +109,16 @@
 
         if (!enumValido)
         {
-            hijos = null;
+            hijosResult = null;
+            hijos.Clear();
             return;
         }
 
         isLoading = true;
-        hijos = await Navegacion.ObtenerHijosAsync(result, Id);
+        hijosResult = await Navegacion.ObtenerHijosAsync(result, Id);
+        hijos = hijosResult.Data ?? new();
 
-        if (hijos is not null && userId is not null)
+        if (hijosResult?.Success == true && userId is not null)
         {
             estadosSubtemas.Clear();
 

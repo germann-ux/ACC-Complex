@@ -1,5 +1,6 @@
 ﻿using ACC.Shared.DTOs;
 using ACC.Shared.Enums;
+using ACC.Shared.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,11 @@ namespace ACC.Shared.Interfaces
 {
     public interface INavegacionContenidoService
     {
-        Task<List<NodoJerarquicoDto>> ObtenerHijosAsync(int idPadre, TipoNodoJerarquico tipoPadre);
-        Task<List<NodoJerarquicoDto>> ObtenerModulosAsync(); 
-        Task<NodoJerarquicoDto?> ObtenerPadreAsync(int id, TipoNodoJerarquico tipoActual);
-        Task<List<NodoJerarquicoDto>> ObtenerRutaDesdeRaizAsync(int id, TipoNodoJerarquico tipoActual);
-        Task<LeccionDto> ObtenerLeccionAsync(int idLeccion);
-        Task<bool> RegistrarUltimaVisitaTemaAsync(int idTema); 
+        Task<ServiceResult<List<NodoJerarquicoDto>>> ObtenerHijosAsync(int idPadre, TipoNodoJerarquico tipoPadre);
+        Task<ServiceResult<List<NodoJerarquicoDto>>> ObtenerModulosAsync();
+        Task<ServiceResult<NodoJerarquicoDto>> ObtenerPadreAsync(int id, TipoNodoJerarquico tipoActual);
+        Task<ServiceResult<List<NodoJerarquicoDto>>> ObtenerRutaDesdeRaizAsync(int id, TipoNodoJerarquico tipoActual);
+        Task<ServiceResult<LeccionDto>> ObtenerLeccionAsync(int idLeccion);
+        Task<ServiceResult> RegistrarUltimaVisitaTemaAsync(int idTema);
     }
 }
