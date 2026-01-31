@@ -14,5 +14,23 @@
 5. Iniciar la solución mediante el orquestador ACC.AppHost (Aspire) para levantar servicios, bases de datos y caché.
 6. Verificar acceso a la aplicación web y al panel de observabilidad para confirmar que los servicios responden.
 
+### 3. Comandos rápidos (PowerShell)
+
+```pwsh
+# En la raíz del repo
+dotnet restore ACC.sln
+
+# Aplicar migraciones sobre la base académica local (puerto 1435 por defecto)
+dotnet ef database update `
+  --project src/ACC.Data `
+  --startup-project src/ACC.API `
+  --context ACCDbContext
+
+# Levantar toda la topología con Aspire
+dotnet run --project src/ACC.AppHost/ACC.AppHost.csproj
+```
+
+Cuando `ACC.AppHost` esté en ejecución, la API quedará disponible y se puede probar con Swagger en la URL expuesta por el orquestador.
+
 ### Estado
 La guía cubre el flujo mínimo para ambientes locales; pasos adicionales de endurecimiento y despliegue productivo están en elaboración.
