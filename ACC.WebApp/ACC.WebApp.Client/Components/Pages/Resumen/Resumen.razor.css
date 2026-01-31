@@ -139,3 +139,9 @@ h1, h2, h3 {
     max-width: 1200px;
 }
 
+/* Pulido leve (alineado a tokens ACC) */
+.content.resumen {
+    gap: 1rem;
+    padding: 0.25rem 0 0.75rem;
+}
+

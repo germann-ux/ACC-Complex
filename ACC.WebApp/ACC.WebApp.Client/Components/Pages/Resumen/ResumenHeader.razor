@@ -2,7 +2,7 @@
 @using ACC.Shared.DTOs
 <div class="resumen-header">
     <h1>
-        ¡Bienvenido de vuelta, @Usuario.Nombre!
+        ¡Bienvenido de vuelta, @NombreUsuario!
     </h1>
 
     <p>¿Listo para continuar?</p>
@@ -14,21 +14,39 @@
         @if (MostrarTipEstado)
         {
             <div class="tip-popup">
-                <p>@Tip</p>
+                @if (IsLoadingTip)
+                {
+                    <p>Cargando tip...</p>
+                }
+                else if (!string.IsNullOrWhiteSpace(TipError))
+                {
+                    <p>@TipError</p>
+                }
+                else
+                {
+                    <p>@Tip</p>
+                }
             </div>
         }
     </div>
 
-    <button class="continue-btn" @onclick="ContinuarDondeLoDejaste">
+    <button class="continue-btn" @onclick="ContinuarDondeLoDejaste" disabled="@(!CanContinue)" title="@ContinueTitle">
         <i class="fas fa-play-circle"></i> Continuar tu último tema
     </button>
 </div>
 
 @code {
-    [Parameter] public ApplicationUserDto Usuario { get; set; }
-    [Parameter] public string Tip { get; set; }
+    [Parameter] public ApplicationUserDto? Usuario { get; set; }
+    [Parameter] public string Tip { get; set; } = string.Empty;
     [Parameter] public bool MostrarTipEstado { get; set; }
     [Parameter] public bool HaVistoTip { get; set; }
+    [Parameter] public bool IsLoadingUsuario { get; set; }
+    [Parameter] public bool IsLoadingTip { get; set; }
+    [Parameter] public string? TipError { get; set; }
+    [Parameter] public bool CanContinue { get; set; } = true;
     [Parameter] public EventCallback MostrarTip { get; set; }
     [Parameter] public EventCallback ContinuarDondeLoDejaste { get; set; }
+
+    private string NombreUsuario => IsLoadingUsuario ? "..." : (Usuario?.Nombre ?? "estudiante");
+    private string ContinueTitle => CanContinue ? "Continuar con tu último tema" : "Inicia sesión para continuar";
 }

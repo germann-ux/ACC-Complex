@@ -1,17 +1,19 @@
-﻿.resumen-tareas.card {
-    background: #1a1a2e;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+﻿/* Base (pulido leve con tokens ACC) */
+.resumen-tareas.card {
+    background: var(--acc-surface-2);
+    border-radius: var(--acc-radius);
+    box-shadow: var(--acc-shadow);
     margin-bottom: 1.5rem;
     padding: 1.5rem;
-    color: #f0f0f0;
+    color: var(--acc-text);
     max-width: 1140px;
-    border: none;
+    border: 1px solid var(--acc-border);
 }
 
-.resumen-tareas h2, .resumen-tareas h3 {
+.resumen-tareas h2,
+.resumen-tareas h3 {
     font-weight: 700;
-    color: #fff;
+    color: var(--acc-text);
     font-family: Nunito;
 }
 
@@ -39,16 +41,18 @@
 .task-item {
     display: flex;
     gap: .75rem;
-    background: rgba(255,255,255,0.05);
+    background: var(--acc-surface-3);
     padding: .75rem;
-    border-radius: 8px;
+    border-radius: var(--acc-radius-sm);
     margin-bottom: .5rem;
     cursor: pointer;
-    transition: background .2s;
+    border: 1px solid var(--acc-border);
+    transition: background var(--acc-transition), border-color var(--acc-transition);
 }
 
     .task-item:hover {
-        background: rgba(255,255,255,0.1);
+        background: var(--acc-surface-hover);
+        border-color: var(--acc-border);
     }
 
 .task-icon {
@@ -57,8 +61,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #3a0ca3, #7209b7);
-    border-radius: 8px;
+    background: var(--acc-brand-600);
+    border-radius: var(--acc-radius-sm);
     color: #fff;
 }
 
@@ -69,8 +73,14 @@
 
 .task-desc {
     font-size: 0.85rem;
-    color: #f0f0f0;
+    color: var(--acc-text-muted);
     margin: 0;
+}
+
+.task-meta {
+    font-size: 0.8rem;
+    color: var(--acc-text-muted);
+    margin: 0.2rem 0 0;
 }
 
 @media (max-width: 768px) {
@@ -85,6 +95,30 @@
     font-weight: 500;
     src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
     unicode-range: U+0000-00FF, U+0100-02BA;
+}
+
+/* KPI pendientes */
+.tasks-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: .75rem;
+    margin-top: .5rem;
+}
+
+.tasks-summary .task-item {
+    align-items: center;
+    gap: .9rem;
+    cursor: default;
+}
+
+.tasks-summary .task-item:hover {
+    background: var(--acc-surface-3);
+}
+
+.tasks-summary .task-desc {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--acc-text);
 }
 
 
@@ -130,16 +164,18 @@
 .task-item {
     display: flex;
     gap: .75rem;
-    background: rgba(255,255,255,0.05);
+    background: var(--acc-surface-3);
     padding: .75rem;
-    border-radius: 8px;
+    border-radius: var(--acc-radius-sm);
     margin-bottom: .5rem;
     cursor: pointer;
-    transition: background .2s;
+    border: 1px solid var(--acc-border);
+    transition: background var(--acc-transition), border-color var(--acc-transition);
 }
 
     .task-item:hover {
-        background: rgba(255,255,255,0.1);
+        background: var(--acc-surface-hover);
+        border-color: var(--acc-border);
     }
 
 .task-icon {
@@ -148,8 +184,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #3a0ca3, #7209b7);
-    border-radius: 8px;
+    background: var(--acc-brand-600);
+    border-radius: var(--acc-radius-sm);
     color: #fff;
 }
 
@@ -170,3 +206,5 @@
     }
 }
 */
+
+

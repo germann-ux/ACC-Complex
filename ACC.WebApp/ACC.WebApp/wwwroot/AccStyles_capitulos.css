@@ -1,22 +1,37 @@
 ﻿/* ======================================================
-   ACC — Capítulo (unificado al tema global)
-   - Sin :root local
-   - Superficies: --biblioteca-secondary-dark
-   - Acentos derivados del brand
+   ACC — Capítulo (Tema PRO / editorial + metálico)
+   - Scope real: TODO lo de adentro de .contenido-capitulo
+   - Sin necesidad de clases en h/p/ul/table/etc
    ====================================================== */
 
-/* Acentos derivados (sin nuevos tokens globales) */
+/* ======================================================
+   Núcleo de acentos / material (scope local)
+   ====================================================== */
 .capitulo {
-    --cap-accent-cyan: color-mix(in srgb, var(--acc-brand-600) 10%, #5eead4);
-    --cap-accent-pink: color-mix(in srgb, var(--acc-brand-600) 22%, #f472b6);
-    /* Ajuste: sombra más neutra y menos “bruma” de marca (mantiene premium sin sobrecargar) */
+    /* Acento principal: derivado del brand pero “ensuciado” a plata */
+    --cap-accent: color-mix(in srgb, var(--acc-brand-600) 55%, #cbd5e1);
+    /* Variantes (controladas, no neón) */
+    --cap-accent-strong: color-mix(in srgb, var(--acc-brand-600) 70%, #9ca3af);
+    --cap-accent-cyan: color-mix(in srgb, var(--cap-accent) 18%, #5eead4);
+    --cap-accent-pink: color-mix(in srgb, var(--cap-accent) 22%, #f472b6);
+    /* “Plata editorial” */
+    --cap-silver: #e5e7eb;
+    --cap-silver-soft: #cbd5e1;
+    /* Superficies internas */
+    --cap-panel: rgba(255, 255, 255, 0.03);
+    --cap-panel-2: rgba(255, 255, 255, 0.02);
+    /* Bordes y sombras (neutras) */
+    --cap-border: rgba(255, 255, 255, 0.08);
+    --cap-border-hard: var(--biblioteca-border-color);
     --cap-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    --cap-shadow-soft: 0 8px 22px rgba(0, 0, 0, .35);
 }
 
-/* Contenedor principal */
+/* ======================================================
+   Contenedor principal (scope maestro)
+   ====================================================== */
 .contenido-capitulo {
-    /* Ajuste: degradado direccional + menos intensidad, con base sólida */
-    background: linear-gradient(135deg, color-mix(in srgb, var(--biblioteca-secondary-dark) 92%, white) 0%, var(--biblioteca-secondary-dark) 55%, color-mix(in srgb, var(--biblioteca-tertiary-dark) 70%, var(--biblioteca-secondary-dark)) 100% );
+    background: linear-gradient(135deg, color-mix(in srgb, var(--biblioteca-secondary-dark) 96%, black) 0%, var(--biblioteca-secondary-dark) 55%, color-mix(in srgb, var(--biblioteca-tertiary-dark) 75%, var(--biblioteca-secondary-dark)) 100%);
     color: var(--biblioteca-text-gray);
     padding: 2.5rem 1.5rem;
     border-radius: 18px;
@@ -24,401 +39,529 @@
     max-width: 1100px;
     text-align: justify;
     box-shadow: var(--cap-shadow);
-    transition: background .4s;
-    border: 1px solid var(--biblioteca-border-color);
+    transition: background .35s ease, border-color .35s ease;
+    border: 1px solid var(--cap-border-hard);
 }
 
-/* Encabezados */
-.capitulo-h1 {
+/* ======================================================
+   TIPOGRAFÍA: todo por tag dentro del contenedor
+   ====================================================== */
+
+/* H1 */
+.contenido-capitulo h1 {
     font-size: 2.4rem !important;
     font-weight: 800;
-    color: var(--acc-brand-600);
-    margin-bottom: 1.5rem;
+    color: var(--cap-accent-strong);
+    margin: 0 0 1.5rem 0;
     font-family: 'Segoe UI', system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-    line-height: 1.1;
+    line-height: 1.08;
+    letter-spacing: .01em;
     text-align: initial;
-    letter-spacing: .01em;
-    text-shadow: 0 2px 16px color-mix(in srgb, var(--acc-brand-600) 8%, transparent);
+    text-shadow: 0 2px 16px color-mix(in srgb, var(--cap-accent-strong) 12%, transparent);
 }
 
-.capitulo-strong-especial {
-    font-weight: 800;
-    color: var(--acc-brand-600);
-    background: linear-gradient(90deg, var(--biblioteca-secondary-purple), var(--biblioteca-primary-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 1.2rem;
-}
-
-.capitulo-h2 {
-    font-size: 1.7rem;
-    font-weight: 700;
-    color: var(--biblioteca-secondary-purple);
-    margin-top: 2.5rem;
-    margin-bottom: 1.2rem;
+/* H2 (editorial small-caps + plateado, sin borde izquierdo) */
+.contenido-capitulo h2 {
+    font-size: 2rem;
+    font-weight: 750;
+    color: var(--cap-silver);
+    margin: 2.4rem 0 1.2rem 0;
     font-family: Nunito, 'Segoe UI', system-ui, sans-serif;
-    border-left: 5px solid var(--biblioteca-primary-blue);
-    padding-left: 1rem;
-    border-radius: 6px;
+    font-variant: small-caps;
+    font-variant-caps: all-small-caps;
+    letter-spacing: .055em;
+    text-align: initial;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .04), 0 4px 12px rgba(0, 0, 0, .35);
 }
 
-.capitulo-h3 {
+/* Línea editorial mínima bajo H2 */
+.contenido-capitulo h2::after {
+    content: "";
+    display: block;
+    width: 90px;
+    height: 1px;
+    margin-top: .55rem;
+    border-radius: 2px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--cap-accent) 75%, transparent), transparent);
+    opacity: .7;
+}
+
+/* H3 */
+.contenido-capitulo h3 {
     font-size: 1.18rem;
-    font-weight: 600;
-    color: var(--biblioteca-primary-blue);
-    margin-top: 1.7rem;
-    margin-bottom: .8rem;
+    font-weight: 650;
+    color: color-mix(in srgb, var(--biblioteca-primary-blue) 80%, var(--cap-silver-soft));
+    margin: 1.7rem 0 .8rem 0;
     font-family: Nunito, 'Segoe UI', system-ui, sans-serif;
     letter-spacing: .01em;
+    text-align: initial;
 }
 
-/* Texto */
-.capitulo-p {
+/* Párrafos */
+.contenido-capitulo p {
     color: var(--biblioteca-text-gray);
     font-size: 1.07rem;
-    margin-bottom: 1.1rem;
-    line-height: 1.8;
+    margin: 0 0 1.1rem 0;
+    line-height: 1.85;
     letter-spacing: .01em;
 }
 
-.capitulo-hr {
+/* Separador */
+.contenido-capitulo hr {
     border: none;
-    border-top: 2px dashed var(--biblioteca-border-color);
-    margin: 2.5rem 0;
-    opacity: .5;
+    border-top: 2px dashed var(--cap-border-hard);
+    margin: 2.3rem 0;
+    opacity: .45;
 }
 
-/* Citas */
-.capitulo-blockquote {
-    border-left: 5px solid var(--cap-accent-cyan);
-    /* Ajuste: mantiene el look, pero baja el tint para que no “ensucie” todo */
-    background: linear-gradient(90deg, color-mix(in srgb, var(--acc-brand-600) 6%, transparent) 0%, color-mix(in srgb, var(--cap-accent-cyan) 8%, transparent) 100% );
-    color: var(--biblioteca-text-white);
-    margin: 1.7rem 0;
-    padding: 1.2rem 2rem;
-    border-radius: 10px;
-    font-size: 1.08rem;
-    font-style: italic;
-    /* Ajuste: sin glow de marca (o muy leve). Esto limpia muchísimo. */
-    box-shadow: none;
-    transition: background .35s;
-}
+/* ======================================================
+   Énfasis por tag
+   ====================================================== */
 
-/* Énfasis */
-.capitulo-mark {
-    background: #ffe066; /* Conservamos highlight legible */
+/* Resaltado tipo marcador */
+.contenido-capitulo mark {
+    background: #ffe066;
     color: var(--biblioteca-primary-dark);
     padding: .1em .4em;
     border-radius: 4px;
 }
 
-.capitulo-em {
+/* Cursiva con acento suave */
+.contenido-capitulo em {
     font-style: italic;
-    color: var(--cap-accent-pink);
+    color: color-mix(in srgb, var(--cap-accent-pink) 70%, #f9fafb);
 }
 
-.capitulo-strong {
-    font-weight: 700;
-    color: var(--biblioteca-secondary-purple);
+/* Strong SOLO en texto (no arruinar headers) */
+.contenido-capitulo :where(p, li, blockquote) strong {
+    font-weight: 750;
+    color: color-mix(in srgb, var(--cap-silver) 75%, var(--biblioteca-secondary-purple));
 }
 
-/* Código inline y bloque */
-.capitulo-code {
-    background: var(--biblioteca-tertiary-dark);
-    color: var(--acc-brand-600);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    padding: .18em .5em;
-    border-radius: 5px;
-    font-size: 1em;
-    /* Ajuste: sombra neutra mínima */
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
-}
-
-.capitulo-pre {
-    /* Ajuste: superficie más “plana” y estable (menos gradiente + menos tinte) */
-    background: rgba(0, 0, 0, 0.22);
+/* ======================================================
+   Citas
+   ====================================================== */
+.contenido-capitulo blockquote {
+    border-left: 4px solid color-mix(in srgb, var(--cap-accent-cyan) 70%, transparent);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%);
     color: var(--biblioteca-text-white);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    padding: 1.2rem;
-    border-radius: 10px;
-    overflow-x: auto;
     margin: 1.7rem 0;
-    font-size: 1em;
-    /* Ajuste: sombra neutra (no brand) */
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
+    padding: 1.15rem 1.7rem;
+    border-radius: 12px;
+    font-size: 1.08rem;
+    font-style: italic;
+    box-shadow: none;
+    transition: background .35s;
+}
+
+/* ======================================================
+   Código inline y bloque (por tag)
+   ====================================================== */
+
+/* Inline code */
+.contenido-capitulo code {
+    background: rgba(0, 0, 0, 0.22);
+    color: var(--cap-accent-strong);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    padding: .18em .52em;
+    border-radius: 6px;
+    font-size: 0.98em;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Tablas */
-.capitulo-table {
+/* Bloque pre */
+.contenido-capitulo pre {
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--biblioteca-text-white);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    padding: 1.2rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 1.7rem 0;
+    font-size: 1em;
+    box-shadow: var(--cap-shadow-soft);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Quitar “caja” del code dentro de pre */
+.contenido-capitulo pre code {
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    color: inherit;
+    font-size: inherit;
+}
+
+/* ======================================================
+   Tablas (por tag)
+   ====================================================== */
+.contenido-capitulo table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    background: var(--biblioteca-tertiary-dark);
+    background: rgba(0, 0, 0, 0.18);
     margin: 2rem 0;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
-    /* Ajuste: sombra neutra y menos glow */
-    box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
-    border: 1px solid var(--biblioteca-border-color);
+    box-shadow: var(--cap-shadow-soft);
+    border: 1px solid var(--cap-border-hard);
 }
 
-.capitulo-thead {
-    background: linear-gradient(90deg, var(--biblioteca-secondary-purple), var(--biblioteca-primary-blue));
+.contenido-capitulo thead {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--biblioteca-secondary-purple) 60%, #111827), color-mix(in srgb, var(--biblioteca-primary-blue) 65%, #111827));
     color: var(--biblioteca-text-white);
 }
 
-.capitulo-tbody {
+.contenido-capitulo tbody {
     color: var(--biblioteca-text-gray);
 }
 
-.capitulo-tr {
-    border-bottom: 1px solid var(--biblioteca-border-color);
+.contenido-capitulo tr {
+    border-bottom: 1px solid var(--cap-border-hard);
     transition: background var(--biblioteca-transition-speed);
 }
 
-    .capitulo-tr:hover {
-        background: var(--biblioteca-hover-dark);
+.contenido-capitulo tbody tr:hover {
+    background: color-mix(in srgb, var(--biblioteca-hover-dark) 70%, transparent);
+}
+
+    .contenido-capitulo th,
+    .contenido-capitulo td {
+        padding: .9em 1.2em;
+        text-align: left;
+        word-break: break-word;
+        hyphens: auto;
     }
 
-.capitulo-td, .capitulo-th {
-    padding: .9em 1.2em;
-    text-align: left;
-}
-
-.capitulo-th {
-    font-weight: 700;
+.contenido-capitulo th {
+    font-weight: 800;
     color: var(--biblioteca-text-white);
-    background: color-mix(in srgb, var(--acc-brand-600) 13%, transparent);
+    background: color-mix(in srgb, var(--cap-accent) 18%, transparent);
 }
 
-/* Listas */
-.capitulo-ul, .capitulo-ol {
+/* ======================================================
+   Listas (por tag)
+   ====================================================== */
+.contenido-capitulo ul,
+.contenido-capitulo ol {
     margin: 1.2rem 0 1.2rem 2rem;
     color: var(--biblioteca-text-gray);
     font-size: 1.07rem;
     padding-left: .5rem;
 }
 
-.capitulo-li {
+.contenido-capitulo li {
     margin-bottom: .6em;
-    line-height: 1.7;
+    line-height: 1.75;
     position: relative;
     padding-left: .5em;
 }
 
-.capitulo-ul {
-    list-style: disc;
-}
-
-.capitulo-ol {
-    list-style: decimal;
-}
-
-/* Enlaces */
-.capitulo-a {
-    color: var(--cap-accent-cyan);
+/* ======================================================
+   Enlaces (por tag)
+   ====================================================== */
+.contenido-capitulo a {
+    color: color-mix(in srgb, var(--cap-accent-cyan) 70%, var(--cap-silver));
     text-decoration: underline;
-    font-weight: 600;
+    font-weight: 650;
     transition: color var(--biblioteca-transition-speed), text-shadow var(--biblioteca-transition-speed);
 }
 
-    .capitulo-a:hover {
-        color: var(--acc-brand-600);
-        text-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 12%, transparent);
-    }
+.contenido-capitulo a:hover {
+    color: var(--cap-accent-strong);
+    text-shadow: 0 2px 8px color-mix(in srgb, var(--cap-accent-strong) 14%, transparent);
+}
 
-/* Navegación interna / secciones */
-.capitulo-nav {
+/* ======================================================
+   Secciones internas (siguen por clase porque son estructura)
+   ====================================================== */
+.contenido-capitulo .capitulo-nav {
     margin: 1.7rem 0;
     padding: 1.1rem;
-    /* Ajuste: panel interno plano para evitar “degradado dentro de degradado” */
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-    /* Ajuste: sin glow */
+    background: var(--cap-panel);
+    border-radius: 12px;
     box-shadow: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--cap-border);
 }
 
-.capitulo-section {
-    margin: 2.5rem 0;
+.contenido-capitulo .capitulo-section {
+    margin: 2.4rem 0;
     padding: 2rem 1.5rem;
-    /* Ajuste: vuelve a ser “tarjeta” pero sobria (ya no compite con el contenedor) */
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 14px;
-    /* Ajuste: sin bruma de marca; profundidad muy leve y neutra */
+    background: var(--cap-panel-2);
+    border-radius: 16px;
     box-shadow: none;
-    transition: background .35s;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: background .35s ease, border-color .35s ease;
+    border: 1px solid var(--cap-border);
 }
 
-.capitulo-span {
-    color: var(--biblioteca-primary-blue);
-    font-weight: 600;
+.contenido-capitulo .capitulo-section:hover {
+    background: rgba(255, 255, 255, 0.028);
+    border-color: rgba(255, 255, 255, 0.10);
 }
 
-/* Medios */
-.capitulo-img {
+/* ======================================================
+   Medios (por tag)
+   ====================================================== */
+.contenido-capitulo img {
     max-width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     margin: 1.2rem 0;
-    /* Ajuste: sombra neutra (mantiene profundidad sin saturar) */
     box-shadow: 0 10px 24px rgba(0, 0, 0, .40);
     display: block;
-    border: 2px solid var(--acc-brand-600);
-    transition: border .3s;
+    border: 2px solid color-mix(in srgb, var(--cap-accent) 55%, transparent);
+    transition: border .3s ease;
 }
 
-    .capitulo-img:hover {
-        border: 2px solid var(--cap-accent-cyan);
-    }
+.contenido-capitulo img:hover {
+    border: 2px solid color-mix(in srgb, var(--cap-accent-cyan) 65%, transparent);
+}
 
-.capitulo-figure {
+.contenido-capitulo figure {
     margin: 2rem 0;
     text-align: center;
 }
 
-.capitulo-figcaption {
+.contenido-capitulo figcaption {
     color: var(--biblioteca-text-gray);
     font-size: 1rem;
     margin-top: .7rem;
     font-style: italic;
 }
 
-.capitulo-video {
+.contenido-capitulo video,
+.contenido-capitulo iframe {
     max-width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     margin: 2rem 0;
-    background: var(--biblioteca-tertiary-dark);
+    background: rgba(0, 0, 0, 0.20);
     display: block;
-    /* Ajuste: sombra neutra leve */
     box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
-    border: 1px solid var(--biblioteca-border-color);
+    border: 1px solid var(--cap-border-hard);
 }
 
-/* Modo lectura */
+/* ======================================================
+   Extras opcionales (siguen disponibles si los usas)
+   ====================================================== */
+.contenido-capitulo .capitulo-strong-especial {
+    font-weight: 800;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--biblioteca-secondary-purple) 55%, var(--cap-silver)), color-mix(in srgb, var(--biblioteca-primary-blue) 60%, var(--cap-silver)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ======================================================
+   Modo lectura (class aplicada al contenedor)
+   ====================================================== */
 .modo-lectura-btn {
     right: 1rem;
     z-index: 1000;
-    background: linear-gradient(90deg, var(--biblioteca-secondary-purple), var(--biblioteca-primary-blue));
+    background: linear-gradient(90deg, color-mix(in srgb, var(--cap-accent) 78%, #111827), color-mix(in srgb, var(--biblioteca-primary-blue) 60%, #111827));
     color: #fff;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.10);
     padding: .7rem 1.2rem;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-family: Nunito, system-ui, sans-serif;
     font-size: 1rem;
-    font-weight: 700;
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--acc-brand-600) 10%, transparent);
-    transition: background .3s, box-shadow .3s;
+    font-weight: 800;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    transition: transform .15s ease, box-shadow .3s ease, filter .3s ease;
 }
 
-    .modo-lectura-btn:hover {
-        background: linear-gradient(90deg, var(--biblioteca-primary-blue), var(--biblioteca-secondary-purple));
-        box-shadow: 0 4px 16px color-mix(in srgb, var(--acc-brand-600) 18%, transparent);
-    }
+.modo-lectura-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
 
 .modo-lectura-activa {
     position: fixed;
     inset: 0;
     overflow-y: auto;
-    background: var(--biblioteca-primary-dark);
+    background:
+        radial-gradient(900px 600px at 10% -10%, rgba(255, 255, 255, 0.05), transparent 60%),
+        linear-gradient(180deg, color-mix(in srgb, var(--biblioteca-primary-dark) 90%, #0b1220) 0%, color-mix(in srgb, var(--biblioteca-primary-dark) 98%, #0b1220) 100%);
     z-index: 10000;
-    padding: 1.5rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 4vw, 6rem);
     border-radius: 0 !important;
     margin: 0 !important;
     max-width: unset !important;
     box-shadow: none !important;
     transition: none !important;
+    text-align: left;
+    color: var(--cap-silver);
 }
 
-    .modo-lectura-activa .capitulo-section {
-        padding: 1.5rem;
-        background: none;
-        border-radius: 10px;
-        box-shadow: none;
-        border: none;
-    }
+/* Modo lectura: tipografía más grande */
+.modo-lectura-activa p {
+    font-size: 1.2rem;
+    line-height: 1.95;
+    color: var(--cap-silver);
+    text-wrap: pretty;
+    hyphens: auto;
+}
 
-    .modo-lectura-activa .capitulo-p {
-        font-size: 1.2rem;
-        line-height: 1.8;
-        color: var(--biblioteca-text-white);
-    }
+.modo-lectura-activa h1 {
+    font-size: 2.15rem !important;
+    color: var(--cap-silver);
+    text-wrap: balance;
+}
 
-    .modo-lectura-activa .capitulo-h1 {
-        font-size: 2.2rem;
-        color: var(--biblioteca-secondary-purple);
-    }
+.modo-lectura-activa h2 {
+    color: var(--cap-silver);
+    font-size: 2.3rem;
+    text-wrap: balance;
+}
 
-    .modo-lectura-activa .capitulo-h2 {
-        color: var(--acc-brand-600);
-        font-size: 1.6rem;
-    }
+.modo-lectura-activa h3 {
+    color: color-mix(in srgb, var(--biblioteca-primary-blue) 78%, var(--cap-silver-soft));
+    font-size: 1.25rem;
+    text-wrap: balance;
+}
 
-    .modo-lectura-activa .capitulo-h3 {
-        color: var(--biblioteca-secondary-blue);
-        font-size: 1.3rem;
-    }
+.modo-lectura-activa li {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    text-wrap: pretty;
+    hyphens: auto;
+}
 
-    .modo-lectura-activa .capitulo-li {
-        font-size: 1.1rem;
-        line-height: 1.8;
-    }
+.modo-lectura-activa blockquote {
+    background: rgba(255, 255, 255, 0.04);
+    border-left-color: color-mix(in srgb, var(--cap-accent-cyan) 60%, transparent);
+    color: var(--cap-silver);
+}
 
-/* Selección de texto coherente con el tema */
-::selection {
-    background-color: var(--biblioteca-secondary-purple);
+.modo-lectura-activa .capitulo-section {
+    padding: 1.5rem;
+    background: none;
+    border-radius: 10px;
+    box-shadow: none;
+    border: none;
+}
+
+/* ======================================================
+   Selección de texto (scope limpio, no global)
+   ====================================================== */
+.capitulo ::selection {
+    background-color: color-mix(in srgb, var(--cap-accent) 65%, #111827);
     color: #fff;
 }
-/*
-    .capitulo-section {
-    margin: 2.5rem 0;
-    padding: 2rem 1.5rem;
-    background: linear-gradient(120deg, var(--biblioteca-tertiary-dark) 80%, var(--biblioteca-secondary-dark) 100%);
-    border-radius: 14px;
-    box-shadow: 0 2px 12px
-    color-mix(in srgb, var(--acc-brand-600) 7%, transparent);
-    transition: background .5s;
-    border: 2.5px solid var(--biblioteca-border-color);
-*/
 
-/* Responsive */
+/* ======================================================
+   Responsive
+   ====================================================== */
 @media (max-width: 900px) {
     .contenido-capitulo {
-        padding: 1.2rem .5rem;
+        padding: .8rem .6rem;
+        margin: 0;
+        max-width: 100%;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
     }
 
-    .capitulo-section {
-        padding: 1.2rem .5rem;
+    .contenido-capitulo .capitulo-section {
+        padding: 1.2rem .6rem;
+    }
+
+    .contenido-capitulo table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
 @media (max-width: 600px) {
     .contenido-capitulo {
-        padding: .5rem .1rem;
+        padding: .6rem .2rem;
         border-radius: 0;
     }
 
-    .capitulo-section {
-        padding: .7rem .2rem;
+    .contenido-capitulo .capitulo-section {
+        padding: .8rem .35rem;
         border: none;
         background: none;
         box-shadow: none;
     }
 
-    .capitulo-h2 {
-        font-size: 1.1rem;
-        padding-left: .5rem;
+    .contenido-capitulo h2 {
+        font-size: 1.12rem;
     }
 
-    .capitulo-h3 {
+    .contenido-capitulo h3 {
         font-size: 1rem;
     }
 
-    .capitulo-p, .capitulo-ul, .capitulo-ol {
-        font-size: .97rem;
+    .contenido-capitulo p,
+    .contenido-capitulo ul,
+    .contenido-capitulo ol {
+        font-size: .98rem;
+    }
+
+    .contenido-capitulo th,
+    .contenido-capitulo td {
+        padding: .7em .8em;
+        font-size: .95rem;
+    }
+
+    .modo-lectura-activa {
+        padding: 1rem .85rem;
+    }
+
+    .modo-lectura-activa h1 {
+        font-size: 1.7rem !important;
+    }
+
+    .modo-lectura-activa h2 {
+        font-size: 1.25rem;
+    }
+
+    .modo-lectura-activa h3 {
+        font-size: 1.1rem;
+    }
+
+    .modo-lectura-activa p {
+        font-size: 1.05rem;
+        line-height: 1.8;
+    }
+
+    .modo-lectura-activa li {
+        font-size: 1.02rem;
+        line-height: 1.8;
+    }
+
+    .modo-lectura-activa pre {
+        padding: .9rem;
+        font-size: .92rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .modo-lectura-activa table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modo-lectura-activa .capitulo-section {
+        padding: 1rem 0;
     }
 }
 
-/*.capitulo-section*/
+@media (max-width: 420px) {
+    .modo-lectura-activa {
+        padding: .9rem .7rem;
+    }
+
+    .modo-lectura-activa h1 {
+        font-size: 1.55rem !important;
+    }
+
+    .modo-lectura-activa p {
+        font-size: 1rem;
+    }
+}

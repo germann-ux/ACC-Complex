@@ -13,7 +13,6 @@ public enum TipoSeccionContenido
     Ejemplo,
     Actividad,
     Compilador,
-    Evaluacion,
     CharpTip,
     CharpDialog, 
     Video

@@ -54,6 +54,7 @@ builder.Services.AddScoped<IBibliotecaService, BibliotecaService>();
 builder.Services.AddScoped<IAgendaService, AgendaService>();
 builder.Services.AddScoped<IModuloService, ModuloService>();
 builder.Services.AddScoped<ITareaService, TareasService>();
+builder.Services.AddScoped<ITareasAlumnoService, TareasAlumnoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>(); // Este puede renombrarse luego
 builder.Services.AddSingleton<UserSessionService>();
 builder.Services.AddScoped<ITemaService, TemaService>();

@@ -1,39 +1,41 @@
-﻿.resumen-progreso.card {
-    background: #1a1a2e;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+﻿/* Base (pulido leve con tokens ACC) */
+.resumen-progreso.card {
+    background: var(--acc-surface-2);
+    border-radius: var(--acc-radius);
+    box-shadow: var(--acc-shadow);
     margin-bottom: 1.5rem;
     padding: 1.5rem;
-    color: #f0f0f0;
+    color: var(--acc-text);
     max-width: 1140px;
-    border: none;
+    border: 1px solid var(--acc-border);
 }
 
 .resumen-progreso h2 {
     font-weight: 700;
-    color: #fff;
+    color: var(--acc-text);
     margin-bottom: 1rem;
     font-family: Nunito;
 }
 
 .progress-bar-container {
     width: 100%;
-    height: 20px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
+    height: 18px;
+    background: var(--acc-surface-3);
+    border-radius: 999px;
     overflow: hidden;
     margin-bottom: 0.75rem;
+    border: 1px solid var(--acc-border);
 }
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(to right, #7209b7, #3a0ca3);
-    border-radius: 10px 0 0 10px;
-    transition: width 0.5s ease-in-out;
+    background: linear-gradient(to right, var(--acc-brand-600), var(--acc-brand-500));
+    border-radius: inherit;
+    transition: width var(--acc-transition-3s);
 }
 
 .resumen-progreso p {
-    color: #f0f0f0;
+    color: var(--acc-text-muted);
     margin: 0;
 }
 
@@ -47,41 +49,6 @@
 
 
 
-/*.resumen-progreso.card {
-    background: #1a1a2e;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    color: #f0f0f0;
-    max-width: 1140px;
-    border: none;
-}
 
-.resumen-progreso h2 {
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 1rem;
-    font-family: 'Nunito', Arial, sans-serif;
-}
 
-.progress-bar-container {
-    width: 100%;
-    height: 20px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 0.75rem;
-}
 
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(to right, #7209b7, #3a0ca3);
-    border-radius: 10px 0 0 10px;
-    transition: width 0.5s ease-in-out;
-}
-
-.resumen-progreso p {
-    color: #f0f0f0;
-    margin: 0;
-}*/

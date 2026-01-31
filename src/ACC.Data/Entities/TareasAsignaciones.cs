@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ACC.Data.Entities; 
 
-public class TareaAsignacion
+public class TareasAsignaciones
 {
     public int Id { get; set; }
     public int TareaId { get; set; }

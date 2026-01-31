@@ -1,1 +1,59 @@
-﻿
+﻿.charp-shell {
+    position: relative;
+    background: var(--acc-bg-0);
+}
+
+/* atmósfera ACC detrás */
+.charp-shell__bg {
+    position: absolute;
+    inset: -30%;
+    background: radial-gradient(circle at 20% 25%, rgba(144,19,254,.22), transparent 55%), radial-gradient(circle at 70% 55%, rgba(144,19,254,.14), transparent 60%), radial-gradient(circle at 45% 80%, rgba(144,19,254,.10), transparent 55%);
+    filter: blur(20px); /* antes: 30px */
+    opacity: .95;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.charp-shell__frame {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    border-radius: 16px; /* ajusta a tu sistema */
+    background: var(--acc-bg-0);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc-brand-600) 25%, transparent);
+}
+
+/* “Header falso” detrás del real */
+.charp-shell__fakeHeader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px; /* aprox: px-5 + items-center */
+    z-index: 1;
+    pointer-events: none;
+    /* tu gradiente, pero acoplado a --acc-bg-0 */
+    background: linear-gradient( 0deg, color-mix(in srgb, #9013fe 55%, var(--acc-bg-0)) 0%, rgba(144,19,254, .20) 55%, rgba(144,19,254, .06) 100% );
+}
+
+/* “Body falso” detrás del área scroll */
+.charp-shell__fakeBody {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 14%, rgba(255,255,255,0.00) 35% );
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* el iframe arriba de todo (pero dentro del recorte) */
+.charp-iframe {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    min-height: 700px;
+    border: 0;
+    display: block;
+    background: transparent; /* por si el iframe deja ver el fondo */
+}

@@ -1,39 +1,60 @@
 ﻿.charp-dialog-overlay {
     position: relative;
     margin: 2rem 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 2rem;
-    border-radius: 15px;
-    animation: fadeIn 0.4s ease-out forwards;
+    background: color-mix(in srgb, var(--acc-bg-0) 65%, transparent);
+    padding: 1.6rem 1.8rem;
+    border-radius: var(--acc-radius);
+    border: 1px solid var(--acc-border);
+    box-shadow: var(--acc-shadow);
+    animation: fadeIn 0.45s ease-out forwards;
     display: flex;
     align-items: flex-end;
     gap: 1.5rem;
     overflow: hidden;
 }
 
+.charp-dialog-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 10%,
+            color-mix(in srgb, var(--acc-brand-600) 28%, transparent),
+            transparent 55%);
+    opacity: 0.25;
+    pointer-events: none;
+}
+
 .charp-dialog-box {
     display: flex;
     align-items: flex-end;
     gap: 1.5rem;
-    animation: slideIn 0.5s ease-out forwards;
+    animation: slideIn 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    position: relative;
+    z-index: 1;
 }
 
 .charp-dialog-img {
-    width: 150px;
+    width: 130px;
     height: auto;
-    transform: translateY(10px);
-    animation: floatIn 0.5s ease-out;
-    border-radius: 10px;
+    transform: translateY(12px);
+    animation: floatIn 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    border-radius: var(--acc-radius-sm);
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.4));
 }
 
 .charp-dialog-text {
-    background-color: rgba(43, 46, 59, 0.95);
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    color: #f1f3f5;
-    font-size: 1.1rem;
-    max-width: 600px;
-    animation: typeIn 1s steps(20);
+    background: color-mix(in srgb, var(--acc-surface-2) 90%, black);
+    padding: 1rem 1.25rem;
+    border-radius: var(--acc-radius);
+    border: 1px solid var(--acc-border);
+    border-left: 4px solid var(--acc-brand-600);
+    color: var(--acc-text);
+    font-size: 1.05rem;
+    line-height: 1.65;
+    max-width: 640px;
+    position: relative;
+    overflow: hidden;
+    white-space: pre-wrap;
 }
 
 /* Animaciones */
@@ -49,7 +70,7 @@
 
 @keyframes slideIn {
     from {
-        transform: translateX(-30px);
+        transform: translateX(-20px);
         opacity: 0;
     }
 
@@ -61,7 +82,7 @@
 
 @keyframes floatIn {
     from {
-        transform: translateY(30px);
+        transform: translateY(20px);
         opacity: 0;
     }
 
@@ -71,12 +92,27 @@
     }
 }
 
-@keyframes typeIn {
-    from {
-        width: 0;
+@media (max-width: 720px) {
+    .charp-dialog-overlay,
+    .charp-dialog-box {
+        flex-direction: column;
+        align-items: center;
     }
 
-    to {
-        width: 100%;
+    .charp-dialog-img {
+        width: 110px;
+    }
+
+    .charp-dialog-text {
+        max-width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .charp-dialog-overlay,
+    .charp-dialog-box,
+    .charp-dialog-img,
+    .charp-dialog-text {
+        animation: none;
     }
 }

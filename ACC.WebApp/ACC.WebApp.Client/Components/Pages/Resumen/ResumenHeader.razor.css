@@ -1,6 +1,6 @@
 ﻿/* Reset y tipografía para el header */
 .resumen-header h1 {
-    background: linear-gradient(to right, #4361ee, #7209b7);
+    background: linear-gradient(90deg, var(--acc-blue-600), var(--acc-brand-600));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: calc(1.375rem + 1.5vw);
@@ -10,7 +10,7 @@
 }
 
 .resumen-header p {
-    color: #f0f0f0;
+    color: var(--acc-text-muted);
     font-size: 1.2rem;
     margin: 0.5rem 0 1rem 0;
 }
@@ -22,6 +22,7 @@
     justify-content: center;
     text-align: center;
     margin-bottom: 0.6rem;  /*Espacio entre el header y la tarjeta */
+    position: relative;
 }
 /* Bombilla y tip popup con animación breathe */
 .tip-container {
@@ -30,12 +31,21 @@
     right: 10px;
     margin-top: 3rem;
     user-select: none;
+    z-index: 10;
 }
 
 .tip-bombilla {
     cursor: pointer;
-    font-size: 24px;
-    color: #ffd700;
+    font-size: 22px;
+    color: var(--acc-warning-accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: var(--acc-brand-700);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
     animation: breathe 1s infinite ease-in-out;
 }
 
@@ -45,7 +55,8 @@
     }
 
 @keyframes breathe {
-    0%, 100% {
+    0%,
+    100% {
         transform: scale(0.9);
     }
 
@@ -56,31 +67,65 @@
 
 .tip-popup {
     position: absolute;
-    top: 40px;
+    top: 2.9rem;
     right: 0;
     z-index: 1000;
-    color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    background-color: #39325b;
-    opacity: 1;
-    transform: none;
+    color: var(--acc-text);
+    padding: 0.9rem 1rem;
+    border-radius: var(--acc-radius);
+    border: 1px solid var(--acc-border);
+    box-shadow: var(--acc-shadow);
+    background: color-mix(in srgb, var(--acc-surface-2) 90%, black);
+    min-width: 220px;
+    max-width: 320px;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    animation: tip-pop 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 
     .tip-popup p {
-        font-family: Arial; 
-        color: white;
-        font-size: 1.1rem;
+        font-family: 'Nunito', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color: var(--acc-text);
+        font-size: 1rem;
+        line-height: 1.5;
+        margin: 0;
     }
+
+    .tip-popup::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        right: 14px;
+        width: 12px;
+        height: 12px;
+        background: color-mix(in srgb, var(--acc-surface-2) 90%, black);
+        border-left: 1px solid var(--acc-border);
+        border-top: 1px solid var(--acc-border);
+        transform: rotate(45deg);
+    }
+
+@keyframes tip-pop {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tip-bombilla,
+    .tip-popup {
+        animation: none;
+        transform: none;
+    }
+}
 
 /* Botón continuar */
 .continue-btn {
-    background: linear-gradient(135deg, #4d358b, #2e245e);
+    background: linear-gradient(135deg, var(--acc-brand-600), var(--acc-brand-800));
     color: #fff;
     padding: 1rem 2rem;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--acc-radius-sm);
     font-weight: 600;
     cursor: pointer;
     transition: all .3s;
@@ -92,6 +137,12 @@
     .continue-btn:hover {
         opacity: .9;
         transform: translateY(-2px);
+    }
+
+    .continue-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
     }
 
 @font-face {

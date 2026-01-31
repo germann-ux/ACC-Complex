@@ -186,7 +186,7 @@ public class ACCmappingProfile : Profile
             .ForMember(d => d.Scope, opt => opt.MapFrom(s => s.Scope));
 
         // Update de asignación por alumno
-        CreateMap<TareaAsignacionUpdateDto, TareaAsignacion>()
+        CreateMap<TareaAsignacionUpdateDto, TareasAsignaciones>()
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.TareaId, opt => opt.Ignore())
             .ForMember(d => d.UsuarioId, opt => opt.Ignore())

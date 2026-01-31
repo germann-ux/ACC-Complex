@@ -1,11 +1,18 @@
-﻿.modal-overlay {
+﻿/* ==============================
+   ACC Modal (tema unificado)
+   - usa tokens --acc-*
+   - mantiene tu layout/medidas
+   ============================== */
+
+.modal-overlay {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -15,31 +22,72 @@
         display: flex;
     }
 
+/* “Card” ACC */
 .modal-content {
-    background: white;
+    background: linear-gradient(180deg, var(--acc-bg-1), var(--acc-bg-2));
+    color: var(--acc-text);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: var(--acc-radius);
     width: 90%;
     max-width: 800px;
     height: 90%;
     display: flex;
     flex-direction: column;
     position: relative;
+    border: 1px solid color-mix(in srgb, var(--acc-border) 75%, var(--acc-brand-700));
+    box-shadow: var(--acc-shadow);
+    /* micro “aura” ACC sin cambiar layout */
+    outline: 1px solid color-mix(in srgb, var(--acc-brand-600) 18%, transparent);
 }
 
+/* Iframe responsivo (igual, solo se integra visualmente) */
 .responsive-iframe {
     width: 100%;
     height: 100%;
     border: none;
+    /* si el iframe deja ver fondo al cargar */
+    background: var(--acc-bg-1);
+    border-radius: calc(var(--acc-radius) - 2px);
 }
 
+/* Botón de cerrar: estilo ACC (no rojo) */
 .close-btn {
     position: absolute;
     top: 10px;
     right: 20px;
-    background: red;
-    color: white;
-    border: none;
-    padding: 10px;
+    background: linear-gradient(180deg, var(--acc-brand-600), var(--acc-brand-700));
+    color: var(--acc-text);
+    border-radius: var(--acc-radius-sm);
+    padding: 0.8rem;
     cursor: pointer;
+    border: 1px solid color-mix(in srgb, var(--acc-brand-700) 70%, var(--acc-border));
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
+    transition: transform var(--acc-transition), filter var(--acc-transition), box-shadow var(--acc-transition);
+    user-select: none;
+}
+
+    .close-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, .45);
+    }
+
+    .close-btn:active {
+        transform: translateY(0px);
+        filter: brightness(0.98);
+    }
+
+    /* Focus accesible consistente con ACC */
+    .close-btn:focus-visible {
+        outline: none;
+        box-shadow: var(--acc-shadow), var(--acc-focus);
+    }
+
+/* Ajuste opcional: en pantallas muy pequeñas, que el botón no estorbe */
+@media (max-width: 420px) {
+    .close-btn {
+        right: 12px;
+        top: 12px;
+        padding: 0.7rem;
+    }
 }

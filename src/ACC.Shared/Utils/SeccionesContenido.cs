@@ -10,7 +10,6 @@ public static class SeccionesContenido
     public const string Ejemplo = "ejemplo";
     public const string Actividad = "actividad";
     public const string Compilador = "compilador";
-    public const string Evaluacion = "evaluacion";
     public const string CharpTip = "charpTip";
     public const string CharpDialog = "charpDialog";
 
@@ -24,7 +23,6 @@ public static class SeccionesContenido
             { TipoSeccionContenido.Ejemplo, Ejemplo },
             { TipoSeccionContenido.Actividad, Actividad },
             { TipoSeccionContenido.Compilador, Compilador },
-            { TipoSeccionContenido.Evaluacion, Evaluacion },
             { TipoSeccionContenido.CharpTip, CharpTip },
             { TipoSeccionContenido.CharpDialog, CharpDialog }
         };

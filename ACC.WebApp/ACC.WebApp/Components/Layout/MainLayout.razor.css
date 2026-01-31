@@ -10,18 +10,17 @@ main {
 }
 
 .top-row {
-    /*background: linear-gradient(#070b33, #121851);*/
-    border-bottom: 1px solid #d6d5d5;
-    /*background: linear-gradient(to right,#070b33,#121851);*/
-    /*background: linear-gradient(to right, #0f0f0f, #2a003f);*/
     background: linear-gradient(to right, #0f0f0f, #1c0b33, #2a003f);
-    justify-content: flex-end;
     height: 3.2rem;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     border: none;
-    margin-left: 1.5rem;
+    margin-left: 0;
+    width: 100%;
+    z-index: 3; 
 }
+
 
     .top-row a {
         color: white;

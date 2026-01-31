@@ -1,9 +1,16 @@
 ﻿@page "/Charp-IA"
 @rendermode InteractiveServer
-    <div class="content charp-container">
-        <iframe src="https://www.chatbase.co/chatbot-iframe/E4W-vGLpQvQJlyQ4WIk7m"
-                width="100%"
-                style="height: 100%; min-height: 700px"
-                frameborder="0">
-        </iframe>
+
+<div class="charp-shell">
+    <div class="charp-shell__bg"></div>
+
+    <div class="charp-shell__frame">
+        <div class="charp-shell__fakeHeader"></div>
+        <div class="charp-shell__fakeBody"></div>
+
+        <iframe class="charp-iframe"
+                src="https://www.chatbase.co/chatbot-iframe/E4W-vGLpQvQJlyQ4WIk7m"
+                title="Charp IA"
+                frameborder="0"></iframe>
     </div>
+</div>

@@ -12,16 +12,18 @@ public sealed class ResumenService(HttpClient http) : IResumenService
     public async Task<ApplicationUserDto?> GetUsuarioAsync(string userId, CancellationToken ct)
         => (await http.GetFromJsonAsync<ServiceResult<ApplicationUserDto>>($"{Root}Usuario/usuario/{userId}", ct))?.Data;
 
-    public async Task<(List<TareaAsignadaDto>, List<TareaPersonalDto>)> GetTareasAsync(string userId, CancellationToken ct)
+    public async Task<(TareasPendientesResumenDto? resumen, List<TareaAlumnoListadoDto> asignadas, List<TareaPersonalDto> personales)> GetTareasAsync(string userId, CancellationToken ct)
     {
-        var asignadasTask = http.GetFromJsonAsync<ServiceResult<List<TareaAsignadaDto>>>($"{Root}Tarea/asignada/lista/{userId}", ct);
+        var resumenTask = http.GetFromJsonAsync<ServiceResult<TareasPendientesResumenDto>>($"{Root}TareasAlumno/resumen/{userId}", ct);
+        var asignadasTask = http.GetFromJsonAsync<ServiceResult<List<TareaAlumnoListadoDto>>>($"{Root}TareasAlumno/listado/{userId}", ct);
         var personalesTask = http.GetFromJsonAsync<ServiceResult<List<TareaPersonalDto>>>($"{Root}Tarea/personal/lista/{userId}", ct);
 
-        await Task.WhenAll(asignadasTask!, personalesTask!);
+        await Task.WhenAll(resumenTask!, asignadasTask!, personalesTask!);
 
+        var resumen = resumenTask?.Result?.Data;
         var asignadas = asignadasTask?.Result?.Data ?? [];
         var personales = personalesTask?.Result?.Data ?? [];
-        return (asignadas, personales);
+        return (resumen, asignadas, personales);
     }
 
     public async Task<TipDto?> GetTipAsync(CancellationToken ct)

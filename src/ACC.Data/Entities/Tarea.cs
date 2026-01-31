@@ -20,5 +20,5 @@ public class Tarea
 
     public TareaScope Scope { get; set; } = TareaScope.AulaCompleta;
     public Aula Aula { get; set; } = null!;
-    public ICollection<TareaAsignacion> Asignaciones { get; set; } = [];
+    public ICollection<TareasAsignaciones> Asignaciones { get; set; } = [];
 }

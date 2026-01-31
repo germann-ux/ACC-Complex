@@ -41,7 +41,7 @@ namespace ACC.Data
 
         /// <summary>Tags reutilizables para etiquetar módulos, temas, capítulos, etc.</summary>
         public DbSet<Tag> Tags => Set<Tag>();
-        
+
         public DbSet<CapituloTag> CapituloTags => Set<CapituloTag>();
 
         //public DbSet<ModuloTags> ModuloTags => Set<ModuloTags>();
@@ -82,7 +82,7 @@ namespace ACC.Data
 
         public DbSet<Evaluacion> Evaluaciones => Set<Evaluacion>();
         public DbSet<EvaluacionResultado> EvaluacionResultados => Set<EvaluacionResultado>();
-        public DbSet<TareaAsignacion> TareaAsignaciones => Set<TareaAsignacion>();
+        public DbSet<TareasAsignaciones> TareasAsignaciones => Set<TareasAsignaciones>();
         public DbSet<Tarea> Tareas => Set<Tarea>();
 
         // ============================================================
@@ -127,10 +127,10 @@ namespace ACC.Data
             modelBuilder.Entity<Capitulo>().HasKey(c => c.IdCapitulo);
 
             // TAGS:
-            modelBuilder.Entity<CapituloTag>().HasKey(cc => new { cc.TagId, cc.CapituloId }); 
+            modelBuilder.Entity<CapituloTag>().HasKey(cc => new { cc.TagId, cc.CapituloId });
             modelBuilder.Entity<ModuloTags>().HasKey(md => new { md.Id_Tag, md.Id_Modulo });
-            modelBuilder.Entity<TemaTags>().HasKey(tm => new { tm.Id_Tag, tm.Id_Tema });  
-            
+            modelBuilder.Entity<TemaTags>().HasKey(tm => new { tm.Id_Tag, tm.Id_Tema });
+
             modelBuilder.Entity<ProgresoUsuario>().HasKey(p => p.IdProgreso);
             modelBuilder.Entity<HistorialCalificaciones>().HasKey(h => h.Id_Historial);
 
@@ -151,7 +151,7 @@ namespace ACC.Data
             modelBuilder.Entity<InvitacionAula>().HasKey(a => a.Id);
             modelBuilder.Entity<Evaluacion>().HasKey(x => x.Id);
             modelBuilder.Entity<EvaluacionResultado>().HasKey(a => a.Id);
-            modelBuilder.Entity<TareaAsignacion>().HasKey(x => x.Id);
+            modelBuilder.Entity<TareasAsignaciones>().HasKey(x => x.Id);
             modelBuilder.Entity<Tarea>().HasKey(x => x.TareaId);
             modelBuilder.Entity<Anuncio>().HasKey(x => x.AnuncioId);
 
@@ -310,7 +310,7 @@ namespace ACC.Data
 
             // Recomendación: nombre único del Tag (evita duplicados tipo "LINQ" vs "Linq")
             modelBuilder.Entity<Tag>()
-                .ToTable("Tags"); 
+                .ToTable("Tags");
 
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.Nombre)
@@ -547,7 +547,7 @@ namespace ACC.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<TareaAsignacion>(entity =>
+            modelBuilder.Entity<TareasAsignaciones>(entity =>
             {
                 entity.Property(x => x.UsuarioId).IsRequired().HasMaxLength(64);
                 entity.Property(x => x.Estado).IsRequired().HasConversion<int>();
@@ -557,6 +557,10 @@ namespace ACC.Data
                       .HasForeignKey(x => x.TareaId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<Tarea>()
+            .Property(t => t.TareaId)
+            .HasColumnName("Id");
 
             // --------------------------------------------------------
             // Índices de rendimiento
@@ -581,10 +585,10 @@ namespace ACC.Data
             modelBuilder.Entity<Notificacion>()
                 .HasIndex(x => new { x.AulaId, x.FechaEnvio });
 
-            modelBuilder.Entity<TareaAsignacion>()
+            modelBuilder.Entity<TareasAsignaciones>()
                 .HasIndex(x => x.TareaId);
 
-            modelBuilder.Entity<TareaAsignacion>()
+            modelBuilder.Entity<TareasAsignaciones>()
                 .HasIndex(x => new { x.TareaId, x.UsuarioId })
                 .IsUnique();
 

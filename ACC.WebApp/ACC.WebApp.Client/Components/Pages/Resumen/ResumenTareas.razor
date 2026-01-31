@@ -1,64 +1,169 @@
 ﻿@using ACC.Shared.DTOs
 @rendermode  InteractiveServer
+@using ACC.Shared.Enums
+@using System.Linq
 <div class="resumen-tareas card">
     <h2>Tareas Pendientes</h2>
 
-    <div class="tasks-row">
-        <!-- Tareas Asignadas -->
-        <div class="task-col">
-            <h3><i class="fas fa-clipboard-list" style="color:var(--secondary);"></i> Tareas Asignadas</h3>
-            @if (TareasAsignadas != null && TareasAsignadas.Count > 0)
-            {
-                <div class="scrollable-tasks">
-                    @foreach (var tarea in TareasAsignadas)
-                    {
-                        <div class="task-item">
-                            <div class="task-icon">
-                                <i class="fas fa-tasks"></i>
-                            </div>
-                            <div>
-                                <p class="task-title">@tarea.TituloTareaAsignada</p>
-                                <p class="task-desc">@tarea.DescripcionTareaAsignada</p>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <p>No tienes tareas asignadas.</p>
-            }
-        </div>
+    @if (IsLoading)
+    {
+        <p>Cargando tareas...</p>
+    }
+    else
+    {
+        var mostrarVacias = string.IsNullOrWhiteSpace(ErrorMessage);
 
-        <!-- Tareas Personales -->
-        <div class="task-col">
-            <h3><i class="fas fa-user-check" style="color:var(--primary);"></i> Tareas Personales</h3>
-            @if (TareasPersonales != null && TareasPersonales.Count > 0)
-            {
-                <div class="scrollable-tasks">
-                    @foreach (var tarea in TareasPersonales)
+        if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <p>@ErrorMessage</p>
+        }
+
+        <div class="tasks-row">
+            <!-- Tareas Asignadas -->
+            <div class="task-col">
+                <h3><i class="fas fa-clipboard-list" style="color:var(--secondary);"></i> Tareas Asignadas</h3>
+                @if (TareasPendientes is not null)
+                {
+                    if (TareasPendientes.TotalPendientes == 0)
                     {
-                        <div class="task-item">
-                            <div class="task-icon">
-                                <i class="fas fa-user-edit"></i>
+                        <p>No tienes tareas pendientes.</p>
+                    }
+                    else
+                    {
+                        <div class="tasks-summary">
+                            <div class="task-item">
+                                <div class="task-icon">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                </div>
+                                <div>
+                                    <p class="task-title">Vencidas</p>
+                                    <p class="task-desc">@TareasPendientes.Vencidas</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="task-title">@tarea.TareaPersonalTitulo</p>
-                                <p class="task-desc">@tarea.TareaPersonalDescripcion</p>
+                            <div class="task-item">
+                                <div class="task-icon">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <div>
+                                    <p class="task-title">Para hoy</p>
+                                    <p class="task-desc">@TareasPendientes.ParaHoy</p>
+                                </div>
+                            </div>
+                            <div class="task-item">
+                                <div class="task-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="task-title">Próximas</p>
+                                    <p class="task-desc">@TareasPendientes.Proximas</p>
+                                </div>
                             </div>
                         </div>
                     }
-                </div>
-            }
-            else
-            {
-                <p>No tienes tareas personales.</p>
-            }
+                }
+
+                @if (TareasAsignadas != null)
+                {
+                    var pendientes = TareasAsignadas.Where(EsPendiente).ToList();
+                    if (pendientes.Count > 0)
+                    {
+                        <div class="scrollable-tasks">
+                            @{
+                                var count = 0;
+                            }
+                            @foreach (var tarea in pendientes)
+                            {
+                                if (count++ >= MaxAsignadas)
+                                {
+                                    break;
+                                }
+                                <div class="task-item">
+                                    <div class="task-icon">
+                                        <i class="fas fa-tasks"></i>
+                                    </div>
+                                    <div>
+                                        <p class="task-title">@tarea.Titulo</p>
+                                        @if (!string.IsNullOrWhiteSpace(tarea.EnunciadoCorto))
+                                        {
+                                            <p class="task-desc">@tarea.EnunciadoCorto</p>
+                                        }
+                                        <p class="task-meta">@EstadoTexto(tarea) • Vence @FechaCorta(tarea.FechaLimite)</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (mostrarVacias)
+                    {
+                        <p>No tienes tareas asignadas.</p>
+                    }
+                }
+                else if (mostrarVacias)
+                {
+                    <p>No tienes tareas asignadas.</p>
+                }
+            </div>
+
+            <!-- Tareas Personales -->
+            <div class="task-col">
+                <h3><i class="fas fa-user-check" style="color:var(--primary);"></i> Tareas Personales</h3>
+                @if (TareasPersonales != null && TareasPersonales.Count > 0)
+                {
+                    <div class="scrollable-tasks">
+                        @foreach (var tarea in TareasPersonales)
+                        {
+                            <div class="task-item">
+                                <div class="task-icon">
+                                    <i class="fas fa-user-edit"></i>
+                                </div>
+                                <div>
+                                    <p class="task-title">@tarea.TareaPersonalTitulo</p>
+                                    <p class="task-desc">@tarea.TareaPersonalDescripcion</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (mostrarVacias)
+                {
+                    <p>No tienes tareas personales.</p>
+                }
+            </div>
         </div>
-    </div>
+    }
 </div>
 
 @code {
-    [Parameter] public List<TareaAsignadaDto> TareasAsignadas { get; set; }
-    [Parameter] public List<TareaPersonalDto> TareasPersonales { get; set; }
+    [Parameter] public TareasPendientesResumenDto? TareasPendientes { get; set; }
+    [Parameter] public List<TareaAlumnoListadoDto> TareasAsignadas { get; set; } = new();
+    [Parameter] public List<TareaPersonalDto> TareasPersonales { get; set; } = new();
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public int MaxAsignadas { get; set; } = 5;
+
+    private static bool EsPendiente(TareaAlumnoListadoDto tarea)
+        => tarea.Estado != TareaEstado.Completada;
+
+    private static string EstadoTexto(TareaAlumnoListadoDto tarea)
+    {
+        if (tarea.EstadoEntrega == TareaEstadoEntrega.Calificada)
+            return "Calificada";
+        if (tarea.EstadoEntrega == TareaEstadoEntrega.EntregadaTarde)
+            return "Entregada tarde";
+        if (tarea.EstadoEntrega == TareaEstadoEntrega.Entregada)
+            return "Entregada";
+        if (tarea.EstadoEntrega == TareaEstadoEntrega.DevueltaParaCorreccion)
+            return "Devuelta";
+
+        return tarea.Estado switch
+        {
+            TareaEstado.NoIniciada => "No iniciada",
+            TareaEstado.EnProgreso => "En progreso",
+            TareaEstado.Completada => "Completada",
+            _ => tarea.Estado.ToString()
+        };
+    }
+
+    private static string FechaCorta(DateTime fecha)
+        => fecha.ToLocalTime().ToString("dd MMM");
 }

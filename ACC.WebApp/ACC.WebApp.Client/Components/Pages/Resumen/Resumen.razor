@@ -1,199 +1,284 @@
 ﻿@page "/Resumen"
 @rendermode InteractiveServer
-
+@implements IDisposable
 @using ACC.Shared.DTOs
 @using ACC.Shared.Core
 @using ACC.WebApp.Client.Components.Pages.Guia.Components
 @using System.Security.Claims
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject HttpClient cliente
 @inject NavigationManager navegador
 @inject IJSRuntime JSRuntime
 
 <div class="content resumen">
-    <ResumenHeader Usuario="usuario"
-                   Tip="@tip"
-                   MostrarTipEstado="mostrarTip"
-                   HaVistoTip="haVistoTip"
-                   MostrarTip="MostrarTip"
-                   ContinuarDondeLoDejaste="ContinuarDondeLoDejaste" />
-
     @if (!string.IsNullOrEmpty(errorMessageUsuario))
     {
-        <p>@errorMessageUsuario</p>
-    }
-    else if (isLoadingUsuario)
-    {
-        <p>Cargando información del usuario...</p>
+        <InfoComponent Title="@ErrorTitle" Message="@ErrorMessage" StatusCode="@ErrorStatusCode"
+            ReturnUrl="@ErrorReturnUrl" />
     }
     else
     {
-        <ResumenProgreso ProgresoGeneral="usuario.ProgresoGeneral" />
-        <ResumenChart />
-        <ResumenTareas TareasAsignadas="tareasAsignadas"
-                       TareasPersonales="tareasPersonales" />
-        <ResumenInteres />
+        <ResumenHeader 
+            Usuario="usuario" 
+            Tip="@tip" 
+            MostrarTipEstado="mostrarTip" 
+            HaVistoTip="haVistoTip"
+            MostrarTip="MostrarTip" 
+            ContinuarDondeLoDejaste="ContinuarDondeLoDejaste" IsLoadingUsuario="isLoadingUsuario"
+            IsLoadingTip="isLoadingTip" 
+            TipError="@errorMessageTip"
+            CanContinue="@(!isLoadingUsuario && !string.IsNullOrEmpty(userId))" />
+
+        @if (isLoadingUsuario)
+        {
+            <p>Cargando información del usuario...</p>
+        }
+        else
+        {
+            <ResumenProgreso 
+                ProgresoGeneral="usuario.ProgresoGeneral" />
+            
+                <ResumenChart />
+            
+            <ResumenTareas 
+                TareasPendientes="tareasPendientes" TareasAsignadas="tareasAsignadas"
+                TareasPersonales="tareasPersonales" IsLoading="isLoadingTareas"
+                ErrorMessage="@errorMessageTareas" MaxAsignadas="5" />
+            
+                <ResumenInteres />
+        }
     }
 </div>
 
-    @code {
-        // Estado de datos
-        private List<TareaPersonalDto> tareasPersonales = new();
-        private List<TareaAsignadaDto> tareasAsignadas = new();
-        private ApplicationUserDto usuario = new();
+@code {
+    // Estado de datos
+    private List<TareaPersonalDto> tareasPersonales = new();
+    private List<TareaAlumnoListadoDto> tareasAsignadas = new();
+    private TareasPendientesResumenDto? tareasPendientes;
+    private ApplicationUserDto usuario = new();
 
-        // Estado de carga
-        private bool isLoadingUsuario = true;
-        private bool isLoadingTareas = true;
-        private bool isLoadingTip = true;
+    // Estado de carga
+    private bool isLoadingUsuario = true;
+    private bool isLoadingTareas = true;
+    private bool isLoadingTip = true;
 
-        // Errores
-        private string errorMessageUsuario;
-        private string errorMessageTareas;
-        private string errorMessageTip;
+    // Errores
+    private string? errorMessageUsuario;
+    private string? errorMessageTareas;
+    private string? errorMessageTip;
+    private bool isAuthError;
 
-        // Tip (bombilla)
-        private string tip = "Aquí va tu consejo de programación...";
-        private bool mostrarTip = false;
-        private bool haVistoTip = false;
+    // Tip (bombilla)
+    private string tip = "Aquí va tu consejo de programación...";
+    private bool mostrarTip = false;
+    private bool haVistoTip = false;
 
-        // Usuario actual
-        private string? userId;
+    // Usuario actual
+    private string? userId;
 
-        private CancellationTokenSource cts = new();
+    private readonly CancellationTokenSource cts = new();
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
 
-        protected override async Task OnInitializedAsync()
+    private string ErrorTitle => isAuthError ? "Necesitas iniciar sesión" : "No pudimos cargar tu resumen";
+    private string ErrorMessage => isAuthError
+    ? "Necesitas iniciar sesión para ver tu resumen."
+    : errorMessageUsuario ?? "No se pudo cargar la información del usuario.";
+    private int ErrorStatusCode => isAuthError ? 401 : 500;
+    private string ErrorReturnUrl => isAuthError
+    ? $"/Account/Login?returnUrl={Uri.EscapeDataString(navegador.Uri)}"
+    : "/Resumen";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
         {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
+            userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine($"Usuario autenticado: ID = {userId}");
+            await CargarDatosAsync();
+            await CargarTipDesdeAPI();
+        }
+        else
+        {
+            MostrarErrorAuth();
+        }
+    }
 
-            if (user.Identity?.IsAuthenticated == true)
+    private async Task CargarDatosAsync()
+    {
+        if (string.IsNullOrEmpty(userId))
+        {
+            MostrarErrorAuth();
+            return;
+        }
+
+        var tareasTask = CargarTareasAsync(cts.Token);
+        var usuarioTask = CargarUsuarioAsync(cts.Token);
+
+        await Task.WhenAll(tareasTask, usuarioTask);
+    }
+
+    private async Task CargarTareasAsync(CancellationToken token)
+    {
+        try
+        {
+            var tareasPersonalesResponse = await GetServiceResultAsync<List<TareaPersonalDto>>(
+            $"{ServiceRoots.ACC_API_Url}Tarea/personal/lista/{userId}", token, allowNotFoundAsEmpty: true);
+            var resumenPendientesResponse = await GetServiceResultAsync<TareasPendientesResumenDto>(
+            $"{ServiceRoots.ACC_API_Url}TareasAlumno/resumen/{userId}", token);
+            var tareasAsignadasResponse = await GetServiceResultAsync<List<TareaAlumnoListadoDto>>(
+            $"{ServiceRoots.ACC_API_Url}TareasAlumno/listado/{userId}", token, allowNotFoundAsEmpty: true);
+
+            if (tareasPersonalesResponse?.Success == true)
+                tareasPersonales = tareasPersonalesResponse.Data ?? new();
+
+            if (resumenPendientesResponse?.Success == true)
+                tareasPendientes = resumenPendientesResponse.Data;
+
+            if (tareasAsignadasResponse?.Success == true)
+                tareasAsignadas = tareasAsignadasResponse.Data ?? new();
+
+            if (tareasPersonalesResponse is null || resumenPendientesResponse is null || tareasAsignadasResponse is null ||
+            tareasPersonalesResponse.Success != true || resumenPendientesResponse.Success != true || tareasAsignadasResponse.Success != true)
+                errorMessageTareas = resumenPendientesResponse?.Message
+                    ?? tareasAsignadasResponse?.Message
+                    ?? tareasPersonalesResponse?.Message
+                    ?? "Error al cargar las tareas.";
+
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            MostrarErrorAuth();
+        }
+        catch (Exception ex)
+        {
+            errorMessageTareas = $"Error al cargar tareas: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingTareas = false;
+        }
+    }
+
+    private async Task<ServiceResult<T>?> GetServiceResultAsync<T>(string url, CancellationToken token, bool allowNotFoundAsEmpty = false)
+    {
+        try
+        {
+            return await cliente.GetFromJsonAsync<ServiceResult<T>>(url, JsonOptions, token);
+        }
+        catch (HttpRequestException ex) when (allowNotFoundAsEmpty && ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ServiceResult<T>.Ok(default);
+        }
+    }
+
+    private async Task CargarUsuarioAsync(CancellationToken token)
+    {
+        try
+        {
+            var solicitud = await
+            cliente.GetFromJsonAsync<ServiceResult<ApplicationUserDto>>($"{ServiceRoots.ACC_API_Url}Usuario/usuario/{userId}",
+            token);
+            if (solicitud?.Success == true)
+                usuario = solicitud.Data ?? new();
+            else
+                errorMessageUsuario = solicitud?.Message ?? "Error al cargar usuario.";
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            MostrarErrorAuth();
+        }
+        catch (Exception ex)
+        {
+            errorMessageUsuario = $"Error al cargar usuario: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingUsuario = false;
+        }
+    }
+
+    private async Task CargarTipDesdeAPI()
+    {
+        try
+        {
+            var tipObtenido = await cliente.GetFromJsonAsync<TipDto>($"{ServiceRoots.ACC_API_Url}Tips/random", cts.Token);
+            if (tipObtenido is null)
             {
-                userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                Console.WriteLine($"Usuario autenticado: ID = {userId}");
-                await CargarDatosAsync();
-                await CargarTipDesdeAPI();
+                errorMessageTip = "No hay tips disponibles aún.";
             }
             else
             {
-                MostrarErrorAuth();
+                tip = tipObtenido.Contenido ?? "No hay tips disponibles aún.";
             }
         }
-
-        private async Task CargarDatosAsync()
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                MostrarErrorAuth();
-                return;
-            }
-
-            var tareasTask = CargarTareasAsync(cts.Token);
-            var usuarioTask = CargarUsuarioAsync(cts.Token);
-
-            await Task.WhenAll(tareasTask, usuarioTask);
+            MostrarErrorAuth();
         }
-
-        private async Task CargarTareasAsync(CancellationToken token)
+        catch (Exception ex)
         {
-            try
-            {
-                var tareasPersonalesResponse = await cliente.GetFromJsonAsync<ServiceResult<List<TareaPersonalDto>>>($"{ServiceRoots.ACC_API_Url}Tarea/personal/lista/{userId}", token);
-                var tareasAsignadasResponse = await cliente.GetFromJsonAsync<ServiceResult<List<TareaAsignadaDto>>>($"{ServiceRoots.ACC_API_Url}Tarea/asignada/lista/{userId}", token);
-
-                if (tareasPersonalesResponse.Success)
-                    tareasPersonales = tareasPersonalesResponse.Data ?? new();
-
-                if (tareasAsignadasResponse.Success)
-                    tareasAsignadas = tareasAsignadasResponse.Data ?? new();
-
-                if (!tareasPersonalesResponse.Success || !tareasAsignadasResponse.Success)
-                    errorMessageTareas = "Error al cargar las tareas.";
-
-            }
-            catch (Exception ex)
-            {
-                errorMessageTareas = $"Error al cargar tareas: {ex.Message}";
-            }
-            finally
-            {
-                isLoadingTareas = false;
-            }
+            errorMessageTip = $"Error al obtener el Tip: {ex.Message}";
         }
-
-        private async Task CargarUsuarioAsync(CancellationToken token)
+        finally
         {
-            try
-            {
-                var solicitud = await cliente.GetFromJsonAsync<ServiceResult<ApplicationUserDto>>($"{ServiceRoots.ACC_API_Url}Usuario/usuario/{userId}", token);
-                usuario = solicitud.Data ?? new();
-            }
-            catch (Exception ex)
-            {
-                errorMessageUsuario = $"Error al cargar usuario: {ex.Message}";
-            }
-            finally
-            {
-                isLoadingUsuario = false;
-            }
-        }
-
-        private async Task CargarTipDesdeAPI()
-        {
-            try
-            {
-                var tipObtenido = await cliente.GetFromJsonAsync<TipDto>($"{ServiceRoots.ACC_API_Url}Tips/random");
-                tip = tipObtenido?.Contenido ?? "No hay tips disponibles aún.";
-            }
-            catch (Exception ex)
-            {
-                errorMessageTip = $"Error al obtener el Tip: {ex.Message}";
-            }
-            finally
-            {
-                isLoadingTip = false;
-            }
-        }
-
-        private async Task ContinuarDondeLoDejaste()
-        {
-            try
-            {
-                var ultimoTemaId = await cliente.GetFromJsonAsync<int?>($"{ServiceRoots.ACC_API_Url}ProgresoUsuario/ultimo/{userId}");
-
-                if (ultimoTemaId.HasValue)
-                    navegador.NavigateTo($"contenido/Tema/{ultimoTemaId}");
-                else
-                    Console.WriteLine("No se encontró progreso para el usuario.");
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                Console.WriteLine("No se encontró progreso para el usuario.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener el progreso: {ex.Message}");
-            }
-        }
-
-        private void MostrarTip()
-        {
-            mostrarTip = !mostrarTip;
-            haVistoTip = true;
-        }
-
-        private void MostrarErrorAuth()
-        {
-            errorMessageUsuario = "Usuario no autenticado.";
-            errorMessageTareas = "Usuario no autenticado.";
-            isLoadingUsuario = false;
-            isLoadingTareas = false;
             isLoadingTip = false;
         }
+    }
 
-        public void Dispose()
+    private async Task ContinuarDondeLoDejaste()
+    {
+        if (string.IsNullOrWhiteSpace(userId))
         {
-            cts.Cancel();
-            cts.Dispose();
+            return;
+        }
+
+        try
+        {
+            var ultimoTemaId = await cliente.GetFromJsonAsync<int?>($"{ServiceRoots.ACC_API_Url}ProgresoUsuario/ultimo/{userId}");
+
+            if (ultimoTemaId.HasValue)
+                navegador.NavigateTo($"contenido/Tema/{ultimoTemaId}");
+            else
+                Console.WriteLine("No se encontró progreso para el usuario.");
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            Console.WriteLine("No se encontró progreso para el usuario.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al obtener el progreso: {ex.Message}");
         }
     }
+
+    private void MostrarTip()
+    {
+        mostrarTip = !mostrarTip;
+        haVistoTip = true;
+    }
+
+    private void MostrarErrorAuth()
+    {
+        isAuthError = true;
+        errorMessageUsuario = "Usuario no autenticado.";
+        errorMessageTareas = "Usuario no autenticado.";
+        errorMessageTip = "Usuario no autenticado.";
+        isLoadingUsuario = false;
+        isLoadingTareas = false;
+        isLoadingTip = false;
+    }
+
+    public void Dispose()
+    {
+        cts.Cancel();
+        cts.Dispose();
+    }
+}
