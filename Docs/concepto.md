@@ -17,5 +17,28 @@ ACC se concibe como un entorno integral: combina contenidos estructurados, acomp
 - Retroalimentación contextual a través de Charp, enfocada en guiar sin entregar soluciones completas.
 - Seguimiento del avance académico para detectar brechas y recomendar próximos pasos.
 
+#### Ejemplo rápido de práctica guiada
+Un reto típico pide completar una función y enviarla al compilador seguro; el alumno recibe retroalimentación inmediata:
+
+```csharp
+// Completa para devolver true cuando el número sea par.
+public static bool EsPar(int valor)
+{
+    return valor % 2 == 0;
+}
+```
+
+La misma interfaz muestra la petición que se envía al servicio de compilación para validar la solución:
+
+```http
+POST https://localhost:7023/api/Compile
+Content-Type: application/json
+
+{
+  "code": "Console.WriteLine(EsPar(4));",
+  "input": ""
+}
+```
+
 ### Estado actual
 El proyecto está en desarrollo activo; las funcionalidades centrales de contenido educativo, soporte de Charp y seguimiento de progreso se encuentran operativas, mientras que se sigue afinando la experiencia completa dentro de ACC-Complex.

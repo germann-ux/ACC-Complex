@@ -16,6 +16,31 @@ Charp actúa como guía educativo: contextualiza conceptos, formula preguntas qu
 - Retroalimentación inmediata en ejecuciones, enfocada en causas y efectos del código.
 - Ejercicios escalonados que repiten la idea clave con ligeras variaciones para reforzarla.
 
+#### Ejemplo de reto guiado
+Charp presenta el objetivo, expone casos de prueba mínimos y pide explicar la decisión tomada:
+
+```csharp
+// Objetivo: devolver la suma de números pares
+public static class Calculadora
+{
+    public static int SumarPares(IEnumerable<int> valores)
+        => valores.Where(v => v % 2 == 0).Sum();
+}
+```
+
+Casos con los que se valida en el compilador seguro:
+
+```csharp
+[Fact]
+public void SumarPares_SoloPares_RegresaSuma()
+{
+    var resultado = Calculadora.SumarPares(new[] { 2, 4, 6 });
+    Assert.Equal(12, resultado);
+}
+```
+
+El estudiante debe justificar por qué filtra antes de sumar y qué sucede con secuencias vacías, reforzando la reflexión sobre la solución.
+
 ### Autonomía y progresión
 - Rutas personalizables según desempeño registrado en evaluaciones.
 - Actividades independientes que requieren integrar varios conceptos sin guía explícita.

@@ -24,6 +24,32 @@
 - API_CompilerACC opera de forma aislada, apoyándose en Redis para gestionar sesiones de ejecución y limitar efectos colaterales.
 - ACC.AppHost coordina el inicio, configuración y monitoreo de cada servicio y sus dependencias de base de datos y caché.
 
+### Ejemplo de orquestación con Aspire
+El `ACC.AppHost` declara contenedores y servicios de forma declarativa para que la topología completa se despliegue con un solo `dotnet run`:
+
+```csharp
+var builder = DistributedApplication.CreateBuilder(args);
+
+var sqlPassword = builder.AddParameter("sql-password", secret: true);
+
+var sqlIdentity = builder.AddSqlServer("acc-sql-identity", sqlPassword, port: 1434)
+    .WithContainerName("acc-sql-identity-container")
+    .WithEnvironment("ACCEPT_EULA", "Y")
+    .WithVolume("volume-sql-identity", "/var/opt/mssql")
+    .PublishAsConnectionString();
+
+var redis = builder.AddRedis("acc-redis")
+    .WithContainerName("acc-redis-container");
+
+var webApp = builder.AddProject<Projects.ACC_WebApp>("acc-blazor")
+    .WithReference(sqlIdentity)
+    .WithReference(redis);
+
+builder.Build().Run();
+```
+
+Este fragmento muestra cómo se levantan los contenedores de SQL y Redis y cómo se cablean a la aplicación Blazor para mantener el acoplamiento bajo y la reproducibilidad alta.
+
 ### Motivación del diseño
 La distribución en servicios desacoplados permite evolucionar de forma independiente la experiencia de aprendizaje, la autenticación y la ejecución de código. El uso de Aspire centraliza la observabilidad y simplifica la operación conjunta de los componentes. La combinación de SQL Server y Redis equilibra persistencia consistente y respuesta rápida para interacciones frecuentes.
 
