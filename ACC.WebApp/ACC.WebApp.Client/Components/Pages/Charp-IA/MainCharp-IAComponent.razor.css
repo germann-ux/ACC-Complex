@@ -6,10 +6,15 @@
 /* atmósfera ACC detrás */
 .charp-shell__bg {
     position: absolute;
-    inset: -30%;
+    inset: -3%;
     background: radial-gradient(circle at 20% 25%, rgba(144,19,254,.22), transparent 55%), radial-gradient(circle at 70% 55%, rgba(144,19,254,.14), transparent 60%), radial-gradient(circle at 45% 80%, rgba(144,19,254,.10), transparent 55%);
-    filter: blur(20px); /* antes: 30px */
+    background-size: 120% 120%, 140% 140%, 120% 120%;
+    background-position: 10% 15%, 80% 50%, 45% 90%;
+    filter: blur(22px); /* antes: 30px */
     opacity: .95;
+    animation: charp-bg-blur 18s ease-in-out infinite;
+    will-change: filter, opacity, background-position, transform;
+    transform: translateZ(0);
     pointer-events: none;
     z-index: 0;
 }
@@ -56,4 +61,25 @@
     border: 0;
     display: block;
     background: transparent; /* por si el iframe deja ver el fondo */
+}
+
+@keyframes charp-bg-blur {
+    0% {
+        filter: blur(22px);
+        opacity: .92;
+        background-position: 10% 15%, 80% 50%, 45% 90%;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+        filter: blur(26px);
+        opacity: .98;
+        background-position: 20% 10%, 70% 60%, 35% 80%;
+        transform: translate3d(0, -1%, 0) scale(1.02);
+    }
+    100% {
+        filter: blur(20px);
+        opacity: .94;
+        background-position: 12% 20%, 75% 45%, 55% 85%;
+        transform: translate3d(0, 1%, 0) scale(1.01);
+    }
 }
