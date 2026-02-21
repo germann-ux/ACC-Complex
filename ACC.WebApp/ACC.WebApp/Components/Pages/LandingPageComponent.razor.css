@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     background-color: var(--acc-bg-1);
     color: var(--acc-text);
     line-height: 1.6;
@@ -42,6 +42,7 @@ header {
 }
 
 .logo-text {
+    font-family: var(--font-heading);
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--acc-text);
@@ -85,6 +86,7 @@ header {
 }
 
 .hero-title {
+    font-family: var(--font-heading);
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
@@ -160,6 +162,7 @@ header {
 }
 
 .section-title {
+    font-family: var(--font-heading);
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 2.5rem;
@@ -209,6 +212,7 @@ header {
 }
 
 .feature-title {
+    font-family: var(--font-heading);
     font-size: 1.125rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
@@ -297,6 +301,7 @@ header {
 }
 
 .final-cta-title {
+    font-family: var(--font-heading);
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
@@ -319,6 +324,7 @@ footer {
 }
 
 .footer-logo {
+    font-family: var(--font-heading);
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1.5rem;

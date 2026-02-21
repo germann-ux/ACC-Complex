@@ -6,7 +6,7 @@
     font-size: calc(1.375rem + 1.5vw);
     margin-bottom: 1rem;
     font-weight: bold;
-    font-family: Nunito;
+    font-family: var(--font-heading);
 }
 
 .resumen-header p {
@@ -84,7 +84,7 @@
 }
 
     .tip-popup p {
-        font-family: 'Nunito', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        font-family: var(--font-body);
         color: var(--acc-text);
         font-size: 1rem;
         line-height: 1.5;
@@ -144,13 +144,4 @@
         cursor: not-allowed;
         transform: none;
     }
-
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-}
-
 

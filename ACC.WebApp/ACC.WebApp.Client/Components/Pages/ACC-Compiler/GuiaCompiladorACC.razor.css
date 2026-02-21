@@ -6,14 +6,6 @@
    ====================================================== */
 
 /* Fuente para títulos si no está global */
-@font-face {
-    font-family: 'Graduate';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
-}
-
 /* Contenedor principal */
 #manual-compilador-online {
     max-width: 1200px;
@@ -31,7 +23,7 @@
     #manual-compilador-online .section-title,
     #manual-compilador-online .subsection-title,
     #manual-compilador-online .subsubsection-title {
-        font-family: 'Graduate', system-ui, sans-serif;
+        font-family: var(--font-heading);
         color: var(--acc-brand-600);
         margin-top: 0;
     }
@@ -92,7 +84,7 @@
         padding: 10px;
         border-radius: var(--acc-radius-sm);
         overflow-x: auto;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-family: var(--font-code);
         font-size: .9rem;
         color: var(--biblioteca-text-white);
     }
@@ -103,7 +95,7 @@
         border-left: 4px solid var(--biblioteca-primary-blue);
         border: 1px solid var(--biblioteca-border-color);
         padding: 10px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-family: var(--font-code);
         font-size: .9rem;
         color: var(--biblioteca-text-white);
         overflow-x: auto;
@@ -130,7 +122,7 @@
     /* Subtítulos pequeños */
     #manual-compilador-online h4 {
         color: var(--biblioteca-text-white);
-        font-family: 'Cascadia Code', ui-monospace, monospace;
+        font-family: var(--font-heading);
     }
 
     /* Divisores */
@@ -175,3 +167,5 @@
         background-color: var(--biblioteca-secondary-purple);
         color: #fff;
     }
+
+

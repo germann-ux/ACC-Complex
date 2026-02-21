@@ -5,23 +5,6 @@
    ====================================================== */
 
 /* Fuentes (si no están ya globales) */
-@font-face {
-    font-family: 'Graduate';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
-}
-
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-    font-display: swap;
-}
-
 /* Contenedor principal */
 .compiler-container {
     max-width: 1200px;
@@ -32,7 +15,7 @@
     border-radius: var(--acc-radius);
     box-shadow: var(--acc-shadow);
     color: var(--biblioteca-text-gray);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-body);
 }
 
 /* Título */
@@ -41,14 +24,14 @@
     color: var(--acc-brand-600);
     font-size: 1.7rem;
     font-weight: 800;
-    font-family: Nunito, system-ui, sans-serif;
+    font-family: var(--font-heading);
 }
 
 /* Etiquetas */
 .compiler-label {
     display: block;
     margin: 1rem 0 .5rem;
-    font-family: Nunito, system-ui, sans-serif;
+    font-family: var(--font-body);
     font-weight: 700;
     color: var(--biblioteca-text-white);
 }
@@ -63,7 +46,7 @@
     border-radius: var(--acc-radius-sm);
     padding: .5rem .6rem;
     resize: none;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-family: var(--font-code);
     transition: border-color var(--biblioteca-transition-speed), box-shadow var(--biblioteca-transition-speed);
 }
 
@@ -120,13 +103,13 @@
 .compiler-output-title {
     margin-bottom: 1rem;
     font-size: 1.2rem;
-    font-family: Nunito, system-ui, sans-serif;
+    font-family: var(--font-heading);
     color: var(--biblioteca-text-white);
 }
 
 .compiler-output-box {
     white-space: pre-wrap;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-family: var(--font-code);
     color: var(--biblioteca-text-gray);
 }
 
@@ -181,7 +164,7 @@
     max-width: 260px;
     padding: .55rem .7rem;
     font-size: 1rem;
-    font-family: Nunito, system-ui, sans-serif;
+    font-family: var(--font-body);
     background-color: var(--biblioteca-tertiary-dark);
     color: var(--biblioteca-text-white);
     border: 1px solid var(--biblioteca-border-color);
@@ -233,5 +216,7 @@
 
 /* (Compat) fuerza monoespaciada si hay estilos anteriores en cascada */
 .compiler-textarea {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace !important;
+    font-family: var(--font-code);
 }
+
+

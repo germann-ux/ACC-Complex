@@ -1,75 +1,4 @@
-﻿/*.resumen-chart.card {
-    background: #1a1a2e;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    color: #f0f0f0;
-    max-width: 1140px;
-    border: none;
-}
-
-.resumen-chart h2 {
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 1rem;
-    font-family: Nunito;
-}
-
-#chart-container {
-    position: relative;
-    height: 400px;
-}
-
-.loading-spinner {
-    width: 30px;
-    height: 30px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-radius: 50%;
-    border-top-color: #7209b7;
-    animation: spin 1s ease-in-out infinite;
-    margin: 20px auto;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-}
-*/
-
-/*.resumen-chart.card {
-    background: #1a1a2e;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    color: #f0f0f0;
-    max-width: 1140px;
-    border: none;
-}
-
-.resumen-chart h2 {
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 1rem;
-    font-family: 'Nunito', Arial, sans-serif;
-}
-
-#chart-container {
-    position: relative;
-    height: 400px;
-}
-*/
-.loading-spinner {
+﻿.loading-spinner {
     width: 30px;
     height: 30px;
     border: 3px solid rgba(255,255,255,0.3);
@@ -101,7 +30,7 @@
     font-weight: 700;
     color: #fff;
     margin-bottom: 1rem;
-    font-family: 'Nunito', Arial, sans-serif;
+    font-family: var(--font-heading);
 }
 
 /*#chart-container {
@@ -129,3 +58,5 @@
         height: 100% !important;
         background: transparent !important; /* por si algún canvas global le pone color */
     }
+
+

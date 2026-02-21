@@ -11,15 +11,7 @@
     box-sizing: border-box;
 }
 
-/* Fuente (con swap) */
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-    font-display: swap;
-}
+/* Tipografia centralizada en AccStyles_global.css */
 
 :root {
     --biblioteca-primary-dark: #121218;
@@ -84,8 +76,11 @@
 }
 
 .biblioteca-sidebar-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     color: var(--acc-brand-600);
     /* lila oficial */
 }
@@ -113,8 +108,10 @@
 .biblioteca-filter-title {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--w-semibold);
+    letter-spacing: var(--ls-wide);
+    text-transform: uppercase;
     color: var(--biblioteca-text-gray);
     margin-bottom: 8px;
     cursor: pointer;
@@ -211,10 +208,13 @@
 }
 
 .biblioteca-section-title {
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     color: var(--biblioteca-text-white);
     margin-bottom: 5px;
-    font-family: Nunito, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
 .biblioteca-section-description {
@@ -273,9 +273,10 @@
 }
 
 .biblioteca-doc-type {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
+    font-weight: var(--w-semibold);
     text-transform: uppercase;
-    letter-spacing: .1em;
+    letter-spacing: var(--ls-wide);
     background-color: rgba(255, 255, 255, .2);
     padding: 3px 8px;
     border-radius: 4px;
@@ -284,8 +285,11 @@
 }
 
 .biblioteca-doc-title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     margin-bottom: 5px;
     color: #fff;
     /* FIX: textos largos no deben empujar el ancho */
@@ -432,8 +436,11 @@
 }
 
 .biblioteca-history-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     color: var(--biblioteca-text-white);
 }
 
@@ -477,7 +484,9 @@
 }
 
 .biblioteca-history-item-title {
-    font-weight: 500;
+    font-family: var(--font-heading);
+    font-weight: var(--w-semibold);
+    line-height: var(--lh-snug);
     margin-bottom: 2px;
 }
 
@@ -511,8 +520,11 @@
 }
 
 .biblioteca-empty-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     margin-bottom: 10px;
 }
 

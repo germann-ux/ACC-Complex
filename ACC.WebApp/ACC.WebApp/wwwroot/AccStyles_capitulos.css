@@ -49,27 +49,28 @@
 
 /* H1 */
 .contenido-capitulo h1 {
-    font-size: 2.4rem !important;
-    font-weight: 800;
+    font-size: var(--text-4xl) !important;
+    font-weight: var(--w-extrabold);
     color: var(--cap-accent-strong);
     margin: 0 0 1.5rem 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-    line-height: 1.08;
-    letter-spacing: .01em;
+    font-family: var(--font-heading);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-tight);
     text-align: initial;
     text-shadow: 0 2px 16px color-mix(in srgb, var(--cap-accent-strong) 12%, transparent);
 }
 
 /* H2 (editorial small-caps + plateado, sin borde izquierdo) */
 .contenido-capitulo h2 {
-    font-size: 2rem;
-    font-weight: 750;
+    font-size: var(--text-3xl);
+    font-weight: var(--w-bold);
     color: var(--cap-silver);
     margin: 2.4rem 0 1.2rem 0;
-    font-family: Nunito, 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-heading);
+    line-height: var(--lh-snug);
     font-variant: small-caps;
     font-variant-caps: all-small-caps;
-    letter-spacing: .055em;
+    letter-spacing: var(--ls-tight);
     text-align: initial;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .04), 0 4px 12px rgba(0, 0, 0, .35);
 }
@@ -88,22 +89,23 @@
 
 /* H3 */
 .contenido-capitulo h3 {
-    font-size: 1.18rem;
-    font-weight: 650;
+    font-size: var(--text-xl);
+    font-weight: var(--w-semibold);
     color: color-mix(in srgb, var(--biblioteca-primary-blue) 80%, var(--cap-silver-soft));
     margin: 1.7rem 0 .8rem 0;
-    font-family: Nunito, 'Segoe UI', system-ui, sans-serif;
-    letter-spacing: .01em;
+    font-family: var(--font-heading);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     text-align: initial;
 }
 
 /* Párrafos */
 .contenido-capitulo p {
     color: var(--biblioteca-text-gray);
-    font-size: 1.07rem;
+    font-size: var(--text-md);
     margin: 0 0 1.1rem 0;
-    line-height: 1.85;
-    letter-spacing: .01em;
+    line-height: var(--lh-relaxed);
+    letter-spacing: var(--ls-normal);
 }
 
 /* Separador */
@@ -134,7 +136,7 @@
 
 /* Strong SOLO en texto (no arruinar headers) */
 .contenido-capitulo :where(p, li, blockquote) strong {
-    font-weight: 750;
+    font-weight: var(--w-bold);
     color: color-mix(in srgb, var(--cap-silver) 75%, var(--biblioteca-secondary-purple));
 }
 
@@ -162,7 +164,7 @@
 .contenido-capitulo code {
     background: rgba(0, 0, 0, 0.22);
     color: var(--cap-accent-strong);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-family: var(--font-code);
     padding: .18em .52em;
     border-radius: 6px;
     font-size: 0.98em;
@@ -174,7 +176,7 @@
 .contenido-capitulo pre {
     background: rgba(0, 0, 0, 0.25);
     color: var(--biblioteca-text-white);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-family: var(--font-code);
     padding: 1.2rem;
     border-radius: 12px;
     overflow-x: auto;
@@ -248,13 +250,13 @@
 .contenido-capitulo ol {
     margin: 1.2rem 0 1.2rem 2rem;
     color: var(--biblioteca-text-gray);
-    font-size: 1.07rem;
+    font-size: var(--text-md);
     padding-left: .5rem;
 }
 
 .contenido-capitulo li {
     margin-bottom: .6em;
-    line-height: 1.75;
+    line-height: var(--lh-relaxed);
     position: relative;
     padding-left: .5em;
 }
@@ -265,7 +267,7 @@
 .contenido-capitulo a {
     color: color-mix(in srgb, var(--cap-accent-cyan) 70%, var(--cap-silver));
     text-decoration: underline;
-    font-weight: 650;
+    font-weight: var(--w-semibold);
     transition: color var(--biblioteca-transition-speed), text-shadow var(--biblioteca-transition-speed);
 }
 
@@ -363,9 +365,9 @@
     padding: .7rem 1.2rem;
     border-radius: 10px;
     cursor: pointer;
-    font-family: Nunito, system-ui, sans-serif;
-    font-size: 1rem;
-    font-weight: 800;
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--w-extrabold);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
     transition: transform .15s ease, box-shadow .3s ease, filter .3s ease;
 }
@@ -396,8 +398,8 @@
 
 /* Modo lectura: tipografía más grande */
 .modo-lectura-activa p {
-    font-size: 1.2rem;
-    line-height: 1.95;
+    font-size: var(--text-lg);
+    line-height: var(--lh-relaxed);
     color: var(--cap-silver);
     text-wrap: pretty;
     hyphens: auto;
@@ -526,12 +528,12 @@
 
     .modo-lectura-activa p {
         font-size: 1.05rem;
-        line-height: 1.8;
+        line-height: var(--lh-relaxed);
     }
 
     .modo-lectura-activa li {
         font-size: 1.02rem;
-        line-height: 1.8;
+        line-height: var(--lh-relaxed);
     }
 
     .modo-lectura-activa pre {

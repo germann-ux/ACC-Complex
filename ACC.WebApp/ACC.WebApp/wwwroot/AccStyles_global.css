@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+
 /* ======================================================
    ACC — REFAC CSS a tema unificado (DESACOPLADO DE BIBLIOTECA)
    - Todo lo que era --biblioteca-* ahora es --acc-*
@@ -66,6 +68,35 @@
     /* antes icono resumen */
     /* Superficie de error boundary (se conserva visualmente) */
     --acc-danger-surface: color-mix(in srgb, #b32121 85%, black);
+
+    /* Tipografia oficial ACC */
+    --font-body: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    --font-heading: "Sora", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-md: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+
+    --w-regular: 400;
+    --w-medium: 500;
+    --w-semibold: 600;
+    --w-bold: 700;
+    --w-extrabold: 800;
+
+    --lh-tight: 1.12;
+    --lh-snug: 1.25;
+    --lh-normal: 1.5;
+    --lh-relaxed: 1.72;
+
+    --ls-tight: -0.01em;
+    --ls-normal: 0;
+    --ls-wide: 0.03em;
 }
 
 label {
@@ -73,7 +104,11 @@ label {
 }
 
 h3 {
-    font-family: 'Cascadia Code', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     color: color-mix(in srgb, var(--acc-brand-600) 65%, white);
     margin: .8rem 0 .5rem;
 }
@@ -185,7 +220,7 @@ a:hover,
    Subtemas (superficies unificadas)
    ----------------------------- */
 .subtema-container {
-    font-family: Arial, sans-serif;
+    font-family: var(--font-body);
     max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
@@ -199,9 +234,12 @@ a:hover,
 .subtema-container h3 {
     text-align: center;
     color: var(--acc-text);
-    font-size: 1.8rem;
+    font-size: var(--text-2xl);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
     margin-bottom: 20px;
-    font-family: 'Graduate', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    font-family: var(--font-heading);
 }
 
 .loading,
@@ -292,25 +330,6 @@ a:hover,
 /* -------------------------------------------------------
    ACC THEME — Única fuente de verdad (tokens + base)
    ---------------------------------------------------- */
-/* Fuentes */
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Graduate';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(https://fonts.gstatic.com/s/graduate/v17/C8cg4cs3o2n15t_2YygW43w.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 /* Reset suave & tipografía */
 *,
 *::before,
@@ -330,9 +349,124 @@ body {
     background-color: var(--acc-bg-0);
     color: var(--acc-text);
     margin: 0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--lh-normal);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+}
+
+code,
+kbd,
+samp {
+    font-family: var(--font-code);
+}
+
+pre {
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+    line-height: 1.55;
+}
+
+/* Roles tipograficos oficiales */
+.ty-page-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    font-weight: var(--w-extrabold);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-tight);
+}
+
+.ty-section-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
+}
+
+.ty-card-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--w-bold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
+}
+
+.ty-body {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--w-regular);
+    line-height: var(--lh-normal);
+}
+
+.ty-paragraph {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--w-regular);
+    line-height: var(--lh-relaxed);
+}
+
+.ty-muted {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--w-regular);
+    line-height: var(--lh-normal);
+}
+
+.ty-label {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: var(--w-semibold);
+    letter-spacing: var(--ls-wide);
+    text-transform: uppercase;
+}
+
+.ty-code-inline {
+    font-family: var(--font-code);
+    font-size: 0.95em;
+    padding: .15rem .35rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--acc-bg-3) 85%, black);
+    border: 1px solid color-mix(in srgb, var(--acc-border) 70%, transparent);
+}
+
+.ty-code-block {
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    padding: 14px;
+    overflow-x: auto;
+    border-radius: var(--acc-radius-sm);
+}
+
+.ty-terminal {
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+    line-height: 1.55;
+}
+
+.ty-charp-title {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--w-extrabold);
+    letter-spacing: -0.005em;
+    line-height: var(--lh-snug);
+}
+
+.ty-charp-body {
+    font-family: var(--font-body);
+    line-height: var(--lh-relaxed);
+    color: var(--acc-text-muted);
 }
 
 a {

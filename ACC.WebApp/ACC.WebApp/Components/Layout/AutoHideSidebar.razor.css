@@ -1,11 +1,4 @@
-﻿@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-}
-.container {
+﻿.container {
     position: fixed;
     margin-top: 5rem;
     left: 0;
@@ -30,7 +23,7 @@
 }
 
 .menu-span {
-    font-family: Nunito;
+    font-family: var(--font-body);
     color: white;
     visibility: hidden;
 }
@@ -84,7 +77,7 @@ button {
     }
 
     .menu-span {
-        font-family: Nunito;
+        font-family: var(--font-body);
         color: white;
         visibility: visible;
         font-size: 0.8rem;
@@ -134,3 +127,4 @@ button {
         scroll-padding-bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom));
     }
 }
+

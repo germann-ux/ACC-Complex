@@ -5,15 +5,7 @@
    - Acentos: --acc-brand-600 (lila #9926fe) y azules de apoyo
    ====================================================== */
 
-/* Tipografía Nunito (si no está ya en global) */
-@font-face {
-    font-family: 'Nunito';
-    font-style: normal;
-    font-weight: 500;
-    src: url(https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTQ3jw.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0100-02BA;
-    font-display: swap;
-}
+/* Tipografia centralizada en AccStyles_global.css */
 
 /* ---------------------------------------
    Base (global ya lo define; aquí overrides necesarios)
@@ -29,7 +21,11 @@
 ---------------------------------------- */
 
 h3 {
-    font-size: 1.75rem;
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: var(--w-extrabold);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-tight);
 }
 
 a {

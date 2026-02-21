@@ -3,7 +3,9 @@
    ----------------------------- */
 
 .leccion-container {
-    font-family: 'Nunito', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--lh-normal);
     max-width: 1200px;
     background-color: var(--acc-surface-2);
     border-radius: var(--acc-radius-sm);
@@ -35,17 +37,19 @@
 /* Títulos y texto */
     .leccion-container h3 {
         color: var(--acc-brand-600);
-        font-weight: 800;
+        font-family: var(--font-heading);
+        font-size: var(--text-xl);
+        font-weight: var(--w-bold);
+        line-height: var(--lh-snug);
         margin: 0 0 10px;
-        letter-spacing: .2px;
-        font-family: 'Nunito';
+        letter-spacing: var(--ls-tight);
     }
 
 .leccion-container p {
     color: var(--acc-text-muted);
-    font-size: 1rem;
+    font-size: var(--text-md);
     margin: 0 0 12px;
-    line-height: 1.65;
+    line-height: var(--lh-relaxed);
 }
 
 .leccion-container .leccion-teoria p:last-child,
@@ -63,7 +67,8 @@
 
 .leccion-container li {
     margin-bottom: 8px;
-    font-size: 1rem;
+    font-size: var(--text-md);
+    line-height: var(--lh-normal);
     color: var(--acc-text);
 }
 
@@ -107,6 +112,7 @@
 /* --- CÓDIGO: FIX INLINE vs BLOQUE --- */
 /* Inline code */
 .leccion-container code {
+    font-family: var(--font-code);
     display: inline;
     padding: .15rem .35rem;
     border-radius: 6px;
@@ -118,11 +124,13 @@
 
 /* Code block */
 .leccion-container pre {
+    font-family: var(--font-code);
     background-color: var(--acc-bg-3);
     color: var(--acc-text);
     border-radius: var(--acc-radius-sm);
     padding: 14px;
-    font-size: 0.95rem;
+    font-size: var(--text-sm);
+    line-height: 1.55;
     display: block;
     overflow-x: auto;
     margin: 12px 0;
@@ -146,7 +154,8 @@
     border: none;
     border-radius: var(--acc-radius-sm);
     cursor: pointer;
-    font-size: 1rem;
+    font-size: var(--text-md);
+    font-weight: var(--w-medium);
     transition: var(--acc-transition);
     box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
 }
@@ -197,7 +206,7 @@
 
 /* Título opcional para alertas (nuevo) */
 .leccion-container .alert-title {
-    font-weight: 900;
+    font-weight: var(--w-extrabold);
     margin: 0 0 6px;
     color: var(--acc-text);
 }
@@ -231,8 +240,8 @@
     border-left: 3px solid color-mix(in srgb, var(--acc-border) 90%, black);
     border-radius: var(--acc-radius);
     margin: 18px 0;
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: var(--text-md);
+    line-height: var(--lh-relaxed);
     box-shadow: var(--acc-shadow);
     border: 1px solid color-mix(in srgb, var(--acc-border) 70%, transparent);
 }
