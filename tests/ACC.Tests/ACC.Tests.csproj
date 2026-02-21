@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\ACC.API\ACC.API.csproj" />
     <ProjectReference Include="..\..\src\ACC.Shared\ACC.Shared.csproj" />
     <ProjectReference Include="..\..\src\ACC.Data\ACC.Data.csproj" />
+    <ProjectReference Include="..\..\ACC.WebApp\ACC.WebApp.Client\ACC.WebApp.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

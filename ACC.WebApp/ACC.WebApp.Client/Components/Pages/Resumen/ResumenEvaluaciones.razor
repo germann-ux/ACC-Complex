@@ -1,0 +1,142 @@
+@rendermode InteractiveServer
+
+<div class="resumen-evaluaciones card">
+    <h2>Evaluaciones</h2>
+
+    @if (!string.IsNullOrWhiteSpace(WarningMessage))
+    {
+        <p class="warning-state">@WarningMessage</p>
+    }
+
+    @if (IsLoading)
+    {
+        <p>Cargando evaluaciones...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage) && Evaluaciones.Count == 0)
+    {
+        <p class="error-state">@ErrorMessage</p>
+    }
+    else if (Evaluaciones.Count == 0)
+    {
+        <p class="empty-state">Aun no hay evaluaciones registradas para mostrar.</p>
+    }
+    else
+    {
+        <div class="metrics-grid">
+            <article class="metric-card">
+                <p class="metric-label">Ultima calificacion</p>
+                <p class="metric-value">@NotaTexto(Metricas.UltimaCalificacion)</p>
+                <p class="metric-meta">@FechaTexto(Metricas.FechaUltimaCalificacion)</p>
+            </article>
+
+            <article class="metric-card">
+                <p class="metric-label">Mejor calificacion</p>
+                <p class="metric-value">@NotaTexto(Metricas.MejorCalificacion)</p>
+                <p class="metric-meta">Mejor rendimiento</p>
+            </article>
+
+            <article class="metric-card">
+                <p class="metric-label">Peor calificacion</p>
+                <p class="metric-value">@NotaTexto(Metricas.PeorCalificacion)</p>
+                <p class="metric-meta">Punto de mejora</p>
+            </article>
+
+            <article class="metric-card">
+                <p class="metric-label">Promedio</p>
+                <p class="metric-value">@NotaTexto(Metricas.PromedioCalificacion)</p>
+                <p class="metric-meta">@Metricas.TotalEvaluacionesCalificadas evaluaciones con nota</p>
+            </article>
+        </div>
+
+        <div class="estado-resumen">
+            <span class="estado-chip estado-pendiente">Pendientes: @Conteo(EstadoEvaluacionResumen.Pendiente)</span>
+            <span class="estado-chip estado-no-aprobado">No aprobado: @Conteo(EstadoEvaluacionResumen.NoAprobado)</span>
+            <span class="estado-chip estado-bloqueado">Bloqueados: @Conteo(EstadoEvaluacionResumen.Bloqueado)</span>
+            <span class="estado-chip estado-completado">Completados: @Conteo(EstadoEvaluacionResumen.Completado)</span>
+        </div>
+
+        <div class="estado-grid">
+            @foreach (var bloque in bloquesEstado)
+            {
+                var lista = ObtenerPorEstado(bloque.Estado);
+                <section class="estado-panel @bloque.Clase">
+                    <h3>@bloque.Titulo (@lista.Count)</h3>
+
+                    @if (lista.Count == 0)
+                    {
+                        <p class="empty-state">@bloque.EmptyText</p>
+                    }
+                    else
+                    {
+                        <div class="eval-list">
+                            @foreach (var item in lista)
+                            {
+                                <article class="eval-item">
+                                    <div>
+                                        <p class="eval-title">@item.Nombre</p>
+                                        @if (!string.IsNullOrWhiteSpace(item.Descripcion))
+                                        {
+                                            <p class="eval-desc">@item.Descripcion</p>
+                                        }
+                                    </div>
+                                    <div class="eval-meta">
+                                        @if (item.UltimaCalificacion.HasValue)
+                                        {
+                                            <span class="meta-badge">Nota: @NotaTexto(item.UltimaCalificacion)</span>
+                                        }
+                                        <span class="meta-badge">Intentos: @item.IntentosUsados/@ResumenEvaluacionesReglas.MaxIntentosPorExamen</span>
+                                        @if (item.IntentosIgnorados > 0)
+                                        {
+                                            <span class="meta-badge">Intentos extra ignorados: @item.IntentosIgnorados</span>
+                                        }
+                                        @if (item.Estado == EstadoEvaluacionResumen.NoAprobado && item.IntentosDisponibles == 0)
+                                        {
+                                            <span class="meta-badge badge-alert">Limite de 3 intentos alcanzado (no aprobado)</span>
+                                        }
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string? WarningMessage { get; set; }
+    [Parameter] public IReadOnlyList<EvaluacionResumenItem> Evaluaciones { get; set; } = [];
+    [Parameter] public ResumenEvaluacionesMetricasResultado Metricas { get; set; } =
+        ResumenEvaluacionesMetricas.Calcular(Array.Empty<NotaVigenteEvaluacionResumen>());
+
+    private static readonly (EstadoEvaluacionResumen Estado, string Titulo, string Clase, string EmptyText)[] bloquesEstado =
+    [
+        (EstadoEvaluacionResumen.Pendiente, "Pendientes", "panel-pendiente", "No hay evaluaciones pendientes."),
+        (EstadoEvaluacionResumen.NoAprobado, "No aprobado", "panel-no-aprobado", "No hay evaluaciones no aprobadas."),
+        (EstadoEvaluacionResumen.Bloqueado, "Bloqueados", "panel-bloqueado", "No hay evaluaciones bloqueadas."),
+        (EstadoEvaluacionResumen.Completado, "Completados", "panel-completado", "No hay evaluaciones completadas.")
+    ];
+
+    private List<EvaluacionResumenItem> ObtenerPorEstado(EstadoEvaluacionResumen estado)
+        => Evaluaciones
+            .Where(x => x.Estado == estado)
+            .OrderBy(x => x.Key.Tipo)
+            .ThenBy(x => x.Key.RefId)
+            .ToList();
+
+    private int Conteo(EstadoEvaluacionResumen estado)
+        => Evaluaciones.Count(x => x.Estado == estado);
+
+    private static string NotaTexto(double? nota)
+        => nota.HasValue
+            ? nota.Value.ToString("0.##")
+            : "--";
+
+    private static string FechaTexto(DateTimeOffset? fecha)
+        => fecha.HasValue
+            ? $"Fecha: {fecha.Value.ToLocalTime():dd MMM yyyy}"
+            : "Sin fecha";
+}

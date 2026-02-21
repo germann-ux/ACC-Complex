@@ -4,13 +4,15 @@
 @using ACC.Shared.DTOs
 @using ACC.Shared.Core
 @using ACC.WebApp.Client.Components.Pages.Guia.Components
+@using ACC.WebApp.Client.Services
 @using System.Security.Claims
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject HttpClient cliente
 @inject NavigationManager navegador
-@inject IJSRuntime JSRuntime
+@inject ExamenesServiceClient ExamenesService
+@inject ProgresoUsuarioClient ProgresoService
 
 <div class="content resumen">
     @if (!string.IsNullOrEmpty(errorMessageUsuario))
@@ -40,7 +42,12 @@
             <ResumenProgreso 
                 ProgresoGeneral="usuario.ProgresoGeneral" />
             
-                <ResumenChart />
+            <ResumenEvaluaciones
+                IsLoading="isLoadingEvaluaciones"
+                ErrorMessage="@errorMessageEvaluaciones"
+                WarningMessage="@warningMessageEvaluaciones"
+                Evaluaciones="evaluacionesResumen"
+                Metricas="metricasEvaluaciones" />
             
             <ResumenTareas 
                 TareasPendientes="tareasPendientes" TareasAsignadas="tareasAsignadas"
@@ -58,16 +65,22 @@
     private List<TareaAlumnoListadoDto> tareasAsignadas = new();
     private TareasPendientesResumenDto? tareasPendientes;
     private ApplicationUserDto usuario = new();
+    private List<EvaluacionResumenItem> evaluacionesResumen = new();
+    private ResumenEvaluacionesMetricasResultado metricasEvaluaciones =
+        ResumenEvaluacionesMetricas.Calcular(Array.Empty<NotaVigenteEvaluacionResumen>());
 
     // Estado de carga
     private bool isLoadingUsuario = true;
     private bool isLoadingTareas = true;
     private bool isLoadingTip = true;
+    private bool isLoadingEvaluaciones = true;
 
     // Errores
     private string? errorMessageUsuario;
     private string? errorMessageTareas;
     private string? errorMessageTip;
+    private string? errorMessageEvaluaciones;
+    private string? warningMessageEvaluaciones;
     private bool isAuthError;
 
     // Tip (bombilla)
@@ -121,8 +134,9 @@
 
         var tareasTask = CargarTareasAsync(cts.Token);
         var usuarioTask = CargarUsuarioAsync(cts.Token);
+        var evaluacionesTask = CargarEvaluacionesAsync(cts.Token);
 
-        await Task.WhenAll(tareasTask, usuarioTask);
+        await Task.WhenAll(tareasTask, usuarioTask, evaluacionesTask);
     }
 
     private async Task CargarTareasAsync(CancellationToken token)
@@ -164,6 +178,158 @@
         finally
         {
             isLoadingTareas = false;
+        }
+    }
+
+    private async Task CargarEvaluacionesAsync(CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            errorMessageEvaluaciones = "No se pudo cargar evaluaciones: usuario inválido.";
+            isLoadingEvaluaciones = false;
+            return;
+        }
+
+        try
+        {
+            errorMessageEvaluaciones = null;
+            warningMessageEvaluaciones = null;
+            token.ThrowIfCancellationRequested();
+
+            var examenesSubTask = TryLoadConToleranciaAsync(
+                () => ExamenesService.ObtenerExamanesSubMAsync(),
+                new List<ExamenSubModuloDto>(),
+                "No se pudo obtener la lista de exámenes por submódulo.");
+            var examenesModTask = TryLoadConToleranciaAsync(
+                () => ExamenesService.ObtenerExamenesModAsync(),
+                new List<ExamenModuloDto>(),
+                "No se pudo obtener la lista de exámenes por módulo.");
+            var intentosTask = TryLoadConToleranciaAsync(
+                () => ExamenesService.ObtenerIntentosPorUsuarioAsync(userId),
+                new List<ExamenIntentoDto>(),
+                "No se pudo obtener el historial de intentos.");
+
+            await Task.WhenAll(examenesSubTask, examenesModTask, intentosTask);
+            token.ThrowIfCancellationRequested();
+
+            var examenesSub = examenesSubTask.Result;
+            var examenesMod = examenesModTask.Result;
+            var intentos = intentosTask.Result;
+
+            var clavesCatalogo = ResumenEvaluacionesModelo.ObtenerClavesCatalogo(examenesSub, examenesMod);
+            var habilitaciones = await ObtenerHabilitacionesPorEvaluacionAsync(userId, clavesCatalogo, token);
+
+            evaluacionesResumen = ResumenEvaluacionesModelo
+                .Construir(examenesSub, examenesMod, intentos, habilitaciones)
+                .ToList();
+
+            metricasEvaluaciones = CalcularMetricasDesdeItems(evaluacionesResumen);
+        }
+        catch (OperationCanceledException)
+        {
+            // Cancelación normal al salir de la vista.
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            MostrarErrorAuth();
+        }
+        catch (Exception ex)
+        {
+            errorMessageEvaluaciones = $"Error al cargar evaluaciones: {ex.Message}";
+            evaluacionesResumen = [];
+            metricasEvaluaciones = ResumenEvaluacionesMetricas.Calcular(Array.Empty<NotaVigenteEvaluacionResumen>());
+        }
+        finally
+        {
+            isLoadingEvaluaciones = false;
+        }
+
+        async Task<T> TryLoadConToleranciaAsync<T>(Func<Task<T>> carga, T fallback, string warning)
+        {
+            token.ThrowIfCancellationRequested();
+            try
+            {
+                var result = await carga();
+                return result is null ? fallback : result;
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw;
+            }
+            catch
+            {
+                AgregarWarningEvaluaciones(warning);
+                return fallback;
+            }
+        }
+    }
+
+    private async Task<Dictionary<EvaluacionResumenKey, bool>> ObtenerHabilitacionesPorEvaluacionAsync(
+        string usuarioId,
+        IReadOnlyList<EvaluacionResumenKey> clavesCatalogo,
+        CancellationToken token)
+    {
+        if (clavesCatalogo.Count == 0)
+            return new Dictionary<EvaluacionResumenKey, bool>();
+
+        var tareas = clavesCatalogo.Select(async clave =>
+        {
+            token.ThrowIfCancellationRequested();
+            try
+            {
+                var habilitado = await ProgresoService.ExamenHabilitadoAsync(usuarioId, clave.Tipo, clave.RefId);
+                return (Clave: clave, Habilitado: habilitado, Fallo: false);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw;
+            }
+            catch
+            {
+                // Para evitar falsos "bloqueados" cuando falla la verificación.
+                return (Clave: clave, Habilitado: true, Fallo: true);
+            }
+        });
+
+        var resultados = await Task.WhenAll(tareas);
+        if (resultados.Any(r => r.Fallo))
+        {
+            AgregarWarningEvaluaciones("No se pudo verificar el desbloqueo de algunas evaluaciones. Se mostraron con estado estimado.");
+        }
+
+        return resultados.ToDictionary(x => x.Clave, x => x.Habilitado);
+    }
+
+    private static ResumenEvaluacionesMetricasResultado CalcularMetricasDesdeItems(
+        IEnumerable<EvaluacionResumenItem> items)
+    {
+        var notas = items
+            .Where(i => i.UltimaCalificacion.HasValue && i.FechaUltimoIntento.HasValue)
+            .Select(i => new NotaVigenteEvaluacionResumen(
+                Tipo: i.Key.Tipo,
+                ExamenId: i.ExamenId,
+                NumeroIntento: i.IntentosUsados,
+                Calificacion: i.UltimaCalificacion!.Value,
+                FechaIntento: i.FechaUltimoIntento!.Value))
+            .ToList();
+
+        return ResumenEvaluacionesMetricas.Calcular(notas);
+    }
+
+    private void AgregarWarningEvaluaciones(string warning)
+    {
+        if (string.IsNullOrWhiteSpace(warning))
+            return;
+
+        if (string.IsNullOrWhiteSpace(warningMessageEvaluaciones))
+        {
+            warningMessageEvaluaciones = warning;
+            return;
+        }
+
+        if (!warningMessageEvaluaciones.Contains(warning, StringComparison.Ordinal))
+        {
+            warningMessageEvaluaciones = $"{warningMessageEvaluaciones} {warning}";
         }
     }
 
@@ -271,9 +437,12 @@
         errorMessageUsuario = "Usuario no autenticado.";
         errorMessageTareas = "Usuario no autenticado.";
         errorMessageTip = "Usuario no autenticado.";
+        errorMessageEvaluaciones = "Usuario no autenticado.";
+        warningMessageEvaluaciones = null;
         isLoadingUsuario = false;
         isLoadingTareas = false;
         isLoadingTip = false;
+        isLoadingEvaluaciones = false;
     }
 
     public void Dispose()

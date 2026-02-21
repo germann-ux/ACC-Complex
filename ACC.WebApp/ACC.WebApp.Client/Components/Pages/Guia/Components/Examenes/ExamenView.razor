@@ -1,47 +1,98 @@
-﻿@*@page "/{slug}/{refId}"
-
-    @rendermode InteractiveServer
-    @using ACC.WebApp.Client.Services
-    @using ACC.Shared.DTOs
-    @inject ExamenesServiceClient ExamenesService
-
-    @code
-    {
-        [Parameter] public ExamenSubModuloDto examen { get; set; }
-    }
-
-    @if (examen == null)
-    {
-        <p>Cargando examen...</p>
-
-    }
-    else
-    {
-        <ExamenRender Examen="@examen" />
-    }*@
-
 @page "/examen/{slug}/{refId:int}"
 @rendermode InteractiveServer
 @using ACC.WebApp.Client.Services
-@using ACC.Shared.DTOs
 @inject ExamenesServiceClient ExamenesService
 
 @code {
-    [Parameter] public string? Slug { get; set; }   // p.ej. "submodulo-1-2"
-    [Parameter] public int RefId { get; set; }      // Id del ExamenSubModulo
-    private ExamenSubModuloDto? Examen;
+    [Parameter] public string? Slug { get; set; }  // ExamenSubModulo | ExamenModulo
+    [Parameter] public int RefId { get; set; }     // SubModuloId | ModuloId
+
+    private string? titulo;
+    private string? descripcion;
+    private string? contenidoHtml;
+    private string? error;
+    private bool isLoading;
 
     protected override async Task OnParametersSetAsync()
     {
-        // Carga por ID. Cambia por el método real de tu client:
-        Examen = await ExamenesService.ObtenerExamenSubMAsync(RefId);
+        isLoading = true;
+        error = null;
+        titulo = null;
+        descripcion = null;
+        contenidoHtml = null;
+
+        if (RefId <= 0)
+        {
+            error = "Identificador de examen inválido.";
+            isLoading = false;
+            return;
+        }
+
+        try
+        {
+            var slugNorm = (Slug ?? string.Empty).Trim().ToLowerInvariant();
+            switch (slugNorm)
+            {
+                case "examensubmodulo":
+                case "submodulo":
+                    var examenSub = await ExamenesService.ObtenerExamenSubMPorSubModuloIdAsync(RefId);
+                    if (examenSub is null)
+                    {
+                        error = "No se encontró el examen de submódulo solicitado.";
+                        return;
+                    }
+
+                    titulo = examenSub.Nombre;
+                    descripcion = examenSub.Descripcion;
+                    contenidoHtml = examenSub.ContenidoHtml;
+                    break;
+
+                case "examenmodulo":
+                case "modulo":
+                    var examenMod = await ExamenesService.ObtenerExamenModPorModuloIdAsync(RefId);
+                    if (examenMod is null)
+                    {
+                        error = "No se encontró el examen de módulo solicitado.";
+                        return;
+                    }
+
+                    titulo = examenMod.Nombre;
+                    descripcion = examenMod.Descripcion;
+                    contenidoHtml = examenMod.ContenidoHtml;
+                    break;
+
+                default:
+                    error = $"Tipo de examen no soportado: '{Slug}'.";
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            error = $"No se pudo cargar el examen: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }
-@if (Examen is null)
+
+@if (isLoading)
 {
     <p>Cargando examen...</p>
 }
+else if (!string.IsNullOrWhiteSpace(error))
+{
+    <p class="error">@error</p>
+}
 else
 {
-    <ExamenRender Examen="@Examen" />
+    <section>
+        <h3>@titulo</h3>
+        @if (!string.IsNullOrWhiteSpace(descripcion))
+        {
+            <p>@descripcion</p>
+        }
+        <ExamenRender ContenidoHtml="@(contenidoHtml ?? string.Empty)" />
+    </section>
 }

@@ -26,9 +26,18 @@ namespace ACC.WebApp.Client.Services
 
         public async Task<List<ExamenIntentoDto>> ObtenerIntentosPorUsuarioAsync(string userId)
         {
-            return await _http.GetFromJsonAsync<List<ExamenIntentoDto>>(
-                $"{_baseUrlModExams}ExamIntento/usuario/{userId}", Options._jsonOptions
-                ) ?? [];
+            try
+            {
+                return await _http.GetFromJsonAsync<List<ExamenIntentoDto>>(
+                    $"{_baseUrlModExams}ExamIntento/usuario/{userId}", Options._jsonOptions
+                    ) ?? [];
+            }
+            catch (HttpRequestException ex)
+                when (ex.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
+            {
+                // Sin intentos previos: para el resumen esto no es error.
+                return [];
+            }
         }
 
         public async Task<ExamenIntentoDto?> ObtenerUltimoIntentoPorUsuarioYExamenAsync(string userId, int examenId)
@@ -61,6 +70,24 @@ namespace ACC.WebApp.Client.Services
             return await _http.GetFromJsonAsync<List<ExamenModuloDto>>(
                 $"{_baseUrlModExams}ExamenesMod/todos", Options._jsonOptions
                 ) ?? [];
+        }
+
+        public async Task<ExamenSubModuloDto?> ObtenerExamenSubMPorSubModuloIdAsync(int subModuloId)
+        {
+            if (subModuloId <= 0)
+                return null;
+
+            var examenes = await ObtenerExamanesSubMAsync();
+            return examenes.FirstOrDefault(e => e.SubModuloId == subModuloId);
+        }
+
+        public async Task<ExamenModuloDto?> ObtenerExamenModPorModuloIdAsync(int moduloId)
+        {
+            if (moduloId <= 0)
+                return null;
+
+            var examenes = await ObtenerExamenesModAsync();
+            return examenes.FirstOrDefault(e => e.ModuloId == moduloId);
         }
     }
 }

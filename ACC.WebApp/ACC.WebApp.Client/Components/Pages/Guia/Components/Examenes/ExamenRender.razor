@@ -1,14 +1,10 @@
-﻿@rendermode InteractiveServer
-@using ACC.WebApp.Client.Services
-@using ACC.Shared.DTOs
+@rendermode InteractiveServer
 
 @code
 {
-    [Parameter] public ExamenSubModuloDto Examen { get; set; } = default!;
-    // en un futuro la tarjeta de resultados, example: <ExamenResultados Examen="@examen" />
-    // en un futuro mas componentes distintos como en LeccionCompleta
+    [Parameter] public string ContenidoHtml { get; set; } = string.Empty;
 }
 
 <div class="examen-container">
-    @((MarkupString)Examen.ContenidoHtml)
+    @((MarkupString)ContenidoHtml)
 </div>
