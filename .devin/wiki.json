@@ -1,7 +1,13 @@
-{
+﻿{
   "repo_notes": [
     {
-      "content": "This repository documents the technical structure and internal operation of ACC-Complex, the distributed architecture behind Aprendiendo C# con Charp. It centralizes backend APIs, authentication, compiler services, shared libraries, and the Blazor Web client."
+      "content": "ACC-Complex es la solucion distribuida (.NET 8) para la plataforma educativa Aprendiendo C# con Charp. Combina autenticacion, contenido academico, compilacion en linea, clientes Blazor/MAUI y librerias compartidas."
+    },
+    {
+      "content": "Entradas principales: `ACC.sln`, `src/ACC.AppHost/Program.cs` (orquestacion Aspire), `ACC.WebApp/ACC.WebApp/Program.cs` (auth + host Blazor), `src/ACC.API/Program.cs` (API academica), `src/API_CompilerACC/Program.cs` (compiler), `ACC.ServiceDefaults/Extensions.cs` (telemetria/resiliencia)."
+    },
+    {
+      "content": "Documentos de contexto en `Docs/`: `concepto.md`, `pedagogia.md`, `arquitectura.md`, `guia.md`, `lecciones-dinamicas.md`, `navegacion-guia.md`, `examenes.md`, `planeacion-desarrollo.md`."
     }
   ],
   "pages": [
@@ -10,7 +16,13 @@
       "purpose": "Introduce the ACC educational platform as a distributed .NET ecosystem designed to teach C# using modular content, interactive exercises, dynamic lesson rendering, and an integrated compiler. Summarize the goals, target users, and the multi-project architecture that forms ACC-Complex.",
       "page_notes": [
         {
-          "content": ""
+          "content": "Plataforma educativa para aprender C# con lecciones modulares, practica guiada, evaluaciones y un asistente IA (Charp)."
+        },
+        {
+          "content": "El flujo didactico usa la Taxonomia de Bloom y lecciones dinamicas con secciones ordenadas por datos."
+        },
+        {
+          "content": "El sistema incluye compilador en linea, seguimiento de progreso y aulas virtuales en expansion."
         }
       ]
     },
@@ -19,7 +31,31 @@
       "purpose": "Explain the full architecture of ACC-Complex, including all 11 projects: ACC.API, ACC.WebApp, ACC.WebApp.Client, ACC.MultiPlataform, API_CompilerACC, ACC.Data, ACC.Shared, ACC.ExternalClients, ACC.ServiceDefaults, ACC.AppHost, and ACC.Tests. Describe how authentication, content management, compilation, resilience, and telemetry interact across services.",
       "page_notes": [
         {
-          "content": ""
+          "content": "Servicios: `ACC.WebApp` (autenticacion/Identity + host Blazor), `ACC.API` (dominio academico), `API_CompilerACC` (compilacion segura), clientes `ACC.WebApp.Client` (WASM) y `ACC.MultiPlataform` (MAUI)."
+        },
+        {
+          "content": "Capas compartidas: `ACC.Data` (entidades/DbContext), `ACC.Shared` (DTOs, enums, interfaces, ServiceRoots), `ACC.ExternalClients` (integraciones externas)."
+        },
+        {
+          "content": "Observabilidad/resiliencia: `ACC.ServiceDefaults` agrega OpenTelemetry, health checks y service discovery."
+        },
+        {
+          "content": "Orquestacion: `src/ACC.AppHost/Program.cs` coordina contenedores SQL/Redis y el arranque de servicios."
+        }
+      ]
+    },
+    {
+      "title": "Data Layer & Persistence",
+      "purpose": "Describe the academic and identity data stores, DbContexts, and persistence boundaries between ACC.WebApp and ACC.API.",
+      "page_notes": [
+        {
+          "content": "`src/ACC.Data/ACCDbContext.cs` es la base academica (schema `acc_academic`) con entidades de contenido, progreso, aulas, tareas y examenes."
+        },
+        {
+          "content": "Identity se separa en `ACC.WebApp/Data/ApplicationDbContext.cs` con schema `acc_identity`."
+        },
+        {
+          "content": "El modelo define indices y relaciones (por ejemplo, desbloqueos de examenes y progreso por subtema) para consultas rapidas y consistencia."
         }
       ]
     },
@@ -28,7 +64,16 @@
       "purpose": "Document the infrastructure required to run ACC, including Aspire-based orchestration, Dockerized services (SQL Server, Redis), environment variables, service discovery, OpenTelemetry instrumentation, health checks, and configuration defaults provided by ACC.ServiceDefaults.",
       "page_notes": [
         {
-          "content": ""
+          "content": "`src/ACC.AppHost/Program.cs` crea SQL Server en puertos 1434/1435, Redis y bases `ACC_Identity`/`ACC_Academic` con scripts de creacion."
+        },
+        {
+          "content": "`ACC.WebApp/Program.cs` y `src/ACC.API/Program.cs` usan `DefaultConnection` en desarrollo y habilitan reintentos SQL; ver tambien CORS y compresion."
+        },
+        {
+          "content": "`ACC.ServiceDefaults/Extensions.cs` habilita OpenTelemetry, health checks (`/health`, `/alive`) y resiliencia de HttpClient."
+        },
+        {
+          "content": "Guia de arranque rapido en `Docs/guia.md` (restore, migraciones, `dotnet run --project src/ACC.AppHost`)."
         }
       ]
     },
@@ -37,7 +82,54 @@
       "purpose": "Explain the structure of ACC.WebApp.Client (Blazor WebAssembly) and ACC.MultiPlataform (MAUI Blazor). Detail routing, authentication flow against ACC.WebApp, how the client consumes ACC.API via DTOs from ACC.Shared, and how lesson rendering is handled using the dynamic JSON-based section ordering system.",
       "page_notes": [
         {
-          "content": ""
+          "content": "El host principal es `ACC.WebApp` (Blazor Server + Identity). El cliente SPA es `ACC.WebApp/ACC.WebApp.Client` y la app MAUI esta en `ACC.MultiPlataform`."
+        },
+        {
+          "content": "Servicios cliente en `ACC.WebApp/ACC.WebApp.Client/Services`: `BibliotecaClientService`, `NavegacionContenidoClient`, `ProgresoUsuarioClient`, `ExamenesServiceClient`."
+        },
+        {
+          "content": "Navegacion de la guia en `Components/Pages/Guia`; `GuiaNavegador.razor` + `GuiaMainComponent.razor` y `LeccionView.razor`."
+        },
+        {
+          "content": "Roles de Identity (`Administrador`, `Docente`, `Estudiante`) se crean en el arranque de `ACC.WebApp/Program.cs`."
+        }
+      ]
+    },
+    {
+      "title": "Content Navigation & Hierarchy",
+      "purpose": "Describe the academic hierarchy (module -> submodule -> topic -> subtopic -> lesson) and the navigation service endpoints powering the guide UI.",
+      "parent": "Client Application Structure",
+      "page_notes": [
+        {
+          "content": "Jerarquia: Modulo -> SubModulo -> Tema -> SubTema -> Leccion; entidades implementan `INodoJerarquico` en `src/ACC.Shared/Interfaces`."
+        },
+        {
+          "content": "`TipoNodoJerarquico` y `NodoJerarquicoDto` estandarizan el contrato entre API y cliente."
+        },
+        {
+          "content": "Backend: `NavegacionContenidoService` + `NavegacionContenidoController` (rutas `api/NavegacionContenido/*`)."
+        },
+        {
+          "content": "Cliente: `NavegacionContenidoClient` consume rutas y registra ultima visita de tema."
+        }
+      ]
+    },
+    {
+      "title": "Dynamic Lesson Renderer (RDL)",
+      "purpose": "Explain the data-driven lesson rendering system, including OrdenSecciones tokens and RDL.razor rendering rules.",
+      "parent": "Client Application Structure",
+      "page_notes": [
+        {
+          "content": "`Leccion`/`LeccionDto` contienen HTML por seccion (`Teoria`, `Ejemplo`, `Practica`), Charp blocks, `NivelBloom` y flags (actividad, compilador, video)."
+        },
+        {
+          "content": "`OrdenSecciones` define el orden de render; tokens en `src/ACC.Shared/Utils/SeccionesContenido.cs`."
+        },
+        {
+          "content": "`RDL.razor` itera `OrdenSecciones` y renderiza `CompiladorACC`, `ModalActividades`, `LiteYouTube` segun flags."
+        },
+        {
+          "content": "AutoMapper mantiene paridad entidad/DTO en `src/ACC.API/Extensions/ACCmappingProfile.cs`."
         }
       ]
     },
@@ -46,7 +138,49 @@
       "purpose": "Document the API_CompilerACC service that compiles C# code using Roslyn, the communication flow between client and compiler API, error handling, security considerations, and how compiler availability is enabled per lesson through the dynamic section renderer.",
       "page_notes": [
         {
-          "content": ""
+          "content": "Servicio `API_CompilerACC` expone `POST /api/compile` (`CompileController`)."
+        },
+        {
+          "content": "`RoslynCompileService` compila en memoria con referencias basicas y captura stdout/errores."
+        },
+        {
+          "content": "UI: `ACC.WebApp.Client/Components/Pages/ACC-Compiler/CompiladorACC.razor` usa CodeMirror via JS y `ServiceRoots.ACC_COMPILER_Url`."
+        },
+        {
+          "content": "Las lecciones habilitan el compilador con `TieneCompilador` y el token `compilador`."
+        }
+      ]
+    },
+    {
+      "title": "Exams & Unlocking Rules",
+      "purpose": "Explain how exams are listed, unlocked, and tracked across modules and submodules.",
+      "page_notes": [
+        {
+          "content": "UI de examenes: `BtnCompletarSubtema.razor`, `ExamenesMain.razor`, `Examen.razor` en `Components/Pages/Guia/Components/Examenes`."
+        },
+        {
+          "content": "`ProgresoUsuarioClient` consulta desbloqueos; `ExamenesServiceClient` obtiene catalogos e intentos."
+        },
+        {
+          "content": "Backend: `ProgresoUsuarioController` + `PrerrequisitosService` evalian reglas y persisten en `ExamenesHabilitados` (ver `Docs/examenes.md`)."
+        },
+        {
+          "content": "Endpoints de examenes en `src/ACC.API/Controllers/ExamenesController.cs`."
+        }
+      ]
+    },
+    {
+      "title": "Pedagogy & Learning Model",
+      "purpose": "Describe the pedagogical model, Bloom taxonomy usage, and the role of the Charp assistant.",
+      "page_notes": [
+        {
+          "content": "El modelo pedagogico se basa en Taxonomia de Bloom, practica deliberada y retroalimentacion inmediata (ver `Docs/pedagogia.md`)."
+        },
+        {
+          "content": "Charp aporta tips y dialogos en la leccion sin resolverla; estos bloques se almacenan en `LeccionDto`."
+        },
+        {
+          "content": "`NivelBloom` se muestra en el render para explicitar la expectativa cognitiva."
         }
       ]
     },
@@ -55,7 +189,13 @@
       "purpose": "Provide an overview of the virtual classroom system, including class enrollment, teacher/ student roles, announcements, tasks, evaluations, monitoring, and how these features integrate with authentication and ACC.API. This section reflects the updated vision aligned with the new dynamic lesson and APP pedagogical model.",
       "page_notes": [
         {
-          "content": ""
+          "content": "Aulas incluye avisos, tareas, evaluaciones y seguimiento; hay controladores `AulaController`, `AvisosController`, `TareaController`, `TareasAlumnoController`."
+        },
+        {
+          "content": "La UI vive en `ACC.WebApp.Client/Components/Pages/Aulas` y `ACC.WebApp.Client/Components/Aulas`; varias vistas son maquetas con datos locales."
+        },
+        {
+          "content": "`AulaDashboard.razor` compone Anuncios/Tareas/Evaluaciones/ListaEstudiantes."
         }
       ]
     },
@@ -65,7 +205,13 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "Componentes comunes (aun stub) en `Components/Pages/Aulas/Common`."
+        },
+        {
+          "content": "`DialogoConfirmacion.razor` e `IngresoAulaPorInvitacion.razor` definen la base para confirmaciones e invitaciones."
+        },
+        {
+          "content": "`ConfiguracionAula.razor` y su CSS contienen la plantilla de configuracion."
         }
       ]
     },
@@ -75,7 +221,10 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "Componentes de alumno en `VistaAlumnos/Components` (ListaAulasInscritas, MuroAvisosLectura, ProgresoIndividual, ResumenAulaEstudiante, VistaDetalleTareaEstudiante)."
+        },
+        {
+          "content": "Actualmente son placeholders sin integracion a API; sirven como estructura inicial."
         }
       ]
     },
@@ -85,7 +234,13 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "`VistaDocentes.razor` define la vista principal del docente con pestanas y JS interop."
+        },
+        {
+          "content": "Incluye secciones de configuracion, avisos, tareas, estudiantes y resumen con datos mock."
+        },
+        {
+          "content": "Pendiente integrar servicios reales y permisos por rol."
         }
       ]
     },
@@ -95,7 +250,13 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "API: `AvisosController` ofrece CRUD y usa DTO `AvisoDto` (en `src/ACC.Shared/DTOs`)."
+        },
+        {
+          "content": "UI: `AnunciosAula.razor` maneja anuncios en memoria y `VistaDocentes.razor` muestra un formulario basico."
+        },
+        {
+          "content": "Integracion con `IAvisosService` falta para persistir en BD."
         }
       ]
     },
@@ -105,7 +266,13 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "Progreso academico se gestiona en `IProgresoUsuarioService` y `ProgresoUsuarioController`."
+        },
+        {
+          "content": "UI docente muestra lista y progreso en `VistaDocentes.razor` y `Components/Aulas/ListaEstudiantes.razor` (mock)."
+        },
+        {
+          "content": "La navegacion registra ultima visita de tema via `RegistrarUltimaVisitaTemaAsync`."
         }
       ]
     },
@@ -115,7 +282,13 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "API de tareas: `TareaController` (tareas personales/asignadas) y `TareasAlumnoController` (pendientes y listado)."
+        },
+        {
+          "content": "DTOs en `src/ACC.Shared/DTOs` (TareaAsignadaDto, TareaPersonalDto, TareaAlumnoListadoDto)."
+        },
+        {
+          "content": "UI base en `Components/Aulas/TareasAula.razor` y formulario de `VistaDocentes.razor` (sin persistencia)."
         }
       ]
     },
@@ -125,7 +298,13 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "Evaluaciones de aula: UI en `Components/Aulas/EvaluacionesAula.razor` (mock)."
+        },
+        {
+          "content": "Examenes academicos y reglas de desbloqueo se describen en 'Exams & Unlocking Rules' y `Docs/examenes.md`."
+        },
+        {
+          "content": "Intentos y resultados se exponen via `ExamenesController`."
         }
       ]
     },
@@ -135,9 +314,24 @@
       "parent": "Classroom Management System",
       "page_notes": [
         {
-          "content": ""
+          "content": "Configuracion de aula esta maquetada en `Components/Aulas/ConfiguracionAula.razor` y seccion Configuracion de `VistaDocentes.razor`."
+        },
+        {
+          "content": "`AulaController` en API aun es placeholder para logica y persistencia."
+        }
+      ]
+    },
+    {
+      "title": "Project Planning & Development",
+      "purpose": "Summarize the project planning narrative, delivery phases, and methodology decisions documented for ACC.",
+      "page_notes": [
+        {
+          "content": "Fases, metodologia y narrativa del desarrollo en `Docs/planeacion-desarrollo.md`."
+        },
+        {
+          "content": "Describe cronologia de sprints, roles del equipo, decisiones tecnicas y trazabilidad pedagogica."
         }
       ]
     }
   ]
-}The content has been copied to your clipboard. Please paste it here to complete the file creation.
+}
