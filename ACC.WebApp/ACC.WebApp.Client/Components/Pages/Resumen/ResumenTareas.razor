@@ -21,41 +21,41 @@
         <div class="tasks-row">
             <!-- Tareas Asignadas -->
             <div class="task-col">
-                <h3><i class="fas fa-clipboard-list" style="color:var(--secondary);"></i> Tareas Asignadas</h3>
+                <h3><i class="fas fa-clipboard-list section-icon icon-assigned"></i> Tareas Asignadas</h3>
                 @if (TareasPendientes is not null)
                 {
                     if (TareasPendientes.TotalPendientes == 0)
                     {
-                        <p>No tienes tareas pendientes.</p>
+                        <p class="empty-state">No tienes tareas pendientes.</p>
                     }
                     else
                     {
                         <div class="tasks-summary">
-                            <div class="task-item">
+                            <div class="task-item summary-item summary-overdue">
                                 <div class="task-icon">
                                     <i class="fas fa-triangle-exclamation"></i>
                                 </div>
                                 <div>
                                     <p class="task-title">Vencidas</p>
-                                    <p class="task-desc">@TareasPendientes.Vencidas</p>
+                                    <p class="task-desc summary-value">@TareasPendientes.Vencidas</p>
                                 </div>
                             </div>
-                            <div class="task-item">
+                            <div class="task-item summary-item summary-today">
                                 <div class="task-icon">
                                     <i class="fas fa-calendar-day"></i>
                                 </div>
                                 <div>
                                     <p class="task-title">Para hoy</p>
-                                    <p class="task-desc">@TareasPendientes.ParaHoy</p>
+                                    <p class="task-desc summary-value">@TareasPendientes.ParaHoy</p>
                                 </div>
                             </div>
-                            <div class="task-item">
+                            <div class="task-item summary-item summary-upcoming">
                                 <div class="task-icon">
                                     <i class="fas fa-calendar-alt"></i>
                                 </div>
                                 <div>
                                     <p class="task-title">Próximas</p>
-                                    <p class="task-desc">@TareasPendientes.Proximas</p>
+                                    <p class="task-desc summary-value">@TareasPendientes.Proximas</p>
                                 </div>
                             </div>
                         </div>
@@ -77,7 +77,7 @@
                                 {
                                     break;
                                 }
-                                <div class="task-item">
+                                <div class="task-item task-list-item">
                                     <div class="task-icon">
                                         <i class="fas fa-tasks"></i>
                                     </div>
@@ -95,24 +95,24 @@
                     }
                     else if (mostrarVacias)
                     {
-                        <p>No tienes tareas asignadas.</p>
+                        <p class="empty-state">No tienes tareas asignadas.</p>
                     }
                 }
                 else if (mostrarVacias)
                 {
-                    <p>No tienes tareas asignadas.</p>
+                    <p class="empty-state">No tienes tareas asignadas.</p>
                 }
             </div>
 
             <!-- Tareas Personales -->
             <div class="task-col">
-                <h3><i class="fas fa-user-check" style="color:var(--primary);"></i> Tareas Personales</h3>
+                <h3><i class="fas fa-user-check section-icon icon-personal"></i> Tareas Personales</h3>
                 @if (TareasPersonales != null && TareasPersonales.Count > 0)
                 {
                     <div class="scrollable-tasks">
                         @foreach (var tarea in TareasPersonales)
                         {
-                            <div class="task-item">
+                            <div class="task-item task-list-item">
                                 <div class="task-icon">
                                     <i class="fas fa-user-edit"></i>
                                 </div>
@@ -126,7 +126,7 @@
                 }
                 else if (mostrarVacias)
                 {
-                    <p>No tienes tareas personales.</p>
+                    <p class="empty-state">No tienes tareas personales.</p>
                 }
             </div>
         </div>

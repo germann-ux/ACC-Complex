@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ACC Typography Test — Nunito + Sora + JetBrains Mono</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Font contracts */
+            --font-body: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-heading: "Sora", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+            /* Type scale */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-md: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --text-4xl: 2.25rem;
+
+            /* Weights */
+            --w-regular: 400;
+            --w-medium: 500;
+            --w-semibold: 600;
+            --w-bold: 700;
+            --w-extrabold: 800;
+
+            /* Line-height */
+            --lh-tight: 1.12;
+            --lh-snug: 1.25;
+            --lh-normal: 1.5;
+            --lh-relaxed: 1.72;
+
+            /* Letter spacing */
+            --ls-tight: -0.01em;
+            --ls-normal: 0;
+            --ls-wide: 0.03em;
+
+            /* Simple neutral palette (placeholder) */
+            --bg: #0b0f17;
+            --panel: rgba(255, 255, 255, 0.06);
+            --panel2: rgba(255, 255, 255, 0.08);
+            --stroke: rgba(255, 255, 255, 0.12);
+            --text: rgba(255, 255, 255, 0.92);
+            --muted: rgba(255, 255, 255, 0.68);
+            --muted2: rgba(255, 255, 255, 0.52);
+
+            --acc-a: #7c5cff;
+            /* accent */
+            --acc-b: #00d4ff;
+            /* accent 2 */
+            --good: #35d07f;
+            --warn: #ffcc66;
+
+            --radius: 18px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            font-size: var(--text-md);
+            line-height: var(--lh-normal);
+            color: var(--text);
+            background:
+                radial-gradient(1200px 800px at 20% 10%, rgba(124, 92, 255, 0.22), transparent 60%),
+                radial-gradient(900px 650px at 90% 20%, rgba(0, 212, 255, 0.18), transparent 55%),
+                radial-gradient(900px 650px at 40% 90%, rgba(53, 208, 127, 0.14), transparent 55%),
+                var(--bg);
+        }
+
+        /* Layout */
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 64px 1fr;
+            grid-template-areas:
+                "top top"
+                "side main";
+            min-height: 100vh;
+        }
+
+        .topbar {
+            grid-area: top;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--acc-a), var(--acc-b));
+            box-shadow: 0 8px 22px rgba(124, 92, 255, 0.18);
+        }
+
+        .brand-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-lg);
+            font-weight: var(--w-bold);
+            letter-spacing: var(--ls-tight);
+            line-height: var(--lh-tight);
+        }
+
+        .brand-sub {
+            font-size: var(--text-xs);
+            color: var(--muted2);
+            margin-top: -2px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search {
+            width: min(420px, 40vw);
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 999px;
+            padding: 10px 14px;
+            color: var(--text);
+            outline: none;
+            font-family: var(--font-body);
+            font-size: var(--text-sm);
+        }
+
+        .pill {
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: var(--text-sm);
+            color: var(--muted);
+        }
+
+        .sidebar {
+            grid-area: side;
+            padding: 16px;
+            border-right: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .nav-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-sm);
+            letter-spacing: var(--ls-wide);
+            text-transform: uppercase;
+            color: var(--muted2);
+            margin: 10px 10px 8px;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 6px;
+            border-radius: var(--radius);
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: var(--muted);
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: var(--text-sm);
+        }
+
+        .nav a:hover {
+            color: var(--text);
+            border-color: var(--stroke);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav a.active {
+            color: var(--text);
+            border-color: rgba(124, 92, 255, 0.45);
+            background: linear-gradient(135deg, rgba(124, 92, 255, 0.14), rgba(0, 212, 255, 0.08));
+        }
+
+        .badge {
+            font-size: var(--text-xs);
+            letter-spacing: var(--ls-wide);
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--muted);
+        }
+
+        .main {
+            grid-area: main;
+            padding: 22px;
+        }
+
+        /* Typography roles */
+        .ty-page-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-3xl);
+            font-weight: var(--w-extrabold);
+            letter-spacing: var(--ls-tight);
+            line-height: var(--lh-tight);
+            margin: 6px 0 6px;
+        }
+
+        .ty-page-subtitle {
+            margin: 0 0 16px;
+            color: var(--muted);
+            max-width: 70ch;
+            line-height: var(--lh-relaxed);
+        }
+
+        .ty-section-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-xl);
+            font-weight: var(--w-bold);
+            letter-spacing: var(--ls-tight);
+            margin: 0 0 10px;
+            line-height: var(--lh-snug);
+        }
+
+        .ty-card-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-lg);
+            font-weight: var(--w-bold);
+            letter-spacing: var(--ls-tight);
+            line-height: var(--lh-snug);
+            margin: 0;
+        }
+
+        .ty-body {
+            color: var(--text);
+        }
+
+        .ty-muted {
+            color: var(--muted);
+        }
+
+        .ty-label {
+            font-size: var(--text-xs);
+            letter-spacing: var(--ls-wide);
+            text-transform: uppercase;
+            color: var(--muted2);
+        }
+
+        /* Components */
+        .grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .app {
+                grid-template-columns: 1fr;
+                grid-template-areas: "top" "main";
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search {
+                width: min(520px, 55vw);
+            }
+        }
+
+        .card {
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            font-size: var(--text-xs);
+            font-weight: var(--w-semibold);
+            border-radius: 999px;
+            padding: 6px 10px;
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--muted);
+        }
+
+        .chip.good {
+            border-color: rgba(53, 208, 127, 0.45);
+            color: rgba(53, 208, 127, 0.95);
+        }
+
+        .chip.warn {
+            border-color: rgba(255, 204, 102, 0.45);
+            color: rgba(255, 204, 102, 0.95);
+        }
+
+        .btn {
+            border: 1px solid rgba(124, 92, 255, 0.45);
+            background: linear-gradient(135deg, rgba(124, 92, 255, 0.28), rgba(0, 212, 255, 0.12));
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-family: var(--font-body);
+            font-weight: var(--w-semibold);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            filter: brightness(1.05);
+        }
+
+        /* Lesson content blocks */
+        .prose {
+            line-height: var(--lh-relaxed);
+            max-width: 80ch;
+            color: var(--text);
+            font-size: var(--text-md);
+        }
+
+        .prose p {
+            margin: 10px 0;
+        }
+
+        .prose ul {
+            margin: 10px 0 10px 18px;
+            padding: 0;
+        }
+
+        .prose li {
+            margin: 6px 0;
+            color: var(--muted);
+        }
+
+        /* Code */
+        code.inline {
+            font-family: var(--font-code);
+            font-size: 0.95em;
+            padding: 2px 6px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        pre.code {
+            font-family: var(--font-code);
+            font-size: var(--text-sm);
+            line-height: 1.55;
+            margin: 12px 0 0;
+            padding: 14px 14px;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.38);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            overflow: auto;
+        }
+
+        pre.code b {
+            font-weight: 600;
+        }
+
+        /* Callouts */
+        .callout {
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.035);
+            border-radius: var(--radius);
+            padding: 14px;
+            margin-top: 14px;
+        }
+
+        .callout .head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        /* CharpTip */
+        .charp {
+            border: 1px solid rgba(0, 212, 255, 0.28);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.10), rgba(124, 92, 255, 0.08));
+        }
+
+        .charp .title {
+            font-family: var(--font-body);
+            font-weight: var(--w-extrabold);
+            letter-spacing: -0.005em;
+            font-size: var(--text-md);
+            line-height: var(--lh-snug);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .charp .icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 10px;
+            background: rgba(0, 212, 255, 0.18);
+            border: 1px solid rgba(0, 212, 255, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-heading);
+            font-weight: var(--w-bold);
+        }
+
+        .charp .text {
+            margin: 8px 0 0;
+            color: var(--muted);
+            line-height: var(--lh-relaxed);
+        }
+
+        /* Chat */
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .msg {
+            padding: 12px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .msg.me {
+            border-color: rgba(124, 92, 255, 0.35);
+            background: rgba(124, 92, 255, 0.08);
+        }
+
+        .msg .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .msg .who {
+            font-family: var(--font-heading);
+            font-size: var(--text-sm);
+            font-weight: var(--w-bold);
+            letter-spacing: var(--ls-tight);
+        }
+
+        .msg .time {
+            font-size: var(--text-xs);
+            color: var(--muted2);
+        }
+
+        .msg p {
+            margin: 0;
+            color: var(--muted);
+            line-height: var(--lh-relaxed);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <div class="brand-title">ACC — Aprendiendo C# con Charp</div>
+                    <div class="brand-sub">Typography contract test: Nunito + Sora + JetBrains Mono</div>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <input class="search" placeholder="Buscar lecciones, temas, ejercicios…" />
+                <div class="pill">Cuenta</div>
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <div class="nav-title">Navegación</div>
+            <nav class="nav">
+                <a class="active" href="#"><span>Inicio</span><span class="badge">v0</span></a>
+                <a href="#"><span>Lecciones</span><span class="badge">105</span></a>
+                <a href="#"><span>Días</span><span class="badge">Agenda</span></a>
+                <a href="#"><span>Cuenta</span><span class="badge">Roles</span></a>
+                <a href="#"><span>Asistente AI</span><span class="badge">Charp</span></a>
+            </nav>
+
+            <div class="nav-title" style="margin-top:16px;">Tipografías</div>
+            <div class="card" style="padding:12px;">
+                <div class="ty-label">Body</div>
+                <div class="ty-body" style="font-weight:600;">Nunito</div>
+                <div class="ty-label" style="margin-top:10px;">Headings</div>
+                <div class="ty-body" style="font-family:var(--font-heading); font-weight:700;">Sora</div>
+                <div class="ty-label" style="margin-top:10px;">Code</div>
+                <div class="ty-body" style="font-family:var(--font-code); font-weight:500;">JetBrains Mono</div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="row" style="margin-bottom:10px;">
+                <div>
+                    <h1 class="ty-page-title">Fundamentos del diseño de software</h1>
+                    <p class="ty-page-subtitle">
+                        Este layout es una maqueta de prueba para validar la identidad tipográfica.
+                        Observa cómo los títulos con <b style="font-family:var(--font-heading);">Sora</b> ganan
+                        presencia sin perder
+                        la lectura cómoda de <b style="font-family:var(--font-body);">Nunito</b>.
+                    </p>
+                </div>
+                <button class="btn">Continuar donde lo dejaste</button>
+            </div>
+
+            <div class="grid">
+
+                <!-- Left column: lesson card + content -->
+                <section class="card">
+                    <div class="row" style="margin-bottom:12px;">
+                        <div>
+                            <h2 class="ty-section-title" style="margin-bottom:6px;">Lección 2 — Separación de
+                                responsabilidades</h2>
+                            <div class="chips">
+                                <span class="chip good">Bloom: Entender</span>
+                                <span class="chip">Duración: 12 min</span>
+                                <span class="chip warn">Práctica: Sí</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prose">
+                        <p>
+                            En ACC, un patrón recurrente es que un componente quiere hacerlo todo. Y cuando eso pasa,
+                            el código se vuelve difícil de mantener. Una regla útil: si un componente ya parece
+                            “mini-app”,
+                            quizá necesita dividirse.
+                        </p>
+
+                        <p>
+                            En términos prácticos, intenta separar:
+                            <code class="inline">render</code>, <code class="inline">estado</code> y <code
+                                class="inline">side-effects</code>.
+                            En Blazor, eso suele traducirse a “UI pura” + “servicios” + “modelos”.
+                        </p>
+
+                        <ul>
+                            <li><b>UI</b>: muestra, valida y dispara eventos.</li>
+                            <li><b>Servicio</b>: ejecuta reglas, accede a datos, orquesta flujo.</li>
+                            <li><b>Modelos/DTOs</b>: transportan info, no “piensan” demasiado.</li>
+                        </ul>
+
+                        <div class="callout">
+                            <div class="head">
+                                <div class="ty-card-title">Ejemplo rápido</div>
+                                <span class="badge">Snippet</span>
+                            </div>
+                            <div class="ty-muted">
+                                Aquí el bloque usa JetBrains Mono y mantiene legibilidad en tamaños UI.
+                            </div>
+
+                            <pre class="code"><code>// UI (componente)
+<button @onclick="Guardar">Guardar</button>
+
+@code {
+  async Task Guardar()
+  {
+    var res = await servicio.GuardarLeccionAsync(dto);
+    // UI reacciona, no decide reglas
+  }
+}
+
+// Servicio (reglas + orquestación)
+public async Task<ServiceResult> GuardarLeccionAsync(LeccionDto dto)
+{
+  // validar, normalizar, persistir
+  return ServiceResult.Ok();
+}</code></pre>
+                        </div>
+
+                        <div class="callout charp">
+                            <div class="head">
+                                <h3 class="title"><span class="icon">C</span> CharpTip</h3>
+                                <span class="badge">Mentor mode</span>
+                            </div>
+                            <p class="text">
+                                Si tu UI necesita saber “demasiadas cosas” para funcionar, el servicio está flojo.
+                                Dale al servicio la lógica, y deja a la UI como un “control remoto” bien portado.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right column: progress + chat -->
+                <aside class="card">
+                    <h2 class="ty-section-title">Progreso del módulo</h2>
+                    <div class="ty-muted" style="margin-bottom:10px;">
+                        Pequeños elementos UI con Nunito. Headers con Sora.
+                    </div>
+
+                    <div class="row" style="margin-bottom:10px;">
+                        <div>
+                            <div class="ty-label">Completado</div>
+                            <div class="ty-card-title">38%</div>
+                        </div>
+                        <div>
+                            <div class="ty-label">Racha</div>
+                            <div class="ty-card-title">4 días</div>
+                        </div>
+                    </div>
+
+                    <div class="callout" style="margin-top:0;">
+                        <div class="head">
+                            <div class="ty-card-title">Inline code</div>
+                            <span class="badge">UI</span>
+                        </div>
+                        <div class="ty-muted">
+                            Ejemplo: usa <code class="inline">ServiceResult&lt;T&gt;</code> para estandarizar respuestas
+                            y evita “throw por todo”.
+                        </div>
+                    </div>
+
+                    <h2 class="ty-section-title" style="margin-top:16px;">Chat (mock)</h2>
+                    <div class="chat">
+                        <div class="msg">
+                            <div class="meta">
+                                <div class="who">Charp</div>
+                                <div class="time">hoy 9:12 pm</div>
+                            </div>
+                            <p>
+                                Tu idea está bien: define contratos globales y deja de “resolver tipografía por
+                                componente”.
+                            </p>
+                        </div>
+                        <div class="msg me">
+                            <div class="meta">
+                                <div class="who">Germán</div>
+                                <div class="time">hoy 9:13 pm</div>
+                            </div>
+                            <p>
+                                Quiero que los títulos tengan más presencia sin perder lo educativo.
+                            </p>
+                        </div>
+                        <div class="msg">
+                            <div class="meta">
+                                <div class="who">Charp</div>
+                                <div class="time">hoy 9:14 pm</div>
+                            </div>
+                            <p>
+                                Entonces Sora para headings y Nunito para lectura. Es la combinación “producto moderno”.
+                            </p>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
