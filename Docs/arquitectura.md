@@ -6,22 +6,22 @@
 - Seguridad y aislamiento durante la ejecución de código del estudiante.
 
 ### Componentes principales
-- **Clientes**: Blazor WebAssembly para la experiencia web y MAUI Blazor para escritorio/móvil, ambos consumen servicios mediante API segura.
+- **Clientes**: el cliente web actual vive en `ACC.WebApp.Client`. `ACC.MultiPlataform` sigue siendo parte del plan como cliente MAUI Blazor, aunque hoy no aparezca en `ACC.sln`.
 - **ACC.WebApp**: Servicio de autenticación y administración de usuarios; emite tokens y aplica políticas de autorización.
 - **ACC.API**: Servicio de dominio académico que maneja módulos, lecciones, actividades y seguimiento de progreso.
-- **API_CompilerACC**: Servicio de compilación y ejecución controlada de código C#, diseñado para entregar retroalimentación inmediata sin comprometer la seguridad.
+- **ACC.Compiler**: Servicio de compilación y ejecución controlada de código C#, diseñado para entregar retroalimentación inmediata sin comprometer la seguridad. Actualmente vive en `src/API_CompilerACC`.
 - **ACC.Data**: Capa de acceso a datos y modelos persistentes; mantiene la coherencia entre identidades y perfiles académicos.
 - **ACC.Shared**: Tipos, contratos y utilidades transversales que evitan duplicación entre servicios.
 - **ACC.ExternalClients**: Integraciones hacia proveedores externos de IA que potencian a Charp.
 - **ACC.ServiceDefaults**: Configuraciones comunes de resiliencia, telemetría y salud de servicios.
 - **ACC.AppHost (Aspire)**: Orquestador que agrupa servicios, bases de datos y caché, facilitando observabilidad y despliegue coordinado.
-- **Infraestructura**: SQL Server para identidad y datos académicos; Redis como caché y soporte a operaciones de baja latencia.
+- **Infraestructura**: SQL Server para identidad y datos académicos; Redis orquestado desde AppHost y ya referenciado por servicios, con uso funcional todavía en expansión.
 
 ### Interacción entre módulos
-- Los clientes solicitan autenticación a ACC.WebApp y usan los tokens emitidos para acceder a ACC.API y API_CompilerACC.
+- Los clientes solicitan autenticación a ACC.WebApp y usan los tokens emitidos para acceder a ACC.API y ACC.Compiler.
 - ACC.API consulta y actualiza datos académicos a través de ACC.Data, manteniendo sincronía con la información de identidad.
 - ACC.WebApp y ACC.API reutilizan ACC.Shared y ACC.ServiceDefaults para asegurar consistencia de contratos, registro y telemetría.
-- API_CompilerACC opera de forma aislada, apoyándose en Redis para gestionar sesiones de ejecución y limitar efectos colaterales.
+- ACC.Compiler compila en memoria mediante Roslyn y corre de forma aislada. Redis ya forma parte de la topología, pero la lógica del servicio todavía no depende por completo de él.
 - ACC.AppHost coordina el inicio, configuración y monitoreo de cada servicio y sus dependencias de base de datos y caché.
 
 ### Ejemplo de orquestación con Aspire
@@ -38,11 +38,29 @@ var sqlIdentity = builder.AddSqlServer("acc-sql-identity", sqlPassword, port: 14
     .WithVolume("volume-sql-identity", "/var/opt/mssql")
     .PublishAsConnectionString();
 
+var dbIdentity = sqlIdentity.AddDatabase("acc-identity-db", "ACC_Identity");
+
+var sqlAcademic = builder.AddSqlServer("acc-sql-academic", sqlPassword, port: 1435)
+    .WithContainerName("acc-sql-academic-container")
+    .WithEnvironment("ACCEPT_EULA", "Y")
+    .WithVolume("volume-sql-academic", "/var/opt/mssql")
+    .PublishAsConnectionString();
+
+var dbAcademic = sqlAcademic.AddDatabase("acc-academic-db", "ACC_Academic");
+
 var redis = builder.AddRedis("acc-redis")
     .WithContainerName("acc-redis-container");
 
+var compilerApi = builder.AddProject<Projects.ACC_Compiler>("acc-compiler")
+    .WithReference(redis);
+
+var accApi = builder.AddProject<Projects.ACC_API>("acc-api")
+    .WithReference(dbAcademic)
+    .WaitFor(dbAcademic);
+
 var webApp = builder.AddProject<Projects.ACC_WebApp>("acc-blazor")
-    .WithReference(sqlIdentity)
+    .WithReference(dbIdentity)
+    .WithReference(dbAcademic)
     .WithReference(redis);
 
 builder.Build().Run();
@@ -54,4 +72,4 @@ Este fragmento muestra cómo se levantan los contenedores de SQL y Redis y cómo
 La distribución en servicios desacoplados permite evolucionar de forma independiente la experiencia de aprendizaje, la autenticación y la ejecución de código. El uso de Aspire centraliza la observabilidad y simplifica la operación conjunta de los componentes. La combinación de SQL Server y Redis equilibra persistencia consistente y respuesta rápida para interacciones frecuentes.
 
 ### Estado
-La arquitectura está implementada y operativa; se encuentran en ajuste fino las políticas de resiliencia y las integraciones externas que alimentan a Charp.
+La arquitectura está implementada y operativa. La WebApp, la API, el compilador y la topología base ya están integrados; siguen en ajuste fino la explotación funcional de Redis, algunas integraciones externas y la reincorporación formal del cliente `ACC.MultiPlataform`.

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Agenda</title>
+    <style>
+        :root {
+            --bg: #0b0b10;
+            --surface: #121225;
+            --surface2: #171732;
+            --border: rgba(255, 255, 255, .10);
+            --text: rgba(255, 255, 255, .92);
+            --muted: rgba(255, 255, 255, .70);
+            --muted2: rgba(255, 255, 255, .55);
+            --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+            --radius: 14px;
+            --radius2: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background:
+                radial-gradient(900px 400px at 20% -10%, rgba(139, 92, 246, .25), transparent 55%),
+                radial-gradient(800px 360px at 90% 10%, rgba(124, 58, 237, .18), transparent 55%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            padding: 20px 18px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: .2px;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            max-width: 60ch;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, .05);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: default;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .link {
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            color: var(--muted);
+            background: transparent;
+            font-weight: 600;
+            font-size: 14px;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .belt {
+            margin-top: 14px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .pill {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, .03);
+            border-radius: var(--radius2);
+            padding: 10px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 44px;
+        }
+
+        .pill span:first-child {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .pill span:last-child {
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+
+        .grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .section {
+            padding: 16px;
+        }
+
+        .section h2 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: var(--text);
+            letter-spacing: .2px;
+        }
+
+        .work-top {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .meta {
+            color: var(--muted2);
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .meta strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius2);
+            background: rgba(255, 255, 255, .02);
+            margin: 10px 0 12px;
+        }
+
+        .tab {
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, .03);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .tab.active {
+            color: var(--text);
+            background: rgba(139, 92, 246, .18);
+            border-color: rgba(139, 92, 246, .35);
+        }
+
+        /* Two lists inside work view */
+        .work-lists {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .list-wrap {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, .02);
+            border-radius: var(--radius2);
+            padding: 12px;
+        }
+
+        .list-title {
+            margin: 0 0 10px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: .2px;
+            color: var(--text);
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .item {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, .03);
+            border-radius: var(--radius2);
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .item h3 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .2px;
+        }
+
+        .item p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .item .vence {
+            margin-top: 8px;
+            color: var(--muted2);
+            font-size: 12.5px;
+        }
+
+        .danger {
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .04);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            user-select: none;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+
+        @media (max-width: 980px) {
+            .belt {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .work-lists {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+
+        <!-- Header -->
+        <section class="card header">
+            <div>
+                <h1>Agenda</h1>
+                <p>Visualiza lo urgente, organiza tus pendientes y ejecuta tu semana desde un solo lugar.</p>
+            </div>
+
+            <div class="header-actions">
+                <div class="btn">Nueva tarea</div>
+                <div class="link">Practicas y examenes</div>
+                <div class="link">Aulas</div>
+            </div>
+        </section>
+
+        <!-- Métricas -->
+        <section class="card belt">
+            <div class="pill"><span>Personales pendientes</span><span>4</span></div>
+            <div class="pill"><span>Asignadas pendientes</span><span>1</span></div>
+            <div class="pill"><span>Vencidas</span><span>1</span></div>
+            <div class="pill"><span>Completadas</span><span>1</span></div>
+            <div class="pill"><span>Progreso</span><span>17%</span></div>
+        </section>
+
+        <section class="grid">
+
+            <!-- Vista de trabajo -->
+            <section class="card section">
+                <div class="work-top">
+                    <h2>Vista de trabajo</h2>
+                    <div class="meta"><strong>1 resultado</strong></div>
+                </div>
+
+                <div class="meta">
+                    Filtro activo: <strong>Completadas</strong>. Prioriza por vencimiento y cierra lo mas urgente.
+                </div>
+
+                <!-- Filtros (se entiende que aplican a ambas listas) -->
+                <div class="tabs">
+                    <div class="tab">Todo&nbsp;&nbsp;6</div>
+                    <div class="tab">Hoy&nbsp;&nbsp;0</div>
+                    <div class="tab">Proximas&nbsp;&nbsp;4</div>
+                    <div class="tab">Vencidas&nbsp;&nbsp;1</div>
+                    <div class="tab active">Completadas&nbsp;&nbsp;1</div>
+                    <div class="tab">Asignadas&nbsp;&nbsp;0</div>
+                    <div class="tab">Personales&nbsp;&nbsp;1</div>
+                    <div class="tab">Recordatorios&nbsp;&nbsp;5</div>
+                </div>
+
+                <!-- Dos listas (Asignadas / Personales) afectadas por los mismos filtros -->
+                <div class="work-lists">
+
+                    <div class="list-wrap">
+                        <div class="list-title">Asignadas</div>
+
+                        <div class="list">
+                            <!-- Si el filtro activo es "Completadas", se entiende que aquí solo aparecen asignadas completadas -->
+                            <!-- (No invento nuevas tareas: uso las mismas que me pasaste como placeholders visuales) -->
+                            <article class="item">
+                                <div>
+                                    <h3>tarea</h3>
+                                    <p>nueva tarea agregada desde la burbuja de la agenda</p>
+                                    <div class="vence">Vence: 23/02/2026 21:50</div>
+                                </div>
+                                <div class="danger">Eliminar</div>
+                            </article>
+                        </div>
+                    </div>
+
+                    <div class="list-wrap">
+                        <div class="list-title">Personales</div>
+
+                        <div class="list">
+                            <!-- Igual: el filtro aplica también aquí -->
+                            <article class="item">
+                                <div>
+                                    <h3>t1</h3>
+                                    <p>jadjejk</p>
+                                    <div class="vence">Vence: 24/02/2026 00:55</div>
+                                </div>
+                                <div class="danger">Eliminar</div>
+                            </article>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </section>
+    </main>
+</body>
+
+</html>

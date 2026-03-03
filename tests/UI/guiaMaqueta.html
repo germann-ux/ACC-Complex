@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ACC — Guía de Estudios (Maqueta)</title>
+
+    <!-- Tipografía oficial ACC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Base */
+            --acc-bg-0: #0f0f0f;
+            --acc-bg-1: #121218;
+            --acc-bg-2: #1e1e2a;
+            --acc-bg-3: #282838;
+            --acc-bg-hover: #32324a;
+
+            --acc-border: #3f3f5a;
+            --acc-border-strong: #929292;
+
+            --acc-text: #f8fafc;
+            --acc-text-muted: #cbd5e1;
+
+            --acc-brand-500: #8b5cf6;
+            --acc-brand-600: #9926fe;
+            --acc-brand-700: #7c3aed;
+            --acc-brand-800: #3d1f5c;
+            --acc-brand-900: #2a003f;
+
+            --acc-success-500: #22c55e;
+            --acc-warning-500: #f59e0b;
+            --acc-danger-500: #ef4444;
+
+            --acc-grad-start: var(--acc-bg-0);
+            --acc-grad-mid: #1c0b33;
+            --acc-grad-end: var(--acc-brand-900);
+
+            --acc-surface-2: #1e1e2a;
+            --acc-surface-3: #282838;
+
+            --acc-radius: 12px;
+            --acc-radius-sm: 8px;
+            --acc-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+            --acc-transition: .2s ease;
+
+            --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
+
+            /* Tipografía */
+            --font-body: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-heading: "Sora", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+            --text-xs: .75rem;
+            --text-sm: .875rem;
+            --text-md: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --text-4xl: 2.25rem;
+
+            --w-regular: 400;
+            --w-medium: 500;
+            --w-semibold: 600;
+            --w-bold: 700;
+            --w-extrabold: 800;
+
+            --lh-tight: 1.12;
+            --lh-snug: 1.25;
+            --lh-normal: 1.5;
+            --lh-relaxed: 1.72;
+
+            --ls-tight: -0.01em;
+            --ls-wide: 0.03em;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            color: var(--acc-text);
+            background: linear-gradient(180deg, var(--acc-grad-start), var(--acc-grad-mid) 45%, var(--acc-grad-end));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        button {
+            font: inherit
+        }
+
+        .shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-row {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--acc-border);
+            background: linear-gradient(to right, var(--acc-grad-start), var(--acc-grad-mid), var(--acc-grad-end));
+            backdrop-filter: blur(6px);
+        }
+
+        .top-row__inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 14px 18px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .brand__dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: var(--acc-brand-600);
+            box-shadow: 0 0 0 6px color-mix(in srgb, var(--acc-brand-600) 25%, transparent);
+        }
+
+        .brand__title {
+            font-family: var(--font-heading);
+            font-weight: var(--w-extrabold);
+            letter-spacing: var(--ls-tight);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 22px 18px 44px;
+        }
+
+        /* Tipos */
+        .ty-page-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-4xl);
+            font-weight: var(--w-extrabold);
+            line-height: var(--lh-tight);
+            letter-spacing: var(--ls-tight);
+            margin: 0;
+        }
+
+        .ty-section-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-xl);
+            font-weight: var(--w-bold);
+            line-height: var(--lh-snug);
+            letter-spacing: var(--ls-tight);
+            margin: 0 0 10px;
+        }
+
+        .ty-card-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-2xl);
+            font-weight: var(--w-bold);
+            line-height: var(--lh-snug);
+            letter-spacing: var(--ls-tight);
+            margin: 0;
+        }
+
+        .ty-muted {
+            color: var(--acc-text-muted);
+            font-size: var(--text-sm);
+            line-height: var(--lh-normal);
+            margin: 0;
+        }
+
+        .ty-paragraph {
+            color: var(--acc-text-muted);
+            line-height: var(--lh-relaxed);
+            margin: 10px 0 0;
+        }
+
+        /* Superficies */
+        .surface {
+            background: color-mix(in srgb, var(--acc-surface-2) 88%, black);
+            border: 1px solid var(--acc-border);
+            border-radius: var(--acc-radius);
+            box-shadow: var(--acc-shadow);
+        }
+
+        .surface--flat {
+            box-shadow: none;
+            border-radius: var(--acc-radius-sm);
+        }
+
+        /* Botones */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .55rem;
+            padding: .62rem 1rem;
+            border-radius: var(--acc-radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--acc-transition);
+            font-weight: var(--w-semibold);
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: var(--acc-focus);
+        }
+
+        .btn--primary {
+            background: var(--acc-brand-600);
+            color: #fff;
+        }
+
+        .btn--primary:hover {
+            background: var(--acc-brand-700)
+        }
+
+        .btn--primary:active {
+            background: var(--acc-brand-800)
+        }
+
+        .btn--ghost {
+            background: transparent;
+            color: var(--acc-text);
+            border-color: var(--acc-border);
+        }
+
+        .btn--ghost:hover {
+            background: color-mix(in srgb, var(--acc-text) 6%, transparent);
+        }
+
+        .btn[disabled] {
+            opacity: .55;
+            cursor: not-allowed;
+            filter: saturate(.6);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .25rem .55rem;
+            border-radius: 999px;
+            font-weight: var(--w-bold);
+            font-size: var(--text-xs);
+            letter-spacing: var(--ls-wide);
+            text-transform: uppercase;
+            border: 1px solid color-mix(in srgb, var(--acc-border) 75%, transparent);
+            background: color-mix(in srgb, var(--acc-surface-2) 85%, black);
+            color: var(--acc-text);
+        }
+
+        .badge--progress {
+            border-color: color-mix(in srgb, var(--acc-brand-600) 45%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-brand-600) 16%, var(--acc-surface-2));
+        }
+
+        .badge--available {
+            border-color: color-mix(in srgb, var(--acc-brand-600) 55%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-brand-600) 14%, var(--acc-surface-2));
+        }
+
+        .badge--locked {
+            border-color: color-mix(in srgb, var(--acc-border) 90%, black);
+            background: color-mix(in srgb, var(--acc-surface-3) 80%, black);
+            color: color-mix(in srgb, var(--acc-text-muted) 85%, white);
+        }
+
+        .badge--done {
+            border-color: color-mix(in srgb, var(--acc-success-500) 55%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-success-500) 14%, var(--acc-surface-2));
+        }
+
+        /* Header guía */
+        .guide-header {
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .guide-header__meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+
+        .progress {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .progress__row {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .progress__label {
+            font-size: var(--text-sm);
+            color: var(--acc-text-muted);
+        }
+
+        .progress__value {
+            font-family: var(--font-code);
+            font-size: var(--text-sm);
+            color: color-mix(in srgb, var(--acc-brand-600) 70%, white);
+            font-weight: var(--w-semibold);
+        }
+
+        .bar {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--acc-bg-3) 85%, black);
+            border: 1px solid color-mix(in srgb, var(--acc-border) 70%, transparent);
+            overflow: hidden;
+        }
+
+        .bar__fill {
+            height: 100%;
+            width: 66%;
+            background: linear-gradient(90deg, var(--acc-brand-600), color-mix(in srgb, var(--acc-brand-500) 70%, white));
+            border-radius: 999px;
+        }
+
+        /* Tarjeta módulo */
+        .module-card {
+            margin-top: 18px;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+            align-items: start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: "";
+            position: absolute;
+            inset: -40px -60px auto auto;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--acc-brand-600) 40%, transparent), transparent 60%);
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .label {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: var(--text-xs);
+            font-weight: var(--w-extrabold);
+            letter-spacing: var(--ls-wide);
+            text-transform: uppercase;
+            color: color-mix(in srgb, var(--acc-brand-600) 65%, white);
+            margin-bottom: 8px;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .35rem .6rem;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--acc-brand-600) 35%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-surface-2));
+            font-size: var(--text-sm);
+            color: var(--acc-text);
+        }
+
+        .module-card__actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+
+        .module-card__actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .module-card__panel {
+            padding: 14px;
+            border-radius: var(--acc-radius-sm);
+            border: 1px solid color-mix(in srgb, var(--acc-border) 75%, transparent);
+            background: color-mix(in srgb, var(--acc-surface-3) 70%, black);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .kv {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: var(--text-sm);
+            color: var(--acc-text-muted);
+        }
+
+        .kv strong {
+            color: var(--acc-text);
+            font-weight: var(--w-bold);
+        }
+
+        /* Timeline */
+        .route {
+            margin-top: 22px;
+            padding: 18px;
+        }
+
+        .route__sub {
+            margin: 0 0 12px;
+            color: var(--acc-text-muted);
+            font-size: var(--text-sm);
+        }
+
+        .timeline {
+            position: relative;
+            margin-top: 14px;
+            padding-left: 18px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 26px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: color-mix(in srgb, var(--acc-border) 80%, black);
+            border-radius: 999px;
+            opacity: .9;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            gap: 14px;
+            align-items: start;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .step__node {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 2px;
+        }
+
+        .node {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            border: 1px solid color-mix(in srgb, var(--acc-border) 80%, transparent);
+            background: color-mix(in srgb, var(--acc-surface-3) 70%, black);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, .25);
+            font-size: 18px;
+        }
+
+        .node--available {
+            border-color: color-mix(in srgb, var(--acc-brand-600) 50%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-surface-3));
+        }
+
+        .node--locked {
+            opacity: .75;
+            filter: saturate(.6);
+        }
+
+        .node--done {
+            border-color: color-mix(in srgb, var(--acc-success-500) 55%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-success-500) 12%, var(--acc-surface-3));
+        }
+
+        .step-card {
+            padding: 14px;
+            border-radius: var(--acc-radius);
+            border: 1px solid var(--acc-border);
+            background: color-mix(in srgb, var(--acc-surface-2) 88%, black);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .28);
+            transition: transform var(--acc-transition), box-shadow var(--acc-transition), border-color var(--acc-transition);
+        }
+
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, .34);
+            border-color: color-mix(in srgb, var(--acc-brand-600) 35%, var(--acc-border));
+        }
+
+        .step-card__top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .step-card__title {
+            margin: 0;
+            font-family: var(--font-heading);
+            font-size: var(--text-lg);
+            font-weight: var(--w-bold);
+            letter-spacing: var(--ls-tight);
+            line-height: var(--lh-snug);
+        }
+
+        .step-card__desc {
+            margin: 0;
+            color: var(--acc-text-muted);
+            line-height: var(--lh-relaxed);
+            font-size: var(--text-md);
+        }
+
+        .step-card__bottom {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .reason {
+            font-size: var(--text-sm);
+            color: color-mix(in srgb, var(--acc-text-muted) 90%, white);
+        }
+
+        /* Boss step */
+        .step-card--boss {
+            border-color: color-mix(in srgb, var(--acc-brand-600) 30%, var(--acc-border));
+            background: linear-gradient(180deg,
+                    color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-surface-2)),
+                    color-mix(in srgb, var(--acc-surface-2) 90%, black));
+        }
+
+        .checklist {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: var(--acc-radius-sm);
+            border: 1px solid color-mix(in srgb, var(--acc-border) 70%, transparent);
+            background: color-mix(in srgb, var(--acc-surface-3) 70%, black);
+            display: grid;
+            gap: 6px;
+            font-size: var(--text-sm);
+            color: var(--acc-text-muted);
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .check__box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid color-mix(in srgb, var(--acc-border) 80%, transparent);
+            background: color-mix(in srgb, var(--acc-bg-3) 80%, black);
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            line-height: 1;
+            color: #fff;
+        }
+
+        .check--done .check__box {
+            border-color: color-mix(in srgb, var(--acc-success-500) 55%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-success-500) 30%, var(--acc-bg-3));
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .guide-header {
+                grid-template-columns: 1fr;
+                gap: 12px
+            }
+
+            .guide-header__meta {
+                align-items: flex-start
+            }
+
+            .progress {
+                align-items: flex-start;
+                max-width: none
+            }
+
+            .module-card {
+                grid-template-columns: 1fr
+            }
+        }
+
+        @media (max-width: 520px) {
+            .ty-page-title {
+                font-size: 1.9rem
+            }
+
+            .timeline {
+                padding-left: 10px
+            }
+
+            .timeline::before {
+                left: 22px
+            }
+
+            .step {
+                grid-template-columns: 56px 1fr
+            }
+
+            .node {
+                width: 40px;
+                height: 40px
+            }
+
+            .step-card__bottom {
+                justify-content: flex-start
+            }
+
+            .btn {
+                width: 100%
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <!-- Top row minimal (contexto ACC) -->
+        <header class="top-row">
+            <div class="top-row__inner">
+                <div class="brand">
+                    <span class="brand__dot" aria-hidden="true"></span>
+                    <div class="brand__title">ACC — Aprendiendo C# con Charp</div>
+                </div>
+                <span class="badge badge--progress">Módulo I · En progreso</span>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- Header de Guía -->
+            <section class="surface guide-header" aria-label="Encabezado de guía">
+                <div>
+                    <h1 class="ty-page-title">Guía de Estudios</h1>
+                    <p class="ty-paragraph">Completa el contenido de cada módulo para adquirir conocimientos.</p>
+                </div>
+
+                <div class="guide-header__meta">
+                    <div class="progress" aria-label="Progreso del módulo">
+                        <div class="progress__row">
+                            <span class="progress__label">Progreso del módulo</span>
+                            <span class="progress__value">2/3</span>
+                        </div>
+                        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="66">
+                            <div class="bar__fill" style="width:66%"></div>
+                        </div>
+                        <p class="ty-muted">2 submódulos completados, 1 pendiente.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tarjeta Misión del Módulo -->
+            <section class="surface module-card" aria-label="Módulo actual">
+                <div>
+                    <div class="label">MÓDULO I</div>
+                    <h2 class="ty-card-title">Desarrolla software de sistemas informáticos</h2>
+                    <p class="ty-paragraph">
+                        Adquiere las habilidades para crear sistemas informáticos eficientes. Domina desde el diseño del
+                        sistema y la
+                        codificación en C# hasta una implementación eficaz.
+                    </p>
+
+                    <div class="pill-row" aria-label="Enfoques del módulo">
+                        <span class="pill">🧩 Diseño del sistema</span>
+                        <span class="pill">🧠 Codificación en C#</span>
+                        <span class="pill">🚀 Implementación eficaz</span>
+                    </div>
+                </div>
+
+                <div class="module-card__actions">
+                    <button class="btn btn--primary">Continuar módulo</button>
+                    <button class="btn btn--ghost">Ver temario</button>
+
+                    <div class="module-card__panel" aria-label="Panel de estado del módulo">
+                        <div class="kv"><span>Estado</span> <strong>En progreso</strong></div>
+                        <div class="kv"><span>Siguiente paso</span> <strong>Submódulo 1.3</strong></div>
+                        <div class="kv"><span>Examen final</span> <strong>Bloqueado</strong></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ruta / Timeline -->
+            <section class="surface route" aria-label="Ruta del módulo">
+                <h3 class="ty-section-title">Ruta del Módulo I</h3>
+                <p class="route__sub">Completa cada paso para desbloquear el examen final.</p>
+
+                <div class="timeline">
+                    <!-- Step 1 (DONE) -->
+                    <div class="step">
+                        <div class="step__node">
+                            <div class="node node--done" aria-hidden="true">📘</div>
+                        </div>
+                        <article class="step-card" aria-label="Examen Submódulo 1.1">
+                            <div class="step-card__top">
+                                <h4 class="step-card__title">Examen Submódulo 1.1</h4>
+                                <span class="badge badge--done">Completado</span>
+                            </div>
+                            <p class="step-card__desc">Prueba los conocimientos de diseño de software de sistemas
+                                informáticos.</p>
+                            <div class="step-card__bottom">
+                                <span class="reason">Último intento: <span
+                                        style="font-family:var(--font-code)">92</span>/100</span>
+                                <button class="btn btn--ghost">Reintentar</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Step 2 (AVAILABLE) -->
+                    <div class="step">
+                        <div class="step__node">
+                            <div class="node node--available" aria-hidden="true">📘</div>
+                        </div>
+                        <article class="step-card" aria-label="Examen Submódulo 1.2">
+                            <div class="step-card__top">
+                                <h4 class="step-card__title">Examen Submódulo 1.2</h4>
+                                <span class="badge badge--available">Disponible</span>
+                            </div>
+                            <p class="step-card__desc">Evalúa las habilidades de codificación en C# y buenas prácticas
+                                de programación.</p>
+                            <div class="step-card__bottom">
+                                <span class="reason">Recomendado: repasa “Buenas prácticas” antes de iniciar.</span>
+                                <button class="btn btn--primary">¡Enfrentar el Desafío!</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Step 3 (LOCKED) -->
+                    <div class="step">
+                        <div class="step__node">
+                            <div class="node node--locked" aria-hidden="true">📘</div>
+                        </div>
+                        <article class="step-card" aria-label="Examen Submódulo 1.3">
+                            <div class="step-card__top">
+                                <h4 class="step-card__title">Examen Submódulo 1.3</h4>
+                                <span class="badge badge--locked">Bloqueado</span>
+                            </div>
+                            <p class="step-card__desc">Verifica la capacidad de implementación de software en un entorno
+                                real.</p>
+                            <div class="step-card__bottom">
+                                <span class="reason">Bloqueado: completa Submódulo 1.2 para desbloquear.</span>
+                                <button class="btn btn--primary" disabled>Bloqueado</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- Boss Step (LOCKED) -->
+                    <div class="step">
+                        <div class="step__node">
+                            <div class="node node--locked" aria-hidden="true">🏆</div>
+                        </div>
+                        <article class="step-card step-card--boss" aria-label="Examen Módulo 1">
+                            <div class="step-card__top">
+                                <h4 class="step-card__title">Examen Módulo 1</h4>
+                                <span class="badge badge--locked">Examen bloqueado</span>
+                            </div>
+                            <p class="step-card__desc">Evalúa los conocimientos generales adquiridos en el Módulo I.</p>
+
+                            <div class="checklist" aria-label="Requisitos para desbloquear examen">
+                                <div class="check check--done">
+                                    <span class="check__box">✓</span>
+                                    <span>Submódulo 1.1 completado</span>
+                                </div>
+                                <div class="check">
+                                    <span class="check__box"></span>
+                                    <span>Submódulo 1.2 completado</span>
+                                </div>
+                                <div class="check">
+                                    <span class="check__box"></span>
+                                    <span>Submódulo 1.3 completado</span>
+                                </div>
+                            </div>
+
+                            <div class="step-card__bottom">
+                                <span class="reason">Completa los tres submódulos para habilitar el examen final.</span>
+                                <button class="btn btn--primary" disabled>Iniciar examen</button>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
