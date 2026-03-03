@@ -29,13 +29,16 @@
                 <ValidationSummary class="text-danger" role="alert" />
                 @if (isEmailConfirmed)
                 {
-                    <div class="form-floating mb-3 input-group">
-                        <input type="text" value="@email" class="form-control" placeholder="Por favor, ingresa tu email."
-                            disabled />
-                        <div class="input-group-append">
-                            <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
+                    <div class="account-email-current">
+                        <div class="form-floating">
+                            <input id="email" type="text" value="@email" class="form-control"
+                                   placeholder="Por favor, ingresa tu email." disabled />
+                            <label for="email" class="form-label">Email</label>
                         </div>
-                        <label for="email" class="form-label">Email</label>
+
+                        <span class="account-email-current__status" title="Correo confirmado" aria-label="Correo confirmado">
+                            <i class="fa-solid fa-check"></i>
+                        </span>
                     </div>
                 }
                 else

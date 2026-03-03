@@ -1,45 +1,70 @@
-﻿@page "/Account/Manage"
+@page "/Account/Manage"
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using ACC.WebApp.Data;
+@using ACC.WebApp.Services
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
+@inject UsuarioSyncService UsuarioSyncService
 
 <PageTitle>Perfil</PageTitle>
 
-    <div class="biblioteca-doc-item" style="max-width: 500px; margin: 40px auto;">
-        <div class="cuentas-doc-header">
-            <h3 class="biblioteca-section-title">Perfil</h3>
-        </div>
-        <section class="biblioteca-doc-content">
-            <StatusMessage />
-            <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <input type="text" value="@username" class="form-control"
-                        placeholder="Por favor, elige tu nombre de usuario." disabled />
-                    <label for="username" class="form-label">Nombre de usuario</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.PhoneNumber" class="form-control"
-                        placeholder="Por favor, ingresa tu número telefónico." />
-                    <label for="phone-number" class="form-label">Número telefónico</label>
-                    <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
-                </div>
-                <button type="submit" class="biblioteca-btn-completar-subtema w-100">Guardar</button>
-            </EditForm>
-        </section>
+<div class="biblioteca-doc-item" style="max-width: 500px; margin: 40px auto;">
+    <div class="cuentas-doc-header">
+        <h3 class="biblioteca-section-title">Perfil</h3>
     </div>
+    <section class="biblioteca-doc-content">
+        <StatusMessage Message="@message" />
+        <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.UserName" class="form-control"
+                           placeholder="Por favor, elige tu nombre de usuario." />
+                <label for="username" class="form-label">Nombre de usuario</label>
+                <ValidationMessage For="() => Input.UserName" class="text-danger" />
+            </div>
+
+            @if (CanChangeUserNameNow)
+            {
+                <div class="account-inline-note account-inline-note--info">
+                    <strong>Cambio disponible</strong>
+                    <span>Puedes cambiar tu nombre de usuario ahora. Después tendrás que esperar 7 días para volver a hacerlo.</span>
+                </div>
+            }
+            else
+            {
+                <div class="account-inline-note account-inline-note--warning">
+                    <strong>Cooldown activo</strong>
+                    <span>Podrás cambiar tu nombre de usuario otra vez el @NextUserNameChangeLabel.</span>
+                </div>
+            }
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.PhoneNumber" class="form-control"
+                           placeholder="Por favor, ingresa tu número telefónico." />
+                <label for="phone-number" class="form-label">Número telefónico</label>
+                <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+            </div>
+
+            <button type="submit" class="biblioteca-btn-completar-subtema w-100">Guardar</button>
+        </EditForm>
+    </section>
+</div>
 
 @code {
+    private static readonly TimeSpan UserNameChangeCooldown = TimeSpan.FromDays(7);
+
     private ApplicationUser user = default!;
     private string? username;
     private string? phoneNumber;
+    private DateTimeOffset? nextUserNameChangeUtc;
+    private string? message;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -47,34 +72,130 @@
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
+    private bool CanChangeUserNameNow =>
+        !nextUserNameChangeUtc.HasValue || DateTimeOffset.UtcNow >= nextUserNameChangeUtc.Value;
+
+    private string NextUserNameChangeLabel =>
+        nextUserNameChangeUtc?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "ahora";
+
     protected override async Task OnInitializedAsync()
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        nextUserNameChangeUtc = GetNextUserNameChangeUtc(user.LastUserNameChangeUtc);
 
+        Input.UserName ??= username;
         Input.PhoneNumber ??= phoneNumber;
     }
 
     private async Task OnValidSubmitAsync()
     {
-        if (Input.PhoneNumber != phoneNumber)
+        message = null;
+
+        var requestedUserName = Input.UserName?.Trim();
+        var requestedPhoneNumber = string.IsNullOrWhiteSpace(Input.PhoneNumber) ? null : Input.PhoneNumber.Trim();
+
+        if (string.IsNullOrWhiteSpace(requestedUserName))
         {
-            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-            if (!setPhoneResult.Succeeded)
+            message = "Error: El nombre de usuario es obligatorio.";
+            return;
+        }
+
+        var userNameChanged = !string.Equals(requestedUserName, username, StringComparison.Ordinal);
+        var phoneChanged = !string.Equals(requestedPhoneNumber, phoneNumber, StringComparison.Ordinal);
+
+        if (!userNameChanged && !phoneChanged)
+        {
+            message = "No hay cambios para guardar.";
+            return;
+        }
+
+        if (userNameChanged && !CanChangeUserNameNow)
+        {
+            message = $"Error: Podrás cambiar tu nombre de usuario nuevamente el {NextUserNameChangeLabel}.";
+            return;
+        }
+
+        if (userNameChanged)
+        {
+            var existingUser = await UserManager.FindByNameAsync(requestedUserName);
+            if (existingUser is not null && existingUser.Id != user.Id)
             {
-                RedirectManager.RedirectToCurrentPageWithStatus("Error: No se pudo establecer el número telefónico.", HttpContext);
+                message = "Error: Ese nombre de usuario ya está en uso.";
+                return;
             }
         }
 
+        if (userNameChanged)
+        {
+            user.UserName = requestedUserName;
+            user.LastUserNameChangeUtc = DateTimeOffset.UtcNow;
+        }
+
+        if (phoneChanged)
+        {
+            user.PhoneNumber = requestedPhoneNumber;
+        }
+
+        var updateResult = await UserManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            message = $"Error: {string.Join(", ", updateResult.Errors.Select(error => error.Description))}";
+            return;
+        }
+
+        if (userNameChanged)
+        {
+            await UsuarioSyncService.SincronizarUsuarioAsync(user);
+            username = requestedUserName;
+            nextUserNameChangeUtc = GetNextUserNameChangeUtc(user.LastUserNameChangeUtc);
+            Input.UserName = requestedUserName;
+        }
+
+        if (phoneChanged)
+        {
+            phoneNumber = requestedPhoneNumber;
+            Input.PhoneNumber = requestedPhoneNumber;
+        }
+
         await SignInManager.RefreshSignInAsync(user);
-        RedirectManager.RedirectToCurrentPageWithStatus("Tu perfil ha sido actualizado", HttpContext);
+        RedirectManager.RedirectToCurrentPageWithStatus("Tu perfil ha sido actualizado.", HttpContext);
+    }
+
+    private static DateTimeOffset? GetNextUserNameChangeUtc(DateTimeOffset? lastUserNameChangeUtc)
+    {
+        return lastUserNameChangeUtc?.Add(UserNameChangeCooldown);
     }
 
     private sealed class InputModel
     {
-        [Phone]
+        [Required]
+        [Display(Name = "Nombre de usuario")]
+        public string? UserName { get; set; }
+
+        [OptionalPhone(ErrorMessage = "El campo Número telefónico no es un número de teléfono válido.")]
         [Display(Name = "Número telefónico")]
         public string? PhoneNumber { get; set; }
+    }
+
+    private sealed class OptionalPhoneAttribute : ValidationAttribute
+    {
+        private static readonly PhoneAttribute PhoneValidator = new();
+
+        public override bool IsValid(object? value)
+        {
+            if (value is null)
+            {
+                return true;
+            }
+
+            if (value is string text && string.IsNullOrWhiteSpace(text))
+            {
+                return true;
+            }
+
+            return PhoneValidator.IsValid(value);
+        }
     }
 }

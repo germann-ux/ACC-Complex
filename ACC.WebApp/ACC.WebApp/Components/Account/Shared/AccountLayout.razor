@@ -1,14 +1,22 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @layout ACC.WebApp.Components.Layout.MainLayout
 @inject NavigationManager NavigationManager
 
 @if (HttpContext is null)
 {
-    <p>Loading...</p>
+    <section class="account-shell">
+        <div class="account-shell__loading">
+            <p>Cargando cuenta...</p>
+        </div>
+    </section>
 }
 else
 {
-    @Body
+    <section class="account-shell">
+        <div class="account-shell__inner">
+            @Body
+        </div>
+    </section>
 }
 
 @code {

@@ -1,9 +1,9 @@
-﻿@page "/Account/ConfirmEmailChange"
+@page "/Account/ConfirmEmailChange"
 
 @using System.Text
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using ACC.WebApp.Data; 
+@using ACC.WebApp.Data;
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
@@ -11,9 +11,19 @@
 
 <PageTitle>Confirm email change</PageTitle>
 
-<h1>Confirm email change</h1>
+<div class="account-auth-page">
+    <section class="account-auth-card account-auth-card--compact">
+        <div class="account-auth-header">
+            <span class="account-auth-kicker">Cuenta ACC</span>
+            <h1>Confirm email change</h1>
+            <p>We are validating the requested email update.</p>
+        </div>
 
-<StatusMessage Message="@message" />
+        <section class="account-auth-body">
+            <StatusMessage Message="@message" />
+        </section>
+    </section>
+</div>
 
 @code {
     private string? message;
@@ -50,15 +60,6 @@
         if (!result.Succeeded)
         {
             message = "Error changing email.";
-            return;
-        }
-
-        // In our UI email and user name are one and the same, so when we update the email
-        // we need to update the user name.
-        var setUserNameResult = await UserManager.SetUserNameAsync(user, Email);
-        if (!setUserNameResult.Succeeded)
-        {
-            message = "Error changing user name.";
             return;
         }
 

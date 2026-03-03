@@ -787,3 +787,631 @@ input:-webkit-autofill:focus {
 /*
     LAYOUT DE NAVEGACION
 */
+
+/* ---------------------------------------
+   Account UI refresh
+   Inspirado en Agenda usando tokens ACC
+---------------------------------------- */
+
+.account-shell {
+    padding: clamp(1rem, 2vw, 1.5rem) 0 clamp(2rem, 4vw, 3rem);
+}
+
+.account-shell__inner {
+    width: min(100%, 1180px);
+    margin: 0 auto;
+    display: grid;
+    gap: 1rem;
+}
+
+.account-shell__loading {
+    width: min(100%, 34rem);
+    margin: 0 auto;
+    padding: 1rem 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    border-radius: var(--acc-radius);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-surface-2) 90%, black 10%));
+    box-shadow: var(--acc-shadow);
+    color: var(--acc-text-muted);
+}
+
+.account-auth-page {
+    width: min(100%, 34rem);
+    margin: 0 auto;
+}
+
+.account-auth-card,
+.account-manage-card {
+    border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    border-radius: var(--acc-radius);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-surface-2) 90%, black 10%));
+    box-shadow: var(--acc-shadow);
+}
+
+.account-auth-card {
+    overflow: hidden;
+}
+
+.account-auth-card--compact {
+    width: min(100%, 38rem);
+}
+
+.account-auth-header {
+    padding: 1.2rem 1.2rem 0.95rem;
+    display: grid;
+    gap: 0.42rem;
+}
+
+.account-auth-kicker,
+.account-manage-hero__eyebrow {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 14%, var(--acc-surface-2));
+    color: color-mix(in srgb, var(--acc-brand-600) 84%, white);
+    font-size: 0.72rem;
+    font-weight: var(--w-bold);
+    letter-spacing: 0.03em;
+    padding: 0.32rem 0.62rem;
+    text-transform: uppercase;
+}
+
+.account-manage-hero__eyebrow--admin {
+    border-color: color-mix(in srgb, var(--acc-danger-500) 40%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-danger-500) 16%, var(--acc-surface-2));
+    color: color-mix(in srgb, var(--acc-danger-500) 88%, white);
+}
+
+.account-manage-hero__eyebrow--teacher {
+    border-color: color-mix(in srgb, var(--acc-blue-600) 42%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-blue-600) 14%, var(--acc-surface-2));
+    color: color-mix(in srgb, var(--acc-blue-600) 86%, white);
+}
+
+.account-manage-hero__eyebrow--student {
+    border-color: color-mix(in srgb, var(--acc-success-500) 40%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-success-500) 14%, var(--acc-surface-2));
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+}
+
+.account-manage-hero__eyebrow--default {
+    border-color: color-mix(in srgb, var(--acc-brand-600) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 14%, var(--acc-surface-2));
+    color: color-mix(in srgb, var(--acc-brand-600) 84%, white);
+}
+
+.account-auth-header h1,
+.account-manage-hero__copy h1 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.45rem, 1.2rem + 0.8vw, 2rem);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-tight);
+    color: var(--acc-text);
+}
+
+.account-auth-header p,
+.account-manage-hero__copy p,
+.account-auth-note,
+.account-auth-footer {
+    margin: 0;
+    color: var(--acc-text-muted);
+    line-height: var(--lh-relaxed);
+}
+
+.account-auth-body {
+    padding: 0 1.2rem 1.2rem;
+    display: grid;
+    gap: 0.9rem;
+}
+
+.account-auth-body form {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.account-auth-body .form-floating,
+.account-manage-main__inner .form-floating,
+.account-manage-main__inner .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+.account-auth-body .validation-message,
+.account-auth-body .text-danger,
+.account-manage-main__inner .validation-message,
+.account-manage-main__inner .text-danger {
+    color: color-mix(in srgb, var(--acc-danger-500) 88%, white) !important;
+    font-size: 0.78rem;
+}
+
+.account-auth-body .validation-summary-errors,
+.account-manage-main__inner .validation-summary-errors {
+    border: 1px solid color-mix(in srgb, var(--acc-danger-500) 40%, var(--acc-border));
+    border-radius: var(--acc-radius-sm);
+    background: color-mix(in srgb, var(--acc-danger-500) 10%, var(--acc-surface-3));
+    color: color-mix(in srgb, var(--acc-danger-500) 88%, white);
+    padding: 0.7rem 0.85rem;
+}
+
+.account-auth-body .validation-summary-errors ul,
+.account-manage-main__inner .validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+.account-checkbox label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--acc-text-muted);
+}
+
+.account-inline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.account-inline-actions small {
+    color: var(--acc-text-muted) !important;
+}
+
+.account-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.55rem;
+    transform: translateY(-50%);
+    border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--acc-surface-3) 88%, black);
+    color: var(--acc-text-muted);
+    padding: 0.34rem 0.65rem;
+    font-size: 0.74rem;
+    font-weight: var(--w-bold);
+    cursor: pointer;
+    transition: var(--acc-transition);
+}
+
+.account-password-toggle:hover {
+    color: var(--acc-text);
+    border-color: color-mix(in srgb, var(--acc-brand-600) 45%, var(--acc-border));
+}
+
+.account-inline-note {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: var(--acc-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--acc-blue-600) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-blue-600) 10%, var(--acc-surface-3));
+    color: var(--acc-text);
+}
+
+.account-inline-note--info strong {
+    color: color-mix(in srgb, var(--acc-blue-600) 78%, white);
+}
+
+.account-inline-note--warning {
+    border-color: color-mix(in srgb, var(--acc-warning-500) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-warning-500) 10%, var(--acc-surface-3));
+}
+
+.account-inline-note--warning strong {
+    color: color-mix(in srgb, var(--acc-warning-500) 82%, white);
+}
+
+.account-email-current {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 0.6rem;
+}
+
+.account-email-current__status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--acc-success-500) 42%, var(--acc-border));
+    border-radius: var(--acc-radius-sm);
+    background: color-mix(in srgb, var(--acc-success-500) 14%, var(--acc-surface-3));
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.account-email-current__status i {
+    font-size: 0.95rem;
+}
+
+.account-auth-footer a,
+.account-auth-note a,
+.account-manage-main__inner a:not(.btn):not(.biblioteca-btn-completar-subtema):not(.account-nav__link) {
+    color: color-mix(in srgb, var(--acc-brand-600) 84%, white);
+}
+
+.account-status {
+    padding: 0.78rem 0.88rem;
+    border-radius: var(--acc-radius-sm);
+    border: 1px solid transparent;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.account-status--success {
+    border-color: color-mix(in srgb, var(--acc-success-500) 38%, var(--acc-border));
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+    background: color-mix(in srgb, var(--acc-success-500) 10%, var(--acc-surface-3));
+}
+
+.account-status--danger {
+    border-color: color-mix(in srgb, var(--acc-danger-500) 40%, var(--acc-border));
+    color: color-mix(in srgb, var(--acc-danger-500) 88%, white);
+    background: color-mix(in srgb, var(--acc-danger-500) 11%, var(--acc-surface-3));
+}
+
+.account-auth-page .btn,
+.account-auth-page .biblioteca-btn-completar-subtema,
+.account-manage-page .btn,
+.account-manage-page .biblioteca-btn-completar-subtema {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 0.72rem;
+    font-weight: var(--w-semibold);
+    text-decoration: none;
+    transition: var(--acc-transition);
+}
+
+.account-auth-page .btn-primary,
+.account-auth-page .biblioteca-btn-completar-subtema,
+.account-manage-page .btn-primary,
+.account-manage-page .biblioteca-btn-completar-subtema {
+    background: linear-gradient(135deg, var(--acc-brand-600), var(--acc-blue-600));
+    border: 1px solid color-mix(in srgb, var(--acc-brand-700) 70%, black);
+    color: #fff;
+    box-shadow: none;
+}
+
+.account-auth-page .btn-primary:hover,
+.account-auth-page .biblioteca-btn-completar-subtema:hover,
+.account-manage-page .btn-primary:hover,
+.account-manage-page .biblioteca-btn-completar-subtema:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.account-auth-page .btn-danger,
+.account-manage-page .btn-danger {
+    border-color: color-mix(in srgb, var(--acc-danger-500) 50%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-danger-500) 85%, black 5%);
+}
+
+.account-auth-page .btn-outline-secondary,
+.account-manage-page .btn-outline-secondary {
+    color: var(--acc-text);
+    border-color: color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    background: color-mix(in srgb, var(--acc-surface-3) 84%, black);
+}
+
+.account-auth-page .btn-outline-secondary:hover,
+.account-manage-page .btn-outline-secondary:hover {
+    border-color: color-mix(in srgb, var(--acc-brand-600) 45%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 14%, var(--acc-surface-3));
+}
+
+.account-auth-page .btn:disabled,
+.account-auth-page .biblioteca-btn-completar-subtema:disabled,
+.account-manage-page .btn:disabled,
+.account-manage-page .biblioteca-btn-completar-subtema:disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+}
+
+.account-manage-page {
+    display: grid;
+    gap: 0.95rem;
+}
+
+.account-manage-hero {
+    padding: 1.12rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.9rem;
+}
+
+.account-manage-hero__copy {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.account-manage-hero__eyebrows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.account-manage-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.62rem;
+    min-width: min(100%, 22rem);
+}
+
+.account-manage-pill {
+    min-height: 3.2rem;
+    padding: 0.58rem 0.66rem;
+    border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    border-radius: var(--acc-radius-sm);
+    background: color-mix(in srgb, var(--acc-surface-3) 85%, black);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.18rem;
+}
+
+.account-manage-pill span {
+    color: var(--acc-text-muted);
+    font-size: 0.76rem;
+}
+
+.account-manage-pill strong {
+    color: var(--acc-text);
+    font-family: var(--font-code);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+.account-manage-pill--accent {
+    border-color: color-mix(in srgb, var(--acc-brand-600) 42%, var(--acc-border));
+}
+
+.account-manage-grid {
+    display: grid;
+    grid-template-columns: 18rem minmax(0, 1fr);
+    gap: 0.95rem;
+    align-items: start;
+}
+
+.account-manage-sidebar__inner,
+.account-manage-main__inner {
+    padding: 0.92rem;
+}
+
+.account-manage-main__inner {
+    width: min(100%, 760px);
+}
+
+.account-nav {
+    display: grid;
+    gap: 0.48rem;
+}
+
+.account-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 0.62rem;
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    border-radius: 0.78rem;
+    background: color-mix(in srgb, var(--acc-surface-3) 84%, black);
+    color: var(--acc-text-muted);
+    padding: 0.68rem 0.8rem;
+    transition: var(--acc-transition);
+}
+
+.account-nav__link i {
+    width: 1rem;
+    text-align: center;
+}
+
+.account-nav__link:hover {
+    color: var(--acc-text);
+    border-color: color-mix(in srgb, var(--acc-brand-600) 40%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-surface-3));
+}
+
+.account-nav__link[aria-current="page"] {
+    color: #fff;
+    border-color: color-mix(in srgb, var(--acc-brand-600) 55%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 24%, var(--acc-surface-2));
+}
+
+.account-nav__logout-form {
+    margin-top: 0.48rem;
+}
+
+.account-nav__link--logout {
+    cursor: pointer;
+}
+
+.account-manage-main__inner .biblioteca-doc-item {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.account-manage-main__inner .cuentas-doc-header {
+    display: grid;
+    gap: 0.32rem;
+    margin-bottom: 0.85rem;
+}
+
+.account-manage-main__inner h3,
+.account-manage-main__inner h4 {
+    margin: 0;
+    color: var(--acc-text);
+}
+
+.account-manage-main__inner p,
+.account-manage-main__inner li,
+.account-manage-main__inner td,
+.account-manage-main__inner label,
+.account-manage-main__inner .text-muted {
+    color: var(--acc-text-muted);
+}
+
+.account-manage-main__inner strong,
+.account-manage-main__inner th {
+    color: var(--acc-text);
+}
+
+.account-manage-main__inner .biblioteca-section-description,
+.account-manage-main__inner .text-info {
+    color: var(--acc-text-muted) !important;
+}
+
+.account-manage-main__inner form,
+.account-manage-main__inner .form-horizontal {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.account-manage-main__inner .row {
+    margin: 0;
+}
+
+.account-manage-main__inner .col-md-4,
+.account-manage-main__inner .col-md-6,
+.account-manage-main__inner .col-md-12 {
+    width: 100%;
+    max-width: none;
+    flex: 0 0 100%;
+    padding: 0;
+}
+
+.account-manage-main__inner .alert {
+    margin: 0;
+    border-radius: var(--acc-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
+    background: color-mix(in srgb, var(--acc-surface-3) 84%, black);
+    color: var(--acc-text-muted);
+}
+
+.account-manage-main__inner .alert-warning {
+    border-color: color-mix(in srgb, var(--acc-warning-500) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-warning-500) 10%, var(--acc-surface-3));
+}
+
+.account-manage-main__inner .alert-danger {
+    border-color: color-mix(in srgb, var(--acc-danger-500) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-danger-500) 10%, var(--acc-surface-3));
+}
+
+.account-manage-main__inner .alert-info {
+    border-color: color-mix(in srgb, var(--acc-blue-600) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-blue-600) 10%, var(--acc-surface-3));
+}
+
+.account-manage-main__inner .table {
+    margin-top: 0.35rem;
+}
+
+.account-manage-main__inner .table td,
+.account-manage-main__inner .table th {
+    vertical-align: middle;
+}
+
+.account-manage-main__inner .input-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 0.6rem;
+}
+
+.account-manage-main__inner .input-group-append {
+    display: flex;
+}
+
+.account-manage-main__inner .input-group-text {
+    border: 1px solid color-mix(in srgb, var(--acc-success-500) 42%, var(--acc-border));
+    border-radius: var(--acc-radius-sm);
+    background: color-mix(in srgb, var(--acc-success-500) 14%, var(--acc-surface-3));
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.8rem;
+    padding: 0.7rem 0.85rem;
+}
+
+.account-manage-main__inner code,
+.account-manage-main__inner kbd {
+    font-family: var(--font-code);
+    color: var(--acc-text);
+    background: color-mix(in srgb, var(--acc-surface-3) 92%, black);
+    border: 1px solid color-mix(in srgb, var(--acc-border) 70%, transparent);
+    border-radius: 0.48rem;
+    padding: 0.14rem 0.35rem;
+}
+
+.account-manage-main__inner .recovery-code {
+    display: inline-flex;
+    margin-top: 0.35rem;
+    padding: 0.28rem 0.5rem;
+}
+
+.account-manage-main__inner ol {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: 0.8rem;
+}
+
+.account-manage-main__inner .biblioteca-mensaje-completado {
+    padding: 0.72rem 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--acc-success-500) 38%, var(--acc-border));
+    border-radius: var(--acc-radius-sm);
+    background: color-mix(in srgb, var(--acc-success-500) 10%, var(--acc-surface-3));
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+}
+
+@media (max-width: 980px) {
+    .account-manage-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-manage-hero {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 720px) {
+    .account-shell {
+        padding-inline: 0;
+    }
+
+    .account-auth-page {
+        width: 100%;
+    }
+
+    .account-auth-header,
+    .account-auth-body,
+    .account-manage-sidebar__inner,
+    .account-manage-main__inner,
+    .account-manage-hero {
+        padding-left: 0.9rem;
+        padding-right: 0.9rem;
+    }
+
+    .account-manage-hero__stats {
+        grid-template-columns: 1fr;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .account-email-current {
+        grid-template-columns: 1fr;
+    }
+}
