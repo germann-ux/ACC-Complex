@@ -14,6 +14,9 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<BibliotecaClientService>();
 builder.Services.AddScoped<NavegacionContenidoClient>();
 builder.Services.AddScoped<ProgresoUsuarioClient>();
+builder.Services.AddScoped<TareasAulaClient>();
+builder.Services.AddScoped<AgendaClientService>();
+builder.Services.AddScoped<AgendaRealtimeNotifier>();
 builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
 
 await builder.Build().RunAsync();

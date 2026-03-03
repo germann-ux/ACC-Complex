@@ -14,9 +14,9 @@ public sealed class ResumenService(HttpClient http) : IResumenService
 
     public async Task<(TareasPendientesResumenDto? resumen, List<TareaAlumnoListadoDto> asignadas, List<TareaPersonalDto> personales)> GetTareasAsync(string userId, CancellationToken ct)
     {
-        var resumenTask = http.GetFromJsonAsync<ServiceResult<TareasPendientesResumenDto>>($"{Root}TareasAlumno/resumen/{userId}", ct);
-        var asignadasTask = http.GetFromJsonAsync<ServiceResult<List<TareaAlumnoListadoDto>>>($"{Root}TareasAlumno/listado/{userId}", ct);
-        var personalesTask = http.GetFromJsonAsync<ServiceResult<List<TareaPersonalDto>>>($"{Root}Tarea/personal/lista/{userId}", ct);
+        var resumenTask = http.GetFromJsonAsync<ServiceResult<TareasPendientesResumenDto>>($"{Root}TareasAlumno/resumen", ct);
+        var asignadasTask = http.GetFromJsonAsync<ServiceResult<List<TareaAlumnoListadoDto>>>($"{Root}TareasAlumno/listado", ct);
+        var personalesTask = http.GetFromJsonAsync<ServiceResult<List<TareaPersonalDto>>>($"{Root}Tarea/personal/lista", ct);
 
         await Task.WhenAll(resumenTask!, asignadasTask!, personalesTask!);
 

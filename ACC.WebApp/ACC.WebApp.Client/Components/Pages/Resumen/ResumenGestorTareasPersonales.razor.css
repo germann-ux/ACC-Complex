@@ -1,0 +1,151 @@
+﻿.resumen-tareas-personales {
+    margin-top: 1rem;
+}
+
+.resumen-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.resumen-head h2 {
+    margin: 0;
+}
+
+.open-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 8px;
+    border: 1px solid #5b6ac8;
+    background: #3f4cb0;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.38rem 0.72rem;
+    cursor: pointer;
+}
+
+.open-create:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.open-create i {
+    font-size: 0.76rem;
+}
+
+.task-form {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.task-form textarea {
+    min-height: 84px;
+}
+
+.task-form--modal {
+    margin-top: 0.35rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.modal-actions .secondary {
+    border: 1px solid #9aa3bf;
+    background: transparent;
+    color: #d9dfef;
+}
+
+.create-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    background: rgba(0, 0, 0, 0.62);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.create-modal {
+    width: min(560px, 100%);
+    max-height: min(90vh, 760px);
+    overflow: auto;
+    padding: 1rem;
+}
+
+.create-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.45rem;
+}
+
+.create-modal-head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.modal-close {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #7f8ab0;
+    border-radius: 8px;
+    background: transparent;
+    color: #dce2f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.modal-close:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.task-list {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.task-item {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.6rem;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.task-item .delete {
+    max-width: 100px;
+}
+
+.ok {
+    color: #0b6b2f;
+}
+
+.error {
+    color: #9b111e;
+}
+
+@media (max-width: 640px) {
+    .resumen-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .open-create {
+        justify-content: center;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+}
