@@ -1,227 +1,352 @@
-﻿@*@page "/"
-    @layout LandingPageLayout*@
-
-@*<div class="landing-page">
-        <div class="hero-section">
-            <h1>Bienvenido a ACC - Aprendiendo C# con Charp</h1>
-            <p>Crea una cuenta o inicia sesión en una cuenta ya existente.</p>
-        </div>
-
-        <div class="actions">
-            <a href="/Account/Login" class="button">Iniciar Sesión</a>
-            <a href="/Account/Register" class="button button-secondary">Crear una Cuenta</a>
-        </div>
-
-        <div class="features">
-            <ul>
-                <li>Educación enfocada en C#.</li>
-                <li>Interfaz amigable y fácil de usar.</li>
-                <li>Contenido educativo de calidad.</li>
-                <li>Soporte integral para docentes.</li>
-                <li>Charp, tu asistente virtual personalizado.</li>
-                <li>Prácticas interactivas y dinámicas.</li>
-                <li>Seguimiento del progreso y estadísticas.</li>
-            </ul>
-        </div>
-
-        <div class="faq">
-            <h2>Preguntas Frecuentes</h2>
-            <ul>
-                <li><strong>¿Es ACC adecuado para principiantes?</strong> Sí, ACC está diseñado tanto para principiantes como para usuarios avanzados.</li>
-                <li><strong>¿Charp puede ayudarme con proyectos específicos?</strong> Sí, Charp está diseñado para guiarte en prácticas personalizadas y resolver tus dudas.</li>
-                <li><strong>¿Es necesario instalar algún software?</strong> No, ACC es completamente online y accesible desde cualquier dispositivo.</li>
-            </ul>
-        </div>
-
-        <div class="cta-final">
-            <h2>¿Listo para comenzar tu viaje con ACC?</h2>
-            <p>Crea tu cuenta hoy mismo y empieza a aprender con Charp, tu asistente virtual para dominar C#.</p>
-            <a href="/Account/Register" class="button">Crear una Cuenta</a>
-        </div>
-    </div>*@
-
 @page "/"
 @rendermode InteractiveServer
 @layout LandingPageLayout
 @using Microsoft.AspNetCore.Components.Authorization
 
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
 @if (_redirigiendo)
 {
-    <p>Cargando tu resumen...</p>
+    <p class="landing-loading">Cargando tu resumen...</p>
 }
 else
 {
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <body>
-        <!-- Barra de navegación -->
-        <header>
+    <div class="landing-page" id="inicio">
+        <header class="landing-header">
             <div class="container nav-container">
-                <div class="logo-container">
-                    <img src="ACC_icono.webp" alt="Charp Mascot" width="40" height="40">
+                <a class="logo-container" href="#inicio" @onclick="CerrarMenuMovil">
+                    <img src="ACC_icono.webp" alt="Logo de ACC" width="40" height="40">
                     <div class="logo-text">ACC</div>
-                </div>
-                <nav class="nav-links">
-                    <a href="javascript:void(0)" class="nav-link">Inicio</a>
-                    <a href="javascript:void(0)" class="nav-link">Cursos</a>
-                    <a href="javascript:void(0)" class="nav-link">Recursos</a>
-                    <a href="javascript:void(0)" class="nav-link">Contacto</a>
+                </a>
+
+                <nav id="landing-nav" class="nav-links @(menuMovilAbierto ? "nav-links-open" : string.Empty)" aria-label="Navegacion principal">
+                    <a href="#plataforma" class="nav-link" @onclick="CerrarMenuMovil">Plataforma</a>
+                    <a href="#recorrido" class="nav-link" @onclick="CerrarMenuMovil">Recorrido</a>
+                    <a href="#roles" class="nav-link" @onclick="CerrarMenuMovil">Roles</a>
+                    <a href="#preguntas" class="nav-link" @onclick="CerrarMenuMovil">Preguntas</a>
+                    <a href="#acceso" class="nav-link" @onclick="CerrarMenuMovil">Acceso</a>
                 </nav>
-                <button class="mobile-menu-btn" id="mobile-menu">
+
+                <button type="button"
+                        class="mobile-menu-btn"
+                        aria-label="Abrir menu"
+                        aria-expanded="@menuMovilAbierto"
+                        aria-controls="landing-nav"
+                        @onclick="ToggleMenuMovil">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Hero section -->
         <section class="hero">
             <div class="hero-bg"></div>
+
             <div class="container hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">Bienvenido a ACC<br>Aprendiendo C# con Charp</h1>
-                    <p class="hero-subtitle">Crea una cuenta o inicia sesión en una cuenta ya existente.</p>
+                <div class="hero-copy">
+                    <span class="hero-kicker">Aprendizaje guiado de C# en una sola plataforma</span>
+                    <h1 class="hero-title">ACC conecta estudio, practica, seguimiento y aula sin salir del flujo.</h1>
+                    <p class="hero-subtitle">
+                        La plataforma ya integra resumen personal, agenda, guia por modulos, biblioteca por capitulos,
+                        compilador en linea, evaluaciones y vistas de aula para estudiantes y docentes.
+                    </p>
+
                     <div class="cta-buttons">
-                        <a href="/Account/Login" class="btn btn-primary">Iniciar Sesión</a>
-                        <a href="/Account/Register" class="btn btn-secondary">Crear una Cuenta</a>
+                        <a href="/Account/Register" class="btn btn-primary">Crear cuenta</a>
+                        <a href="/Account/Login" class="btn btn-secondary">Iniciar sesion</a>
+                        <a href="#plataforma" class="btn btn-ghost">Ver que incluye</a>
                     </div>
-                </div>
-                <div class="hero-image">
-                    <img src="./Images/charp.webp" alt="Charp Mascot" class="hero-mascot">
-                </div>
-            </div>
-        </section>
 
-        <!-- Características -->
-        <section class="features">
-            <div class="container">
-                <h2 class="section-title">Características de ACC</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <i class="fa-solid fa-code feature-icon"></i>
-                        <h3 class="feature-title">Educación enfocada en C#</h3>
-                        <p>Cursos especializados para dominar el lenguaje más versátil de Microsoft.</p>
+                    <div class="hero-chips" aria-label="Capacidades principales">
+                        @foreach (var chip in heroChips)
+                        {
+                            <span class="hero-chip">@chip</span>
+                        }
                     </div>
-                    <div class="feature-card">
-                        <i class="fa-solid fa-user-interface feature-icon"></i>
-                        <h3 class="feature-title">Interfaz amigable</h3>
-                        <p>Plataforma intuitiva y fácil de usar para todos los niveles de aprendizaje.</p>
+                </div>
+
+                <div class="hero-panel">
+                    <div class="hero-panel-card hero-panel-card--primary">
+                        <span class="hero-panel-eyebrow">Flujo real dentro de ACC</span>
+                        <ol class="hero-sequence">
+                            @foreach (var step in heroSequence)
+                            {
+                                <li>
+                                    <strong>@step.Title</strong>
+                                    <span>@step.Description</span>
+                                </li>
+                            }
+                        </ol>
                     </div>
-                    <div class="feature-card">
-                        <i class="fa-solid fa-book feature-icon"></i>
-                        <h3 class="feature-title">Contenido educativo de calidad</h3>
-                        <p>Material cuidadosamente seleccionado y actualizado por expertos en C#.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fa-solid fa-chalkboard-teacher feature-icon"></i>
-                        <h3 class="feature-title">Soporte integral para docentes</h3>
-                        <p>Herramientas y recursos para educadores que quieren implementar C# en sus clases.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fa-solid fa-robot feature-icon"></i>
-                        <h3 class="feature-title">Charp, tu asistente virtual</h3>
-                        <p>Acompañamiento personalizado para resolver dudas y guiar tu aprendizaje.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fa-solid fa-laptop-code feature-icon"></i>
-                        <h3 class="feature-title">Prácticas interactivas</h3>
-                        <p>Ejercicios dinámicos para aplicar lo aprendido en entornos reales.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fa-solid fa-chart-line feature-icon"></i>
-                        <h3 class="feature-title">Seguimiento del progreso</h3>
-                        <p>Estadísticas detalladas para monitorear tu avance y mejorar constantemente.</p>
+
+                    <div class="hero-panel-card hero-panel-card--secondary">
+                        <span class="hero-panel-eyebrow">Disponible hoy</span>
+                        <div class="hero-matrix">
+                            @foreach (var item in heroMatrix)
+                            {
+                                <article>
+                                    <strong>@item.Title</strong>
+                                    <span>@item.Description</span>
+                                </article>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Preguntas Frecuentes -->
-        <section class="faq">
+        <section class="feature-section" id="plataforma">
             <div class="container">
-                <h2 class="section-title">Preguntas Frecuentes</h2>
+                <div class="section-heading">
+                    <span class="section-kicker">Plataforma real</span>
+                    <h2 class="section-title">Lo que si puedes hacer hoy en ACC</h2>
+                    <p class="section-text">
+                        Este contenido ya existe en la plataforma. No es una promesa futura ni una lista generica.
+                    </p>
+                </div>
+
+                <div class="feature-grid">
+                    @foreach (var feature in features)
+                    {
+                        <article class="feature-card">
+                            <div class="feature-card-top">
+                                <span class="feature-icon-wrap">
+                                    <i class="@feature.Icon feature-icon"></i>
+                                </span>
+                                <span class="feature-tag">@feature.Tag</span>
+                            </div>
+                            <h3 class="feature-title">@feature.Title</h3>
+                            <p class="feature-copy">@feature.Description</p>
+
+                            @if (!string.IsNullOrWhiteSpace(feature.Link))
+                            {
+                                <a href="@feature.Link" class="feature-link">@feature.LinkLabel</a>
+                            }
+                            else
+                            {
+                                <span class="feature-note">@feature.LinkLabel</span>
+                            }
+                        </article>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="journey-section" id="recorrido">
+            <div class="container journey-layout">
+                <div class="journey-copy">
+                    <span class="section-kicker">Recorrido sugerido</span>
+                    <h2 class="section-title section-title--left">Como se vive la plataforma cuando ya entras</h2>
+                    <p class="section-text section-text--left">
+                        ACC no se limita a mostrar contenido. Tiene un flujo claro: detectar pendientes, avanzar por la guia,
+                        practicar, presentar evaluaciones y volver al resumen para medir progreso.
+                    </p>
+                </div>
+
+                <div class="journey-rail">
+                    @for (var index = 0; index < journeySteps.Length; index++)
+                    {
+                        var step = journeySteps[index];
+                        <article class="journey-step">
+                            <span class="journey-index">0@(index + 1)</span>
+                            <div>
+                                <h3>@step.Title</h3>
+                                <p>@step.Description</p>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="roles-section" id="roles">
+            <div class="container">
+                <div class="section-heading">
+                    <span class="section-kicker">Roles y contexto</span>
+                    <h2 class="section-title">La experiencia cambia segun el tipo de usuario</h2>
+                </div>
+
+                <div class="roles-grid">
+                    @foreach (var role in roles)
+                    {
+                        <article class="role-card">
+                            <div class="role-card-top">
+                                <i class="@role.Icon"></i>
+                                <h3>@role.Title</h3>
+                            </div>
+                            <p>@role.Description</p>
+                            <ul class="role-list">
+                                @foreach (var bullet in role.Bullets)
+                                {
+                                    <li>@bullet</li>
+                                }
+                            </ul>
+                        </article>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section" id="preguntas">
+            <div class="container">
+                <div class="section-heading">
+                    <span class="section-kicker">Preguntas frecuentes</span>
+                    <h2 class="section-title">Dudas comunes sobre el estado actual de ACC</h2>
+                </div>
+
                 <div class="faq-list">
-                    <div class="faq-item">
-                        <div class="faq-question">
-                            <span>¿Es ACC adecuado para principiantes?</span>
-                            <i class="fa-solid fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            <p>Sí, ACC está diseñado tanto para principiantes como para usuarios avanzados. Ofrecemos rutas de aprendizaje personalizadas según tu nivel de experiencia.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <div class="faq-question">
-                            <span>¿Charp puede ayudarme con proyectos específicos?</span>
-                            <i class="fa-solid fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            <p>Sí, Charp está diseñado para guiarte en prácticas personalizadas y resolver tus dudas específicas sobre tus proyectos en C#.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <div class="faq-question">
-                            <span>¿Es necesario instalar algún software?</span>
-                            <i class="fa-solid fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            <p>No, ACC es completamente online y accesible desde cualquier dispositivo con conexión a internet. Nuestro IDE integrado te permite programar sin instalaciones adicionales.</p>
-                        </div>
-                    </div>
+                    @for (var index = 0; index < faqs.Length; index++)
+                    {
+                        var faq = faqs[index];
+                        <article class="faq-item @(faqAbierta == index ? "active" : string.Empty)">
+                            <button type="button"
+                                    class="faq-question"
+                                    aria-expanded="@(faqAbierta == index)"
+                                    @onclick="() => ToggleFaq(index)">
+                                <span>@faq.Question</span>
+                                <i class="fa-solid fa-chevron-down faq-icon"></i>
+                            </button>
+
+                            <div class="faq-answer @(faqAbierta == index ? "faq-answer-open" : string.Empty)">
+                                <p>@faq.Answer</p>
+                            </div>
+                        </article>
+                    }
                 </div>
             </div>
         </section>
 
-        <!-- Final CTA -->
-        <section class="final-cta">
+        <section class="final-cta" id="acceso">
             <div class="final-cta-bg"></div>
             <div class="container final-cta-content">
-                <h2 class="final-cta-title">¿Listo para comenzar tu viaje con ACC?</h2>
-                <p class="final-cta-text">Crea tu cuenta hoy mismo y empieza a aprender con Charp, tu asistente virtual para dominar C#.</p>
-                <a href="/Account/Login" class="btn btn-primary">Crear una Cuenta</a>
+                <span class="section-kicker section-kicker--center">Acceso</span>
+                <h2 class="final-cta-title">Entra a ACC y empieza desde tu resumen, no desde una pantalla vacia.</h2>
+                <p class="final-cta-text">
+                    Si ya tienes cuenta, inicia sesion. Si no, registrate para acceder a la guia, la agenda,
+                    la biblioteca, las evaluaciones y las vistas segun tu rol.
+                </p>
+                <div class="final-cta-actions">
+                    <a href="/Account/Login" class="btn btn-primary">Entrar a la plataforma</a>
+                    <a href="/Account/Register" class="btn btn-secondary">Crear cuenta nueva</a>
+                </div>
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer>
-            <div class="container">
-                <div class="footer-logo">
-                    <i class="fa-solid fa-code"></i> ACC
+        <footer class="landing-footer">
+            <div class="container footer-shell">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fa-solid fa-code"></i> ACC
+                    </div>
+                    <p class="footer-text">Aprendiendo C# con Charp integra estudio, practica y seguimiento en un mismo lugar.</p>
                 </div>
-                <p class="footer-text">© 2025 Aprendiendo C# con Charp. Todos los derechos reservados.</p>
+
+                <div class="footer-meta">
+                    <span>Resumen</span>
+                    <span>Guia</span>
+                    <span>Agenda</span>
+                    <span>Biblioteca</span>
+                    <span>Aulas</span>
+                    <span>Charp IA</span>
+                </div>
+
+                <p class="footer-legal">© @CurrentYear ACC. Todos los derechos reservados.</p>
             </div>
         </footer>
-
-        <script id="app-script">
-        // Manejar el menú móvil
-        document.getElementById('mobile-menu').addEventListener('click', function() {
-            const navLinks = document.querySelector('.nav-links');
-            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-        });
-
-        // Manejar las preguntas frecuentes (acordeón)
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const faqItem = question.parentElement;
-
-                // Cerrar otras preguntas abiertas
-                document.querySelectorAll('.faq-item').forEach(item => {
-                    if (item !== faqItem && item.classList.contains('active')) {
-                        item.classList.remove('active');
-                    }
-                });
-
-                // Toggle la pregunta actual
-                faqItem.classList.toggle('active');
-            });
-        });</script>
-    </body>
+    </div>
 }
 
-@inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager Navigation
 @code {
     private bool estaAutenticado;
-    private bool _redirigiendo = false;
+    private bool _redirigiendo;
+    private bool menuMovilAbierto;
+    private int? faqAbierta;
+
+    private int CurrentYear => DateTime.UtcNow.Year;
+
+    private readonly string[] heroChips =
+    [
+        "Resumen con progreso",
+        "Agenda y tareas",
+        "Guia modular",
+        "Evaluaciones por avance",
+        "Biblioteca por capitulos",
+        "Compilador en linea",
+        "Charp IA",
+        "Aulas por rol"
+    ];
+
+    private readonly LandingMiniCard[] heroSequence =
+    [
+        new("Revisa tu resumen", "Ve progreso, tareas pendientes y evaluaciones vigentes desde un solo tablero."),
+        new("Avanza por la guia", "Explora modulos, submodulos, temas, subtemas y lecciones."),
+        new("Practica en contexto", "Las lecciones pueden incluir teoria, ejemplo, practica, actividad, compilador y video."),
+        new("Vuelve a medir tu avance", "Agenda, resumen y evaluaciones te devuelven una vista clara de tu estado.")
+    ];
+
+    private readonly LandingMiniCard[] heroMatrix =
+    [
+        new("Guia", "Ruta por modulos y lecciones"),
+        new("Biblioteca", "Capitulos con filtros"),
+        new("Agenda", "Pendientes personales y asignados"),
+        new("Examenes", "Submodulo y modulo"),
+        new("Compilador", "Practica directa en C#"),
+        new("Charp", "Vista dedicada y bloques de apoyo")
+    ];
+
+    private readonly LandingFeature[] features =
+    [
+        new("fa-solid fa-chart-line", "Resumen personal", "Panel para ver progreso general, evaluaciones activas y tareas pendientes del usuario autenticado.", "Panel principal", "/Resumen", "Ir al resumen"),
+        new("fa-solid fa-calendar-check", "Agenda operativa", "Organiza tareas personales y asignadas, filtra por estado y detecta lo urgente sin cambiar de modulo.", "Seguimiento", "/Agenda", "Abrir agenda"),
+        new("fa-solid fa-compass", "Guia de estudios", "Navega contenido jerarquico por modulos y lecciones, con progreso por subtema y evaluaciones ligadas al avance.", "Ruta guiada", "/Guia", "Ver guia"),
+        new("fa-solid fa-code", "Practica y compilador", "Las lecciones pueden incluir compilador ACC, actividad interactiva y apoyo audiovisual en el mismo flujo.", "Practica", "/Compilador", "Abrir compilador"),
+        new("fa-solid fa-book-bookmark", "Biblioteca por capitulos", "Explora documentacion, ejercicios y proyectos en un formato de capitulos con filtros y vista dedicada.", "Consulta", "/Biblioteca", "Entrar a biblioteca"),
+        new("fa-solid fa-comment-nodes", "Charp IA", "Existe una vista dedicada para el asistente y tambien bloques de apoyo dentro de las lecciones.", "Asistencia", "/Charp-IA", "Abrir Charp"),
+        new("fa-solid fa-school", "Aulas por rol", "La plataforma incluye vistas para estudiante y docente, con seguimiento de aula, tareas y contexto academico.", "Contexto academico", null, "Disponible segun rol"),
+        new("fa-solid fa-user-gear", "Cuenta y seguridad", "Gestion de perfil, correo, autenticacion en dos pasos y configuracion visual de la cuenta.", "Acceso", "/Account/Manage", "Ir a cuenta")
+    ];
+
+    private readonly LandingMiniCard[] journeySteps =
+    [
+        new("Entrar al resumen", "El punto de inicio real es el resumen, donde convergen progreso, evaluaciones y tareas."),
+        new("Usar agenda como radar", "La agenda permite priorizar pendientes personales y asignados antes de estudiar o entregar."),
+        new("Estudiar desde la guia", "La guia organiza el contenido por modulos y baja hasta la leccion concreta que toca revisar."),
+        new("Practicar y resolver", "Segun la leccion, puedes ver teoria, ejemplos, actividad interactiva, video o compilador."),
+        new("Consultar biblioteca", "Cuando necesitas reforzar o buscar material, la biblioteca ofrece contenido por capitulos y filtros."),
+        new("Volver a medir avance", "Examenes, progreso y tablero principal cierran el ciclo para seguir avanzando.")
+    ];
+
+    private readonly LandingRole[] roles =
+    [
+        new("fa-solid fa-user-graduate", "Estudiantes", "La experiencia del estudiante prioriza avance personal, contenido, tareas y seguimiento individual.", [
+            "Resumen con progreso y evaluaciones",
+            "Agenda para pendientes personales y asignados",
+            "Guia y lecciones con practica",
+            "Acceso a aulas y contexto del curso"
+        ]),
+        new("fa-solid fa-chalkboard-user", "Docentes", "La plataforma ya contempla vistas docentes para trabajo academico y control del aula.", [
+            "Vista docente especializada",
+            "Gestion de aula y contexto academico",
+            "Seguimiento de tareas y actividad",
+            "Apoyo a procesos de aprendizaje"
+        ]),
+        new("fa-solid fa-shield-halved", "Cuenta y acceso", "ACC usa autenticacion y roles para ajustar lo que cada usuario puede ver dentro de la plataforma.", [
+            "Inicio de sesion y registro",
+            "Gestion de correo y seguridad",
+            "Autenticacion en dos pasos",
+            "UI de cuenta adaptada al rol"
+        ])
+    ];
+
+    private readonly LandingFaq[] faqs =
+    [
+        new("La plataforma es solo contenido teorico?", "No. La guia baja hasta lecciones que pueden renderizar teoria, ejemplo, practica, actividad interactiva, compilador y video."),
+        new("ACC ya tiene seguimiento real del avance?", "Si. El resumen muestra progreso y evaluaciones, mientras la agenda concentra tareas personales y asignadas."),
+        new("Necesito instalar algo para practicar?", "No necesariamente. El compilador ACC y gran parte del flujo funcionan dentro de la propia plataforma web."),
+        new("Charp solo existe como idea o ya esta integrado?", "Ya existe una vista dedicada para Charp IA y tambien bloques de apoyo tipo Charp dentro de las lecciones."),
+        new("Todos ven lo mismo dentro de la app?", "No. La experiencia cambia segun el rol; por ejemplo, hay vistas y accesos distintos para estudiantes, docentes y administracion.")
+    ];
+
     protected override async Task OnInitializedAsync()
     {
         var auth = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -229,9 +354,31 @@ else
 
         if (estaAutenticado)
         {
-            // redirige
             _redirigiendo = true;
             Navigation.NavigateTo("/Resumen", forceLoad: true);
         }
     }
+
+    private void ToggleMenuMovil() => menuMovilAbierto = !menuMovilAbierto;
+
+    private void CerrarMenuMovil() => menuMovilAbierto = false;
+
+    private void ToggleFaq(int indice)
+    {
+        faqAbierta = faqAbierta == indice ? null : indice;
+    }
+
+    private sealed record LandingFeature(
+        string Icon,
+        string Title,
+        string Description,
+        string Tag,
+        string? Link,
+        string LinkLabel);
+
+    private sealed record LandingMiniCard(string Title, string Description);
+
+    private sealed record LandingRole(string Icon, string Title, string Description, string[] Bullets);
+
+    private sealed record LandingFaq(string Question, string Answer);
 }
