@@ -1,5 +1,6 @@
-@page "/Aulas/VistaDocentes/Dashboard"
-@*@rendermode InteractiveServer*@
+﻿@page "/Aulas/VistaDocentes/Dashboard"
+@page "/Aulas/VistaDocentes/Dashboard/{AulaId:int}"
+@rendermode InteractiveServer
 @using ACC.WebApp.Client.Components.Aulas
 
 <div class="dashboard">
@@ -11,6 +12,11 @@
         <button class="@GetTabClass(Tab.Configuracion)" @onclick="() => Activar(Tab.Configuracion)">Configuración</button>
     </nav>
 
+    @if (AulaId is null)
+    {
+        <p>Tip de prueba: usa la ruta <code>/Aulas/VistaDocentes/Dashboard/{aulaId}</code>.</p>
+    }
+
     <section class="tab-content">
         @switch (active)
         {
@@ -18,23 +24,25 @@
                 <AnunciosAula />
                 break;
             case Tab.Estudiantes:
-                @*<ListaEstudiantes />*@
+                <ListaEstudiantes />
                 break;
             case Tab.Tareas:
-                <TareasAula />
+                <TareasAula AulaId="@(AulaId ?? 0)" />
                 break;
             case Tab.Evaluaciones:
                 <EvaluacionesAula />
                 break;
             default:
-                @*<ConfiguracionAula />*@
+                <ConfiguracionAula />
                 break;
         }
     </section>
 </div>
 
 @code {
-    private Tab active = Tab.Anuncios;
+    [Parameter] public int? AulaId { get; set; }
+
+    private Tab active = Tab.Tareas;
 
     private void Activar(Tab tab)
     {
@@ -52,3 +60,4 @@
         Configuracion
     }
 }
+

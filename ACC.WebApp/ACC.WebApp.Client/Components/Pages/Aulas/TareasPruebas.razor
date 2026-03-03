@@ -1,0 +1,13 @@
+@page "/Aulas/TareasPruebas/{AulaId:int}"
+@rendermode InteractiveServer
+@using ACC.WebApp.Client.Components.Aulas
+
+<main class="content">
+    <h1>Pruebas de Asignación de Tareas</h1>
+    <p>Esta vista está enfocada en crear tareas de aula (completa o subconjunto).</p>
+    <TareasAula AulaId="@AulaId" />
+</main>
+
+@code {
+    [Parameter] public int AulaId { get; set; }
+}
