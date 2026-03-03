@@ -24,9 +24,6 @@ namespace ACC.Data.Entities
         public Usuario? Usuario { get; set; }
 
         [JsonIgnore]
-        public ICollection<TareaAsignada>? TareasAsignadas { get; set; }
-
-        [JsonIgnore]
         public ICollection<TareaPersonal>? TareasPersonales { get; set; }
     }
 }

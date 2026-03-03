@@ -34,9 +34,6 @@ public class ACCmappingProfile : Profile
         // Mapeo entre Notificacion y NotificacionDto
         CreateMap<Notificacion, NotificacionDto>().ReverseMap();
 
-        // Mapeo entre TareaAsignada y TareaAsignadaDto (LEGACY de tareas)
-        CreateMap<TareaAsignada, TareaAsignadaDto>().ReverseMap();
-
         // Mapeo entre TareaPersonal y TareaPersonalDto
         CreateMap<TareaPersonal, TareaPersonalDto>().ReverseMap();
 
@@ -174,6 +171,7 @@ public class ACCmappingProfile : Profile
 
         // Tarea (aula-level) -> Listado DTO
         CreateMap<Tarea, TareaListadoDto>()
+            .ForMember(d => d.Id, opt => opt.MapFrom(s => s.TareaId))
             .ForMember(d => d.Scope, opt => opt.MapFrom(s => s.Scope))
             // EstadoGlobal se calcula en el servicio si lo necesitas
             .ForMember(d => d.EstadoGlobal, opt => opt.Ignore());

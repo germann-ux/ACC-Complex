@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ACC.Data.Entities
 {
-    public class TareaPersonal // entidad que sirve para que los alumnos puedan ponerse tareas personales a cumplir
+    public class TareaPersonal // entidad que sirve para que los usuarios puedan ponerse tareas personales a cumplir
     {
         [Key]
         public int TareaPersonalId { get; set; } // id de la tarea personal
