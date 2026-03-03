@@ -2,6 +2,22 @@
     max-width: 700px;
     margin: 1rem auto;
 }
+
+.muted {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.error {
+    color: #a40000;
+    margin: 0.5rem 0;
+}
+
+.success {
+    color: #086b2d;
+    margin: 0.5rem 0;
+}
+
 .tarea-item {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
@@ -9,10 +25,37 @@
     padding: 0.5rem;
     margin-bottom: 0.5rem;
 }
-.tarea-form input,
-.tarea-form select {
+
+.tarea-form textarea {
     display: block;
+    width: 100%;
+    min-height: 100px;
     margin-bottom: 0.5rem;
 }
 
-/*echo*/
+.tarea-form input,
+.tarea-form select {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.asignaciones-box {
+    border: 1px solid #ddd;
+    padding: 0.6rem;
+    margin-bottom: 0.7rem;
+    max-height: 180px;
+    overflow: auto;
+}
+
+.alumno-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.35rem;
+}
+
+.acciones {
+    display: flex;
+    gap: 0.5rem;
+}

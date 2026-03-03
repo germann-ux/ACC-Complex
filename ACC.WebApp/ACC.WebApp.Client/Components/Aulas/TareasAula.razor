@@ -1,55 +1,276 @@
-@using ACC.Shared.DTOs 
+﻿@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject TareasAulaClient TareasAulaClient
+
 <div class="tareas-wrapper">
-    <h3>Tareas</h3>
+    <h3>Tareas del Aula</h3>
+    @if (AulaId > 0)
+    {
+        <p class="muted">Aula seleccionada: <strong>@AulaId</strong></p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <p class="error">@errorMessage</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <p class="success">@successMessage</p>
+    }
+
     <button class="crear-btn" @onclick="NuevaTarea">+ Nueva tarea</button>
 
     @if (mostrarFormulario)
     {
         <div class="tarea-form">
-            <input type="text" placeholder="Título" @bind="tareaActual.TituloTareaAsignada" />
-            <select @bind="tareaActual.Completada">
-                <option value="true">Completada</option>
-                <option value="false">Sin Completar</option>
+            <input type="text" placeholder="Título" @bind="tareaActual.Titulo" />
+            <textarea placeholder="Enunciado" @bind="tareaActual.Enunciado"></textarea>
+            <select @bind="tareaActual.Scope">
+                <option value="@TareaScope.AulaCompleta">Aula completa</option>
+                <option value="@TareaScope.Subconjunto">Subconjunto</option>
             </select>
-            <input type="date" @bind="tareaActual.FechaLimiteTareaAsignada" />
+            <input type="datetime-local" @bind="fechaLimiteLocal" />
+
+            @if (tareaActual.Scope == TareaScope.Subconjunto)
+            {
+                <div class="asignaciones-box">
+                    <p class="muted">Selecciona uno o varios estudiantes:</p>
+                    @if (isLoadingAlumnos)
+                    {
+                        <p>Cargando estudiantes...</p>
+                    }
+                    else if (alumnos.Count == 0)
+                    {
+                        <p>No hay estudiantes para asignar.</p>
+                    }
+                    else
+                    {
+                        @foreach (var alumno in alumnos)
+                        {
+                            var isChecked = seleccionados.Contains(alumno.UsuarioId);
+                            <label class="alumno-item">
+                                <input type="checkbox" checked="@isChecked"
+                                       @onchange="e => CambiarSeleccion(alumno.UsuarioId, e.Value)" />
+                                <span>@alumno.Nombre (@alumno.Correo)</span>
+                            </label>
+                        }
+                    }
+                </div>
+            }
+
             <div class="acciones">
-                <button @onclick="Guardar">Guardar</button>
-                <button class="secundario" @onclick="Cancelar">Cancelar</button>
+                <button type="button" @onclick="GuardarAsync" disabled="@isSubmitting">Guardar</button>
+                <button type="button" class="secundario" @onclick="Cancelar" disabled="@isSubmitting">Cancelar</button>
             </div>
         </div>
     }
 
-    @foreach (var tarea in tareas)
+    @if (isLoadingTareas)
     {
-        <div class="tarea-item">
-            <span class="titulo">@tarea.TituloTareaAsignada</span>
-            <span class="estado">@tarea.Completada</span>
-            <span class="fecha">@tarea.FechaLimiteTareaAsignada.ToString("dd/MM/yyyy HH:mm")</span>
-        </div>
+        <p>Cargando tareas...</p>
+    }
+    else if (tareas.Count == 0)
+    {
+        <p>No hay tareas creadas en esta aula.</p>
+    }
+    else
+    {
+        @foreach (var tarea in tareas)
+        {
+            <div class="tarea-item">
+                <span class="titulo">@tarea.Titulo</span>
+                <span class="estado">@tarea.Scope</span>
+                <span class="fecha">@tarea.FechaLimite.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+        }
     }
 </div>
 
 @code {
-    private List<TareaAsignadaDto> tareas = new();
-    private TareaAsignadaDto tareaActual = new();
+    [Parameter] public int AulaId { get; set; }
+
+    private readonly List<TareaListadoDto> tareas = [];
+    private readonly List<TareaAlumnoAsignableDto> alumnos = [];
+    private readonly HashSet<string> seleccionados = [];
+    private TareaCreateDto tareaActual = new();
+    private DateTime fechaLimiteLocal = DateTime.Now.AddDays(1);
+
     private bool mostrarFormulario;
-    private bool editando;
+    private bool isSubmitting;
+    private bool isLoadingTareas = true;
+    private bool isLoadingAlumnos = true;
+    private string? docenteId;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CargarContextoAsync();
+    }
+
+    private async Task CargarContextoAsync()
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        docenteId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("sub")?.Value;
+
+        if (string.IsNullOrWhiteSpace(docenteId))
+        {
+            errorMessage = "No se pudo identificar al docente autenticado.";
+            isLoadingTareas = false;
+            isLoadingAlumnos = false;
+            return;
+        }
+
+        if (AulaId <= 0)
+        {
+            errorMessage = "Debes indicar un aula válida para gestionar tareas.";
+            isLoadingTareas = false;
+            isLoadingAlumnos = false;
+            return;
+        }
+
+        await Task.WhenAll(CargarTareasAsync(), CargarAlumnosAsync());
+    }
+
+    private async Task CargarTareasAsync()
+    {
+        isLoadingTareas = true;
+        try
+        {
+            var response = await TareasAulaClient.GetTareasDocenteAsync(AulaId);
+            tareas.Clear();
+            if (response?.Success == true && response.Data is not null)
+            {
+                tareas.AddRange(response.Data.OrderBy(x => x.FechaLimite));
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "No se pudieron cargar las tareas del aula.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar tareas: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingTareas = false;
+        }
+    }
+
+    private async Task CargarAlumnosAsync()
+    {
+        isLoadingAlumnos = true;
+        try
+        {
+            var response = await TareasAulaClient.GetAlumnosAsync(AulaId);
+            alumnos.Clear();
+            if (response?.Success == true && response.Data is not null)
+            {
+                alumnos.AddRange(response.Data.OrderBy(x => x.Nombre));
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "No se pudieron cargar los estudiantes del aula.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar estudiantes: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingAlumnos = false;
+        }
+    }
 
     private void NuevaTarea()
     {
-        tareaActual = new TareaAsignadaDto();
-        editando = false;
+        successMessage = null;
+        errorMessage = null;
+
+        tareaActual = new TareaCreateDto
+        {
+            AulaId = AulaId,
+            Scope = TareaScope.AulaCompleta,
+            Titulo = string.Empty,
+            Enunciado = string.Empty
+        };
+        seleccionados.Clear();
+        fechaLimiteLocal = DateTime.Now.AddDays(1);
         mostrarFormulario = true;
     }
 
-    private void Guardar()
+    private async Task GuardarAsync()
     {
-        if (!editando)
+        successMessage = null;
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(tareaActual.Titulo) || string.IsNullOrWhiteSpace(tareaActual.Enunciado))
         {
-            tareas.Add(tareaActual);
+            errorMessage = "Título y enunciado son obligatorios.";
+            return;
         }
-        mostrarFormulario = false;
+
+        tareaActual.FechaLimite = DateTime.SpecifyKind(fechaLimiteLocal, DateTimeKind.Local).ToUniversalTime();
+        tareaActual.AulaId = AulaId;
+        tareaActual.UsuarioIds = tareaActual.Scope == TareaScope.Subconjunto
+            ? seleccionados.ToList()
+            : null;
+
+        if (tareaActual.Scope == TareaScope.Subconjunto && (tareaActual.UsuarioIds?.Count ?? 0) == 0)
+        {
+            errorMessage = "Selecciona al menos un estudiante para asignación por subconjunto.";
+            return;
+        }
+
+        isSubmitting = true;
+        try
+        {
+            var response = await TareasAulaClient.CrearAsync(AulaId, tareaActual);
+            if (response?.Success == true)
+            {
+                mostrarFormulario = false;
+                successMessage = "Tarea creada correctamente.";
+                await CargarTareasAsync();
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "No se pudo crear la tarea.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al crear tarea: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void CambiarSeleccion(string usuarioId, object? value)
+    {
+        var isChecked = value is bool checkedValue && checkedValue;
+        if (isChecked)
+        {
+            seleccionados.Add(usuarioId);
+            return;
+        }
+
+        seleccionados.Remove(usuarioId);
     }
 
     private void Cancelar()
