@@ -1,0 +1,202 @@
+@using ACC.Shared.DTOs
+@using ACC.Shared.Interfaces
+@using ACC.WebApp.Client.Services
+@using System.Net.Http.Headers
+@implements IDisposable
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IApiJwtTokenService ApiJwtTokenService
+@inject AgendaClientService AgendaClient
+@inject AgendaRealtimeNotifier AgendaNotifier
+@inject HttpClient cliente
+@inject NavigationManager navegador
+
+@if (isAuthenticated)
+{
+    <div class="agenda-quick-bubble">
+        @if (isOpen)
+        {
+            <section class="quick-panel card" role="dialog" aria-label="Crear tarea personal rapida">
+                <header class="quick-header">
+                    <h3>Nueva Tarea</h3>
+                    <button type="button" class="icon-btn" @onclick="TogglePanel" aria-label="Cerrar">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </header>
+
+                @if (!string.IsNullOrWhiteSpace(message))
+                {
+                    <p class="@messageClass">@message</p>
+                }
+
+                <div class="quick-form">
+                    <input type="text"
+                           placeholder="Titulo"
+                           @bind="titulo"
+                           maxlength="120" />
+
+                    <textarea placeholder="Descripcion (opcional)"
+                              @bind="descripcion"
+                              maxlength="500"></textarea>
+
+                    <label class="date-toggle">
+                        <input type="checkbox" @bind="usarFechaLimite" />
+                        Definir fecha limite
+                    </label>
+
+                    @if (usarFechaLimite)
+                    {
+                        <input type="datetime-local" @bind="fechaLimiteLocal" />
+                    }
+
+                    <div class="quick-actions">
+                        <button type="button" class="btn-link" @onclick="AbrirAgendaCompleta">Abrir Agenda</button>
+                        <button type="button" class="btn-primary" @onclick="CrearAsync" disabled="@isBusy">Guardar</button>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <button type="button"
+                class="fab-button"
+                @onclick="TogglePanel"
+                title="Agregar tarea personal">
+            <i class="fas @(isOpen ? "fa-check" : "fa-plus")"></i>
+        </button>
+    </div>
+}
+
+@code {
+    private bool isAuthenticated;
+    private bool isOpen;
+    private bool isBusy;
+    private bool usarFechaLimite = true;
+    private DateTime fechaLimiteLocal = DateTime.Now.AddDays(1);
+    private string titulo = string.Empty;
+    private string descripcion = string.Empty;
+    private string? message;
+    private string messageClass = "ok";
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += HandleAuthStateChanged;
+        await RefreshAuthAsync();
+    }
+
+    private void TogglePanel()
+    {
+        isOpen = !isOpen;
+        if (isOpen)
+        {
+            message = null;
+        }
+    }
+
+    private async Task CrearAsync()
+    {
+        if (string.IsNullOrWhiteSpace(titulo))
+        {
+            SetMessage("El titulo es obligatorio.", false);
+            return;
+        }
+
+        await EnsureApiTokenAsync();
+        if (!isAuthenticated)
+        {
+            SetMessage("Sesion no valida. Inicia sesion nuevamente.", false);
+            return;
+        }
+
+        isBusy = true;
+        try
+        {
+            var dto = new TareaPersonalDto
+            {
+                TareaPersonalTitulo = titulo.Trim(),
+                TareaPersonalDescripcion = string.IsNullOrWhiteSpace(descripcion) ? null : descripcion.Trim(),
+                TareaPersonalFechaLimite = usarFechaLimite
+                    ? DateTime.SpecifyKind(fechaLimiteLocal, DateTimeKind.Local).ToUniversalTime()
+                    : null,
+                Completada = false
+            };
+
+            var response = await AgendaClient.CreatePersonalAsync(dto);
+            if (response?.Success == true)
+            {
+                titulo = string.Empty;
+                descripcion = string.Empty;
+                usarFechaLimite = true;
+                fechaLimiteLocal = DateTime.Now.AddDays(1);
+                SetMessage("Tarea creada.", true);
+                AgendaNotifier.NotifyChanged();
+            }
+            else
+            {
+                SetMessage(response?.Message ?? "No se pudo crear la tarea.", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            SetMessage($"Error al crear tarea: {ex.Message}", false);
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private void AbrirAgendaCompleta()
+    {
+        isOpen = false;
+        navegador.NavigateTo("/Agenda");
+    }
+
+    private async Task EnsureApiTokenAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        isAuthenticated = user.Identity?.IsAuthenticated == true;
+
+        if (!isAuthenticated)
+        {
+            return;
+        }
+
+        var accessToken = ApiJwtTokenService.TryCreateAccessToken(user);
+        if (!string.IsNullOrWhiteSpace(accessToken))
+        {
+            cliente.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
+    }
+
+    private async Task RefreshAuthAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+    }
+
+    private void HandleAuthStateChanged(Task<AuthenticationState> authTask)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            var authState = await authTask;
+            isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+            if (!isAuthenticated)
+            {
+                isOpen = false;
+            }
+            StateHasChanged();
+        });
+    }
+
+    private void SetMessage(string text, bool ok)
+    {
+        message = text;
+        messageClass = ok ? "ok" : "error";
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= HandleAuthStateChanged;
+    }
+}

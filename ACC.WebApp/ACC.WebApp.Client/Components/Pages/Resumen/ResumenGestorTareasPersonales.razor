@@ -1,0 +1,242 @@
+﻿@using ACC.Shared.DTOs
+@using ACC.WebApp.Client.Services
+@inject AgendaClientService AgendaClient
+
+@if (!string.IsNullOrWhiteSpace(UserId))
+{
+    <div class="resumen-tareas-personales card">
+        <div class="resumen-head">
+            <h2>Gestionar Tareas Personales</h2>
+            <button type="button" class="open-create" @onclick="AbrirModalCrear" disabled="@isBusy">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Nueva tarea
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <p class="@messageClass">@message</p>
+        }
+
+        @if (Tareas.Count > 0)
+        {
+            <div class="task-list">
+                @foreach (var tarea in Tareas.OrderBy(t => t.TareaPersonalFechaLimite ?? DateTime.MaxValue))
+                {
+                    <div class="task-item">
+                        <label>
+                            <input type="checkbox"
+                                   checked="@(tarea.Completada ?? false)"
+                                   @onchange="e => CambiarCompletadaAsync(tarea, e.Value)" />
+                            <span>@tarea.TareaPersonalTitulo</span>
+                        </label>
+                        <small>@tarea.TareaPersonalDescripcion</small>
+                        <small>Vence: @FechaTexto(tarea.TareaPersonalFechaLimite)</small>
+                        <button type="button" class="delete" @onclick="() => EliminarAsync(tarea.TareaPersonalId)" disabled="@isBusy">
+                            Eliminar
+                        </button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    @if (isCreateModalOpen)
+    {
+        <div class="create-modal-backdrop" @onclick="CerrarModalCrear">
+            <section class="create-modal card" role="dialog" aria-modal="true" aria-labelledby="create-task-title" @onclick:stopPropagation="true">
+                <header class="create-modal-head">
+                    <h3 id="create-task-title">Nueva tarea personal</h3>
+                    <button type="button" class="modal-close" aria-label="Cerrar" @onclick="CerrarModalCrear" disabled="@isBusy">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                </header>
+
+                @if (!string.IsNullOrWhiteSpace(message))
+                {
+                    <p class="@messageClass">@message</p>
+                }
+
+                <div class="task-form task-form--modal">
+                    <input type="text" placeholder="Titulo" @bind="titulo" />
+                    <textarea placeholder="Descripcion" @bind="descripcion"></textarea>
+                    <input type="datetime-local" @bind="fechaLimiteLocal" />
+                    <div class="modal-actions">
+                        <button type="button" class="secondary" @onclick="CerrarModalCrear" disabled="@isBusy">Cancelar</button>
+                        <button type="button" @onclick="CrearAsync" disabled="@isBusy">Agregar tarea</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public string? UserId { get; set; }
+    [Parameter] public List<TareaPersonalDto> Tareas { get; set; } = [];
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private string titulo = string.Empty;
+    private string descripcion = string.Empty;
+    private DateTime fechaLimiteLocal = DateTime.Now.AddDays(1);
+    private bool isBusy;
+    private bool isCreateModalOpen;
+    private string? message;
+    private string messageClass = "ok";
+
+    private void AbrirModalCrear()
+    {
+        message = null;
+        isCreateModalOpen = true;
+    }
+
+    private void CerrarModalCrear()
+    {
+        if (isBusy)
+        {
+            return;
+        }
+
+        titulo = string.Empty;
+        descripcion = string.Empty;
+        fechaLimiteLocal = DateTime.Now.AddDays(1);
+        isCreateModalOpen = false;
+    }
+
+    private async Task CrearAsync()
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(titulo) || string.IsNullOrWhiteSpace(descripcion))
+        {
+            SetMessage("Titulo y descripcion son obligatorios.", false);
+            return;
+        }
+
+        isBusy = true;
+        try
+        {
+            var dto = new TareaPersonalDto
+            {
+                TareaPersonalTitulo = titulo.Trim(),
+                TareaPersonalDescripcion = descripcion.Trim(),
+                TareaPersonalFechaLimite = DateTime.SpecifyKind(fechaLimiteLocal, DateTimeKind.Local).ToUniversalTime(),
+                Completada = false
+            };
+
+            var response = await AgendaClient.CreatePersonalAsync(dto);
+            if (response?.Success == true)
+            {
+                titulo = string.Empty;
+                descripcion = string.Empty;
+                fechaLimiteLocal = DateTime.Now.AddDays(1);
+                SetMessage("Tarea personal creada.", true);
+                isCreateModalOpen = false;
+                await OnChanged.InvokeAsync();
+            }
+            else
+            {
+                SetMessage(response?.Message ?? "No se pudo crear la tarea.", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            SetMessage($"Error al crear tarea: {ex.Message}", false);
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task CambiarCompletadaAsync(TareaPersonalDto tarea, object? value)
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+        {
+            return;
+        }
+
+        var completada = value is bool checkedValue && checkedValue;
+        var dto = new TareaPersonalDto
+        {
+            TareaPersonalId = tarea.TareaPersonalId,
+            TareaPersonalTitulo = tarea.TareaPersonalTitulo,
+            TareaPersonalDescripcion = tarea.TareaPersonalDescripcion,
+            TareaPersonalFechaLimite = tarea.TareaPersonalFechaLimite,
+            Completada = completada,
+            IdAgenda = tarea.IdAgenda
+        };
+
+        isBusy = true;
+        try
+        {
+            var response = await AgendaClient.UpdatePersonalAsync(dto);
+            if (response?.Success == true)
+            {
+                await OnChanged.InvokeAsync();
+            }
+            else
+            {
+                SetMessage(response?.Message ?? "No se pudo actualizar la tarea.", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            SetMessage($"Error al actualizar tarea: {ex.Message}", false);
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task EliminarAsync(int tareaPersonalId)
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+        {
+            return;
+        }
+
+        isBusy = true;
+        try
+        {
+            var response = await AgendaClient.DeletePersonalAsync(tareaPersonalId);
+            if (response?.Success == true)
+            {
+                SetMessage("Tarea personal eliminada.", true);
+                await OnChanged.InvokeAsync();
+            }
+            else
+            {
+                SetMessage(response?.Message ?? "No se pudo eliminar la tarea.", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            SetMessage($"Error al eliminar tarea: {ex.Message}", false);
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private void SetMessage(string text, bool ok)
+    {
+        message = text;
+        messageClass = ok ? "ok" : "error";
+    }
+
+    private static string FechaTexto(DateTime? fechaUtc)
+    {
+        if (fechaUtc is null)
+        {
+            return "Sin fecha";
+        }
+
+        return fechaUtc.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+    }
+}
