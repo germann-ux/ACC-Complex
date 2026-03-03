@@ -1,5 +1,7 @@
 ## Guía Breve de Puesta en Marcha de ACC
 
+Para contexto técnico completo y estado actualizado del modelo de lecciones, consultar `Docs/GUIA TECNICA - ACC.md`.
+
 ### 1. Requisitos
 - .NET 8 SDK o superior.
 - Docker Desktop activo para contenedores de Redis y SQL Server.

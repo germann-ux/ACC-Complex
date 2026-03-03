@@ -32,7 +32,9 @@
 
 **Aprendiendo C# con Charp** es una plataforma educativa completa diseñada para enseñar C# de manera interactiva y personalizada. Cuenta con un asistente de IA educativo llamado **Charp** 🦈, que asiste a los estudiantes a través de un currículo estructurado basado en la **Taxonomía de Bloom**.
 
-La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones teóricas hasta compilación de código en tiempo real, evaluaciones automatizadas y aulas virtuales para colaboración entre estudiantes y docentes.
+La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones teóricas y lecciones dinámicas por secciones hasta compilación de código en tiempo real, exámenes con desbloqueo por progreso y aulas virtuales para colaboración entre estudiantes y docentes.
+
+Documento técnico vivo: [`Docs/GUIA TECNICA - ACC.md`](Docs/GUIA%20TECNICA%20-%20ACC.md)
 
 ---
 ## Características principales
@@ -44,13 +46,13 @@ La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones te�
 
 ### Lecciones dinámicas basadas en bloques
 - Renderizado por secciones con orden configurable mediante `OrdenSecciones`.
-- Flujo pedagógico consistente: teoría → ejemplos → práctica → evaluación.
-- Componentes didácticos reutilizables (alertas, tips, actividades y evaluaciones) con estilo uniforme.
+- Flujo pedagógico configurable con `charpDialog`, `charpTip`, `teoria`, `ejemplo`, `practica`, `actividad`, `compilador` y `video`.
+- Cada lección puede exponer `NivelBloom`, actividad externa, compilador y apoyo audiovisual sin cambiar el cliente.
 
 ### Compilación y ejecución de C# en tiempo real
 - Compilación con **Roslyn** para prácticas interactivas.
-- Ejecución aislada en contenedores para seguridad y consistencia.
-- Retroalimentación inmediata (errores, salida del programa y validaciones).
+- Ejecución controlada en memoria desde un servicio dedicado.
+- Retroalimentación inmediata con errores de compilación y salida estándar.
 
 ### Gestión académica
 - Agenda académica y seguimiento de progreso.
@@ -59,17 +61,16 @@ La plataforma soporta múltiples modalidades de aprendizaje: desde lecciones te�
 
 ### Autenticación y control de acceso
 - **ASP.NET Identity** con roles (estudiante, docente, administrador).
-- Autenticación basada en **JWT** y refresh tokens.
+- Autenticación con **ASP.NET Identity** y consumo autenticado de `ACC.API` mediante **JWT**.
 - Autorización granular por políticas y permisos.
 
 ### Multiplataforma
-- Web: **Blazor WebAssembly (SPA)**.
-- App: **MAUI Blazor** para escritorio (Windows, macOS, Linux) y móvil (Android, iOS) con base de UI compartida.
+- Web: **Blazor Web App** con cliente **WebAssembly**.
+- App planificada: **ACC.MultiPlataform** con **MAUI Blazor** para escritorio y móvil.
 
 ### Observabilidad y resiliencia
 - Telemetría distribuida con **OpenTelemetry**.
-- Logging estructurado con **Serilog**.
-- Health checks y monitoreo de servicios.
+- Health checks y service discovery mediante `ACC.ServiceDefaults`.
 - Políticas de resiliencia (timeouts, retries, circuit breaker) donde aplique.
 
 ---
@@ -102,22 +103,22 @@ La solución sigue un enfoque de **Clean Architecture distribuida** con servicio
 
 graph TB
     %% Clientes
-    WASM["Blazor WebAssembly"]
-    MAUI["MAUI Blazor"]
+    WASM["ACC.WebApp.Client<br/>Blazor Web"]
+    MAUI["ACC.MultiPlataform<br/>MAUI Blazor (Planned)"]
 
     %% Orquestación
     AppHost["ACC.AppHost<br/>Orchestrator (Aspire)"]
 
     %% Servicios
-    WebApp["ACC.WebApp<br/>Authentication"]
-    API["ACC.API<br/>Educational Content"]
-    Compiler["API_CompilerACC<br/>Roslyn Compiler"]
+    WebApp["ACC.WebApp<br/>Identity + Web Host"]
+    API["ACC.API<br/>Academic Domain"]
+    Compiler["ACC.Compiler<br/>Roslyn Compiler"]
 
     %% Compartidos
     Data["ACC.Data<br/>Data Layer"]
     SharedLib["ACC.Shared<br/>Shared Library"]
     Defaults["ServiceDefaults<br/>Configuration"]
-    External["ExternalClients<br/>External APIs"]
+    External["Chatbase / External AI"]
 
     %% Infraestructura
     SQL_Id[("SQL Server<br/>Identity DB")]
@@ -129,9 +130,9 @@ graph TB
     WASM -->|HTTPS API| API
     WASM -->|HTTPS API| Compiler
 
-    MAUI -->|HTTPS API| WebApp
-    MAUI -->|HTTPS API| API
-    MAUI -->|HTTPS API| Compiler
+    MAUI -.->|planned| WebApp
+    MAUI -.->|planned| API
+    MAUI -.->|planned| Compiler
 
     %% Orquestación
     AppHost -.->|orchestrate| WebApp
@@ -142,23 +143,22 @@ graph TB
     AppHost -.->|provision| Redis
 
     %% Servicios -> Compartidos
-    WebApp --> Data
     WebApp --> SharedLib
     WebApp --> Defaults
 
-    API --> Data
     API --> SharedLib
     API --> Defaults
 
     Compiler --> Defaults
-    Compiler --> Redis
 
-    %% Data -> DBs
-    Data -->|EF Core| SQL_Id
+    %% Servicios -> Infra
+    WebApp -->|Identity EF| SQL_Id
+    API --> Data
     Data -->|EF Core| SQL_Acad
 
-    %% Sincronización
-    WebApp -.->|sync| SQL_Acad
+    %% Integraciones
+    WebApp -.->|sync user profile| API
+    WASM -.->|Charp / iframe| External
 
     %% Estilos ACC
     classDef client fill:#141420,stroke:#4cc9f0,stroke-width:1.5px,color:#e5e7eb
@@ -178,11 +178,11 @@ graph TB
 
 | Capa | Proyecto | Descripción |
 |------|----------|-------------|
-| **Frontend** | `ACC.WebApp.Client` | SPA en Blazor WebAssembly - Cliente principal web |
-| **Frontend** | `ACC.MultiPlataform` | App MAUI Blazor para móvil y escritorio |
+| **Frontend** | `ACC.WebApp.Client` | Cliente web actual en Blazor |
+| **Frontend** | `ACC.MultiPlataform` | Cliente MAUI Blazor planificado para móvil y escritorio |
 | **Backend** | `ACC.WebApp` | Servicio de autenticación, registro y gestión de usuarios |
 | **Backend** | `ACC.API` | API de contenido educativo (módulos, lecciones, tareas) |
-| **Backend** | `API_CompilerACC` | Servicio de compilación C# en tiempo real |
+| **Backend** | `ACC.Compiler` | Servicio de compilación C# en tiempo real, alojado actualmente en `src/API_CompilerACC` |
 | **Datos** | `ACC.Data` | Entidades, DbContext, migraciones EF Core |
 | **Compartido** | `ACC.Shared` | DTOs, interfaces, enums y tipos comunes |
 | **Compartido** | `ACC.ExternalClients` | Clientes para APIs externas (IA de Charp) |
@@ -216,26 +216,32 @@ graph TB
 
 3. **Configurar variables de entorno**
    
-   Crear archivo `appsettings.Development.json` en los proyectos necesarios o usar User Secrets:
+   Configurar cadenas de conexión y valores necesarios para `ACC.WebApp` y `ACC.API`. Puedes usar `appsettings.Development.json` o User Secrets:
    ```bash
    dotnet user-secrets set "ConnectionStrings:DefaultConnection" "tu_cadena_de_conexion"
    ```
 
 4. **Ejecutar las migraciones**
-   ```bash
-   cd src/ACC.Data
-   dotnet ef database update
+   ```pwsh
+   dotnet ef database update `
+     --project src/ACC.Data `
+     --startup-project src/ACC.API `
+     --context ACCDbContext
+
+   dotnet ef database update `
+     --project ACC.WebApp/ACC.WebApp `
+     --startup-project ACC.WebApp/ACC.WebApp `
+     --context ApplicationDbContext
    ```
 
 5. **Iniciar la aplicación con Aspire**
-   ```bash
-   cd src/ACC.AppHost
-   dotnet run
+   ```pwsh
+   dotnet run --project src/ACC.AppHost/ACC.AppHost.csproj
    ```
 
 6. **Acceder a la aplicación**
-   - Dashboard de Aspire: `https://localhost:17096`
-   - Aplicación Web: `https://localhost:5001`
+   - Dashboard de Aspire: usar la URL publicada por `ACC.AppHost` al iniciar.
+   - Aplicación Web: usar la URL de `ACC.WebApp` expuesta por Aspire.
 
 ---
 
@@ -248,6 +254,7 @@ ACC-Complex/
 │   ├── ACC.AppHost/          # Orquestador Aspire
 │   ├── ACC.Data/             # Capa de datos (EF Core)
 │   ├── ACC.ExternalClients/  # Clientes de APIs externas
+│   ├── API_CompilerACC/      # Implementación actual de ACC.Compiler
 │   ├── ACC.Shared/           # Código compartido
 │   └── data/                 # Scripts y datos semilla
 │
@@ -256,6 +263,7 @@ ACC-Complex/
 │   └── ACC.WebApp.Client/    # Cliente Blazor WASM
 │
 ├── 📂 ACC.ServiceDefaults/   # Configuración transversal
+├── 📂 Docs/                  # Documentación técnica y funcional
 │
 ├── 📂 tests/
 │   └── ACC.Tests/            # Pruebas unitarias
@@ -274,18 +282,19 @@ ACC-Complex/
 |------------|---------|-----|
 | .NET | 8.0 | Framework principal |
 | ASP.NET Core | 8.0 | APIs REST |
-| Entity Framework Core | 9.0 | ORM y migraciones |
+| Entity Framework Core | 8.x / 9.x | Persistencia y migraciones según el proyecto |
 | ASP.NET Identity | 8.0 | Autenticación y autorización |
-| Roslyn | Latest | Compilación dinámica de C# |
-| AutoMapper | 12.0 | Mapeo objeto-objeto |
-| Serilog | Latest | Logging estructurado |
-| OpenTelemetry | 1.11 | Telemetría distribuida |
+| Roslyn | 4.13 | Compilación dinámica de C# |
+| AutoMapper | 12.x / 14.x | Mapeo objeto-objeto |
+| OpenTelemetry | 1.9+ | Telemetría distribuida |
 
 ### Frontend
 | Tecnología | Versión | Uso |
 |------------|---------|-----|
-| Blazor WebAssembly | 8.0 | SPA web |
-| .NET MAUI Blazor | 8.0 | Apps multiplataforma |
+| Blazor Web App + WASM | 8.0 | Experiencia web actual |
+| .NET MAUI Blazor | Planificado | Cliente multiplataforma futuro |
+| Blazored.LocalStorage | 4.5 | Persistencia ligera del lado cliente |
+| CodeMirror | Actual | Editor del compilador en línea |
 | Bootstrap | 5.x | Framework CSS |
 
 ### Infraestructura
@@ -293,8 +302,9 @@ ACC-Complex/
 |------------|---------|-----|
 | .NET Aspire | 9.2 | Orquestación de servicios |
 | SQL Server | 2022 | Bases de datos (Identity + Académica) |
-| Redis | 7.x | Caché distribuido |
+| Redis | 7.x | Recurso orquestado y listo para cache distribuido |
 | Docker | Latest | Contenedorización |
+| Chatbase | SaaS | Integración actual de Charp |
 
 ---
 
@@ -338,76 +348,70 @@ sequenceDiagram
     autonumber
 
     participant U as Usuario
-    participant C as Cliente<br/>Blazor / MAUI
-    participant A as ACC.WebApp<br/>Auth Service
-    participant S as SyncService
+    participant W as ACC.WebApp<br/>Identity + Web Host
     participant IdDB as Identity DB
+    participant C as ACC.WebApp.Client<br/>UI
+    participant A as ACC.API<br/>Academic API
     participant AcDB as Academic DB
-    participant E as ACC.API<br/>Content Service
+    participant X as ACC.Compiler<br/>Compile API
 
     rect rgb(20,20,40)
-    Note over U,AcDB: Phase 1 — User Registration and Academic Profile Sync
+    Note over U,AcDB: Registro y sincronización académica
     end
 
-    U->>+C: Complete registration form
-    C->>+A: POST /Account/Register<br/>{ email, password, profile }
+    U->>+W: Registro desde /Account/Register
+    W->>+IdDB: Crear usuario Identity
+    IdDB-->>-W: Usuario creado
 
-    A->>+IdDB: Create Identity user
-    IdDB-->>-A: User created (userId)
-
-    A->>+S: SyncUserAsync(userId)
-    S->>+AcDB: INSERT academic profile<br/>linked to Identity ID
-    AcDB-->>-S: Academic profile created
-    S-->>-A: Sync completed
-
-    A->>U: Send confirmation email
-    A-->>-C: Registration success
-    C-->>-U: Show confirmation message
+    W->>+A: POST /api/Usuario/sincronizar
+    A->>+AcDB: Crear perfil académico
+    AcDB-->>-A: Perfil persistido
+    A-->>-W: Sincronización completa
+    W-->>-U: Registro finalizado
 
 
     rect rgb(18,18,34)
-    Note over U,E: Phase 2 — Authentication and Session Establishment
+    Note over U,A: Navegación de contenido
     end
 
-    U->>+C: Enter credentials and login
-    C->>+A: POST /Account/Login<br/>{ email, password }
+    U->>+C: Abrir guía
+    C->>+A: GET /api/NavegacionContenido/modulos
+    A->>+AcDB: Consultar módulos
+    AcDB-->>-A: DTOs jerárquicos
+    A-->>-C: Lista de módulos
 
-    A->>+IdDB: Validate credentials<br/>and retrieve claims
-    IdDB-->>-A: User valid + roles
-
-    A-->>-C: JWT + RefreshToken<br/>{ token, expiry, user }
-    C-->>-U: Login success
-
+    U->>+C: Abrir lección
+    C->>+A: GET /api/NavegacionContenido/leccion/{id}
+    A->>+AcDB: Consultar lección
+    AcDB-->>-A: LeccionDto
+    A-->>-C: Datos de lección + OrdenSecciones
+    C-->>-U: Render RDL
 
     rect rgb(16,16,30)
-    Note over C,E: Phase 3 — Secure Educational Content Access
+    Note over U,X: Práctica con compilador
     end
 
-    U->>+C: Navigate to lessons
-    C->>+E: GET /api/lessons<br/>Authorization: Bearer {token}
-
-    E->>E: Validate JWT<br/>and extract userId
-
-    E->>+AcDB: Query lessons and progress<br/>WHERE userId = {id}
-    AcDB-->>-E: Lessons + progress data
-
-    E-->>-C: 200 OK<br/>{ lessons, progress, stats }
-    C-->>-U: Render content and progress UI
+    U->>+C: Ejecutar código C#
+    C->>+X: POST /api/compile
+    X-->>-C: stdout o errores de compilación
+    C-->>-U: Retroalimentación inmediata
 ```
 ---
 
 ## 📖 Metodología de Lecciones
 
-Las lecciones están diseñadas siguiendo la **Taxonomía de Bloom** para asegurar un aprendizaje progresivo:
+Las lecciones actuales se renderizan dinámicamente y siguen la **Taxonomía de Bloom** a través de `NivelBloom` y `OrdenSecciones`:
 
 | Nivel | Componente | Descripción |
 |-------|------------|-------------|
-| 1️⃣ | **Teoría** | Conceptos fundamentales explicados de forma clara |
-| 2️⃣ | **Ejemplos** | Código comentado con casos de uso reales |
-| 3️⃣ | **Práctica Guiada** | Ejercicios paso a paso con ayuda |
-| 4️⃣ | **Actividad** | Retos independientes para aplicar lo aprendido |
-| 5️⃣ | **Evaluación** | Verificación del conocimiento adquirido |
-| 6️⃣ | **Fomentadores** | Material adicional y recursos de profundización |
+| 1️⃣ | **CharpDialog / CharpTip** | Contexto inicial, andamiaje y orientación breve |
+| 2️⃣ | **Teoría** | Conceptos fundamentales explicados en HTML enriquecido |
+| 3️⃣ | **Ejemplos** | Casos guiados y comparaciones buenas/malas |
+| 4️⃣ | **Práctica** | Aplicación progresiva del concepto |
+| 5️⃣ | **Actividad** | Recurso externo opcional cuando la lección lo requiere |
+| 6️⃣ | **Compilador / Video** | Práctica interactiva y apoyo audiovisual según configuración |
+
+Los exámenes ya no se modelan como una simple sección fija de la lección. Su habilitación depende del progreso del usuario y de reglas de desbloqueo en `PrerrequisitosService`.
 
 ---
 
