@@ -69,9 +69,6 @@ namespace ACC.Data
 
         public DbSet<Agenda> Agendas => Set<Agenda>();
 
-        [Obsolete("Esta propiedad está obsoleta. Use TareaAsignaciones y TareasPersonales en su lugar.")]
-        public DbSet<TareaAsignada> TareasAsignadas => Set<TareaAsignada>();
-
         public DbSet<TareaPersonal> TareasPersonales => Set<TareaPersonal>();
 
         public DbSet<Aviso> Avisos => Set<Aviso>();
@@ -410,11 +407,6 @@ namespace ACC.Data
                 .WithOne(u => u.Agenda)
                 .HasForeignKey<Agenda>(a => a.IdUsuario)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Agenda>()
-                .HasMany(a => a.TareasAsignadas)
-                .WithOne(t => t.Agenda)
-                .HasForeignKey(t => t.AgendaId);
 
             modelBuilder.Entity<Agenda>()
                 .HasMany(a => a.TareasPersonales)

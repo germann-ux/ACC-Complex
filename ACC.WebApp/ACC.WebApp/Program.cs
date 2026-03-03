@@ -31,6 +31,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<BibliotecaClientService>();
 builder.Services.AddScoped<ProgresoUsuarioClient>();
@@ -39,7 +40,12 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<IRoleStateService, RoleStateService>();
 builder.Services.AddScoped<UsuarioSyncService>();
+builder.Services.AddScoped<IApiJwtTokenService, ApiJwtTokenService>();
+builder.Services.AddScoped<ApiJwtAuthDelegatingHandler>();
 builder.Services.AddScoped<NavegacionContenidoClient>();
+builder.Services.AddScoped<TareasAulaClient>();
+builder.Services.AddScoped<AgendaClientService>();
+builder.Services.AddScoped<AgendaRealtimeNotifier>();
 // --- Examenes:
 builder.Services.AddScoped<ExamenesServiceClient>();
 // Program.cs (WebApp)
@@ -83,6 +89,20 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 builder.Services.AddHttpClient("ACC.API", client =>
 {
     client.BaseAddress = new Uri(uriString: builder.Configuration["ApiUrl"]);
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var apiUrl = sp.GetRequiredService<IConfiguration>()["ApiUrl"]
+        ?? throw new InvalidOperationException("ApiUrl no configurada.");
+
+    var authHandler = sp.GetRequiredService<ApiJwtAuthDelegatingHandler>();
+    authHandler.InnerHandler = new HttpClientHandler();
+
+    return new HttpClient(authHandler)
+    {
+        BaseAddress = new Uri(apiUrl)
+    };
 });
 
 //Habilita la compresión

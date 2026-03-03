@@ -11,6 +11,16 @@ public interface ITareasService
         int aulaId,
         CancellationToken cancellationToken = default);
 
+    Task<ServiceResult<IReadOnlyList<TareaListadoDto>>> GetByAulaDocenteAsync(
+        int aulaId,
+        string docenteId,
+        CancellationToken cancellationToken = default);
+
+    Task<ServiceResult<IReadOnlyList<TareaAlumnoAsignableDto>>> GetAlumnosAsignablesAsync(
+        int aulaId,
+        string docenteId,
+        CancellationToken cancellationToken = default);
+
     Task<ServiceResult<TareaListadoDto>> CrearAsync(
         int aulaId,
         TareaCreateDto createDto,
