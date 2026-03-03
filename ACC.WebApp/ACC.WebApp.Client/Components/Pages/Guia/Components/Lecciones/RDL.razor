@@ -4,6 +4,7 @@
 @using ACC.Shared.Utils; 
 @using ACC.WebApp.Client.Components.Pages.ACC_Compiler;
 @using ACC.WebApp.Client.Components.Pages.Guia.Modals;
+@inject IJSRuntime JS
 
 @code {
     [Parameter] public LeccionDto Leccion { get; set; } = default!;
@@ -15,11 +16,25 @@
         urlActividadActual = url;
         ModalActividad?.OpenModal();
     }
+
+    private ValueTask NavegarAtrasAsync() => JS.InvokeVoidAsync("guiaNavigation.back");
+
+    private ValueTask NavegarAdelanteAsync() => JS.InvokeVoidAsync("guiaNavigation.forward");
 }
 
 @* Renderiza el modal una sola vez, fuera del bucle *@
 <ModalActividades Url="@urlActividadActual" @ref="ModalActividad" />
 <div class="content leccion-container">
+    <div class="leccion-toolbar">
+        <div class="leccion-nav-arrows" aria-label="Navegacion de leccion">
+            <button type="button" class="leccion-nav-arrow" @onclick="async () => await NavegarAtrasAsync()" title="Volver">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button type="button" class="leccion-nav-arrow" @onclick="async () => await NavegarAdelanteAsync()" title="Avanzar">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
     <div class="nivel-bloom @Leccion.NivelBloom"><p>Nivel de bloom: @Leccion.NivelBloom</p></div>
     @* <br /> *@
     @foreach (var seccion in Leccion.OrdenSecciones)

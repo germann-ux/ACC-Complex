@@ -12,8 +12,20 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject ProgresoUsuarioClient experiencia
+@inject IJSRuntime JS
 
 <div class="guia-main-container">
+    <div class="guia-main-toolbar">
+        <div class="guia-nav-arrows" aria-label="Navegacion de contenido">
+            <button type="button" class="guia-nav-arrow" @onclick="async () => await NavegarAtrasAsync()" title="Volver">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button type="button" class="guia-nav-arrow" @onclick="async () => await NavegarAdelanteAsync()" title="Avanzar">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
     <h3 class="guia-main-title">Navegando: @TipoEnum</h3>
 
     @if (isLoading)
@@ -156,4 +168,8 @@
 
         NavigationManager.NavigateTo(ruta);
     }
+
+    private ValueTask NavegarAtrasAsync() => JS.InvokeVoidAsync("guiaNavigation.back");
+
+    private ValueTask NavegarAdelanteAsync() => JS.InvokeVoidAsync("guiaNavigation.forward");
 }
