@@ -1,7 +1,17 @@
-﻿@page "/Account/InvalidUser"
+@page "/Account/InvalidUser"
 
 <PageTitle>Invalid user</PageTitle>
 
-<h3>Invalid user</h3>
+<div class="account-auth-page">
+    <section class="account-auth-card account-auth-card--compact">
+        <div class="account-auth-header">
+            <span class="account-auth-kicker">Cuenta ACC</span>
+            <h1>Invalid user</h1>
+            <p>The selected account could not be validated.</p>
+        </div>
 
-<StatusMessage />
+        <section class="account-auth-body">
+            <StatusMessage />
+        </section>
+    </section>
+</div>

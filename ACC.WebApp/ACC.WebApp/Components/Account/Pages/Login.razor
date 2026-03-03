@@ -1,4 +1,4 @@
-﻿@page "/Account/Login"
+@page "/Account/Login"
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
@@ -13,43 +13,46 @@
 
 <PageTitle>Log in</PageTitle>
 
-<div class="biblioteca-doc-item" style="max-width: 400px; margin: 40px auto;">
-    <div class="cuentas-doc-header">
-        <h1 class="biblioteca-section-title">Iniciar sesion</h1>
-        <h2 class="biblioteca-section-description">Usa una cuenta para iniciar sesión.</h2>
-    </div>
-    <section class="biblioteca-doc-content">
-        <StatusMessage Message="@errorMessage" />
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-            <DataAnnotationsValidator />
-            <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true"
-                    placeholder="name@example.com" />
-                <label for="email" class="form-label">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.NombreUsuario" class="form-control" autocomplete="username"
-                    aria-required="true" placeholder="nombreUsuario" />
-                <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
-                <ValidationMessage For="() => Input.NombreUsuario" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" class="form-control"
-                    autocomplete="current-password" aria-required="true" placeholder="password" />
-                <label for="password" class="form-label">Password</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
-            </div>
-            <div class="checkbox mb-3">
-                <label class="form-label">
-                    <InputCheckbox @bind-Value="Input.RememberMe" />
-                    Recordarme
-                </label>
-            </div>
-            <button type="submit" class="biblioteca-btn-completar-subtema w-100">Entrar</button>
-        </EditForm>
+<div class="account-auth-page">
+    <section class="account-auth-card">
+        <div class="account-auth-header">
+            <span class="account-auth-kicker">Cuenta ACC</span>
+            <h1>Iniciar sesion</h1>
+            <p>Usa una cuenta para iniciar sesión.</p>
+        </div>
+
+        <section class="account-auth-body">
+            <StatusMessage Message="@errorMessage" />
+            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true"
+                               placeholder="name@example.com" />
+                    <label for="email" class="form-label">Email</label>
+                    <ValidationMessage For="() => Input.Email" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.NombreUsuario" class="form-control" autocomplete="username"
+                               aria-required="true" placeholder="nombreUsuario" />
+                    <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
+                    <ValidationMessage For="() => Input.NombreUsuario" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText type="password" @bind-Value="Input.Password" class="form-control"
+                               autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <label for="password" class="form-label">Password</label>
+                    <ValidationMessage For="() => Input.Password" class="text-danger" />
+                </div>
+                <div class="checkbox mb-3 account-checkbox">
+                    <label class="form-label">
+                        <InputCheckbox @bind-Value="Input.RememberMe" />
+                        <span>Recordarme</span>
+                    </label>
+                </div>
+                <button type="submit" class="biblioteca-btn-completar-subtema w-100">Entrar</button>
+            </EditForm>
+        </section>
     </section>
 </div>
 
@@ -69,7 +72,6 @@
     {
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
-            // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
         }
     }
@@ -83,16 +85,13 @@
         {
             Logger.LogInformation("User logged in.");
 
-            // Obtén el usuario autenticado
             var usuario = await SignInManager.UserManager.FindByNameAsync(Input.NombreUsuario);
             if (usuario != null)
             {
-                // Obtén los roles del usuario
                 var roles = await SignInManager.UserManager.GetRolesAsync(usuario);
 
                 if (roles.Any())
                 {
-                    // Agrega los roles al contexto de autenticación actual
                     var identity = new ClaimsIdentity(HttpContext.User.Identity);
                     foreach (var rol in roles)
                     {
@@ -100,8 +99,6 @@
                     }
 
                     var principal = new ClaimsPrincipal(identity);
-
-                    // Actualiza el contexto con los claims de roles
                     await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principal);
                 }
             }

@@ -1,17 +1,28 @@
-﻿@page "/Account/ConfirmEmail"
+@page "/Account/ConfirmEmail"
 
 @using System.Text
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using ACC.WebApp.Data; 
+@using ACC.WebApp.Data;
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
 
 <PageTitle>Confirm email</PageTitle>
 
-<h1>Confirm email</h1>
-<StatusMessage Message="@statusMessage" />
+<div class="account-auth-page">
+    <section class="account-auth-card account-auth-card--compact">
+        <div class="account-auth-header">
+            <span class="account-auth-kicker">Cuenta ACC</span>
+            <h1>Confirm email</h1>
+            <p>We are validating your email confirmation link.</p>
+        </div>
+
+        <section class="account-auth-body">
+            <StatusMessage Message="@statusMessage" />
+        </section>
+    </section>
+</div>
 
 @code {
     private string? statusMessage;

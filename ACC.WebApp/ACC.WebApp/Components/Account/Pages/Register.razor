@@ -1,4 +1,4 @@
-﻿@page "/Account/Register"
+@page "/Account/Register"
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
@@ -18,97 +18,92 @@
 
 <PageTitle>Register</PageTitle>
 
-<div class="biblioteca-doc-item" style="max-width: 400px; margin: 40px auto;">
-    <div class="cuentas-doc-header">
-        <h1 class="biblioteca-section-title">Registro</h1>
-        <h2 class="biblioteca-section-description">Crea tu cuenta para acceder.</h2>
-    </div>
+<div class="account-auth-page">
+    <section class="account-auth-card">
+        <div class="account-auth-header">
+            <span class="account-auth-kicker">Cuenta ACC</span>
+            <h1>Registro</h1>
+            <p>Crea tu cuenta para acceder.</p>
+        </div>
 
-    <section class="biblioteca-doc-content">
-        <StatusMessage Message="@Message" />
+        <section class="account-auth-body">
+            <StatusMessage Message="@Message" />
 
-        <!-- 1) Honeypots para desviar autofill -->
-        <form style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
-            <input type="text" autocomplete="username" />
-            <input type="password" autocomplete="new-password" />
-        </form>
+            <form style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
+                <input type="text" autocomplete="username" />
+                <input type="password" autocomplete="new-password" />
+            </form>
 
-        <EditForm Model="Input" OnValidSubmit="RegisterUser" FormName="register" method="post">
-            <DataAnnotationsValidator />
-            <hr />
-            <ValidationSummary class="text-danger" role="alert" />
+            <EditForm Model="Input" OnValidSubmit="RegisterUser" FormName="register" method="post">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
 
-            <!-- EMAIL -->
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email"
-                           @bind-Value:event="oninput"
-                           class="form-control"
-                           autocomplete="email"
-                           inputmode="email"
-                           autocapitalize="off"
-                           spellcheck="false"
-                           enterkeyhint="next"
-                           aria-required="true"
-                           placeholder="Email"
-                           @onblur="OnEmailBlur" />
-                <label for="email" class="form-label">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Email"
+                               @bind-Value:event="oninput"
+                               class="form-control"
+                               autocomplete="email"
+                               inputmode="email"
+                               autocapitalize="off"
+                               spellcheck="false"
+                               enterkeyhint="next"
+                               aria-required="true"
+                               placeholder="Email"
+                               @onblur="OnEmailBlur" />
+                    <label for="email" class="form-label">Email</label>
+                    <ValidationMessage For="() => Input.Email" class="text-danger" />
+                </div>
 
-            <!-- USERNAME -->
-            <div class="form-floating mb-1">
-                <InputText @bind-Value="Input.nombreUsuario"
-                           @bind-Value:event="oninput"
-                           class="form-control"
-                           autocomplete="new-username"></InputText>
-                <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
-            </div>
+                <div class="form-floating mb-1">
+                    <InputText @bind-Value="Input.nombreUsuario"
+                               @bind-Value:event="oninput"
+                               class="form-control"
+                               autocomplete="new-username"></InputText>
+                    <label for="nombreUsuario" class="form-label">Nombre de Usuario</label>
+                </div>
 
-            <!-- Sugerencia/estado del username -->
-            <div class="d-flex justify-content-between align-items-center mb-3" style="gap:.5rem;">
-                <small class="text-muted">
-                    @usernameHint
-                </small>
-                <button type="button" class="btn btn-sm btn-outline-secondary"
-                        @onclick="UseSuggestedUsername"
-                        disabled="@string.IsNullOrWhiteSpace(suggestedUsername)">
-                    Usar sugerencia
-                </button>
-            </div>
-            <ValidationMessage For="() => Input.nombreUsuario" class="text-danger" />
+                <div class="account-inline-actions mb-3">
+                    <small class="text-muted">
+                        @usernameHint
+                    </small>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            @onclick="UseSuggestedUsername"
+                            disabled="@string.IsNullOrWhiteSpace(suggestedUsername)">
+                        Usar sugerencia
+                    </button>
+                </div>
+                <ValidationMessage For="() => Input.nombreUsuario" class="text-danger" />
 
-            <!-- PASSWORD -->
-            <div class="form-floating mb-3 position-relative">
-                <InputText id="password"
-                           type="@(showPwd ? "text" : "password")"
-                           @bind-Value="Input.Password"
-                           class="form-control pe-6"   ></InputText>
-    <label for="password" class="form-label">Contraseña</label>
+                <div class="form-floating mb-3 position-relative">
+                    <InputText id="password"
+                               type="@(showPwd ? "text" : "password")"
+                               @bind-Value="Input.Password"
+                               class="form-control pe-6"></InputText>
+                    <label for="password" class="form-label">Contraseña</label>
 
-    <button type="button"
-            class="btn btn-sm btn-link position-absolute top-50 end-0 translate-middle-y me-2"
-            @onclick="TogglePwd">
-        @(showPwd ? "Ocultar" : "Mostrar")
-    </button>
-            </div>
-            <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    <button type="button"
+                            class="account-password-toggle"
+                            @onclick="TogglePwd">
+                        @(showPwd ? "Ocultar" : "Mostrar")
+                    </button>
+                </div>
+                <ValidationMessage For="() => Input.Password" class="text-danger" />
 
+                <div class="form-floating mb-3">
+                    <InputText type="password"
+                               @bind-Value="Input.ConfirmPassword"
+                               class="form-control"
+                               autocomplete="new-password"
+                               inputmode="text"
+                               aria-required="true"
+                               placeholder="Confirmar contraseña" />
+                    <label for="confirm-password">Confirmar Contraseña</label>
+                    <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
+                </div>
 
-            <!-- CONFIRM -->
-            <div class="form-floating mb-3">
-                <InputText type="password"
-                           @bind-Value="Input.ConfirmPassword"
-                           class="form-control"
-                           autocomplete="new-password"
-                           inputmode="text"
-                           aria-required="true"
-                           placeholder="Confirmar contraseña" />
-                <label for="confirm-password">Confirmar Contraseña</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-            </div>
-
-            <button type="submit" class="biblioteca-btn-completar-subtema w-100">Registrarse</button>
-        </EditForm>
+                <button type="submit" class="biblioteca-btn-completar-subtema w-100">Registrarse</button>
+            </EditForm>
+        </section>
     </section>
 </div>
 
@@ -124,11 +119,9 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
-        // Sanea inputs
         Input.Email = Input.Email?.Trim();
         Input.nombreUsuario = Input.nombreUsuario?.Trim();
 
-        // 1) Pre-chequeo de correo (evita duplicados y error feo después)
         var existingByEmail = await UserManager.FindByEmailAsync(Input.Email);
         if (existingByEmail != null)
         {
@@ -139,7 +132,6 @@
             return;
         }
 
-        // 2) Pre-chequeo de nombre de usuario (recomendado)
         var existingByUserName = await UserManager.FindByNameAsync(Input.nombreUsuario);
         if (existingByUserName != null)
         {
@@ -158,12 +150,10 @@
         IdentityResult result;
         try
         {
-            // 3) Crear usuario
             result = await UserManager.CreateAsync(user, Input.Password);
         }
         catch (Microsoft.EntityFrameworkCore.DbUpdateException dbex)
         {
-            // Si ya pusiste índice único, una carrera (race) puede lanzar excepción aquí.
             Logger.LogError(dbex, "Error al crear usuario (posible duplicado por carrera).");
             identityErrors = new[]
             {
@@ -178,12 +168,10 @@
             return;
         }
 
-        // 4) Sincronización personalizada
         await UsuarioSyncService.SincronizarUsuarioAsync(user);
 
         Logger.LogInformation("User created a new account with password.");
 
-        // 5) Confirmación de correo
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -193,7 +181,6 @@
 
         await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
 
-        // 6) Flujo post-registro
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
             RedirectManager.RedirectTo(
@@ -206,9 +193,6 @@
         RedirectManager.RedirectTo(ReturnUrl);
     }
 
-    // Mejoras en la experiencia de el usuario:
-
-    // UI state
     private bool showPwd = false;
     private string? suggestedUsername;
     private string usernameHint => string.IsNullOrWhiteSpace(suggestedUsername)
@@ -217,7 +201,6 @@
 
     private void TogglePwd() => showPwd = !showPwd;
 
-    // 2) Sugerir username del local-part del correo si el campo está vacío
     private void OnEmailBlur(FocusEventArgs _)
     {
         var email = Input.Email?.Trim() ?? "";
@@ -237,14 +220,12 @@
 
     private static string Slugify(string s)
     {
-        // minúsculas, sin espacios, solo [a-z0-9_], max 20
         var norm = s.Trim().ToLowerInvariant();
         var sb = new System.Text.StringBuilder(capacity: Math.Min(20, norm.Length));
         foreach (var ch in norm)
         {
             if (char.IsLetterOrDigit(ch)) sb.Append(ch);
             else if (ch is '.' or '-' or ' ') sb.Append('_');
-            // ignora otros símbolos
             if (sb.Length >= 20) break;
         }
         var result = sb.ToString().Trim('_');
