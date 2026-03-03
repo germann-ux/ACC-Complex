@@ -10,10 +10,10 @@
     <div class="biblioteca-sidebar-content">
 
         <!-- TIPOS -->
-        <div class="biblioteca-filter-group">
+        <div class="biblioteca-filter-group biblioteca-filter-group-tipos">
             <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(TipoContenidoCapitulo))">
                 <span>Tipo de contenido</span>
-                <i class="fas @(ExpandTipo ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                <i class="fa-regular @(ExpandTipo ? "fa-square-caret-up" : "fa-square-caret-down") biblioteca-filter-caret" aria-hidden="true"></i>
             </div>
 
             @if (ExpandTipo)
@@ -23,7 +23,7 @@
                     {
                         <div class="biblioteca-filter-item @(Filtros.Tipos.Contains(t) ? "active" : "")"
                              @onclick="() => ToggleTipo(t)">
-                            <span class="biblioteca-filter-checkbox"></span>
+                            <i class="fa-regular @(Filtros.Tipos.Contains(t) ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
                             <span>@EnumDisplay.Name(t)</span>
                         </div>
                     }
@@ -32,10 +32,10 @@
         </div>
 
         <!-- NIVELES -->
-        <div class="biblioteca-filter-group">
+        <div class="biblioteca-filter-group biblioteca-filter-group-niveles">
             <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(NivelContenido))">
                 <span>Nivel</span>
-                <i class="fas @(ExpandNivel ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                <i class="fa-regular @(ExpandNivel ? "fa-square-caret-up" : "fa-square-caret-down") biblioteca-filter-caret" aria-hidden="true"></i>
             </div>
 
             @if (ExpandNivel)
@@ -45,7 +45,7 @@
                     {
                         <div class="biblioteca-filter-item @(Filtros.Niveles.Contains(n) ? "active" : "")"
                              @onclick="() => ToggleNivel(n)">
-                            <span class="biblioteca-filter-checkbox"></span>
+                            <i class="fa-regular @(Filtros.Niveles.Contains(n) ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
                             <span>@EnumDisplay.Name(n)</span>
                         </div>
                     }
@@ -54,10 +54,10 @@
         </div>
 
         <!-- DIFICULTAD -->
-        <div class="biblioteca-filter-group">
+        <div class="biblioteca-filter-group biblioteca-filter-group-dificultad">
             <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(DificultadContenido))">
                 <span>Dificultad</span>
-                <i class="fas @(ExpandDificultad ? "fa-chevron-up" : "fa-chevron-down")"></i>
+                <i class="fa-regular @(ExpandDificultad ? "fa-square-caret-up" : "fa-square-caret-down") biblioteca-filter-caret" aria-hidden="true"></i>
             </div>
 
             @if (ExpandDificultad)
@@ -67,7 +67,7 @@
                     {
                         <div class="biblioteca-filter-item @(Filtros.Dificultades.Contains(d) ? "active" : "")"
                              @onclick="() => ToggleDificultad(d)">
-                            <span class="biblioteca-filter-checkbox"></span>
+                            <i class="fa-regular @(Filtros.Dificultades.Contains(d) ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
                             <span>@EnumDisplay.Name(d)</span>
                         </div>
                     }

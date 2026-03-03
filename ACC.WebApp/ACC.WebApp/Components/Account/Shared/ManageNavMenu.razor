@@ -51,6 +51,7 @@
 @using Microsoft.AspNetCore.Identity
 @using ACC.WebApp.Data
 @inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavigationManager
 @*<nav class="nav" aria-label="Secciones de cuenta">
         <NavLink class="account-link" href="Account/Manage" Match="NavLinkMatch.All">
             <i class="fas fa-user"></i><span>Perfil</span>
@@ -117,9 +118,23 @@
     </NavLink>
 </nav>
 
+<form action="Account/Logout" method="post" class="mt-2">
+    <AntiforgeryToken />
+    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+    <button type="submit" class="nav-link w-100 text-start border-0 bg-transparent">
+        <i class="fa-regular fa-rectangle-xmark me-2"></i><span>Cerrar sesion</span>
+    </button>
+</form>
+
 
 @code {
     private bool hasExternalLogins;
+    private string currentUrl = string.Empty;
+
     protected override async Task OnInitializedAsync()
-        => hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+    {
+        hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+        var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        currentUrl = string.IsNullOrWhiteSpace(relative) ? string.Empty : relative;
+    }
 }
