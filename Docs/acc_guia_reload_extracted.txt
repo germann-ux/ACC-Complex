@@ -1,0 +1,1621 @@
+0001: GUIA TECNICA – Aprendiendo C# con Charp (ACC).
+0002: Autores:
+0003: German Uriel Evangelista Martinez
+0004: Aldo Juan Figueroa Espinoza
+0005: Asesores:
+0006: Asesor técnico – Francisco Javier Tafolla Granados
+0007: Codigo documental: ACC-GT-RLD-2026-001
+0008: Version del documento: 2.0-rc1
+0009: Estado: Borrador integral en revision editorial
+0010: Fecha de actualizacion: 2026-03-02
+0011: Proyecto: ACC-Complex
+0012: Producto: Aprendiendo C# con Charp (ACC)
+0013: Repositorio fuente: ACC-Complex
+0014: 1. Introduccion
+0015: Aprendiendo C# con Charp (ACC) es una plataforma educativa orientada a la enseñanza progresiva del lenguaje C#. Su diseño combina contenido academico estructurado, practica interactiva, seguimiento del progreso del estudiante, examenes con desbloqueo por reglas, apoyo pedagogico asistido por Charp y un servicio de compilacion en linea para reforzar el aprendizaje aplicado.
+0016: La solucion tecnica que da vida al producto se encuentra organizada dentro del repositorio ACC-Complex, que integra autenticacion, dominio academico, cliente web, servicios compartidos, persistencia, orquestacion local e integraciones externas. A diferencia del documento tecnico anterior, esta guia no se limita a describir la intencion inicial del sistema, sino que documenta su estado implementado, sus decisiones arquitectonicas y los cambios acumulados en su evolucion.
+0017: El objetivo central de esta guia es servir como referencia tecnica integral para desarrollo, mantenimiento, escalamiento, incorporacion de nuevos colaboradores y produccion de contenido academico dentro de ACC. Por ello, el documento no solo cubre arquitectura y tecnologias, sino tambien los sistemas pedagogicos y editoriales que distinguen a la plataforma, especialmente el modelo actual de lecciones dinamicas y su renderizador.
+0018: 2. Alcance de la guia
+0019: Esta guia tecnica cubre los siguientes dominios del sistema:
+0020: definicion general del producto y su proposito
+0021: estado actual del proyecto y sus componentes
+0022: stack tecnologico y requerimientos tecnicos
+0023: arquitectura general, capas y decisiones de diseno
+0024: persistencia, identidad y sincronizacion de usuario
+0025: navegacion academica y contratos compartidos
+0026: sistema de lecciones dinamicas y renderizado
+0027: lineamientos tecnicos y pedagogicos para creacion de contenido
+0028: examenes, progreso, desbloqueos y compilador en linea
+0029: observabilidad, operacion local, pruebas y roadmap
+0030: Quedan fuera del alcance de esta primera version temas de despliegue productivo endurecido, Kubernetes, politicas formales de seguridad empresarial y manuales de usuario final detallados. Esos temas pueden aparecer en documentos complementarios o anexos posteriores.
+0031: 3. Concepto, proposito y vision del producto
+0032: ACC nace para resolver un problema recurrente en la ensenanza de programacion: muchos estudiantes se enfrentan a recursos fragmentados, progresiones poco claras y poca retroalimentacion cuando intentan aprender C# por su cuenta o en etapas iniciales de formacion. El sistema busca reducir esa friccion mediante una experiencia guiada, modular y progresiva.
+0033: Desde el punto de vista pedagogico, ACC se concibe como un entorno de aprendizaje que no se limita a presentar teoria. Cada unidad de contenido aspira a conectar explicacion conceptual, ejemplo, practica, actividad y validacion, de forma que el estudiante no solo lea, sino que aplique lo aprendido dentro de una misma experiencia. Esta orientacion se alinea con la Taxonomia de Bloom, utilizada como referencia para graduar la dificultad y el tipo de actividad cognitiva esperada en cada leccion.
+0034: La vision de ACC es consolidarse como una plataforma educativa integral para C#, capaz de unir tres dimensiones que a menudo aparecen separadas:
+0035: claridad conceptual para principiantes e intermedios
+0036: practica interactiva con retroalimentacion inmediata
+0037: acompañamiento pedagogico contextual a traves de Charp
+0038: Dentro de esa vision, Charp no debe entenderse como un sustituto del razonamiento del estudiante, sino como una capa de apoyo que orienta, contextualiza y sugiere caminos de solucion sin convertir la experiencia en simple entrega de respuestas.
+0039: 4. Vision general del sistema
+0040: ACC funciona como un ecosistema compuesto por varios subsistemas coordinados:
+0041: un entorno de identidad y acceso en ACC.WebApp
+0042: un dominio academico centralizado en ACC.API
+0043: un cliente web actual en ACC.WebApp.Client
+0044: una capa de datos y contratos compartidos (ACC.Data, ACC.Shared)
+0045: un compilador en linea documentado como ACC.Compiler
+0046: una topologia local reproducible mediante ACC.AppHost
+0047: integraciones externas que alimentan a Charp
+0048: Sobre esa base, el sistema ofrece una experiencia de aprendizaje centrada en una jerarquia academica clara: modulo, submodulo, tema, subtema y leccion. A partir de esa estructura, el usuario puede navegar contenidos, consumir lecciones dinamicas configuradas por datos, registrar progreso, habilitar examenes y practicar codigo en un compilador dedicado.
+0049: La experiencia actual esta implementada principalmente para web. Al mismo tiempo, ACC.MultiPlataform se mantiene como parte del roadmap del producto para expandir la experiencia a una app MAUI Blazor para escritorio y movil, aunque hoy no forme parte de la solucion activa.
+0050: 5. Estado actual del proyecto
+0051: ACC se encuentra en desarrollo activo. La solucion actual ya integra varios de sus componentes nucleares y cuenta con una base funcional suficiente para documentar arquitectura, flujos y responsabilidades de manera precisa.
+0052: 5.1 Componentes activos
+0053: Hoy forman parte del nucleo tecnico activo del proyecto:
+0054: ACC.WebApp
+0055: ACC.WebApp.Client
+0056: ACC.API
+0057: ACC.Data
+0058: ACC.Shared
+0059: ACC.ExternalClients
+0060: ACC.ServiceDefaults
+0061: ACC.AppHost
+0062: ACC.Compiler
+0063: ACC.Tests
+0064: 5.2 Componentes planeados o en evolucion
+0065: Las siguientes areas deben documentarse con estado explicito para evitar confusion:
+0066: ACC.MultiPlataform: sigue siendo parte del plan del producto, aunque no aparezca actualmente en ACC.sln
+0067: Redis: ya forma parte de la topologia de AppHost y de las referencias entre servicios, pero su explotacion funcional aun sigue creciendo
+0068: compilador: el nombre documental correcto es ACC.Compiler, aunque su ubicacion fisica actual siga siendo src/API_CompilerACC
+0069: 5.3 Diferencias frente al documento tecnico historico
+0070: La guia antigua sigue siendo util como punto de partida, pero ya no representa correctamente varios aspectos del sistema. Entre los cambios mas importantes se encuentran:
+0071: el modelo de lecciones ya no gira alrededor de un unico bloque HTML
+0072: las secciones de una leccion ahora se controlan con OrdenSecciones
+0073: el renderizado final depende de RDL.razor
+0074: los examenes ya no se describen correctamente como una simple bandera embebida en la leccion
+0075: la topologia con Aspire, dos bases de datos y Redis ya requiere una documentacion mas precisa
+0076: la nomenclatura y alcance del compilador cambiaron respecto a la documentacion anterior
+0077: 5.4 Funcion de esta nueva guia
+0078: ACC GUIA TECNICA - Reload existe para convertirse en la fuente documental principal del proyecto. Su papel no es repetir el PDF antiguo con ligeras correcciones, sino recompilar todo el conocimiento tecnico vigente de ACC, ordenar sus sistemas por capas y responsabilidades, y dejar una base confiable para futuras versiones en Markdown, DOCX y PDF.
+0079: 6. Software usado
+0080: El entorno tecnico de ACC combina herramientas del ecosistema .NET, infraestructura local basada en contenedores y utilidades orientadas a desarrollo, pruebas y observabilidad. En esta seccion se distinguen dos clases de informacion: la fotografia historica del proyecto y el stack actualmente verificable en el repositorio.
+0081: 6.1 Base de runtime y framework
+0082: La solucion activa trabaja sobre net8.0 en sus proyectos principales. El archivo global.json fija como referencia el SDK 8.0.123 con politica rollForward: latestFeature, lo que deja claro que la base actual del entorno es .NET 8.
+0083: Componentes base verificados en el repositorio:
+0084: .NET SDK 8.0.123
+0085: ASP.NET Core 8
+0086: Blazor Web App / Blazor WebAssembly
+0087: ASP.NET Identity
+0088: Entity Framework Core 8.x y 9.x segun proyecto
+0089: 6.2 Herramientas y librerias principales del sistema
+0090: La solucion actual utiliza o declara de forma verificable las siguientes herramientas y paquetes:
+0091: 6.3 Herramientas por area
+0092: Desarrollo backend
+0093: ASP.NET Core
+0094: Entity Framework Core
+0095: ASP.NET Identity
+0096: AutoMapper
+0097: Swagger / OpenAPI
+0098: Desarrollo frontend
+0099: Blazor Web App
+0100: Blazor WebAssembly
+0101: Blazored.LocalStorage
+0102: CodeMirror
+0103: Bootstrap
+0104: Infraestructura y operacion local
+0105: .NET Aspire
+0106: SQL Server
+0107: Redis
+0108: Docker Desktop
+0109: OpenTelemetry
+0110: Calidad y pruebas
+0111: xUnit
+0112: Moq
+0113: coverlet
+0114: Postman
+0115: 6.4 Nota sobre herramientas historicas y obsolescencia documental
+0116: El documento tecnico antiguo mencionaba herramientas como Aspire en estado Preview, Entity Framework Core 8.0 y Serilog como parte del stack principal. Hoy la situacion debe matizarse:
+0117: Aspire ya no debe documentarse como preview dentro de ACC
+0118: Entity Framework Core aparece mezclado entre 8.x y 9.x segun el proyecto
+0119: OpenTelemetry esta verificado directamente en ACC.ServiceDefaults
+0120: Serilog no forma parte visible del stack principal actual del repositorio y no debe seguirse presentando como pieza central sin evidencia en codigo
+0121: 7. Hardware usado
+0122: Esta seccion conserva la informacion historica del proyecto como referencia contextual, no como requerimiento normativo. Su valor documental consiste en mostrar el tipo de equipo con el que ACC fue desarrollado y validado en sus primeras etapas.
+0123: 7.1 Equipos historicos de desarrollo
+0124: 7.2 Interpretacion tecnica
+0125: Estos equipos confirman que ACC puede desarrollarse de forma razonable en hardware de gama media o media-alta, siempre que se cuente con:
+0126: suficiente memoria para correr IDE, servicios .NET y contenedores
+0127: almacenamiento SSD para restauraciones, builds y bases de datos locales
+0128: capacidad de ejecutar Docker Desktop y SQL Server sin degradacion excesiva
+0129: 7.3 Nota editorial
+0130: La presente guia no adopta estos equipos como estandar obligatorio. Se incluyen por trazabilidad historica y para contextualizar el entorno real donde fue concebido el proyecto.
+0131: 8. Requerimientos tecnicos para desarrollo
+0132: Para recrear, compilar y mantener ACC en un entorno local o profesional se requiere un entorno compatible con .NET 8, SQL Server, Docker y la topologia definida por ACC.AppHost.
+0133: 8.1 Requerimientos de hardware
+0134: 8.2 Requerimientos de software
+0135: El entorno base para desarrollo debe contar con:
+0136: .NET SDK 8.0
+0137: Visual Studio 2022 o VS Code con soporte .NET
+0138: Docker Desktop activo
+0139: acceso a SQL Server local o levantado desde Aspire
+0140: Git
+0141: navegador moderno para validar la experiencia web
+0142: Herramientas complementarias recomendadas:
+0143: Postman para pruebas manuales
+0144: SQL Server Management Studio o herramienta equivalente
+0145: terminal PowerShell
+0146: 8.3 Requerimientos del repositorio y configuracion local
+0147: Para trabajar con ACC se debe poder:
+0148: restaurar la solucion ACC.sln
+0149: ejecutar migraciones sobre ACCDbContext
+0150: ejecutar migraciones sobre ApplicationDbContext
+0151: iniciar ACC.AppHost
+0152: disponer de cadenas de conexion validas para identidad y dominio academico
+0153: configurar secretos o appsettings.Development.json donde corresponda
+0154: 8.4 Dependencias de infraestructura local
+0155: La topologia actual del proyecto presupone la disponibilidad de:
+0156: una base de datos ACC_Identity
+0157: una base de datos ACC_Academic
+0158: un recurso Redis
+0159: los proyectos ACC.WebApp, ACC.API y ACC.Compiler
+0160: En desarrollo local, esa topologia puede levantarse desde ACC.AppHost, lo cual simplifica el arranque conjunto de recursos y servicios.
+0161: 8.5 Requisitos operativos recomendados
+0162: Para evitar problemas durante desarrollo se recomienda:
+0163: mantener Docker Desktop funcionando antes de arrancar AppHost
+0164: verificar disponibilidad de puertos locales para SQL y servicios web
+0165: usar navegadores actualizados
+0166: validar compatibilidad al actualizar paquetes mayores de EF Core, Aspire o ASP.NET Core
+0167: 8.6 Nota de compatibilidad
+0168: La solucion combina paquetes 8.x y 9.x en distintas capas. Esto obliga a tratar actualizaciones de dependencias con cuidado y a validar compilacion, migraciones y arranque integral despues de cualquier cambio mayor de version.
+0169: 9. Requerimientos para usuario final
+0170: ACC esta pensado para ejecutarse desde navegador web sin requerir una instalacion adicional del lado del usuario final. La experiencia actual se orienta principalmente a escritorio y navegacion web responsive.
+0171: 9.1 Navegadores compatibles
+0172: Se consideran compatibles los navegadores modernos con soporte para:
+0173: JavaScript
+0174: cookies
+0175: HTTPS
+0176: capacidades de render web modernas
+0177: Referencias recomendadas:
+0178: Google Chrome
+0179: Microsoft Edge
+0180: Firefox
+0181: Safari
+0182: 9.2 Requisitos funcionales del navegador
+0183: Para usar ACC correctamente el usuario final debe contar con:
+0184: navegador actualizado
+0185: cookies habilitadas
+0186: soporte para contenido web interactivo
+0187: conexion estable a Internet
+0188: El documento historico mencionaba WebAssembly como requisito central. Eso sigue siendo relevante para partes del ecosistema Blazor, aunque la experiencia actual debe describirse mas ampliamente como una aplicacion web moderna con componentes interactivos.
+0189: 9.3 Resolucion y dispositivos
+0190: Resoluciones orientativas:
+0191: minima funcional: 1024x768
+0192: recomendada: 1366x768 o superior
+0193: 9.4 Conectividad
+0194: Se recomienda:
+0195: conexion estable a Internet
+0196: ancho de banda suficiente para cargar la experiencia web, recursos integrados y servicios externos
+0197: Como referencia historica, el documento anterior sugeria al menos 5 Mbps. Esa cifra puede seguir tratandose como referencia minima razonable para evitar lentitud perceptible en el uso del sistema.
+0198: 9.5 Consideraciones de seguridad y compatibilidad
+0199: Para una experiencia estable se recomienda:
+0200: usar HTTPS siempre que el entorno lo permita
+0201: mantener el navegador actualizado
+0202: evitar dispositivos muy antiguos con poca memoria o CPU limitada
+0203: considerar que ciertas experiencias, como el compilador y la navegacion de contenido extenso, resultan mas comodas en escritorio
+0204: 9.6 Nota sobre multiplataforma
+0205: Aunque el roadmap contempla ACC.MultiPlataform, la experiencia principal documentada hoy para usuario final sigue siendo la experiencia web de ACC.
+0206: 10. Arquitectura general del proyecto
+0207: ACC-Complex es una solucion modular compuesta por servicios, bibliotecas compartidas, capa de datos, cliente web y una topologia local orquestada. Su arquitectura busca separar con claridad la experiencia de usuario, la identidad, el dominio academico, la compilacion de codigo y los concerns transversales de infraestructura.
+0208: En la solucion actual, el sistema se organiza alrededor de los siguientes bloques:
+0209: ACC.WebApp: host web principal, identidad y shell de acceso
+0210: ACC.WebApp.Client: cliente web con componentes de experiencia interactiva
+0211: ACC.API: dominio academico y servicios principales de negocio
+0212: ACC.Compiler: servicio especializado para compilacion de C#
+0213: ACC.Data: persistencia del dominio academico
+0214: ACC.Shared: contratos, DTOs, enums e interfaces compartidas
+0215: ACC.ExternalClients: integraciones hacia servicios externos
+0216: ACC.ServiceDefaults: observabilidad, service discovery, health checks y resiliencia
+0217: ACC.AppHost: topologia local y orquestacion con Aspire
+0218: ACC.Tests: pruebas automatizadas
+0219: Observese también una vista de diagrama de la arquitectura planeada para el proyecto y las interacciones entre los servicios de esta a continuación
+0220: En terminos practicos, la experiencia del usuario comienza en la superficie web hospedada por ACC.WebApp. Desde ahi, el cliente consume informacion academica proveniente de ACC.API, obtiene lecciones y progreso, y activa sistemas complementarios como el compilador, los examenes y el soporte de Charp. Todo ello ocurre sobre una infraestructura local reproducible definida por ACC.AppHost.
+0221: 10.1 Estructura actual de la solucion
+0222: La solucion ACC.sln actualmente incluye diez proyectos principales:
+0223: ACC.Shared
+0224: ACC.Data
+0225: ACC.API
+0226: ACC.ExternalClients
+0227: ACC.Tests
+0228: ACC.AppHost
+0229: ACC.WebApp
+0230: ACC.WebApp.Client
+0231: ACC.ServiceDefaults
+0232: ACC.Compiler
+0233: Adicionalmente, debe dejarse explicitado que ACC.MultiPlataform sigue perteneciendo al roadmap del producto, aunque no aparezca hoy dentro de la solucion activa.
+0234: 10.2 Vista conceptual del sistema
+0235: Desde una vista macro, la arquitectura puede leerse asi:
+0236: ACC.WebApp gestiona identidad, registro, roles, shell web y parte del flujo de acceso.
+0237: ACC.WebApp.Client entrega la experiencia de navegacion, guia, contenido, agenda, examenes y compilador.
+0238: ACC.API concentra el dominio academico: modulos, submodulos, temas, subtemas, lecciones, progreso, aulas, tareas, notificaciones y examenes.
+0239: ACC.Compiler procesa solicitudes de compilacion de codigo C# usando Roslyn.
+0240: ACC.Data conecta el dominio academico con SQL Server.
+0241: ACC.Shared mantiene el lenguaje comun entre capas y proyectos.
+0242: ACC.AppHost levanta bases de datos, Redis y servicios, facilitando desarrollo local coherente.
+0243: 10.3 Diferencia entre arquitectura de producto y estado de implementacion
+0244: Es importante distinguir entre lo que ACC quiere ser como producto y lo que hoy existe como implementacion concreta:
+0245: como producto, ACC contempla experiencia web y experiencia multiplataforma
+0246: como implementacion actual, la experiencia principal es la web
+0247: como nomenclatura de producto, el compilador ya debe llamarse ACC.Compiler
+0248: como realidad del repositorio, dicho compilador vive aun en src/API_CompilerACC
+0249: 11. Patron de arquitectura
+0250: La arquitectura de ACC responde a un enfoque modular distribuido con fuerte separacion de responsabilidades y un conjunto de contratos compartidos para desacoplar capas funcionales. No se trata de una Clean Architecture academica en estado puro, pero si de una composicion pragmatica que adopta varios de sus principios.
+0251: 11.1 Principios aplicados
+0252: Separacion de responsabilidades
+0253: Cada proyecto tiene un alcance predominante:
+0254: ACC.WebApp se enfoca en identidad, acceso y host web
+0255: ACC.API concentra logica del dominio academico
+0256: ACC.Compiler atiende compilacion y ejecucion de codigo
+0257: ACC.Data persiste el dominio academico
+0258: ACC.Shared evita duplicacion de contratos y tipos
+0259: ACC.ServiceDefaults encapsula configuracion transversal repetible
+0260: Contratos compartidos
+0261: La comunicacion entre componentes evita depender de entidades concretas siempre que es posible. DTOs, interfaces, enums y resultados de servicio se concentran en ACC.Shared, lo cual permite que cliente, API y servicios hablen un lenguaje comun.
+0262: Composicion por servicios
+0263: Aunque ACC no esta desplegado como una malla de microservicios compleja, si organiza responsabilidades operativas por servicios desacoplados:
+0264: servicio de identidad y host web
+0265: servicio de dominio academico
+0266: servicio de compilacion
+0267: recursos de infraestructura desacoplados
+0268: Infraestructura transversal reutilizable
+0269: ACC.ServiceDefaults permite que varios servicios adopten el mismo baseline tecnico para:
+0270: OpenTelemetry
+0271: health checks
+0272: service discovery
+0273: resiliencia HTTP
+0274: 11.2 Capas logicas
+0275: Puede leerse la solucion en cuatro capas logicas principales:
+0276: 11.3 Patron operativo resultante
+0277: En la practica, ACC opera como una solucion distribuida ligera: varios servicios con responsabilidades delimitadas, dos bases de datos separadas por concern, un recurso de cache incorporado a la topologia y una capa compartida que evita acoplamiento innecesario entre cliente y backend.
+0278: 12. Decisiones arquitectonicas clave
+0279: La arquitectura actual de ACC no surge solo de una preferencia tecnologica, sino de varias decisiones de diseno que responden a necesidades concretas del producto.
+0280: 12.1 Separar identidad del dominio academico
+0281: Se opto por no mezclar directamente la persistencia de identidad con la persistencia academica. Esto permite:
+0282: mantener mas limpio el modelo academico
+0283: aislar flujos de autenticacion y cuentas
+0284: reducir el acoplamiento entre usuarios de Identity y entidades del dominio
+0285: permitir una sincronizacion explicita hacia el perfil academico cuando corresponde
+0286: 12.2 Mantener un servicio dedicado para compilacion
+0287: El compilador en linea se documento y estructuro como un servicio independiente porque su naturaleza es distinta al resto del dominio:
+0288: ejecuta compilacion dinamica
+0289: requiere un control de referencias y superficie de ejecucion
+0290: su evolucion tecnica y de seguridad no deberia contaminar el resto de la API academica
+0291: 12.3 Usar Aspire para orquestacion local
+0292: ACC.AppHost existe para eliminar friccion de arranque y documentar la topologia de forma ejecutable. Gracias a ello:
+0293: SQL Server y Redis se describen como recursos del sistema
+0294: los servicios conocen sus dependencias desde el arranque
+0295: el entorno local se vuelve reproducible
+0296: la observabilidad y los health checks quedan mejor integrados
+0297: 12.4 Mantener dos bases de datos SQL
+0298: La existencia de ACC_Identity y ACC_Academic no es accidental. Esta separacion permite:
+0299: delimitar claramente los bounded contexts operativos
+0300: reducir mezcla entre tablas de cuentas y tablas academicas
+0301: evolucionar el dominio academico sin depender de la estructura de Identity
+0302: 12.5 Mover la narrativa de lecciones a datos
+0303: Una de las decisiones mas importantes del producto fue dejar atras el modelo de leccion basado en un solo HTML principal y mover la narrativa al arreglo OrdenSecciones. Esa decision permite:
+0304: cambiar el orden y presencia de bloques sin redeploy del cliente
+0305: introducir nuevas secciones de forma incremental
+0306: hacer que el frontend renderice segun datos, no segun plantillas fijas
+0307: 12.6 Separar examenes del contrato basico de leccion
+0308: El documento antiguo asociaba evaluacion directamente con leccion. La evolucion actual llevo a un sistema mas robusto donde examenes, progreso y desbloqueos siguen reglas propias. Esto evita:
+0309: sobrecargar el modelo de leccion
+0310: mezclar contenido con control de habilitacion
+0311: perder trazabilidad sobre aprobacion y prerrequisitos
+0312: 12.7 Incorporar Redis desde la topologia aunque su uso siga creciendo
+0313: Redis ya forma parte de la arquitectura declarada porque se considera una pieza de soporte para evolucion futura. Aunque su explotacion funcional actual no cubre todo lo que la arquitectura sugiere, incluirlo desde AppHost ayuda a:
+0314: preparar cache distribuido sin redisenar la topologia
+0315: mantener la solucion lista para escenarios de baja latencia
+0316: ensayar una arquitectura con recursos transversales desde etapas tempranas
+0317: 12.8 Centralizar preocupaciones transversales en ServiceDefaults
+0318: OpenTelemetry, health checks, service discovery y resiliencia HTTP fueron concentrados en ACC.ServiceDefaults para evitar configuraciones divergentes entre servicios.
+0319: 13. Topologia de servicios e infraestructura
+0320: La topologia actual de ACC esta declarada en src/ACC.AppHost/Program.cs y representa el entorno canonico de desarrollo local.
+0321: 13.1 Recursos definidos por AppHost
+0322: ACC.AppHost levanta:
+0323: acc-sql-identity en puerto 1434
+0324: ACC_Identity como base de datos de identidad
+0325: acc-sql-academic en puerto 1435
+0326: ACC_Academic como base de datos del dominio academico
+0327: acc-redis como recurso Redis
+0328: acc-compiler como servicio de compilacion
+0329: acc-api como servicio academico
+0330: acc-blazor como host web principal
+0331: 13.2 Relaciones de dependencia
+0332: Las dependencias definidas de forma explicita son:
+0333: ACC.Compiler referencia Redis
+0334: ACC.API referencia la base academica y espera a que este disponible
+0335: ACC.WebApp referencia la base de identidad, la base academica y Redis, y espera la disponibilidad de las bases
+0336: 13.3 Observabilidad y salud del sistema
+0337: Los servicios que incorporan ACC.ServiceDefaults heredan:
+0338: OpenTelemetry para logs, trazas y metricas
+0339: health checks basicos
+0340: endpoints /health y /alive en desarrollo
+0341: service discovery
+0342: configuracion de resiliencia para clientes HTTP
+0343: 13.4 Servicios visibles en ejecucion
+0344: En ejecucion local, la topologia debe permitir:
+0345: levantar el dashboard de Aspire
+0346: exponer ACC.WebApp
+0347: exponer ACC.API
+0348: exponer ACC.Compiler
+0349: verificar el estado de los recursos SQL y Redis
+0350: 13.5 Nota sobre topologia futura
+0351: La topologia actual ya prepara el terreno para escalamiento posterior, pero no debe confundirse con un despliegue productivo endurecido. Hoy su funcion principal es reproducibilidad local, visibilidad del sistema y coordinacion de servicios durante desarrollo.
+0352: 14. Capas, proyectos y responsabilidades
+0353: La siguiente tabla resume el rol de cada proyecto dentro de ACC, su capa predominante y su estado actual.
+0354: 14.1 Lectura por agrupacion fisica
+0355: Dentro del repositorio, los proyectos se distribuyen principalmente en estas zonas:
+0356: src/: backend, datos, compartidos, infraestructura y compilador
+0357: ACC.WebApp/: host web y cliente web
+0358: tests/: pruebas
+0359: Docs/: documentacion tecnica y funcional
+0360: 14.2 Responsabilidad de cada bloque en terminos de mantenimiento
+0361: Para mantenimiento cotidiano, la lectura practica del sistema puede resumirse asi:
+0362: si cambia login, roles o registro, el foco suele estar en ACC.WebApp
+0363: si cambia contenido academico, progreso, examenes o navegacion, el foco suele estar en ACC.API y ACC.Data
+0364: si cambia el contrato de datos entre cliente y backend, el foco suele estar en ACC.Shared
+0365: si cambia el comportamiento del compilador, el foco suele estar en ACC.Compiler
+0366: si cambia la experiencia visual y de interaccion, el foco suele estar en ACC.WebApp.Client
+0367: si cambia el baseline operativo, el foco suele estar en ACC.ServiceDefaults y ACC.AppHost
+0368: 15. Modelo de datos y persistencia
+0369: La persistencia de ACC se divide en dos contextos claramente diferenciados: uno para identidad y otro para el dominio academico. Esta separacion responde a una decision arquitectonica explicita orientada a reducir acoplamiento entre autenticacion y reglas del negocio educativo.
+0370: 15.1 Dos contextos, dos esquemas, dos responsabilidades
+0371: ACC utiliza dos contextos principales de Entity Framework Core:
+0372: ApplicationDbContext para identidad
+0373: ACCDbContext para el dominio academico
+0374: Cada uno trabaja sobre un esquema distinto:
+0375: acc_identity para ASP.NET Identity
+0376: acc_academic para el dominio de aprendizaje, progreso, aulas, tareas y examenes
+0377: Esta separacion evita mezclar tablas de cuentas con estructuras propias del producto educativo.
+0378: 15.2 Contexto de identidad: ApplicationDbContext
+0379: ApplicationDbContext vive en ACC.WebApp y hereda de:
+0380: IdentityDbContext<ApplicationUser, IdentityRole, string>
+0381: Su responsabilidad es almacenar:
+0382: usuarios de identidad
+0383: roles
+0384: claims
+0385: logins externos si llegaran a incorporarse
+0386: tokens de identidad y demas estructuras internas de ASP.NET Identity
+0387: El modelo actual de ApplicationUser es deliberadamente ligero: hoy extiende IdentityUser sin propiedades adicionales. Eso indica que el producto prefiere mantener el perfil academico de usuario fuera del modelo de identidad.
+0388: 15.3 Contexto academico: ACCDbContext
+0389: ACCDbContext es el contexto central del dominio academico y se encuentra en src/ACC.Data. Su funcion es orquestar persistencia para:
+0390: catalogo de contenido
+0391: relaciones usuario-contenido
+0392: progreso academico
+0393: aulas y comunicacion
+0394: tareas y agenda
+0395: examenes, intentos, habilitaciones y aprobaciones
+0396: El contexto fija como esquema por defecto:
+0397: acc_academic
+0398: Esto da coherencia al dominio y facilita separar a nivel SQL la informacion academica del resto de la plataforma.
+0399: 15.4 Familias principales de entidades
+0400: El modelo academico actual puede agruparse en las siguientes familias:
+0401: Catalogo y estructura del contenido
+0402: Modulo
+0403: SubModulo
+0404: Tema
+0405: SubTema
+0406: Leccion
+0407: Capitulo
+0408: ContenidoCapitulo
+0409: Tag
+0410: CapituloTag
+0411: Usuario academico y progreso
+0412: Usuario
+0413: UsuarioModulos
+0414: UsuarioSubModulos
+0415: UsuarioTemas
+0416: UsuarioSubTemas
+0417: ProgresoUsuario
+0418: HistorialCalificaciones
+0419: Aulas, comunicacion y agenda
+0420: Aula
+0421: AulaEstudiante
+0422: Anuncio
+0423: Aviso
+0424: Notificacion
+0425: Auditoria
+0426: Agenda
+0427: TareaPersonal
+0428: InvitacionAula
+0429: Tareas y evaluaciones operativas
+0430: Tarea
+0431: TareasAsignaciones
+0432: Evaluacion
+0433: EvaluacionResultado
+0434: Examenes y control de habilitacion
+0435: Examen
+0436: ExamenModulo
+0437: ExamenSubModulo
+0438: ExamenIntento
+0439: ExamenHabilitado
+0440: ExamenAprobatorio
+0441: 15.5 Relaciones nucleares del modelo
+0442: Entre las relaciones mas importantes del contexto se encuentran:
+0443: Modulo → SubModulo
+0444: SubModulo → Tema
+0445: Tema → SubTema
+0446: SubTema → Leccion
+0447: Tema / SubModulo / Modulo → Capitulo segun el caso
+0448: Usuario → Agenda como relacion uno a uno
+0449: Aula → AulaEstudiantes
+0450: Aula → Anuncios
+0451: Aula → Tareas
+0452: Aula → Evaluaciones
+0453: SubModulo → ExamenSubModulo
+0454: Usuario → ExamenIntento
+0455: Esto muestra que el dominio no es un simple CMS de lecciones: incluye estructura academica, gestion de usuarios, trabajo en aula, evaluacion y trazabilidad del aprendizaje.
+0456: 15.6 Tipos, constraints e indices relevantes
+0457: ACCDbContext no solo declara DbSets, tambien concentra decisiones importantes de modelado:
+0458: uso de decimal(5,2) para progreso y calificaciones
+0459: uso de datetimeoffset para eventos relevantes de progreso e intentos
+0460: claves compuestas en relaciones usuario-contenido
+0461: indices unicos para prevenir duplicados en tags, invitaciones y asignaciones
+0462: indices de rendimiento para progreso, examenes, tareas y notificaciones
+0463: configuraciones de DeleteBehavior diferenciadas segun la semantica de cada relacion
+0464: Este punto es importante porque parte del valor del modelo no esta solo en las entidades, sino en las garantias e invariantes que se codifican dentro del OnModelCreating.
+0465: 15.7 Migraciones y evolucion del modelo
+0466: La solucion conserva migraciones para ambos contextos:
+0467: migraciones academicas en src/ACC.Data/Migrations
+0468: migraciones de identidad en ACC.WebApp/ACC.WebApp/Migrations
+0469: Las migraciones historicas tambien dejan ver la evolucion del dominio, especialmente en el caso de lecciones, examenes y entidades de aula. Por eso, para entender el estado presente del sistema, las migraciones deben leerse como historial tecnico, pero la fuente de verdad actual sigue siendo la combinacion de:
+0470: entidades vigentes
+0471: configuracion de OnModelCreating
+0472: contratos DTO activos
+0473: 15.8 Rol de Usuario dentro del dominio academico
+0474: La entidad Usuario representa al usuario desde la perspectiva academica, no desde la perspectiva de Identity. Su clave Id no es autogenerada: reutiliza el mismo Id del usuario de Identity.
+0475: Eso permite:
+0476: vincular identidad y perfil academico sin fusionar sus tablas
+0477: mantener progreso, agenda, notificaciones e intentos de examen sobre el mismo identificador funcional
+0478: sincronizar datos basicos como nombre y email desde el flujo de registro
+0479: En otras palabras, Usuario es la proyeccion academica del usuario autenticado.
+0480: 16. Autenticacion, identidad y sincronizacion de usuario
+0481: ACC separa autenticacion y dominio academico, pero los conecta mediante un flujo de sincronizacion controlado. Esta seccion documenta como ocurre ese acoplamiento.
+0482: 16.1 Base de autenticacion en ACC.WebApp
+0483: ACC.WebApp utiliza ASP.NET Identity con:
+0484: ApplicationUser
+0485: IdentityRole
+0486: ApplicationDbContext
+0487: La configuracion actual exige:
+0488: cuentas confirmadas para el inicio de sesion (RequireConfirmedAccount = true)
+0489: almacenamiento en SQL Server
+0490: creacion de roles base al iniciar la aplicacion
+0491: Los roles iniciales definidos por el sistema son:
+0492: Administrador
+0493: Docente
+0494: Estudiante
+0495: 16.2 Rol de ACC.WebApp en el acceso
+0496: ACC.WebApp no actua solo como host visual. Tambien se encarga de:
+0497: registro de usuarios
+0498: login y flujo de cuenta
+0499: gestion de roles
+0500: estado de autenticacion para la experiencia web
+0501: consumo autenticado de ACC.API
+0502: En este sentido, ACC.WebApp es simultaneamente interfaz de acceso e infraestructura de identidad.
+0503: 16.3 Consumo autenticado de ACC.API
+0504: Del lado de ACC.API, la autenticacion se procesa mediante JwtBearer. El servicio:
+0505: registra autenticacion bearer
+0506: valida issuer, audience, firma y expiracion cuando la configuracion esta presente
+0507: expone Swagger con definicion de seguridad para Bearer
+0508: Esto significa que la API academica esta preparada para recibir identidad ya resuelta desde el ecosistema web de ACC.
+0509: 16.4 Flujo de registro y sincronizacion
+0510: El flujo actual de alta de usuario puede resumirse asi:
+0511: el usuario se registra en ACC.WebApp
+0512: Identity crea el ApplicationUser
+0513: UsuarioSyncService mapea ese usuario a ApplicationUserDto
+0514: ACC.WebApp envia ese DTO a ACC.API
+0515: UsuarioController recibe la solicitud en api/Usuario/sincronizar
+0516: UsuarioService crea o actualiza la entidad Usuario en acc_academic
+0517: Este mecanismo evita duplicar manualmente datos de usuario en dos lados y formaliza la relacion entre identidad y perfil academico.
+0518: 16.5 UsuarioSyncService
+0519: UsuarioSyncService vive en ACC.WebApp y cumple una funcion critica: traducir el resultado del alta en Identity al lenguaje del dominio academico. Para ello:
+0520: usa AutoMapper
+0521: crea un ApplicationUserDto
+0522: utiliza un HttpClient configurado para ACC.API
+0523: envia el DTO al endpoint de sincronizacion
+0524: registra errores si la operacion falla
+0525: Desde el punto de vista arquitectonico, esta clase es el puente entre la frontera de identidad y el dominio academico.
+0526: 16.6 UsuarioController y UsuarioService
+0527: En ACC.API, el endpoint de sincronizacion se expone en:
+0528: POST api/Usuario/sincronizar
+0529: El controlador delega en IUsuarioService, cuya implementacion actual:
+0530: valida que exista Id
+0531: busca al usuario academico por el mismo Id de Identity
+0532: si no existe, crea un nuevo Usuario
+0533: si ya existe, actualiza nombre, email y progreso general
+0534: persiste cambios en ACCDbContext
+0535: Esto vuelve idempotente la sincronizacion basica del perfil.
+0536: 16.7 Union entre identidad y dominio academico
+0537: La union entre ambos mundos se establece sobre el mismo identificador:
+0538: ApplicationUser.Id en acc_identity
+0539: Usuario.Id en acc_academic
+0540: No se trata de una foreign key directa entre contextos, sino de una alineacion funcional basada en el mismo valor de clave. Esa decision permite mantener autonomia de contextos sin perder la capacidad de correlacionar al usuario a traves del sistema.
+0541: 16.8 Responsabilidades separadas
+0542: La division final de responsabilidades queda asi:
+0543: ApplicationUser: autenticacion, credenciales, roles y estado de cuenta
+0544: Usuario: presencia academica del usuario dentro del dominio
+0545: ACC.WebApp: gestiona el ciclo de vida de cuenta y dispara sincronizacion
+0546: ACC.API: conserva y sirve la proyeccion academica del usuario
+0547: 16.9 Implicaciones de mantenimiento
+0548: Para mantenimiento, cualquier cambio en identidad o sincronizacion debe analizarse en ambos lados:
+0549: si cambia el modelo de registro, revisar ACC.WebApp
+0550: si cambia el contrato del usuario academico, revisar ACC.Shared, UsuarioService y Usuario
+0551: si cambian claims o estrategia de autenticacion de API, revisar ACC.API/Program.cs
+0552: Esto es especialmente importante porque la consistencia entre identidad y dominio no depende de una sola tabla, sino de un flujo coordinado entre servicios.
+0553: 17. Navegacion academica y contratos compartidos
+0554: La navegacion academica de ACC es el mecanismo que conecta la estructura curricular del sistema con la experiencia de exploracion del usuario dentro de la guia. No se trata solo de un menu jerarquico: esta capa define como se representan los nodos del contenido, como se consultan desde el dominio, como se transportan al cliente y como se convierten finalmente en vistas navegables y lecciones renderizadas.
+0555: Su importancia arquitectonica radica en que desacopla la jerarquia academica concreta de las pantallas que la consumen. Gracias a ello, ACC.API puede exponer un contrato uniforme para modulos, submodulos, temas, subtemas y lecciones, mientras que el cliente Blazor reutiliza una misma logica para recorrer distintos niveles del arbol.
+0556: 17.1 Jerarquia academica de contenido
+0557: La estructura vigente de la guia sigue un arbol academico de cinco niveles:
+0558: Modulo
+0559: SubModulo
+0560: Tema
+0561: SubTema
+0562: Leccion
+0563: Cada nivel encapsula una granularidad distinta del contenido:
+0564: Modulo agrupa grandes dominios tematicos del curso
+0565: SubModulo organiza subconjuntos tematicos dentro de un modulo
+0566: Tema concentra una unidad de avance reconocible para el estudiante
+0567: SubTema delimita fragmentos mas pequenos sobre los que puede medirse progreso
+0568: Leccion representa la unidad final consumible por el renderizador dinamico
+0569: Esta jerarquia no es solo editorial. Tambien condiciona:
+0570: el orden de navegacion dentro de la guia
+0571: el calculo de progreso por subtema
+0572: la construccion de rutas y breadcrumbs
+0573: el punto exacto donde se carga una LeccionDto para ser renderizada por RDL
+0574: 17.2 Contrato compartido para nodos jerarquicos
+0575: Para evitar que cada entidad academica exponga contratos distintos, ACC define una interfaz comun en ACC.Shared: INodoJerarquico. Esta interfaz estandariza cinco propiedades:
+0576: Id
+0577: Nombre
+0578: Descripcion
+0579: IdPadre
+0580: Tipo
+0581: Con ese contrato, el sistema puede tratar nodos distintos de forma uniforme sin perder el contexto del tipo real al que pertenecen. La propiedad Tipo, basada en TipoNodoJerarquico, permite distinguir si el nodo actual es un modulo, submodulo, tema, subtema o leccion.
+0582: En el transporte hacia el cliente, el contrato concreto utilizado es NodoJerarquicoDto. Este DTO implementa INodoJerarquico y se convierte en la pieza comun para:
+0583: listar modulos raiz
+0584: obtener hijos de cualquier nodo
+0585: recuperar el padre de un nodo
+0586: construir rutas desde la raiz
+0587: alimentar componentes reutilizables en Blazor
+0588: El resultado de estas operaciones no viaja como datos crudos. Se envuelve en ServiceResult<T>, un contrato transversal de ACC.Shared.Core que unifica:
+0589: estado de exito o error
+0590: mensaje legible
+0591: codigo HTTP
+0592: carga util tipada
+0593: Esta decision reduce ambiguedad entre cliente y servidor y mantiene un mismo patron para navegacion, progreso, examenes y otros servicios del dominio.
+0594: 17.3 Implementacion del servicio de navegacion
+0595: El contrato de negocio para esta capacidad vive en INavegacionContenidoService. Su implementacion principal reside en NavegacionContenidoService, dentro de ACC.API, y opera directamente sobre ACCDbContext.
+0596: Las operaciones nucleares del servicio son:
+0597: ObtenerModulosAsync: devuelve los nodos raiz de la guia
+0598: ObtenerHijosAsync: resuelve hijos segun el TipoNodoJerarquico del nodo padre
+0599: ObtenerPadreAsync: localiza el padre inmediato del nodo solicitado
+0600: ObtenerRutaDesdeRaizAsync: reconstruye el camino ascendente para navegacion contextual
+0601: ObtenerLeccionAsync: carga una LeccionDto completa lista para renderizado
+0602: RegistrarUltimaVisitaTemaAsync: registra una marca temporal de ultima visita sobre Tema
+0603: La implementacion usa un switch por tipo de nodo para proyectar cada nivel al mismo DTO. Eso convierte al servicio en una especie de traductor entre el modelo relacional del dominio y una vista jerarquica estable para el cliente.
+0604: Desde el punto de vista de responsabilidad, esta capa:
+0605: conoce la forma real de las relaciones entre entidades
+0606: decide como se proyecta cada nivel a NodoJerarquicoDto
+0607: encapsula validaciones basicas de IDs y tipos
+0608: evita que el cliente tenga que entender detalles de tablas o claves foraneas
+0609: 17.4 Superficie HTTP expuesta por la API
+0610: NavegacionContenidoController publica la navegacion como un conjunto de endpoints especializados bajo api/NavegacionContenido. Las rutas principales son:
+0611: GET modulos
+0612: GET hijos/{tipo}/{id}
+0613: GET padre/{tipo}/{id}
+0614: GET ruta/{tipo}/{id}
+0615: GET leccion/{leccionId}
+0616: POST tema/{id}/registrar-ultima-visita
+0617: Este diseno mantiene una API pequena, legible y orientada a la experiencia de navegacion. En lugar de exponer CRUDs independientes por cada entidad academica para la guia publica, se expone una superficie enfocada al recorrido del contenido.
+0618: Una implicacion importante es que el valor de tipo en la ruta depende del enum TipoNodoJerarquico. Por ello, cualquier cambio de nombres en el enum o en la estrategia de serializacion puede romper la navegacion cliente-servidor si no se actualiza de forma coordinada.
+0619: 17.5 Consumo desde el cliente Blazor
+0620: El cliente web encapsula estas llamadas en NavegacionContenidoClient, que actua como adaptador HTTP del lado de ACC.WebApp.Client. Este cliente replica los metodos principales del servicio de API y devuelve igualmente ServiceResult, preservando el mismo contrato hasta la UI.
+0621: Este patron aporta tres ventajas:
+0622: la UI trabaja con respuestas consistentes y no con HttpResponseMessage crudos
+0623: el manejo de errores se centraliza
+0624: los componentes pueden concentrarse en estados de carga, exito, vacio o falla
+0625: En la practica, el recorrido principal se distribuye entre varios componentes:
+0626: GuiaNavegador.razor: punto de entrada de la experiencia de guia
+0627: GuiaMainComponent.razor: lista hijos del nodo actual y resuelve la navegacion descendente
+0628: LeccionView.razor: solicita una LeccionDto concreta
+0629: RDL.razor: renderiza la leccion cuando ya se llego al ultimo nivel
+0630: 17.6 Flujo funcional de navegacion
+0631: El flujo academico actual puede resumirse en la siguiente secuencia:
+0632: El usuario entra a /Guia y el cliente consulta modulos disponibles.
+0633: Al seleccionar un modulo, el sistema navega a /contenido/Modulo/{id}.
+0634: La misma pagina reutiliza GuiaMainComponent para pedir hijos del nodo actual y seguir descendiendo por SubModulo, Tema y SubTema.
+0635: Cuando el usuario selecciona una leccion, la navegacion cambia a /leccion/{id}.
+0636: LeccionView solicita ObtenerLeccionAsync.
+0637: Si la respuesta es exitosa, la LeccionDto se entrega a RDL, que construye la experiencia final de lectura y practica.
+0638: Este flujo confirma una de las decisiones mas importantes del sistema: la guia no depende de paginas duras por cada contenido, sino de una navegacion basada en datos y un render final tambien guiado por datos.
+0639: 17.7 Relacion con progreso y contexto del usuario
+0640: La navegacion academica no opera aislada. En GuiaMainComponent, cuando el usuario autenticado recorre subtemas, el cliente consulta y registra informacion de progreso para reflejar estados completados y mantener continuidad en la experiencia.
+0641: Esto significa que la navegacion cumple un doble papel:
+0642: mover al usuario entre nodos del contenido
+0643: servir como punto de integracion con sistemas de progreso y seguimiento
+0644: Tambien existe la capacidad de registrar UltimaVisita sobre Tema, lo cual deja abierta la puerta para futuras experiencias de recomendacion, reanudacion o analitica academica mas precisa.
+0645: 17.8 Implicaciones arquitectonicas y de mantenimiento
+0646: La capa de navegacion introduce reglas que deben cuidarse cada vez que evoluciona el dominio:
+0647: si se agrega un nuevo nivel jerarquico, debe extenderse TipoNodoJerarquico, INodoJerarquico, las entidades, el servicio, el controlador y los componentes cliente
+0648: si cambia LeccionDto, debe revisarse el mapeo en API y el punto donde LeccionView entrega datos a RDL
+0649: si se modifican nombres de tipos usados en rutas, debe validarse la compatibilidad con NavegacionContenidoClient
+0650: si se cambian relaciones entre Modulo, SubModulo, Tema, SubTema o Leccion, debe revalidarse la construccion de rutas ascendentes y descendentes
+0651: En otras palabras, la navegacion academica es una capa transversal. Aunque a simple vista parezca una funcionalidad de interfaz, en realidad concentra acuerdos de dominio, contratos compartidos, convenciones de transporte y decisiones de experiencia de usuario.
+0652: 17.9 Resumen tecnico de responsabilidades
+0653: Dentro de ACC, la responsabilidad de esta capacidad queda distribuida asi:
+0654: ACC.Data: modela la jerarquia academica real en entidades y relaciones
+0655: ACC.Shared: define enums, interfaces y contratos de transporte reutilizables
+0656: ACC.API: resuelve consultas de navegacion y expone endpoints especializados
+0657: ACC.WebApp.Client: consume los contratos, presenta nodos y dispara navegacion
+0658: RDL: recibe el resultado final de esa cadena cuando el nodo seleccionado es una leccion
+0659: Este reparto de responsabilidades mantiene la navegacion como una capacidad cohesiva, reutilizable y suficientemente desacoplada para evolucionar junto con el sistema de lecciones dinamicas documentado en la siguiente tanda.
+0660: 18. Sistema de lecciones dinamicas
+0661: El sistema de lecciones dinamicas es uno de los cambios mas importantes respecto a la concepcion original de ACC. En lugar de depender de una plantilla fija o de un unico bloque de contenido monolitico, la leccion actual se compone por secciones desacopladas, opcionales y ordenables, cuyo montaje final depende de datos persistidos y del renderizador RDL.
+0662: Esta capacidad convierte a la leccion en una unidad academica configurable. La narrativa, los recursos auxiliares y la experiencia de practica ya no estan codificados pagina por pagina, sino descritos por el contrato de datos de Leccion y ejecutados en cliente en tiempo de render.
+0663: 18.1 Evolucion del modelo
+0664: El documento tecnico historico describia una leccion mucho mas simple, centrada en un contenido HTML general y en banderas como TieneEvaluacion o IdEvaluacion. Ese enfoque ya no representa correctamente el producto actual.
+0665: En la implementacion vigente, los rastros del modelo anterior siguen apareciendo en comentarios y migraciones antiguas, pero la fuente real de verdad es otra. Hoy la leccion se define con:
+0666: bloques textuales diferenciados como Teoria, Ejemplo y Practica
+0667: recursos de apoyo como CharpTip, CharpDialog y VideoId
+0668: banderas funcionales como TieneActividad, TieneCompilador y TieneVideo
+0669: un arreglo OrdenSecciones que controla la secuencia exacta de render
+0670: Esto significa que la narrativa de la leccion ya no esta implita en el HTML ni fija en la UI. La narrativa se almacena como parte del dato.
+0671: 18.2 Entidad academica Leccion
+0672: La entidad Leccion, ubicada en ACC.Data, representa la unidad atomica de aprendizaje consumida al final de la navegacion academica. Sus responsabilidades principales son:
+0673: pertenecer a un SubTema mediante SubtemaId
+0674: transportar el contenido textual de la leccion
+0675: indicar que recursos interactivos estan activos
+0676: definir el orden en que la UI debe ensamblar la experiencia
+0677: Los campos funcionalmente mas relevantes del modelo actual son:
+0678: IdLeccion
+0679: TituloLeccion
+0680: DescripcionLeccion
+0681: SubtemaId
+0682: Teoria
+0683: Ejemplo
+0684: Practica
+0685: CharpTip
+0686: CharpDialog
+0687: NivelBloom
+0688: TieneActividad
+0689: UrlActividad
+0690: TieneCompilador
+0691: TieneVideo
+0692: VideoId
+0693: OrdenSecciones
+0694: Ademas, Leccion implementa INodoJerarquico, lo que le permite integrarse de forma natural a la navegacion descrita en la tanda anterior.
+0695: Aunque la leccion tambien puede relacionarse con Capitulos, su papel principal dentro de la guia sigue siendo el de nodo terminal del arbol Modulo → SubModulo → Tema → SubTema → Leccion.
+0696: 18.3 DTO y transporte al cliente
+0697: El contrato que viaja al frontend es LeccionDto, mapeado desde Leccion mediante AutoMapper. Este DTO conserva la estructura necesaria para que el renderizador no tenga que reinterpretar el dominio ni consultar datos complementarios para decidir que mostrar.
+0698: En otras palabras:
+0699: ACC.Data modela la leccion persistida
+0700: ACC.API la recupera y la proyecta
+0701: ACC.Shared define el DTO comun
+0702: ACC.WebApp.Client la consume sin acoplarse a EF Core ni a la base de datos
+0703: La paridad entre entidad y DTO es especialmente importante aqui. Si una propiedad se agrega en Leccion pero no llega a LeccionDto, la experiencia cliente quedara incompleta. Si el DTO se amplia pero RDL no entiende el nuevo campo, la leccion quedara funcionalmente huerfana.
+0704: 18.4 OrdenSecciones como motor narrativo
+0705: La propiedad mas significativa del sistema es OrdenSecciones : List<string>. Esta lista no es un detalle cosmetico; es el motor narrativo de cada leccion.
+0706: Su funcion es indicar al renderizador el orden exacto en que debe ensamblarse la experiencia. Gracias a ello, dos lecciones pueden compartir el mismo contrato de datos pero contar historias pedagogicas diferentes. Una puede abrir con charpDialog, pasar a teoria, continuar con ejemplo y terminar con compilador; otra puede iniciar con video, seguir con charpTip, pasar a practica y cerrar con actividad.
+0707: Esa decision tiene varias implicaciones arquitectonicas:
+0708: la UI deja de ser duena de la secuencia pedagogica
+0709: el contenido puede evolucionar sin crear componentes de pagina por leccion
+0710: el orden y la activacion de recursos quedan versionados como datos
+0711: la carga incorrecta de tokens se vuelve detectable de inmediato en tiempo de render
+0712: 18.5 Catalogo de secciones soportadas
+0713: Los tokens validos de OrdenSecciones se centralizan en SeccionesContenido, que funciona como fuente unica de verdad para frontend y backend. Actualmente, las secciones soportadas son las siguientes:
+0714: Adicionalmente, TipoSeccionContenido mantiene la enumeracion semantica de esas secciones. La combinacion TipoSeccionContenido + SeccionesContenido evita la dispersion de strings magicos y facilita futuras ampliaciones del sistema.
+0715: 18.6 Funcion del renderizador RDL
+0716: RDL.razor es el renderizador dinamico de lecciones. Su responsabilidad no es cargar datos, sino ensamblar la experiencia final a partir de un LeccionDto ya resuelto.
+0717: Su comportamiento actual puede resumirse asi:
+0718: renderiza una sola vez el ModalActividades
+0719: muestra una cabecera con NivelBloom
+0720: recorre Leccion.OrdenSecciones
+0721: por cada token ejecuta un switch
+0722: inyecta HTML o monta componentes segun corresponda
+0723: si encuentra un token desconocido, muestra InfoComponent
+0724: Este diseno es deliberadamente estricto. En vez de ignorar silenciosamente un token invalido, el sistema hace visible el problema. Eso ayuda a detectar errores de carga, typo en OrdenSecciones o ampliaciones incompletas del catalogo de secciones.
+0725: 18.7 Reglas de renderizado observadas en la implementacion
+0726: El render actual impone varias reglas tecnicas que deben quedar explicitas en la guia:
+0727: Teoria, Ejemplo y Practica se insertan como HTML confiado mediante MarkupString
+0728: actividad requiere TieneActividad = true y una UrlActividad no vacia
+0729: compilador requiere TieneCompilador = true
+0730: video depende en la practica de VideoId; la bandera TieneVideo existe en el contrato aunque el render actual valida principalmente el identificador
+0731: NivelBloom se usa tanto como texto visible como clase CSS
+0732: La ultima regla es especialmente importante. El estilo visual del badge depende de clases como:
+0733: Recordar
+0734: Comprender
+0735: Aplicar
+0736: Analizar
+0737: Evaluar
+0738: Crear
+0739: Si se carga un valor arbitrario en NivelBloom, el contenido seguira renderizando, pero perdera alineacion semantica y visual con la taxonomia de Bloom ya contemplada por el sistema.
+0740: 18.8 Flujo tecnico extremo a extremo
+0741: El recorrido de una leccion dinamica en ACC sigue esta cadena:
+0742: El usuario navega hasta un nodo Leccion.
+0743: LeccionView.razor solicita la leccion a traves de NavegacionContenidoClient.
+0744: El cliente llama al endpoint api/NavegacionContenido/leccion/{id}.
+0745: NavegacionContenidoService recupera la entidad Leccion desde ACCDbContext.
+0746: AutoMapper proyecta la entidad a LeccionDto.
+0747: El cliente recibe ServiceResult<LeccionDto>.
+0748: LeccionView entrega el DTO a RDL.
+0749: RDL ensambla la salida final segun OrdenSecciones.
+0750: Ese flujo confirma que la leccion dinamica no es una simple vista de frontend. Es una capacidad transversal que cruza persistencia, mapeo, contratos compartidos, navegacion y render.
+0751: 18.9 Beneficios y limites del modelo actual
+0752: El modelo vigente aporta beneficios concretos:
+0753: flexibilidad para variar la secuencia pedagogica sin duplicar paginas
+0754: reutilizacion de componentes para actividad, video, compilador y apoyos Charp
+0755: separacion clara entre obtencion de datos y renderizado
+0756: facilidad para extender la experiencia por nuevas secciones
+0757: Tambien introduce limites que la documentacion debe reconocer:
+0758: no existe aun un modulo administrativo consolidado para crear o editar lecciones desde la interfaz
+0759: el HTML persistido debe producirse con disciplina editorial y tecnica
+0760: el render depende fuertemente de la exactitud de OrdenSecciones
+0761: la validacion semantica de contenido recae hoy mas en procesos del equipo que en reglas automatizadas fuertes
+0762: 18.10 Implicaciones de mantenimiento
+0763: Cuando el modelo de lecciones cambia, hay varios puntos que deben revisarse de forma coordinada:
+0764: entidad Leccion
+0765: LeccionDto
+0766: perfil de AutoMapper
+0767: SeccionesContenido
+0768: TipoSeccionContenido
+0769: RDL.razor
+0770: documentacion editorial y tecnica de carga
+0771: Si alguno de esos puntos se actualiza por separado, el sistema entra rapidamente en un estado inconsistente: campos invisibles, tokens huerfanos, secciones no renderizadas o estilos sin correspondencia.
+0772: 19. Manual de estilos para creacion de lecciones
+0773: El manual de estilos para lecciones define como debe redactarse y estructurarse el contenido HTML que termina dentro de Teoria, Ejemplo y Practica. Su objetivo no es imponer una estetica separada del producto, sino asegurar que las lecciones aprovechen correctamente el contrato visual ya implementado en AccStyles_lecciones.css y el contrato tipografico oficial de ACC.
+0774: Como RDL inyecta estos bloques mediante MarkupString, la calidad visual no depende de un editor WYSIWYG ni de una capa intermedia de normalizacion. Depende directamente de como el equipo redacta y marca el contenido.
+0775: 19.1 Principio general
+0776: Toda leccion debe escribirse como contenido semantico y legible antes que como maquetacion ad hoc. La prioridad es:
+0777: claridad de lectura
+0778: jerarquia visual estable
+0779: consistencia con la UI de ACC
+0780: compatibilidad con desktop y mobile
+0781: Esto implica evitar HTML decorativo innecesario, estilos inline y estructuras que intenten forzar una presentacion distinta a la soportada por el sistema.
+0782: 19.2 Base tipografica obligatoria
+0783: Las lecciones deben respetar el contrato tipografico oficial de ACC:
+0784: Nunito como fuente de lectura y cuerpo
+0785: Sora para jerarquias de encabezado
+0786: JetBrains Mono para codigo
+0787: En terminos operativos, esto significa que quien redacta contenido no debe intentar fijar font-family manualmente dentro del HTML. La tipografia ya esta resuelta por tokens globales y por AccStyles_lecciones.css.
+0788: Tambien deben respetarse estos principios:
+0789: los parrafos largos deben favorecer lectura relajada
+0790: los encabezados deben marcar jerarquia real, no solo peso visual
+0791: el codigo debe vivir en code o pre > code
+0792: labels o pseudo-badges deben evitarse dentro del HTML cuando ya existe un componente o patron visual para ello
+0793: 19.3 Estructura recomendada para bloques HTML
+0794: Cuando una seccion textual lo requiera, se recomienda usar contenedores coherentes con el CSS existente:
+0795: div.leccion-teoria
+0796: div.leccion-ejemplos
+0797: div.leccion-practicas
+0798: Estos wrappers ya tienen estilos definidos en AccStyles_lecciones.css y permiten que el contenido respire correctamente dentro de la superficie de la leccion. Aunque RDL puede renderizar HTML sin esos contenedores, su uso mejora consistencia visual y facilita que teoria, ejemplos y practica se perciban como bloques diferenciados.
+0799: 19.4 Etiquetas HTML recomendadas
+0800: Las etiquetas que mejor se integran hoy con el contrato visual de ACC para lecciones son:
+0801: h3 para subtitulos dentro de una seccion
+0802: p para explicaciones
+0803: ul y ol para secuencias o enumeraciones
+0804: strong para enfasis puntual
+0805: a para enlaces complementarios
+0806: pre y code para bloques o fragmentos de codigo
+0807: table, thead, tbody, tr, th, td para comparativas o referencias tecnicas
+0808: hr para separar momentos narrativos cuando realmente haga falta
+0809: img, figure y figcaption cuando el recurso visual aporte claridad real
+0810: No se recomienda abusar de:
+0811: br como sustituto de estructura
+0812: encabezados profundos innecesarios
+0813: tablas para maquetacion
+0814: span con clases arbitrarias que no existan en el contrato visual
+0815: 19.5 Clases visuales soportadas y uso recomendado
+0816: El CSS actual de lecciones soporta varias clases utiles para authoring controlado:
+0817: .highlight: para remarcar una palabra o idea breve
+0818: .alert: para bloques de informacion destacada
+0819: .alert-info, .alert-success, .alert-warning, .alert-error: variantes semanticas de alerta
+0820: .alert-title: titulo corto dentro de una alerta
+0821: .fomentador: bloque de impulso o recomendacion de accion
+0822: Uso recomendado:
+0823: highlight solo para enfasis puntual, no para parrafos enteros
+0824: alert-info para aclaraciones o contexto
+0825: alert-success para buenas practicas o confirmaciones
+0826: alert-warning para advertencias pedagogicas o errores comunes
+0827: alert-error para anti-patrones o fallos frecuentes
+0828: fomentador para llamadas a practicar, explorar o continuar
+0829: Estas clases deben entenderse como herramientas de apoyo, no como sustituto de una buena redaccion base.
+0830: 19.6 Reglas para codigo y fragmentos tecnicos
+0831: El contenido tecnico dentro de una leccion debe seguir estas reglas:
+0832: usar code para expresiones cortas, tipos, metodos, palabras clave o rutas
+0833: usar pre > code para ejemplos completos
+0834: mantener indentacion limpia y consistente
+0835: evitar capturas de pantalla de codigo cuando el codigo puede escribirse como texto real
+0836: acompanar bloques de codigo con una explicacion breve antes o despues
+0837: El objetivo no es solo que el bloque "se vea bien", sino que pueda leerse, copiarse y relacionarse con el concepto que se explica.
+0838: 19.7 Reglas para enlaces, imagenes y multimedia
+0839: Los enlaces deben usarse con moderacion y solo cuando:
+0840: amplien el tema
+0841: apunten a una referencia necesaria
+0842: conduzcan a un recurso complementario legitimo
+0843: Las imagenes deben cumplir una funcion clara:
+0844: explicar una estructura
+0845: reforzar una comparacion
+0846: apoyar una instruccion dificil de describir solo con texto
+0847: No deben usarse imagenes meramente decorativas. Si una leccion incorpora video, este no debe sustituir el contenido central de lectura; debe reforzarlo o resumirlo.
+0848: 19.8 Reglas especificas para bloques Charp
+0849: CharpTip y CharpDialog no son texto libre indiferenciado. Visual y funcionalmente son componentes de acompanamiento.
+0850: Por ello:
+0851: CharpTip debe ser breve, puntual y orientado a destrabar una idea
+0852: CharpDialog puede ser mas expresivo, pero debe seguir siendo directo
+0853: ninguno de los dos debe duplicar la teoria principal
+0854: ninguno debe convertirse en muro de texto
+0855: En la practica, estos bloques funcionan mejor cuando:
+0856: introducen una intuicion
+0857: advierten un error comun
+0858: conectan teoria con practica
+0859: invitan a pensar antes de seguir
+0860: 19.9 Regla de oro para estilo de leccion
+0861: Una leccion bien estilizada en ACC no es la que "se ve mas producida", sino la que logra:
+0862: lectura fluida
+0863: enfasis claro
+0864: codigo entendible
+0865: apoyos visuales con proposito
+0866: continuidad con la interfaz general del producto
+0867: Si el HTML necesita demasiada decoracion para "funcionar", normalmente el problema esta en la estructura pedagogica o en la redaccion, no en la falta de mas estilos.
+0868: 19.10 Checklist de calidad visual antes de publicar
+0869: Antes de dar por buena una leccion, debe revisarse al menos lo siguiente:
+0870: los encabezados siguen una jerarquia consistente
+0871: no hay estilos inline
+0872: los bloques de codigo usan pre o code correctamente
+0873: las tablas son legibles en ancho y proposito
+0874: los links tienen sentido y no saturan la lectura
+0875: las alertas y destacados se usan con moderacion
+0876: el HTML no rompe el espaciado ni la legibilidad dentro de .leccion-container
+0877: la lectura sigue siendo comoda en viewport reducido
+0878: Este checklist debe ejecutarse viendo la leccion renderizada, no solo leyendo el HTML fuente.
+0879: 20. Manual tecnico-pedagogico para creacion de lecciones
+0880: El manual tecnico-pedagogico define como debe pensarse una leccion antes de cargarse al sistema. Su funcion es conectar tres dimensiones que en ACC no deben separarse:
+0881: el objetivo de aprendizaje
+0882: la secuencia pedagogica
+0883: el contrato tecnico del modelo Leccion
+0884: Una leccion correcta en ACC no es solo un texto bien escrito ni solo un registro valido en base de datos. Debe ser una unidad de aprendizaje progresiva, evaluable en contexto y coherente con el renderizador dinamico.
+0885: 20.1 Proposito pedagogico de una leccion
+0886: Cada leccion debe ayudar al estudiante a avanzar de manera concreta sobre una idea delimitada. Esto implica que una leccion no debe intentar resolver un modulo entero ni mezclar demasiados conceptos nuevos al mismo tiempo.
+0887: La unidad pedagogica recomendada es:
+0888: un concepto central claramente delimitado
+0889: uno o varios ejemplos cercanos
+0890: una transicion hacia practica o aplicacion
+0891: un cierre que deje accion o reflexion
+0892: 20.2 Punto de partida: objetivo medible
+0893: Antes de escribir cualquier bloque, la leccion debe responder estas preguntas:
+0894: que debe poder comprender o hacer el estudiante al terminar
+0895: que error o confusion concreta ayuda a resolver
+0896: en que punto de la progresion del curso se encuentra
+0897: que prerrequisitos asume
+0898: Si esas preguntas no pueden responderse con claridad, la leccion todavia no esta lo bastante definida para cargarse.
+0899: 20.3 Uso de la taxonomia de Bloom
+0900: ACC ya incorpora NivelBloom en el contrato de lecciones y en el render visual. Por eso, la taxonomia no debe tratarse como un adorno documental, sino como una decision de diseno instruccional.
+0901: Los niveles soportados visualmente hoy son:
+0902: Recordar
+0903: Comprender
+0904: Aplicar
+0905: Analizar
+0906: Evaluar
+0907: Crear
+0908: La seleccion del nivel debe reflejar la exigencia cognitiva principal de la leccion. No se trata de etiquetar por intuicion, sino de alinear:
+0909: profundidad conceptual
+0910: tipo de ejemplo
+0911: tipo de practica
+0912: expectativa de autonomia del estudiante
+0913: 20.4 Secuencia pedagogica recomendada
+0914: A partir del modelo actual de ACC, la secuencia mas sana para una leccion suele seguir este patron:
+0915: abrir con contexto breve o una pregunta detonadora
+0916: presentar teoria minima suficiente
+0917: mostrar uno o varios ejemplos accionables
+0918: conducir a practica o actividad
+0919: reforzar con Charp, video o compilador solo si realmente aportan
+0920: No todas las lecciones deben usar todos los recursos. El valor del sistema dinamico esta precisamente en poder escoger solo los bloques que ayuden a ese objetivo.
+0921: 20.5 Criterios para teoria, ejemplo y practica
+0922: Teoria debe:
+0923: explicar una idea puntual
+0924: introducir vocabulario tecnico de forma gradual
+0925: evitar definiciones enciclopedicas sin aterrizaje
+0926: Ejemplo debe:
+0927: traducir la teoria a un caso visible
+0928: usar codigo pequeno y comprensible
+0929: resaltar el por que del resultado, no solo el resultado
+0930: Practica debe:
+0931: pedir al estudiante hacer algo concreto
+0932: exigir recuperacion o aplicacion, no solo lectura
+0933: dejar claro que se espera observar
+0934: Una leccion que solo tiene teoria rara vez aprovecha bien la propuesta de valor de ACC.
+0935: 20.6 Criterios para CharpTip y CharpDialog
+0936: Desde el punto de vista pedagogico, Charp debe guiar, no sustituir el esfuerzo cognitivo del estudiante.
+0937: Por eso:
+0938: CharpTip debe ofrecer una pista o intuicion, no la solucion completa
+0939: CharpDialog puede contextualizar o acompanar, pero no debe resolver el ejercicio por el usuario
+0940: ambos deben reforzar comprension o motivar exploracion, no repetir texto ya dicho
+0941: Una buena regla operativa es esta: si el bloque de Charp puede borrarse sin perder nada, probablemente sobra; si al leerlo el estudiante deja de pensar por si mismo, esta mal calibrado.
+0942: 20.7 Criterios para actividad, video y compilador
+0943: Estos recursos deben agregarse solo cuando tengan una funcion didactica clara:
+0944: actividad: cuando exista una practica externa realmente alineada con el objetivo
+0945: video: cuando ayude a visualizar o resumir una explicacion compleja
+0946: compilador: cuando el valor principal este en probar codigo, experimentar o verificar comportamiento
+0947: No deben activarse por relleno. Una leccion con demasiados recursos accesorios pierde foco y fatiga al estudiante.
+0948: 20.8 Regla de progresividad
+0949: ACC busca una experiencia progresiva. Eso obliga a que cada leccion:
+0950: parta de lo que el estudiante ya debio ver antes
+0951: agregue una dificultad nueva y reconocible
+0952: no asuma saltos cognitivos innecesarios
+0953: prepare el terreno para la siguiente pieza del recorrido
+0954: Cuando una leccion exija demasiados prerrequisitos ocultos, el problema no se corrige agregando mas texto: debe dividirse o reubicarse dentro de la jerarquia academica.
+0955: 20.9 Diseno de OrdenSecciones con sentido pedagogico
+0956: OrdenSecciones no debe armarse solo por disponibilidad de campos. Debe construirse como una secuencia instruccional.
+0957: Ejemplos sanos:
+0958: charpDialog → teoria → ejemplo → practica
+0959: teoria → ejemplo → compilador → actividad
+0960: video → teoria → charpTip → practica
+0961: Ejemplos pobres:
+0962: abrir con demasiados recursos seguidos sin contexto
+0963: mezclar video, actividad y compilador sin un hilo claro
+0964: cerrar una leccion sin transicion hacia accion o verificacion
+0965: La pregunta correcta no es “que bloques tiene la leccion”, sino “en que orden ayudan mejor a aprender”.
+0966: 20.10 Errores pedagogicos frecuentes
+0967: Al crear lecciones para ACC deben evitarse especialmente estos errores:
+0968: explicar demasiado y practicar poco
+0969: usar ejemplos demasiado grandes para el nivel del estudiante
+0970: introducir varios conceptos nuevos a la vez
+0971: convertir CharpTip o CharpDialog en respuestas completas
+0972: usar NivelBloom sin relacion real con la exigencia cognitiva
+0973: cargar recursos externos solo para hacer la leccion “mas completa”
+0974: Estos errores suelen volver mas pesada la experiencia sin mejorar aprendizaje real.
+0975: 20.11 Criterios de aprobacion interna para una leccion
+0976: Antes de considerar lista una leccion, el equipo deberia poder afirmar que:
+0977: el objetivo de aprendizaje esta claro
+0978: el nivel de Bloom elegido tiene sentido
+0979: la teoria es suficiente pero no excesiva
+0980: el ejemplo aterriza el concepto
+0981: la practica exige accion real
+0982: OrdenSecciones refleja una secuencia pedagogica coherente
+0983: Charp, video, actividad y compilador solo aparecen cuando agregan valor
+0984: Si una leccion cumple tecnicamente pero falla en esta revision, todavia no esta lista desde el punto de vista de producto educativo.
+0985: 20.12 Relacion con el modelo tecnico
+0986: Este manual no sustituye al manual tecnico de carga; lo complementa. La relacion entre ambos es directa:
+0987: este apartado define que tipo de experiencia debe construirse
+0988: la seccion 21 define como cargarla al sistema sin romper contratos
+0989: En ACC, pedagogia y tecnica no son capas separadas. La calidad final de una leccion depende de que ambas avancen coordinadas.
+0990: 21. Manual tecnico de insercion y carga de lecciones
+0991: La carga tecnica de lecciones en ACC debe entenderse a partir del sistema vigente, no del flujo historico descrito por la guia anterior. Hoy no existe un CRUD administrativo formal y cerrado para alta de lecciones dentro de la solucion activa; por ello, la insercion debe documentarse como un proceso tecnico controlado por el equipo, alineado al modelo Leccion, al mapeo hacia LeccionDto y a las reglas del renderizador RDL.
+0992: 21.1 Objetivo de esta seccion
+0993: Esta seccion define como debe construirse una leccion para que:
+0994: pueda persistirse correctamente en ACCDbContext
+0995: se integre a la jerarquia academica mediante SubtemaId
+0996: viaje intacta a LeccionDto
+0997: renderice sin errores en RDL
+0998: La meta no es solo insertar un registro en la tabla Lecciones, sino cargar una unidad de contenido tecnicamente valida para toda la cadena de navegacion y render.
+0999: 21.2 Prerrequisitos tecnicos
+1000: Antes de dar de alta una leccion, debe existir ya su contexto academico:
+1001: Modulo
+1002: SubModulo
+1003: Tema
+1004: SubTema
+1005: La relacion obligatoria de una leccion es con SubTema, mediante SubtemaId. Si ese nodo padre no existe o no esta alineado con la estructura esperada, la leccion podra persistirse incorrectamente o quedar inaccesible desde la navegacion.
+1006: Tambien deben estar disponibles y alineados:
+1007: la migracion actual de ACCDbContext
+1008: el contrato LeccionDto
+1009: el perfil de AutoMapper
+1010: el catalogo de tokens en SeccionesContenido
+1011: 21.3 Campos minimos para una leccion valida
+1012: Para que una leccion pueda navegarse y renderizarse de forma aceptable, los campos minimos que deben definirse son:
+1013: TituloLeccion
+1014: DescripcionLeccion
+1015: SubtemaId
+1016: OrdenSecciones
+1017: En la practica, casi siempre tambien deberian definirse:
+1018: al menos uno entre Teoria, Ejemplo, Practica, CharpTip, CharpDialog, UrlActividad, VideoId
+1019: NivelBloom, para conservar consistencia pedagogica y visual
+1020: Una leccion con OrdenSecciones pero sin datos utiles en los campos asociados puede persistirse, pero producira una experiencia vacia o incompleta en el render.
+1021: 21.4 Regla principal de integridad
+1022: La regla central de carga es simple: cada token declarado en OrdenSecciones debe tener respaldo real en el resto del objeto Leccion.
+1023: Ejemplos:
+1024: si OrdenSecciones incluye teoria, Teoria no debe ir vacio
+1025: si incluye actividad, deben existir TieneActividad = true y UrlActividad
+1026: si incluye compilador, TieneCompilador debe estar activo
+1027: si incluye video, debe existir VideoId
+1028: si incluye charpTip, debe existir contenido en CharpTip
+1029: ACC no resuelve automaticamente esas incoherencias. Algunas secciones simplemente no se mostraran, y otras pueden terminar en mensaje de error si el token no pertenece al catalogo soportado.
+1030: 21.5 Tokens permitidos en OrdenSecciones
+1031: Los valores tecnicamente validos hoy son:
+1032: charpDialog
+1033: charpTip
+1034: teoria
+1035: ejemplo
+1036: practica
+1037: actividad
+1038: compilador
+1039: video
+1040: Estos valores deben respetarse exactamente. No deben cambiarse por sinonimos, traducciones, mayusculas arbitrarias o variantes editoriales. RDL depende de esos literales y SeccionesContenido es la referencia oficial.
+1041: 21.6 Secuencia recomendada de construccion
+1042: Para alta o carga de una leccion, el proceso recomendado es el siguiente:
+1043: Identificar el SubTema destino y confirmar su Id.
+1044: Definir TituloLeccion, DescripcionLeccion y NivelBloom.
+1045: Redactar los bloques base de contenido: Teoria, Ejemplo, Practica, CharpTip o CharpDialog, segun corresponda.
+1046: Determinar si la leccion incluye actividad externa, video o compilador.
+1047: Construir OrdenSecciones con los tokens en la secuencia pedagogica deseada.
+1048: Verificar que cada token tenga datos de respaldo.
+1049: Persistir la entidad en la base academica o mediante el proceso tecnico de carga usado por el equipo.
+1050: Validar la navegacion hasta /leccion/{id} y confirmar el render real.
+1051: Esta secuencia evita el error comun de cargar primero un registro minimo y dejar la coherencia pedagogica para despues.
+1052: 21.7 Criterios tecnicos por tipo de seccion
+1053: Al cargar una leccion, deben considerarse las siguientes reglas operativas:
+1054: Teoria, Ejemplo y Practica aceptan HTML y deben redactarse pensando en el CSS existente de lecciones
+1055: CharpTip y CharpDialog deben contener texto listo para el componente que los presenta
+1056: UrlActividad debe ser una URL funcional, porque se carga en iframe dentro de ModalActividades
+1057: VideoId debe corresponder al identificador esperado por LiteYouTube
+1058: NivelBloom debe usar los valores ya estilizados por AccStyles_lecciones.css
+1059: Como el HTML se renderiza con MarkupString, el sistema actual asume que el contenido ya fue validado antes de persistirse. Esto vuelve especialmente importante el control editorial y tecnico del material fuente.
+1060: 21.8 Validacion posterior a la carga
+1061: Despues de insertar o actualizar una leccion, se recomienda validar al menos estos puntos:
+1062: la leccion aparece como hija del SubTema correcto
+1063: /leccion/{id} responde sin error
+1064: RDL renderiza todas las secciones esperadas
+1065: no aparece InfoComponent por token desconocido
+1066: actividad, video y compilador se abren o montan correctamente
+1067: el badge de NivelBloom usa una clase coherente con el valor cargado
+1068: La validacion debe hacerse sobre la UI real, no solo sobre la base de datos, porque varios errores de consistencia solo se manifiestan en tiempo de render.
+1069: 21.9 Escenarios tipicos de error
+1070: Los problemas mas comunes al cargar lecciones son:
+1071: SubtemaId incorrecto, que deja la leccion fuera de la ruta esperada
+1072: token mal escrito en OrdenSecciones
+1073: bloque textual vacio para una seccion declarada
+1074: UrlActividad o VideoId sin valor util
+1075: cambios en Leccion sin sincronizar con LeccionDto
+1076: nueva seccion agregada en datos pero no soportada en RDL
+1077: Muchos de estos errores no impiden guardar la entidad, pero si degradan la experiencia del usuario o rompen parcialmente el renderizado.
+1078: 21.10 Procedimiento cuando se agrega una nueva seccion
+1079: Si el equipo necesita incorporar una nueva clase de bloque para lecciones, el procedimiento tecnico minimo debe incluir:
+1080: agregar el nuevo concepto al modelo Leccion
+1081: extender LeccionDto
+1082: ampliar TipoSeccionContenido
+1083: registrar el token en SeccionesContenido
+1084: actualizar AutoMapper si la paridad deja de ser implicita
+1085: implementar el caso correspondiente en RDL
+1086: ajustar estilos o componentes auxiliares si aplica
+1087: actualizar esta guia tecnica y la guia editorial
+1088: Este punto es clave: en ACC, agregar una seccion no es un cambio solo de contenido. Es un cambio transversal de contrato, render y documentacion.
+1089: 21.11 Estado actual del proceso de carga
+1090: El estado actual puede resumirse asi:
+1091: el modelo de leccion ya esta bien definido a nivel de dominio
+1092: el renderizador dinamico ya consume ese modelo de forma estable
+1093: la navegacion ya integra lecciones como nodo terminal
+1094: la creacion y mantenimiento de lecciones sigue dependiendo de procesos tecnicos del equipo, no de una consola administrativa madura
+1095: Por ello, esta seccion debe leerse como una guia operativa de control de calidad para carga de contenido, no como manual de uso de una herramienta de authoring ya terminada.
+1096: 22. Sistema de examenes, progreso y desbloqueos
+1097: El sistema de examenes, progreso y desbloqueos en ACC ya no forma parte del contrato basico de Leccion. Hoy constituye un subsistema propio que cruza interfaz, servicios de dominio, persistencia de intentos y reglas de habilitacion. Esta separacion es una de las decisiones mas importantes de la evolucion del producto, porque evita mezclar contenido educativo con control de avance.
+1098: 22.1 Componentes conceptuales del subsistema
+1099: Este subsistema combina tres responsabilidades distintas:
+1100: registrar avance del estudiante por SubTema
+1101: determinar cuando un examen queda habilitado
+1102: registrar intentos y aprobaciones de examenes
+1103: Aunque estas capacidades se conectan entre si, no deben confundirse:
+1104: ProgresoUsuario representa avance sobre contenido
+1105: ExamenHabilitado representa permiso de acceso a un examen
+1106: ExamenIntento representa un intento real ya ejecutado
+1107: ExamenAprobatorio conserva el primer aprobado como hito trazable
+1108: 22.2 Modelo de dominio relevante
+1109: Las entidades mas importantes de este sistema son:
+1110: ProgresoUsuario
+1111: Examen
+1112: ExamenSubModulo
+1113: ExamenModulo
+1114: ExamenIntento
+1115: ExamenHabilitado
+1116: ExamenAprobatorio
+1117: El reparto actual responde a una logica clara:
+1118: ExamenSubModulo se asocia al cierre de un submodulo
+1119: ExamenModulo se asocia al cierre de un modulo
+1120: Examen cubre examenes libres o genericos fuera de esa jerarquia
+1121: ExamenIntento permite trazabilidad de desempeno y numero de intento
+1122: ExamenAprobatorio evita recalcular constantemente el primer aprobado
+1123: ExamenHabilitado materializa el desbloqueo para lectura rapida en UI
+1124: El enum ExamenTipo estandariza hoy tres categorias:
+1125: SubModulo
+1126: Modulo
+1127: Libre
+1128: 22.3 Progreso academico por subtema
+1129: El progreso academico del recorrido principal se registra en ProgresoUsuario. Cada fila vincula:
+1130: UsuarioId
+1131: SubTemaId
+1132: Fecha
+1133: Completado
+1134: Desde el punto de vista funcional, este modelo permite dos cosas distintas:
+1135: guardar huella de ultima visita o avance reciente
+1136: marcar un subtema como completado para disparar evaluacion de prerrequisitos
+1137: La primera se usa como continuidad de navegacion. La segunda es la que activa las reglas de desbloqueo de examenes.
+1138: 22.4 Flujo reactivo de desbloqueo
+1139: La regla principal del sistema es reactiva. Cuando el estudiante marca un subtema como completado, ProgresoUsuarioService persiste el cambio y llama a IPrerrequisitosService.EvaluarDesbloqueosPorProgresoAsync.
+1140: Ese servicio aplica hoy dos reglas nucleares:
+1141: si el usuario completo todos los subtemas de un submodulo, se habilita su examen de submodulo
+1142: si el usuario aprobo todos los examenes de submodulo de un modulo, se habilita el examen de modulo
+1143: La habilitacion no se resuelve recalculando cada vez desde cero en la UI. Se persiste en ExamenesHabilitados, con datos como:
+1144: UsuarioId
+1145: Tipo
+1146: RefId
+1147: Habilitado
+1148: FechaHabilitacion
+1149: ReglaFuente
+1150: Eso convierte el desbloqueo en una lectura rapida y desacopla el front de la logica de negocio completa.
+1151: 22.5 PrerrequisitosService como centro de reglas
+1152: PrerrequisitosService es la pieza mas importante del subsistema de habilitacion. Su responsabilidad no es renderizar, ni listar examenes, ni registrar intentos. Su responsabilidad es responder dos preguntas:
+1153: este examen ya esta habilitado para este usuario
+1154: despues de este evento, hay que desbloquear algo mas
+1155: Para ello:
+1156: consulta completitud de submodulos a partir de Temas, SubTemas y ProgresoUsuarios
+1157: consulta aprobaciones de submodulo a partir de ExamenesIntentos
+1158: hace upsert en ExamenesHabilitados
+1159: conserva ReglaFuente para trazabilidad basica
+1160: Esta centralizacion es importante porque evita que UI, controladores o clientes HTTP implementen reglas duplicadas.
+1161: 22.6 Registro de intentos y aprobacion
+1162: El registro de intentos vive en ExamenesService. Esta capa no se limita a guardar un DTO: aplica validaciones de dominio relevantes.
+1163: Entre las reglas actuales estan:
+1164: el intento debe referenciar exactamente un examen
+1165: el examen referido debe existir
+1166: el numero de intento se calcula en servidor
+1167: la fecha se sella en servidor si no viene informada
+1168: la aprobacion se decide en servidor segun PuntajeAprobacion
+1169: Si un intento resulta aprobado:
+1170: se persiste el intento
+1171: se registra el primer ExamenAprobatorio si no existia
+1172: si el examen es de SubModulo, se dispara EvaluarDesbloqueosPorAprobacionAsync
+1173: Esto conecta formalmente el desempeno del estudiante con la apertura del siguiente nivel de evaluacion.
+1174: 22.7 Superficie API del subsistema
+1175: La API expone este sistema en dos frentes principales.
+1176: ProgresoUsuarioController publica endpoints para:
+1177: obtener ultimo subtema visitado
+1178: guardar progreso
+1179: marcar subtema como completado
+1180: consultar si un subtema ya esta completado
+1181: consultar si un examen esta habilitado
+1182: ExamenesController publica endpoints para:
+1183: listar examenes de submodulo
+1184: obtener un examen de submodulo
+1185: listar examenes de modulo
+1186: consultar intentos por usuario
+1187: consultar ultimo intento de un examen
+1188: registrar un intento nuevo
+1189: La separacion tiene sentido: ProgresoUsuarioController gobierna avance y habilitacion, mientras ExamenesController gobierna catalogos y ejecucion de intentos.
+1190: 22.8 Consumo en cliente y experiencia de usuario
+1191: Del lado del cliente, las piezas mas relevantes son:
+1192: BtnCompletarSubtema.razor
+1193: ProgresoUsuarioClient
+1194: ExamenesServiceClient
+1195: ExamenesMain.razor
+1196: Examen.razor
+1197: ExamenView.razor
+1198: ExamenRender.razor
+1199: El flujo principal actual es:
+1200: el usuario recorre la guia y llega a un SubTema
+1201: al pulsar completar, BtnCompletarSubtema llama MarcarSubtemaComoCompletadoAsync
+1202: el backend persiste progreso y reevalua desbloqueos
+1203: el cliente vuelve a consultar si el examen de submodulo ya esta habilitado
+1204: Examen.razor consulta ExamenHabilitadoAsync para decidir si el boton esta activo o bloqueado
+1205: ExamenView.razor carga el examen por slug y refId
+1206: ExamenRender.razor inyecta el HTML del examen para su presentacion
+1207: Este flujo confirma que la UI depende de estados ya resueltos por el backend, no de recalculos locales.
+1208: 22.9 Diferencia entre catalogo de examen y desbloqueo
+1209: Una diferencia importante para la documentacion es esta:
+1210: ExamenesServiceClient trae catalogos e intentos
+1211: ProgresoUsuarioClient resuelve progreso y estado de habilitacion
+1212: Es decir, saber que un examen existe no implica que este disponible para el usuario. Esa separacion evita errores comunes de UX y de modelado.
+1213: 22.10 Implicaciones de mantenimiento
+1214: Este subsistema exige cuidado cuando se modifica:
+1215: si se agrega un nuevo ExamenTipo, deben actualizarse enums, DTOs, clientes, rutas y reglas
+1216: si se agregan nuevas reglas de desbloqueo, deben terminar en PrerrequisitosService
+1217: si se cambia la forma de aprobar examenes, debe revisarse ExamenesService y la creacion de ExamenAprobatorio
+1218: si cambia la jerarquia academica, deben revalidarse las consultas de completitud por submodulo
+1219: La regla practica es simple: el front puede cambiar su presentacion, pero la fuente de verdad del desbloqueo debe seguir concentrada en backend.
+1220: 23. Compilador en linea
+1221: El compilador en linea de ACC es el sistema que transforma la practica de codigo en retroalimentacion inmediata. Documentalmente debe llamarse ACC.Compiler, aunque su implementacion actual siga ubicada en src/API_CompilerACC.
+1222: 23.1 Rol funcional dentro del producto
+1223: El compilador no es un extra visual. Su funcion pedagogica es permitir que el estudiante:
+1224: pruebe fragmentos de C#
+1225: observe salida estandar
+1226: detecte errores de compilacion
+1227: experimente con pequenas variantes de codigo durante la leccion
+1228: Por ello aparece tanto como pagina propia (/Compilador) como bloque embebible dentro de lecciones dinamicas mediante el token compilador.
+1229: 23.2 Arquitectura actual del compilador
+1230: La solucion actual separa la experiencia de compilacion en dos partes:
+1231: cliente CompiladorACC.razor dentro de ACC.WebApp.Client
+1232: microservicio ACC.Compiler con CompileController y RoslynCompileService
+1233: La topologia local levantada por ACC.AppHost incluye al compilador como servicio dedicado y tambien le asigna Redis en infraestructura. Sin embargo, la logica de compilacion visible hoy sigue centrada en Roslyn y ejecucion en memoria, no en cache distribuido.
+1234: 23.3 Flujo tecnico actual
+1235: El flujo principal implementado hoy es:
+1236: el usuario escribe codigo en CompiladorACC.razor
+1237: el componente obtiene el contenido actual del editor CodeMirror por JavaScript
+1238: se serializa { Code, Input }
+1239: se publica por HTTP a ServiceRoots.ACC_COMPILER_Url
+1240: CompileController recibe la solicitud en ACC.Compiler
+1241: RoslynCompileService compila y ejecuta
+1242: el servicio devuelve salida o errores al cliente
+1243: El resultado vuelve al componente y se muestra directamente en la caja de salida.
+1244: 23.4 Editor y experiencia cliente
+1245: CompiladorACC.razor implementa una experiencia relativamente autocontenida:
+1246: usa CodeMirror como editor
+1247: permite cambiar tema visual
+1248: admite stdin para entrada del programa
+1249: presenta la salida en un bloque pre
+1250: enlaza a una guia de uso del compilador
+1251: Desde el punto de vista de producto, esto permite que el compilador funcione tanto como herramienta libre de practica como recurso incrustado dentro de una leccion.
+1252: 23.5 RoslynCompileService y modelo de ejecucion
+1253: La implementacion actual de RoslynCompileService trabaja asi:
+1254: parsea el codigo con CSharpSyntaxTree
+1255: construye una compilacion de consola con Roslyn
+1256: limita referencias a ensamblados base de System.*
+1257: emite a MemoryStream
+1258: carga el assembly en memoria
+1259: redirige Console.Out, Console.Error y Console.In
+1260: invoca el Main
+1261: Si la compilacion falla, devuelve un texto consolidado con diagnosticos. Si la ejecucion falla, devuelve la excepcion capturada como error de tiempo de ejecucion.
+1262: 23.6 Alcance real y limites actuales
+1263: La documentacion debe ser precisa con el alcance actual:
+1264: si existe aislamiento logico basico por ejecucion en memoria
+1265: no hay evidencia en esta implementacion de sandbox endurecido a nivel contenedor por ejecucion individual
+1266: el servicio no expone una capa compleja de colas, cache o rate limiting en el codigo visible
+1267: Redis aparece en topologia, pero no como parte explicita de la logica principal del compilador
+1268: Tambien existe un CompilerController dentro de ACC.API, apoyado en ACC.Shared.Core.CompileService, que actua como puente HTTP hacia el compilador dedicado. Sin embargo, el cliente actual usa de forma directa ServiceRoots.ACC_COMPILER_Url, por lo que ese camino debe considerarse apoyo legacy o evolutivo, no flujo principal vigente del frontend.
+1269: 23.7 Contratos y dependencias compartidas
+1270: Las piezas compartidas mas relevantes para este sistema son:
+1271: CompileRequest
+1272: ServiceRoots.ACC_COMPILER_Url
+1273: CompileService en ACC.Shared.Core
+1274: Estas piezas mantienen coherencia entre cliente, API y servicio dedicado, aunque hoy convivan rutas y nombres heredados del periodo en que el compilador aun no estaba totalmente consolidado como ACC.Compiler.
+1275: 23.8 Implicaciones de mantenimiento
+1276: Para mantenimiento, cualquier cambio importante en el compilador exige revisar al menos:
+1277: CompiladorACC.razor
+1278: scripts de CodeMirror y su inicializacion
+1279: ServiceRoots
+1280: CompileController
+1281: RoslynCompileService
+1282: ACC.AppHost
+1283: Si en el futuro se endurece el aislamiento, se agregan politicas de ejecucion o se incorpora cache real con Redis, esta seccion debera actualizarse para distinguir claramente entre topologia de infraestructura y comportamiento efectivo del servicio.
+1284: 24. Charp e integraciones externas
+1285: Charp es la capa de acompanamiento inteligente de ACC. Su funcion no es reemplazar la progresion academica ni responder todo por el estudiante, sino ofrecer contexto, pistas y apoyo durante la experiencia de aprendizaje.
+1286: 24.1 Formas actuales de presencia de Charp
+1287: Hoy Charp aparece en tres formas principales dentro del producto:
+1288: como widget global embebido en la shell de ACC.WebApp
+1289: como pagina dedicada en /Charp-IA
+1290: como bloques contextuales dentro de lecciones mediante CharpTip y CharpDialog
+1291: Esta distribucion permite una combinacion util:
+1292: acceso transversal desde cualquier parte del sistema
+1293: espacio dedicado para interaccion mas abierta
+1294: apoyo puntual y contextualizado dentro de la narrativa de la leccion
+1295: 24.2 Integracion global con Chatbase
+1296: La integracion activa de chatbot externo se realiza hoy con Chatbase. El MainLayout.razor incluye el script embed.min.js con un chatbotId fijo, mientras App.razor define window.embeddedChatbotConfig con el mismo identificador y dominio.
+1297: Esto implica que la experiencia principal actual de Charp depende de un proveedor SaaS externo. En consecuencia:
+1298: la logica conversacional no vive dentro de ACC.API
+1299: el modelo de IA no es mantenido localmente por ACC
+1300: la disponibilidad del asistente depende tambien del servicio externo
+1301: 24.3 Pagina dedicada de Charp
+1302: Ademas del widget embebido, ACC ofrece una pagina dedicada en MainCharp-IAComponent.razor. Esta vista monta un iframe al chatbot de Chatbase y lo presenta dentro de una superficie propia.
+1303: Desde el punto de vista de producto, esta pagina sirve para:
+1304: separar una sesion de consulta mas libre del flujo de la leccion
+1305: ofrecer una experiencia focalizada en preguntas o apoyo general
+1306: mantener coherencia visual con el resto del sistema sin implementar un cliente conversacional propio
+1307: 24.4 Charp contextual dentro de lecciones
+1308: El valor pedagogico mas fino de Charp aparece dentro de las lecciones. Los campos CharpTip y CharpDialog del modelo Leccion permiten insertar acompanamiento directamente en RDL.
+1309: Esto da lugar a dos modalidades complementarias:
+1310: CharpTip: pista breve o intuicion puntual
+1311: CharpDialog: acompanamiento mas expresivo y visible dentro de la secuencia de la leccion
+1312: Ambos componentes aceptan HTML por MarkupString, por lo que el equipo puede afinar el tono y la estructura del mensaje de acuerdo con el objetivo de la leccion.
+1313: 24.5 Estado real de ACC.ExternalClients
+1314: Aunque la arquitectura documenta ACC.ExternalClients como capa de integraciones, el estado actual del proyecto muestra que este proyecto aun opera mas como contenedor estructural que como libreria madura de clientes externos. Su csproj referencia ACC.Shared y define carpetas base, pero no expone aun una implementacion rica equivalente al peso funcional que hoy tiene Chatbase dentro de la experiencia.
+1315: Eso obliga a documentar con honestidad la situacion actual:
+1316: la integracion externa principal existe y esta operativa
+1317: su implementacion visible vive mayoritariamente en la capa web
+1318: ACC.ExternalClients sigue siendo una pieza activa pero evolutiva
+1319: 24.6 Implicaciones arquitectonicas
+1320: La integracion actual de Charp tiene varias implicaciones:
+1321: reduce complejidad interna al no hospedar un sistema conversacional propio
+1322: acelera entrega de valor para el producto
+1323: desplaza parte de la dependencia tecnica a un proveedor externo
+1324: exige cuidar como se mezcla la voz de Charp con la pedagogia de ACC
+1325: Tambien explica por que Charp debe documentarse mas como capacidad de integracion y experiencia educativa que como microservicio interno del backend academico.
+1326: 24.7 Reglas de producto para el uso de Charp
+1327: Aunque la IA externa pueda responder libremente, la intencion de producto sigue siendo:
+1328: orientar en lugar de resolver automaticamente
+1329: reforzar progresividad
+1330: contextualizar sin romper el flujo de aprendizaje
+1331: acompanar practica y comprension, no sustituirlas
+1332: Estas reglas ya se reflejan en la documentacion pedagogica del proyecto y deben seguir guiando cualquier evolucion futura, ya sea con Chatbase u otro proveedor.
+1333: 24.8 Mantenimiento y evolucion futura
+1334: Si esta area evoluciona, hay varios caminos naturales:
+1335: mover mas integraciones reales a ACC.ExternalClients
+1336: abstraer configuracion sensible del proveedor externo
+1337: enriquecer la experiencia contextual de Charp en lecciones
+1338: explorar clientes o proveedores alternos sin cambiar la intencion pedagogica
+1339: Mientras eso ocurre, la documentacion debe mantener una distincion clara entre:
+1340: la experiencia activa actual basada en Chatbase
+1341: la capa de integraciones planeada o en consolidacion dentro de ACC.ExternalClients
+1342: 25. Observabilidad, resiliencia y operacion
+1343: La operacion tecnica de ACC descansa hoy en tres pilares: instrumentacion comun, health checks y topologia reproducible. Estos elementos no sustituyen una plataforma productiva endurecida, pero si ofrecen una base clara para diagnostico, arranque coordinado y evolucion futura del sistema.
+1344: 25.1 Base comun de servicio
+1345: ACC.ServiceDefaults concentra la configuracion transversal que comparten los servicios principales. Su extension AddServiceDefaults activa:
+1346: OpenTelemetry para logs, metricas y trazas
+1347: health checks basicos
+1348: service discovery
+1349: resiliencia estandar para HttpClient
+1350: Esto reduce configuracion duplicada y da un comportamiento uniforme a ACC.API, ACC.WebApp y ACC.Compiler.
+1351: 25.2 OpenTelemetry
+1352: La instrumentacion actual incluye:
+1353: AddAspNetCoreInstrumentation
+1354: AddHttpClientInstrumentation
+1355: AddRuntimeInstrumentation
+1356: AddSource con el nombre de aplicacion para trazas
+1357: Ademas, los logs incluyen mensajes formateados y scopes. Esto proporciona una capa minima pero funcional de observabilidad distribuida sobre solicitudes HTTP, dependencias salientes y comportamiento del runtime.
+1358: La exportacion OTLP solo se activa cuando existe OTEL_EXPORTER_OTLP_ENDPOINT. Esto implica que:
+1359: la capacidad de exportar telemetria ya esta preparada
+1360: su activacion efectiva depende de configuracion de entorno
+1361: el repositorio no obliga por si mismo a un backend especifico de observabilidad
+1362: 25.3 Health checks y endpoints de salud
+1363: Los servicios incorporan un check self etiquetado como live. A partir de eso, MapDefaultEndpoints expone:
+1364: /health
+1365: /alive
+1366: Estos endpoints solo se publican automaticamente en entorno de desarrollo. La decision es correcta para el estado actual del proyecto porque evita exponer chequeos en otros ambientes sin una politica de seguridad mas dura.
+1367: 25.4 Resiliencia de red
+1368: La configuracion de HttpClient en ACC.ServiceDefaults activa por defecto:
+1369: AddStandardResilienceHandler
+1370: service discovery para clientes salientes
+1371: Esto le da a la solucion una base moderna para retries, timeouts y protecciones comunes sin que cada servicio tenga que reconfigurarlas desde cero.
+1372: Adicionalmente, tanto ACC.API como ACC.WebApp usan EnableRetryOnFailure en SQL Server, lo que mejora tolerancia a fallos transitorios de conexion en ambientes locales y distribuidos.
+1373: 25.5 Operacion local con ACC.AppHost
+1374: La experiencia operativa principal del repo esta centrada en ACC.AppHost. Este proyecto declara y arranca:
+1375: SQL Server para identidad
+1376: SQL Server para dominio academico
+1377: Redis
+1378: ACC.WebApp
+1379: ACC.API
+1380: ACC.Compiler
+1381: Tambien define scripts de creacion para ACC_Identity y ACC_Academic, publica cadenas de conexion y explicita dependencias entre servicios con WaitFor.
+1382: Esto convierte al AppHost en la pieza central de operacion local y en la fotografia mas fiel de la topologia vigente.
+1383: 25.6 Estado real de operacion
+1384: La situacion actual puede resumirse asi:
+1385: hay observabilidad base suficiente para desarrollo y diagnostico tecnico
+1386: existe topologia reproducible mediante Aspire
+1387: hay salud, resiliencia y service discovery a nivel base
+1388: no hay aun un documento separado de operacion productiva endurecida
+1389: Por ello, esta guia documenta una operacion local seria y mantenible, pero no debe confundirse con un runbook completo de produccion empresarial.
+1390: 26. Herramientas usadas y flujo operativo del equipo
+1391: El trabajo tecnico de ACC combina herramientas de desarrollo, coordinacion, validacion y documentacion. Esta seccion resume el flujo operativo real del equipo a partir del repositorio y de la documentacion historica actualizada.
+1392: 26.1 Herramientas principales
+1393: Las herramientas mas visibles en el flujo de trabajo han sido:
+1394: .NET SDK 8
+1395: Visual Studio 2022 y VS Code
+1396: Docker Desktop
+1397: SQL Server
+1398: SQL Server Management Studio
+1399: Postman
+1400: Draw.io
+1401: Git y GitHub
+1402: Discord y Teams
+1403: Miro para trabajo UI/UX
+1404: En el ambito tecnico del producto tambien forman parte del flujo:
+1405: .NET Aspire para orquestacion local
+1406: OpenTelemetry para telemetria
+1407: CodeMirror para experiencia de compilacion
+1408: Chatbase como integracion activa de Charp
+1409: 26.2 Flujo operativo de desarrollo
+1410: El ciclo operativo real del equipo puede resumirse asi:
+1411: definir o refinar una necesidad funcional o tecnica
+1412: traducirla a cambios de dominio, API, cliente o infraestructura
+1413: validar localmente con AppHost o con ejecucion directa de proyectos
+1414: probar endpoints y flujos de UI
+1415: registrar decisiones y deuda tecnica en la documentacion o bitacora
+1416: Este flujo no depende de una sola herramienta CI/CD. Su fortaleza principal ha estado en la cercania entre codigo, pruebas manuales, demos frecuentes y documentacion viva.
+1417: 26.3 Trazabilidad documental
+1418: ACC mantiene trazabilidad distribuida en:
+1419: el propio repositorio
+1420: los documentos de Docs/
+1421: la bitacora historica del proyecto
+1422: diagramas y capturas asociadas a iteraciones
+1423: En el estado actual, el presente documento pasa a ser la referencia tecnica principal para consolidar esa trazabilidad.
+1424: 26.4 Estado del flujo operativo
+1425: La operacion del equipo ya es suficiente para sostener desarrollo activo, pero sigue habiendo margen claro para profesionalizar:
+1426: automatizacion continua
+1427: consolidacion de pruebas
+1428: flujos de despliegue
+1429: runbooks especializados
+1430: Estas brechas no invalidan el sistema actual, pero deben reconocerse como parte del estado real del proyecto.
+1431: 27. Metodologia de desarrollo y planeacion
+1432: La evolucion de ACC no siguio un modelo puramente lineal. La documentacion de planeacion y desarrollo muestra un enfoque de investigacion-accion tecnologica sostenido por iteraciones cortas y validaciones frecuentes.
+1433: 27.1 Enfoque metodologico
+1434: La construccion del prototipo se apoyo en dos bases complementarias:
+1435: analisis de contenido y decisiones pedagogicas
+1436: Scrum adaptado como metodologia de ejecucion tecnica
+1437: Esto responde a la naturaleza del proyecto: ACC no es solo software, sino software educativo. Por eso la metodologia no podia separar completamente decisiones de arquitectura de decisiones pedagogicas.
+1438: 27.2 Scrum adaptado
+1439: La forma operativa descrita en la documentacion historica es consistente con un Scrum ligero:
+1440: backlog vivo
+1441: sprints cortos
+1442: refinamiento semanal
+1443: demos frecuentes
+1444: revisiones con asesor
+1445: Esta eleccion fue especialmente razonable por:
+1446: incertidumbre alta en UX
+1447: cambios de alcance durante la maduracion del producto
+1448: necesidad de ajustar Charp, contenido y navegacion con rapidez
+1449: evolucion continua del modelo de lecciones
+1450: 27.3 Planeacion por fases
+1451: La narrativa historica del proyecto permite ordenar el trabajo en grandes etapas:
+1452: preparacion y encuadre del problema
+1453: diseno conceptual y modelado del dominio
+1454: construccion iterativa de capacidades nucleares
+1455: validacion, optimizacion y cierre documental
+1456: El valor de esta lectura por fases no es cronologico solamente. Tambien ayuda a entender por que hoy conviven piezas muy maduras con otras aun evolutivas.
+1457: 27.4 Definition of Done implicita
+1458: Aunque no aparezca como contrato formal en codigo, la documentacion refleja una Definition of Done pragmatica:
+1459: componente o flujo funcional
+1460: endpoint operativo cuando aplica
+1461: validacion manual o automatizada minima
+1462: evidencia documental suficiente para continuar
+1463: Esto explica el ritmo del proyecto y tambien algunas de sus deudas actuales: se priorizo primero valor funcional y aprendizaje de producto, dejando algunas areas de endurecimiento para iteraciones posteriores.
+1464: 27.5 Relacion entre metodologia y arquitectura
+1465: La metodologia adoptada influyo directamente en varias decisiones tecnicas:
+1466: modularizar servicios para iterar sin bloquear toda la solucion
+1467: usar AppHost para reducir costo de arranque entre iteraciones
+1468: externalizar Charp para acelerar entrega de valor
+1469: mover la narrativa de lecciones a datos para permitir evolucion continua del contenido
+1470: La arquitectura de ACC, por tanto, no puede entenderse solo como decision tecnica. Tambien es una consecuencia de la forma en que el equipo trabajo.
+1471: 28. Pruebas, calidad y validacion
+1472: La estrategia de calidad de ACC combina hoy pruebas automatizadas puntuales, validacion manual intensiva y chequeo funcional sobre la topologia local completa. Esto refleja un proyecto en evolucion: ya existe infraestructura de testing real, pero su cobertura aun es desigual entre subsistemas.
+1473: 28.1 Proyecto de pruebas
+1474: La solucion incluye tests/ACC.Tests/ACC.Tests.csproj como proyecto de pruebas en net8.0. Sus dependencias principales son:
+1475: xUnit
+1476: Moq
+1477: Microsoft.EntityFrameworkCore.InMemory
+1478: coverlet.collector
+1479: Esto da una base adecuada para pruebas unitarias y de componentes de logica sin depender de infraestructura real.
+1480: 28.2 Cobertura actualmente visible
+1481: En el estado actual del repositorio, hay al menos dos tipos de evidencia automatizada:
+1482: pruebas activas sobre logica de resumen de evaluaciones
+1483: pruebas comentadas o incompletas sobre navegacion de contenido
+1484: ResumenEvaluacionesTests valida reglas de clasificacion, limites de intentos y metricas sobre evaluaciones. Esto es una buena senal de que el equipo ya esta encapsulando reglas de UI/dominio en componentes testeables.
+1485: Por otro lado, NavegacionContenidoServiceTests existe pero actualmente esta comentado. Eso indica una brecha real entre la intencion de probar servicios de dominio y la estabilidad o mantenimiento efectivo de esas pruebas.
+1486: 28.3 Validacion manual
+1487: La validacion manual sigue teniendo un peso importante en ACC. Los mecanismos mas usados segun el repo y la documentacion son:
+1488: pruebas de endpoints con Postman
+1489: validacion de UI en la WebApp
+1490: recorridos funcionales de guia, examenes, compilador y aulas
+1491: maquetas o prototipos HTML en tests/UI/
+1492: Este enfoque ha sido suficiente para iterar rapido, pero no reemplaza la necesidad de ampliar la cobertura automatizada en servicios criticos.
+1493: 28.4 Calidad en tiempo de desarrollo
+1494: La calidad actual se apoya en varias capas ligeras:
+1495: tipado fuerte en C#
+1496: separacion de contratos compartidos
+1497: validacion de dominio en servicios
+1498: mapeos centralizados en AutoMapper
+1499: restricciones e indices a nivel de EF Core
+1500: health checks y arranque reproducible con AppHost
+1501: Estas medidas no son pruebas en si, pero si reducen errores estructurales y hacen mas visible el fallo cuando aparece.
+1502: 28.5 Riesgos y brechas actuales
+1503: Las brechas mas claras hoy son:
+1504: cobertura automatizada todavia limitada para servicios centrales
+1505: coexistencia de pruebas activas y pruebas comentadas
+1506: dependencia alta de validacion manual en flujos complejos
+1507: ausencia visible de pipeline CI automatizado dentro del repo
+1508: Documentar esto es importante porque evita sobrevalorar la madurez actual del sistema de testing.
+1509: 28.6 Recomendacion tecnica natural
+1510: El siguiente salto de calidad para ACC no requiere cambiar la arquitectura completa. Requiere consolidar la capa de pruebas sobre:
+1511: navegacion academica
+1512: prerrequisitos y desbloqueos
+1513: registro de intentos de examen
+1514: carga de lecciones y contratos de render
+1515: clientes de resumen y agenda que ya concentran reglas no triviales
+1516: Ese trabajo endureceria de forma visible la mantenibilidad del producto.
+1517: 29. Puesta en marcha local
+1518: La puesta en marcha local vigente de ACC debe seguir la topologia real del repositorio: dos bases SQL, ACC.WebApp, ACC.API, ACC.Compiler y Redis orquestados por ACC.AppHost.
+1519: 29.1 Requisitos previos
+1520: Antes de arrancar la solucion localmente se requiere:
+1521: .NET SDK 8.0.123 o compatible con global.json
+1522: Docker Desktop activo
+1523: capacidad de ejecutar contenedores SQL Server y Redis
+1524: dependencias NuGet restaurables
+1525: 29.2 Secuencia recomendada
+1526: La secuencia tecnica recomendada hoy es:
+1527: restaurar la solucion
+1528: aplicar migraciones de la base academica
+1529: aplicar migraciones de identidad
+1530: iniciar ACC.AppHost
+1531: validar URLs expuestas por Aspire
+1532: Comandos base:
+1533: dotnet restore ACC.slndotnet ef database update `  --project src/ACC.Data `  --startup-project src/ACC.API `  --context ACCDbContextdotnet ef database update `  --project ACC.WebApp/ACC.WebApp `  --startup-project ACC.WebApp/ACC.WebApp `  --context ApplicationDbContextdotnet run --project src/ACC.AppHost/ACC.AppHost.csproj
+1534: 29.3 Resultado esperado
+1535: Si la topologia arranca correctamente, deben quedar disponibles:
+1536: ACC.WebApp
+1537: ACC.API
+1538: ACC.Compiler
+1539: SQL Identity
+1540: SQL Academic
+1541: Redis
+1542: Ademas, en desarrollo los servicios exponen health checks y el dashboard de Aspire permite inspeccionar su estado.
+1543: 29.4 Validaciones minimas tras el arranque
+1544: Despues del arranque se recomienda comprobar al menos:
+1545: acceso al dashboard de Aspire
+1546: disponibilidad de ACC.WebApp
+1547: disponibilidad de Swagger en ACC.API y ACC.Compiler si aplica
+1548: funcionamiento basico de login, guia, compilador y consulta de examenes
+1549: 29.5 Arranque de pruebas
+1550: Para ejecutar las pruebas automatizadas actuales:
+1551: dotnet test tests/ACC.Tests/ACC.Tests.csproj
+1552: La cobertura actual no representa todo el sistema, pero este comando si permite verificar que la base de testing existente sigue sana.
+1553: 30. Roadmap, deuda tecnica y pendientes
+1554: ACC ya tiene una base tecnica clara, pero el repositorio y la documentacion muestran varias areas en transicion. Esta seccion resume lo que sigue vigente como roadmap y lo que hoy debe leerse como deuda tecnica consciente.
+1555: 30.1 Roadmap vigente
+1556: Los frentes de evolucion mas visibles son:
+1557: ACC.MultiPlataform como cliente MAUI Blazor planeado
+1558: consolidacion de ACC.ExternalClients como capa real de integraciones
+1559: crecimiento funcional de Redis mas alla de su presencia en topologia
+1560: fortalecimiento de evaluacion, resumen y experiencia de aula
+1561: maduracion de authoring y mantenimiento de contenido academico
+1562: 30.2 Deuda tecnica visible
+1563: La deuda tecnica mas evidente hoy incluye:
+1564: rename incompleto entre ACC.Compiler y src/API_CompilerACC
+1565: coexistencia de rutas y namespaces legacy en compilacion
+1566: ausencia de un modulo administrativo maduro para authoring de lecciones
+1567: cobertura de pruebas aun parcial
+1568: pruebas comentadas en areas importantes
+1569: integraciones externas activas fuera de una capa ExternalClients plenamente consolidada
+1570: 30.3 Deuda documental ya mitigada
+1571: Una parte importante de la deuda documental ya quedo reducida con este documento. Antes existia una brecha fuerte entre:
+1572: el PDF historico
+1573: el estado real del codigo
+1574: la documentacion dispersa en Docs/
+1575: ACC GUIA TECNICA - Reload existe precisamente para cerrar esa brecha y convertirse en la fuente principal de referencia tecnica.
+1576: 30.4 Pendientes de siguiente nivel
+1577: Despues de esta recompilacion documental, los pendientes mas naturales son:
+1578: regenerar DOCX y PDF desde la version viva en Markdown
+1579: endurecer pruebas sobre subsistemas criticos
+1580: documentar despliegue productivo y seguridad operativa
+1581: consolidar flujos de contenido y evaluacion desde herramientas mas maduras
+1582: 30.5 Lectura correcta del estado del proyecto
+1583: El estado actual de ACC no debe interpretarse como producto estatico ni como simple prototipo descartable. La lectura correcta es:
+1584: arquitectura ya suficientemente seria
+1585: varias capacidades nucleares funcionales
+1586: subsistemas complementarios aun en consolidacion
+1587: deuda tecnica conocida y razonablemente trazable
+1588: Esa combinacion es consistente con un proyecto vivo y con proyeccion de crecimiento.
+1589: 31. Anexos
+1590: Los siguientes artefactos complementan esta guia tecnica y deben leerse como apoyo especializado o historico segun el caso.
+1591: 31.1 Documentos tecnicos complementarios
+1592: Docs/GUIA TECNICA - ACC.md: guia tecnica resumida y vigente como referencia rapida
+1593: Docs/arquitectura.md: vista sintetica de arquitectura y componentes
+1594: Docs/lecciones-dinamicas.md: resumen tecnico del sistema de lecciones y RDL
+1595: Docs/navegacion-guia.md: apoyo especifico para navegacion academica
+1596: Docs/examenes.md: resumen puntual del flujo de examenes y desbloqueos
+1597: Docs/TypographyContract.md: contrato tipografico oficial
+1598: Docs/planeacion-desarrollo.md: narrativa historica de planeacion y ejecucion
+1599: 31.2 Artefactos historicos
+1600: Se conservan como referencia historica:
+1601: Docs/GUIA TECNICA - ACC.pdf
+1602: Docs/GUIA TECNICA - ACC.docx
+1603: Estos archivos no deben tratarse ya como fuente principal de verdad, pero si como evidencia del punto de partida del proyecto.
+1604: 31.3 Material de apoyo visual y pruebas
+1605: Tambien existen artefactos de apoyo en:
+1606: tests/UI/
+1607: diagramas y capturas historicas asociadas al proyecto
+1608: bitacora fisica del desarrollo original
+1609: 31.4 Funcion de este documento
+1610: Con esta tanda se cierra la primera version integral de ACC GUIA TECNICA - Reload. A partir de aqui, el documento debe entenderse como:
+1611: fuente principal de referencia tecnica
+1612: base para futuras exportaciones a DOCX y PDF
+1613: punto de alineacion entre arquitectura, contenido, operacion y evolucion del proyecto
+1614: Cierre editorial
+1615: La presente version deja cerrada la recompilacion tecnica integral de ACC en formato Markdown mantenible. A partir de este punto, cualquier exportacion a DOCX o PDF debe tomar este archivo como fuente principal de maquetacion y control de cambios.
+1616: Para futuras revisiones editoriales, se recomienda conservar al inicio del documento:
+1617: codigo documental
+1618: version
+1619: fecha de corte tecnico
+1620: nota de version
+1621: Con ello, ACC GUIA TECNICA - Reload queda listo para pasar a una fase de maquetacion formal sin perder trazabilidad tecnica.
