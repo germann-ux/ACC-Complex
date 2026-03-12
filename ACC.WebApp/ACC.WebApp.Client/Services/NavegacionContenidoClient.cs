@@ -5,12 +5,12 @@ using ACC.Shared.Utils;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace ACC.WebApp.Client.Services; 
+namespace ACC.WebApp.Client.Services;
 
 public class NavegacionContenidoClient(HttpClient http)
 {
     private readonly HttpClient _http = http;
-    private readonly string _baseUrl = $"{ServiceRoots.ACC_API_Url}NavegacionContenido";
+    private readonly string _baseUrl = "NavegacionContenido";
 
     public Task<ServiceResult<List<NodoJerarquicoDto>>> ObtenerModulosAsync()
         => GetAsync<List<NodoJerarquicoDto>>($"{_baseUrl}/modulos");

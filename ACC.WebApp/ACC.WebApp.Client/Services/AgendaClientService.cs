@@ -8,7 +8,6 @@ namespace ACC.WebApp.Client.Services;
 
 public sealed class AgendaClientService(HttpClient http)
 {
-    private const string Root = ServiceRoots.ACC_API_Url;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() }
@@ -34,20 +33,20 @@ public sealed class AgendaClientService(HttpClient http)
     }
 
     public async Task<ServiceResult<List<TareaPersonalDto>>?> GetPersonalesAsync(CancellationToken ct = default)
-        => await GetWithNotFoundAsEmptyAsync<List<TareaPersonalDto>>($"{Root}Tarea/personal/lista", ct);
+        => await GetWithNotFoundAsEmptyAsync<List<TareaPersonalDto>>("Tarea/personal/lista", ct);
 
     public async Task<ServiceResult<TareasPendientesResumenDto>?> GetPendientesAsync(CancellationToken ct = default)
         => await http.GetFromJsonAsync<ServiceResult<TareasPendientesResumenDto>>(
-            $"{Root}TareasAlumno/resumen",
+            "TareasAlumno/resumen",
             JsonOptions,
             ct);
 
     public async Task<ServiceResult<List<TareaAlumnoListadoDto>>?> GetAsignadasAsync(CancellationToken ct = default)
-        => await GetWithNotFoundAsEmptyAsync<List<TareaAlumnoListadoDto>>($"{Root}TareasAlumno/listado", ct);
+        => await GetWithNotFoundAsEmptyAsync<List<TareaAlumnoListadoDto>>("TareasAlumno/listado", ct);
 
     public async Task<ServiceResult<TareaPersonalDto>?> CreatePersonalAsync(TareaPersonalDto dto, CancellationToken ct = default)
     {
-        var response = await http.PostAsJsonAsync($"{Root}Tarea/personal", dto, ct);
+        var response = await http.PostAsJsonAsync("Tarea/personal", dto, ct);
         return await response.Content.ReadFromJsonAsync<ServiceResult<TareaPersonalDto>>(
             JsonOptions,
             cancellationToken: ct);
@@ -55,7 +54,7 @@ public sealed class AgendaClientService(HttpClient http)
 
     public async Task<ServiceResult<TareaPersonalDto>?> UpdatePersonalAsync(TareaPersonalDto dto, CancellationToken ct = default)
     {
-        var response = await http.PutAsJsonAsync($"{Root}Tarea/personal", dto, ct);
+        var response = await http.PutAsJsonAsync("Tarea/personal", dto, ct);
         return await response.Content.ReadFromJsonAsync<ServiceResult<TareaPersonalDto>>(
             JsonOptions,
             cancellationToken: ct);
@@ -63,7 +62,7 @@ public sealed class AgendaClientService(HttpClient http)
 
     public async Task<ServiceResult<bool>?> DeletePersonalAsync(int tareaPersonalId, CancellationToken ct = default)
     {
-        var response = await http.DeleteAsync($"{Root}Tarea/personal/{tareaPersonalId}", ct);
+        var response = await http.DeleteAsync($"Tarea/personal/{tareaPersonalId}", ct);
         return await response.Content.ReadFromJsonAsync<ServiceResult<bool>>(
             JsonOptions,
             cancellationToken: ct);

@@ -1,0 +1,258 @@
+@page "/Admin/Lecciones"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Administrador,Docente")]
+@using ACC.Shared.Core
+@using ACC.Shared.DTOs
+@using ACC.Shared.Utils
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Lecciones
+@using ACC.WebApp.Client.Services
+@using Microsoft.AspNetCore.Authorization
+@inject LeccionesAdminClientService LeccionesAdminClient
+
+<h3>Lecciones Admin (MVP)</h3>
+
+@if (!string.IsNullOrWhiteSpace(_message))
+{
+    <div class="alert @(_isError ? "alert-danger" : "alert-success")">@_message</div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-4">
+        <div class="card p-3">
+            <div class="mb-2">
+                <label class="form-label">Filtro SubtemaId</label>
+                <input class="form-control" type="number" @bind="_filtroSubtemaId" />
+            </div>
+            <button class="btn btn-sm btn-outline-primary mb-3" @onclick="CargarLeccionesAsync">Recargar</button>
+
+            <ul class="list-group">
+                @foreach (var item in _lecciones)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>#@item.IdLeccion - @item.TituloLeccion</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => Editar(item)">Editar</button>
+                            <button class="btn btn-sm btn-success" @onclick="() => PublicarAsync(item.IdLeccion)">Publicar</button>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <div class="card p-3">
+            <h5>@(_draft.IdLeccion == 0 ? "Crear" : $"Editar #{_draft.IdLeccion}")</h5>
+
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label">SubtemaId</label>
+                    <input class="form-control" type="number" @bind="_draft.SubtemaId" />
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Titulo</label>
+                    <input class="form-control" @bind="_draft.TituloLeccion" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Descripcion</label>
+                    <textarea class="form-control" rows="2" @bind="_draft.DescripcionLeccion"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">OrdenSecciones (coma)</label>
+                    <input class="form-control" @bind="_ordenInput" placeholder="teoria,practica,ejemplo,actividad,compilador,charpTip,charpDialog,video" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Teoria</label>
+                    <textarea class="form-control" rows="3" @bind="_draft.Teoria"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Practica</label>
+                    <textarea class="form-control" rows="3" @bind="_draft.Practica"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Ejemplo</label>
+                    <textarea class="form-control" rows="3" @bind="_draft.Ejemplo"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">UrlActividad</label>
+                    <input class="form-control" @bind="_draft.UrlActividad" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">VideoId</label>
+                    <input class="form-control" @bind="_draft.VideoId" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">CharpTip</label>
+                    <textarea class="form-control" rows="2" @bind="_draft.CharpTip"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">CharpDialog</label>
+                    <textarea class="form-control" rows="2" @bind="_draft.CharpDialog"></textarea>
+                </div>
+                <div class="col-md-4 form-check mt-2 ms-2">
+                    <input class="form-check-input" type="checkbox" @bind="_draft.TieneActividad" />
+                    <label class="form-check-label">TieneActividad</label>
+                </div>
+                <div class="col-md-4 form-check mt-2">
+                    <input class="form-check-input" type="checkbox" @bind="_draft.TieneCompilador" />
+                    <label class="form-check-label">TieneCompilador</label>
+                </div>
+                <div class="col-md-4 form-check mt-2">
+                    <input class="form-check-input" type="checkbox" @bind="_draft.TieneVideo" />
+                    <label class="form-check-label">TieneVideo</label>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button class="btn btn-primary me-2" @onclick="GuardarAsync">Guardar</button>
+                <button class="btn btn-outline-secondary" @onclick="Limpiar">Nuevo</button>
+            </div>
+        </div>
+
+        <div class="card p-3 mt-3">
+            <h5>Preview (RDL)</h5>
+            <RDL Leccion="@BuildPreview()" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly List<LeccionAdminDto> _lecciones = [];
+    private LeccionAdminDto _draft = new();
+    private int? _filtroSubtemaId;
+    private string _ordenInput = "teoria,practica,ejemplo";
+    private string? _message;
+    private bool _isError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarLeccionesAsync();
+    }
+
+    private async Task CargarLeccionesAsync()
+    {
+        var response = await LeccionesAdminClient.ListarAsync(_filtroSubtemaId);
+        if (response?.Success != true || response.Data is null)
+        {
+            SetMessage(response?.Message ?? "No fue posible cargar lecciones.", true);
+            return;
+        }
+
+        _lecciones.Clear();
+        _lecciones.AddRange(response.Data);
+    }
+
+    private void Editar(LeccionAdminDto item)
+    {
+        _draft = new LeccionAdminDto
+        {
+            IdLeccion = item.IdLeccion,
+            SubtemaId = item.SubtemaId,
+            TituloLeccion = item.TituloLeccion,
+            DescripcionLeccion = item.DescripcionLeccion,
+            Teoria = item.Teoria,
+            Practica = item.Practica,
+            Ejemplo = item.Ejemplo,
+            CharpTip = item.CharpTip,
+            CharpDialog = item.CharpDialog,
+            NivelBloom = item.NivelBloom,
+            TieneActividad = item.TieneActividad,
+            UrlActividad = item.UrlActividad,
+            TieneCompilador = item.TieneCompilador,
+            TieneVideo = item.TieneVideo,
+            VideoId = item.VideoId,
+            OrdenSecciones = item.OrdenSecciones.ToList()
+        };
+        _ordenInput = string.Join(",", _draft.OrdenSecciones);
+    }
+
+    private async Task GuardarAsync()
+    {
+        _draft.OrdenSecciones = ParseOrdenSecciones();
+
+        ServiceResult<LeccionAdminDto>? response;
+        if (_draft.IdLeccion == 0)
+            response = await LeccionesAdminClient.CrearAsync(_draft);
+        else
+            response = await LeccionesAdminClient.ActualizarAsync(_draft.IdLeccion, _draft);
+
+        if (response?.Success != true || response.Data is null)
+        {
+            SetMessage(response?.Message ?? "No fue posible guardar.", true);
+            return;
+        }
+
+        SetMessage(response.Message ?? "Guardado.", false);
+        Editar(response.Data);
+        await CargarLeccionesAsync();
+    }
+
+    private async Task PublicarAsync(int idLeccion)
+    {
+        var response = await LeccionesAdminClient.PublicarAsync(idLeccion);
+        if (response?.Success != true)
+        {
+            SetMessage(response?.Message ?? "No fue posible publicar.", true);
+            return;
+        }
+
+        SetMessage(response.Message ?? "Publicado.", false);
+    }
+
+    private LeccionDto BuildPreview()
+    {
+        var order = ParseOrdenSecciones();
+
+        return new LeccionDto
+        {
+            IdLeccion = _draft.IdLeccion,
+            TituloLeccion = _draft.TituloLeccion,
+            DescripcionLeccion = _draft.DescripcionLeccion,
+            Teoria = _draft.Teoria,
+            Practica = _draft.Practica,
+            Ejemplo = _draft.Ejemplo,
+            CharpTip = _draft.CharpTip,
+            CharpDialog = _draft.CharpDialog,
+            NivelBloom = _draft.NivelBloom,
+            TieneActividad = _draft.TieneActividad,
+            UrlActividad = _draft.UrlActividad,
+            TieneCompilador = _draft.TieneCompilador,
+            TieneVideo = _draft.TieneVideo,
+            VideoId = _draft.VideoId,
+            OrdenSecciones = order
+        };
+    }
+
+    private List<string> ParseOrdenSecciones()
+    {
+        return _ordenInput
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(NormalizeToken)
+            .ToList();
+    }
+
+    private static string NormalizeToken(string token)
+    {
+        if (token.Equals(SeccionesContenido.CharpTip, StringComparison.OrdinalIgnoreCase) ||
+            token.Equals("charptip", StringComparison.OrdinalIgnoreCase))
+            return SeccionesContenido.CharpTip;
+
+        if (token.Equals(SeccionesContenido.CharpDialog, StringComparison.OrdinalIgnoreCase) ||
+            token.Equals("charpdialog", StringComparison.OrdinalIgnoreCase))
+            return SeccionesContenido.CharpDialog;
+
+        return token.Trim().ToLowerInvariant();
+    }
+
+    private void Limpiar()
+    {
+        _draft = new LeccionAdminDto();
+        _ordenInput = "teoria,practica,ejemplo";
+    }
+
+    private void SetMessage(string message, bool isError)
+    {
+        _message = message;
+        _isError = isError;
+    }
+}

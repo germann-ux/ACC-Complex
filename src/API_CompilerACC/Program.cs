@@ -1,32 +1,46 @@
-using API_CompilerACC.Interfaces;
-using API_CompilerACC.Services;
-using ACC.ServiceDefaults; 
+using ACC.Compiler.Interfaces;
+using ACC.Compiler.Services;
+using ACC.ServiceDefaults;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.AddServiceDefaults(); // telemetría, healtcheks, etc.(usado para que aspire detecte)
-// Add services to the container.
+var tlsTerminatedAtProxy = builder.Configuration.GetValue("Network:TlsTerminatedAtProxy", false);
+
+if (tlsTerminatedAtProxy)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
+
+builder.AddServiceDefaults();
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// servicio de compilacion / simple
-//builder.Services.AddSingleton<ICompileService, CompileService>();
 builder.Services.AddSingleton<ICompileService, RoslynCompileService>();
 
 var app = builder.Build();
+app.MapDefaultEndpoints();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+if (tlsTerminatedAtProxy)
+{
+    app.UseForwardedHeaders();
+}
+else
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

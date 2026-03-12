@@ -7,19 +7,40 @@ using ACC.WebApp.Services;
 using ACC.WebApp.Data;
 using ACC.ServiceDefaults; 
 using ACC.WebApp.Client.Services;
+using ACC.Shared.Utils;
 
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using Blazored.LocalStorage;
+using Microsoft.Extensions.Options;
 
 // ============================ =============== //
 // ---- ACC.WebApp - Program.cs 
 // ============================ =============== //
 
 var builder = WebApplication.CreateBuilder(args);
+var tlsTerminatedAtProxy = builder.Configuration.GetValue("Network:TlsTerminatedAtProxy", false);
+var applyMigrationsOnStartup = builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false);
+var migrateOnly = builder.Configuration.GetValue("Database:MigrateOnly", false);
+
+if (tlsTerminatedAtProxy)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
+
+builder.Services.Configure<ServiceEndpointsOptions>(builder.Configuration.GetSection(ServiceEndpointsOptions.SectionName));
+var endpointOptions = builder.Configuration.GetSection(ServiceEndpointsOptions.SectionName).Get<ServiceEndpointsOptions>() ?? new ServiceEndpointsOptions();
+var apiBaseUrl = NormalizeBaseUrl(endpointOptions.ApiBaseUrl, nameof(ServiceEndpointsOptions.ApiBaseUrl));
+var compilerBaseUrl = NormalizeBaseUrl(endpointOptions.CompilerBaseUrl, nameof(ServiceEndpointsOptions.CompilerBaseUrl));
 
 builder.AddServiceDefaults();// quizas quitar luego...
 
@@ -42,6 +63,8 @@ builder.Services.AddScoped<IRoleStateService, RoleStateService>();
 builder.Services.AddScoped<UsuarioSyncService>();
 builder.Services.AddScoped<IApiJwtTokenService, ApiJwtTokenService>();
 builder.Services.AddScoped<ApiJwtAuthDelegatingHandler>();
+builder.Services.AddScoped<CharpClientService>();
+builder.Services.AddScoped<LeccionesAdminClientService>();
 builder.Services.AddScoped<NavegacionContenidoClient>();
 builder.Services.AddScoped<TareasAulaClient>();
 builder.Services.AddScoped<AgendaClientService>();
@@ -52,7 +75,16 @@ builder.Services.AddScoped<ExamenesServiceClient>();
 // Cadenas de Conexión a base de datos de identidad // 
 
 // desarrollo: "DefaultConnection"
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = ResolveConnectionString(
+    builder.Configuration,
+    "DefaultConnection",
+    "acc-identity-db");
+
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Missing 'Jwt:Key' configuration.");
+}
 
 // producción: "acc-identity-db"
 //var connectionString = builder.Configuration.GetConnectionString("acc-identity-db") ?? throw new InvalidOperationException("Connection string 'acc-identity-db' not found.");
@@ -88,21 +120,22 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 builder.Services.AddHttpClient("ACC.API", client =>
 {
-    client.BaseAddress = new Uri(uriString: builder.Configuration["ApiUrl"]);
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 builder.Services.AddScoped(sp =>
 {
-    var apiUrl = sp.GetRequiredService<IConfiguration>()["ApiUrl"]
-        ?? throw new InvalidOperationException("ApiUrl no configurada.");
-
     var authHandler = sp.GetRequiredService<ApiJwtAuthDelegatingHandler>();
     authHandler.InnerHandler = new HttpClientHandler();
 
     return new HttpClient(authHandler)
     {
-        BaseAddress = new Uri(apiUrl)
+        BaseAddress = new Uri(apiBaseUrl)
     };
+});
+builder.Services.AddHttpClient<CompilerClientService>(client =>
+{
+    client.BaseAddress = new Uri(compilerBaseUrl);
 });
 
 //Habilita la compresión
@@ -134,6 +167,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+if (applyMigrationsOnStartup)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
+
+if (migrateOnly)
+{
+    return;
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -147,7 +192,14 @@ else
     app.UseHsts();
 }
 app.UseCors(); 
-app.UseHttpsRedirection();
+if (tlsTerminatedAtProxy)
+{
+    app.UseForwardedHeaders();
+}
+else
+{
+    app.UseHttpsRedirection();
+}
 app.UseResponseCompression();
 app.UseStaticFiles();
 app.UseAntiforgery();
@@ -180,3 +232,55 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static string ResolveConnectionString(IConfiguration config, string connectionName, params string[] fallbackNames)
+{
+    var connectionString = config.GetConnectionString(connectionName);
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        foreach (var fallbackName in fallbackNames)
+        {
+            connectionString = config.GetConnectionString(fallbackName);
+            if (!string.IsNullOrWhiteSpace(connectionString))
+            {
+                break;
+            }
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        var requestedNames = string.Join(", ", new[] { connectionName }.Concat(fallbackNames));
+        throw new InvalidOperationException($"Connection string not found. Expected one of: {requestedNames}.");
+    }
+
+    if (connectionString.Contains("{SQL_PASSWORD}", StringComparison.Ordinal))
+    {
+        var sqlPassword = config["SqlPassword"];
+        if (string.IsNullOrWhiteSpace(sqlPassword))
+        {
+            throw new InvalidOperationException("Missing 'SqlPassword' configuration for SQL connection string placeholder.");
+        }
+
+        connectionString = connectionString.Replace("{SQL_PASSWORD}", sqlPassword, StringComparison.Ordinal);
+    }
+
+    return connectionString;
+}
+
+static string NormalizeBaseUrl(string? url, string optionName)
+{
+    if (string.IsNullOrWhiteSpace(url))
+    {
+        throw new InvalidOperationException($"Service endpoint option '{optionName}' is missing.");
+    }
+
+    if (!Uri.TryCreate(url, UriKind.Absolute, out var parsedUri))
+    {
+        throw new InvalidOperationException($"Service endpoint option '{optionName}' is not a valid absolute URL.");
+    }
+
+    var normalized = parsedUri.ToString();
+    return normalized.EndsWith("/", StringComparison.Ordinal) ? normalized : $"{normalized}/";
+}

@@ -1,10 +1,10 @@
-﻿using API_CompilerACC.Interfaces;
+using ACC.Compiler.Interfaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Reflection;
 using System.Text;
 
-namespace API_CompilerACC.Services;
+namespace ACC.Compiler.Services;
 
 public class RoslynCompileService : ICompileService
 {
@@ -19,7 +19,6 @@ public class RoslynCompileService : ICompileService
             MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
             MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location),
             MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
-            // Agregar más referencias si el código lo necesita
         };
 
         var compilation = CSharpCompilation.Create(
@@ -47,7 +46,7 @@ public class RoslynCompileService : ICompileService
         var assembly = Assembly.Load(ms.ToArray());
 
         var output = new StringWriter();
-        var inputReader = new StringReader(input ?? "");
+        var inputReader = new StringReader(input ?? string.Empty);
 
         var originalOut = Console.Out;
         var originalError = Console.Error;
@@ -62,16 +61,14 @@ public class RoslynCompileService : ICompileService
             var entry = assembly.EntryPoint;
             if (entry != null)
             {
-                var result = entry.GetParameters().Length == 0
+                _ = entry.GetParameters().Length == 0
                     ? entry.Invoke(null, null)
-                    : await Task.Run(() => entry.Invoke(null, new object[] { new string[0] }));
+                    : await Task.Run(() => entry.Invoke(null, new object[] { Array.Empty<string>() }));
 
                 return output.ToString();
             }
-            else
-            {
-                return "No se encontró el punto de entrada (Main).";
-            }
+
+            return "No se encontró el punto de entrada (Main).";
         }
         catch (Exception ex)
         {

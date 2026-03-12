@@ -1,4 +1,4 @@
-﻿using ACC.Shared.DTOs;
+using ACC.Shared.DTOs;
 using System.Text;
 using System.Text.Json;
 
@@ -21,7 +21,7 @@ namespace ACC.Shared.Core
                 var json = JsonSerializer.Serialize(request);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync("https://localhost:7023/api/Compile", content);
+                var response = await _httpClient.PostAsync("api/compile", content);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -39,3 +39,4 @@ namespace ACC.Shared.Core
 
     }
 }
+

@@ -4,6 +4,7 @@ using ACC.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ACC.Data.Migrations
 {
     [DbContext(typeof(ACCDbContext))]
-    partial class ACCDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260309031110_SyncCurrentModelAfterReset")]
+    partial class SyncCurrentModelAfterReset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

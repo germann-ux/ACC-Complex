@@ -1,5 +1,7 @@
 ﻿@page "/Charp-IA"
 @rendermode InteractiveServer
+@using ACC.WebApp.Client.Services
+@inject CharpClientService CharpClient
 
 <div class="charp-shell">
     <div class="charp-shell__bg"></div>
@@ -8,9 +10,27 @@
         <div class="charp-shell__fakeHeader"></div>
         <div class="charp-shell__fakeBody"></div>
 
-        <iframe class="charp-iframe"
-                src="https://www.chatbase.co/chatbot-iframe/E4W-vGLpQvQJlyQ4WIk7m"
-                title="Charp IA"
-                frameborder="0"></iframe>
+        @if (string.IsNullOrWhiteSpace(_iframeUrl))
+        {
+            <div class="p-3 text-center text-muted">
+                Integracion de Charp no disponible.
+            </div>
+        }
+        else
+        {
+            <iframe class="charp-iframe"
+                    src="@_iframeUrl"
+                    title="Charp IA"
+                    frameborder="0"></iframe>
+        }
     </div>
 </div>
+
+@code {
+    private string? _iframeUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _iframeUrl = await CharpClient.ObtenerEmbedUrlAsync();
+    }
+}

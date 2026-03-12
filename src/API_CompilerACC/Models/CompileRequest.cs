@@ -1,8 +1,9 @@
-﻿namespace API_CompilerACC.Models
+namespace ACC.Compiler.Models
 {
     public class CompileRequest
     {
-        public string Code { get; set; } // codigo fuente de c#
-        public string Input { get; set; } // cualquier lectura del usuario...
+        public string Code { get; set; } = string.Empty;
+
+        public string Input { get; set; } = string.Empty;
     }
 }

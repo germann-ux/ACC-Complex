@@ -5,8 +5,10 @@ using System;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// === Parámetros seguros === //
-var sqlPassword = builder.AddParameter("sql-password", secret: true, value: "ACC-Complex-P@assword123!");
+// === Parámetro secreto resuelto por user-secrets/env/dashboard === //
+var sqlPassword = builder.AddParameter(
+    "sql-password",
+    secret: true);
 
 // === Script de creación para identidad === //
 const string identitySchemaScript = """
@@ -49,10 +51,12 @@ var compilerApi = builder.AddProject<Projects.ACC_Compiler>("acc-compiler")
     .WithReference(redis);
 
 var accApi = builder.AddProject<Projects.ACC_API>("acc-api")
+    .WithEnvironment("SqlPassword", sqlPassword)
     .WithReference(dbAcademic)
     .WaitFor(dbAcademic);
 
 var webApp = builder.AddProject<Projects.ACC_WebApp>("acc-blazor")
+    .WithEnvironment("SqlPassword", sqlPassword)
     .WithReference(dbIdentity)
     .WaitFor(dbIdentity)
     .WithReference(dbAcademic)
@@ -60,3 +64,4 @@ var webApp = builder.AddProject<Projects.ACC_WebApp>("acc-blazor")
     .WithReference(redis);
 
 builder.Build().Run();
+

@@ -1,7 +1,7 @@
-﻿namespace API_CompilerACC.Interfaces
+namespace ACC.Compiler.Interfaces
 {
     public interface ICompileService
     {
-        Task<string> CompileAndRunAsync(string code, string Input); // interface para el servicio
+        Task<string> CompileAndRunAsync(string code, string input);
     }
 }

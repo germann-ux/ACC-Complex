@@ -1,33 +1,45 @@
-﻿using ACC.Data;
+﻿using ACC.API.Interfaces;
+using ACC.Data;
 using ACC.Data.Entities;
 using ACC.Shared.Enums;
 using ACC.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace ACC.API.Services; 
+namespace ACC.API.Services;
 
 public class PrerrequisitosService : IPrerrequisitosService
 {
     private readonly ACCDbContext _db;
+    private readonly ICacheService _cache;
     private readonly ILogger<PrerrequisitosService> _logger;
+    private static readonly TimeSpan EstadoTtl = TimeSpan.FromMinutes(15);
 
-    public PrerrequisitosService(ACCDbContext db, ILogger<PrerrequisitosService> logger)
+    public PrerrequisitosService(ACCDbContext db, ICacheService cache, ILogger<PrerrequisitosService> logger)
     {
         _db = db;
+        _cache = cache;
         _logger = logger;
     }
 
     public async Task<bool> EstaHabilitadoAsync(string userId, ExamenRef examen)
     {
-        return await _db.ExamenesHabilitados.AsNoTracking()
+        if (string.IsNullOrWhiteSpace(userId) || examen.RefId <= 0)
+            return false;
+
+        var cacheKey = CacheKeys.PrerequisitoEstado(userId, examen.Tipo, examen.RefId);
+        var cached = await _cache.TryGetAsync<bool>(cacheKey);
+        if (cached.Found)
+            return cached.Value;
+
+        var enabled = await _db.ExamenesHabilitados.AsNoTracking()
             .AnyAsync(e =>
                 e.UsuarioId == userId &&
                 e.Tipo == examen.Tipo &&
                 e.RefId == examen.RefId &&
                 e.Habilitado);
+
+        await _cache.SetAsync(cacheKey, enabled, EstadoTtl);
+        return enabled;
     }
 
     public async Task EvaluarDesbloqueosPorProgresoAsync(string userId, int subTemaId)
@@ -63,7 +75,6 @@ public class PrerrequisitosService : IPrerrequisitosService
                 "ReglaB:TodosSubModulosAprobados");
     }
 
-    // Para la fachada vieja:
     public async Task EvaluarDesbloqueoSubmoduloAsync(string userId, int subModuloId)
     {
         if (await SubmoduloCompletadoAsync(userId, subModuloId))
@@ -71,7 +82,6 @@ public class PrerrequisitosService : IPrerrequisitosService
                 "Compat:RecalculoSubmodulo");
     }
 
-    // ---- helpers de reglas ----
     private async Task<bool> SubmoduloCompletadoAsync(string userId, int subModuloId)
     {
         var temaIds = await _db.Temas
@@ -97,7 +107,6 @@ public class PrerrequisitosService : IPrerrequisitosService
 
         return completados >= subTemaIds.Count;
     }
-
 
     private async Task<bool> TodosExamenesSubModuloAprobadosAsync(string userId, int moduloId)
     {
@@ -140,8 +149,6 @@ public class PrerrequisitosService : IPrerrequisitosService
 
                 if (row is null)
                 {
-                    _logger.LogWarning("No existe fila, se insertará habilitación");
-                    _logger.LogInformation("Upsert EH: userId={UserId}, tipo={Tipo}, ref={RefId}", userId, examen.Tipo, examen.RefId);
                     row = new ExamenHabilitado
                     {
                         UsuarioId = userId,
@@ -149,35 +156,29 @@ public class PrerrequisitosService : IPrerrequisitosService
                         RefId = examen.RefId,
                         Habilitado = true,
                         FechaHabilitacion = DateTimeOffset.UtcNow,
-                        ReglaFuente = regla, 
+                        ReglaFuente = regla,
                     };
                     _db.ExamenesHabilitados.Add(row);
                 }
                 else if (!row.Habilitado)
                 {
-                    _logger.LogWarning("Existe fila deshabilitada, se habilitará");
                     row.Habilitado = true;
                     row.FechaHabilitacion = DateTimeOffset.UtcNow;
                     row.ReglaFuente = regla;
                 }
-                else
-                {
-                    _logger.LogInformation("Ya estaba habilitado: no hay cambios");
-                }
 
-                var affected = await _db.SaveChangesAsync();
-                _logger.LogInformation("SaveChanges afectados={Affected}", affected);
-
+                await _db.SaveChangesAsync();
                 await tx.CommitAsync();
-                _logger.LogInformation("UPSERT commit OK");
+
+                var cacheKey = CacheKeys.PrerequisitoEstado(userId, examen.Tipo, examen.RefId);
+                await _cache.SetAsync(cacheKey, true, EstadoTtl);
             }
             catch (Exception ex)
             {
                 await tx.RollbackAsync();
-                _logger.LogError(ex, "UP SERT rollback por excepción");
+                _logger.LogError(ex, "UPSERT rollback por excepcion");
                 throw;
             }
         });
     }
-
 }

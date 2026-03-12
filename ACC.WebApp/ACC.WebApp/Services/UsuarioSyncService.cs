@@ -36,7 +36,7 @@ namespace ACC.WebApp.Services
 
             try
             {
-                var response = await httpClient.PostAsJsonAsync("https://localhost:7059/api/Usuario/sincronizar", dto);
+                var response = await httpClient.PostAsJsonAsync("Usuario/sincronizar", dto);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)

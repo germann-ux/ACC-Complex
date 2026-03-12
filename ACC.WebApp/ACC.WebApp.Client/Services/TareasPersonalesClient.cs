@@ -6,17 +6,15 @@ namespace ACC.WebApp.Client.Services;
 
 public class TareasPersonalesClient(HttpClient http)
 {
-    private const string Root = ServiceRoots.ACC_API_Url;
-
     public async Task<ServiceResult<List<TareaPersonalDto>>?> GetByUserAsync(CancellationToken ct = default)
         => await http.GetFromJsonAsync<ServiceResult<List<TareaPersonalDto>>>(
-            $"{Root}Tarea/personal/lista", ct);
+            "Tarea/personal/lista", ct);
 
     public async Task<ServiceResult<TareaPersonalDto>?> CreateAsync(
         TareaPersonalDto dto,
         CancellationToken ct = default)
     {
-        var response = await http.PostAsJsonAsync($"{Root}Tarea/personal", dto, ct);
+        var response = await http.PostAsJsonAsync("Tarea/personal", dto, ct);
         return await response.Content.ReadFromJsonAsync<ServiceResult<TareaPersonalDto>>(cancellationToken: ct);
     }
 
@@ -24,7 +22,7 @@ public class TareasPersonalesClient(HttpClient http)
         TareaPersonalDto dto,
         CancellationToken ct = default)
     {
-        var response = await http.PutAsJsonAsync($"{Root}Tarea/personal", dto, ct);
+        var response = await http.PutAsJsonAsync("Tarea/personal", dto, ct);
         return await response.Content.ReadFromJsonAsync<ServiceResult<TareaPersonalDto>>(cancellationToken: ct);
     }
 
@@ -32,7 +30,8 @@ public class TareasPersonalesClient(HttpClient http)
         int tareaPersonalId,
         CancellationToken ct = default)
     {
-        var response = await http.DeleteAsync($"{Root}Tarea/personal/{tareaPersonalId}", ct);
+        var response = await http.DeleteAsync($"Tarea/personal/{tareaPersonalId}", ct);
         return await response.Content.ReadFromJsonAsync<ServiceResult<bool>>(cancellationToken: ct);
     }
 }
+

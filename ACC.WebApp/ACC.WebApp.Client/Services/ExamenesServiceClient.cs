@@ -8,7 +8,7 @@ namespace ACC.WebApp.Client.Services
     public class ExamenesServiceClient(HttpClient http)
     {
         private readonly HttpClient _http = http;
-        private readonly string _baseUrlModExams = $"{ServiceRoots.ACC_API_EXAMENES}";
+        private readonly string _baseUrlModExams = "Examenes/";
 
         public async Task<List<ExamenSubModuloDto>> ObtenerExamanesSubMAsync()
         {
@@ -35,7 +35,6 @@ namespace ACC.WebApp.Client.Services
             catch (HttpRequestException ex)
                 when (ex.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
             {
-                // Sin intentos previos: para el resumen esto no es error.
                 return [];
             }
         }
@@ -58,11 +57,8 @@ namespace ACC.WebApp.Client.Services
             {
                 return await response.Content.ReadFromJsonAsync<ExamenIntentoDto>(Options._jsonOptions);
             }
-            else
-            {
-                // Manejar el error según sea necesario
-                return null;
-            }
+
+            return null;
         }
 
         public async Task<List<ExamenModuloDto>> ObtenerExamenesModAsync()

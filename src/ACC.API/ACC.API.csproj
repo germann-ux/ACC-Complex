@@ -10,6 +10,7 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ACC.ServiceDefaults\ACC.ServiceDefaults.csproj" />
     <ProjectReference Include="..\ACC.Data\ACC.Data.csproj" />
+    <ProjectReference Include="..\ACC.ExternalClients\ACC.ExternalClients.csproj" />
     <ProjectReference Include="..\ACC.Shared\ACC.Shared.csproj" />
   </ItemGroup>
 

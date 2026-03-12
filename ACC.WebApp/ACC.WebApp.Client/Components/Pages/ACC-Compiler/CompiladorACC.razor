@@ -1,14 +1,11 @@
-﻿@page "/Compilador"
+@page "/Compilador"
 
-@using System.Text.Json
-@using System.Text
-@using ACC.Shared.Core
+@using ACC.WebApp.Client.Services
 
 @rendermode InteractiveServer
 
-@inject NavigationManager navegador
-@inject HttpClient Http
 @inject IJSRuntime JS
+@inject CompilerClientService CompilerClient
 
 <div class="compiler-container">
     <h3 class="compiler-title">Compilador Online</h3>
@@ -75,22 +72,7 @@
                 // 🔹 Obtener el código actualizado desde CodeMirror antes de enviarlo
                 Code = await JS.InvokeAsync<string>("getCodeMirrorValue");
 
-                var request = new { Code, Input };
-                var json = JsonSerializer.Serialize(request);
-                Console.WriteLine($"JSON enviado: {json}"); // Verificar el JSON enviado
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await Http.PostAsync($"{ServiceRoots.ACC_COMPILER_Url}", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    Output = await response.Content.ReadAsStringAsync();
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Output = $"Error: {errorContent}";
-                }
+                Output = await CompilerClient.CompileAsync(Code, Input);
             }
             catch (Exception ex)
             {

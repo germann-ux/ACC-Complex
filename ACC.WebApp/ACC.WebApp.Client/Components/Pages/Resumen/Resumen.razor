@@ -1,4 +1,4 @@
-﻿@page "/Resumen"
+@page "/Resumen"
 @rendermode InteractiveServer
 @implements IDisposable
 @using ACC.Shared.DTOs
@@ -340,7 +340,7 @@
         try
         {
             var solicitud = await
-            cliente.GetFromJsonAsync<ServiceResult<ApplicationUserDto>>($"{ServiceRoots.ACC_API_Url}Usuario/usuario/{userId}",
+            cliente.GetFromJsonAsync<ServiceResult<ApplicationUserDto>>($"Usuario/usuario/{userId}",
             token);
             if (solicitud?.Success == true)
                 usuario = solicitud.Data ?? new();
@@ -365,7 +365,7 @@
     {
         try
         {
-            var tipObtenido = await cliente.GetFromJsonAsync<TipDto>($"{ServiceRoots.ACC_API_Url}Tips/random", cts.Token);
+            var tipObtenido = await cliente.GetFromJsonAsync<TipDto>("Tips/random", cts.Token);
             if (tipObtenido is null)
             {
                 errorMessageTip = "No hay tips disponibles aún.";
@@ -398,7 +398,7 @@
 
         try
         {
-            var ultimoTemaId = await cliente.GetFromJsonAsync<int?>($"{ServiceRoots.ACC_API_Url}ProgresoUsuario/ultimo/{userId}");
+            var ultimoTemaId = await cliente.GetFromJsonAsync<int?>($"ProgresoUsuario/ultimo/{userId}");
 
             if (ultimoTemaId.HasValue)
                 navegador.NavigateTo($"contenido/Tema/{ultimoTemaId}");
@@ -442,3 +442,4 @@
         cts.Dispose();
     }
 }
+

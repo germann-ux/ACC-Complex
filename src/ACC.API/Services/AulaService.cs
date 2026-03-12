@@ -3,44 +3,47 @@ using ACC.Data.Entities;
 using ACC.Shared.Core;
 using ACC.Shared.DTOs;
 using ACC.Shared.Interfaces;
+using ACC.Shared.Utils;
 using AutoMapper;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-
-// TODO: Implementar los métodos de la interfaz IAulaService
+using Microsoft.Extensions.Options;
 
 namespace ACC.API.Services
 {
-    public class AulaService(ACCDbContext context, IMapper mapper) : IAulaService
+    public class AulaService : IAulaService
     {
-        public async Task<ServiceResult<InvitacionGeneradaDto>> GenerarInvitacionAsync
-            (int aulaId,
+        private readonly ACCDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly ServiceEndpointsOptions _endpoints;
+
+        public AulaService(ACCDbContext context, IMapper mapper, IOptions<ServiceEndpointsOptions> endpointOptions)
+        {
+            _context = context;
+            _mapper = mapper;
+            _endpoints = endpointOptions.Value;
+        }
+
+        public async Task<ServiceResult<InvitacionGeneradaDto>> GenerarInvitacionAsync(
+            int aulaId,
             string currentUserId,
             CancellationToken cancellationToken = default)
         {
             try
             {
                 if (aulaId <= 0)
-                    return ServiceResult<InvitacionGeneradaDto>.Fail("El ID del aula es inválido.");
-                
+                    return ServiceResult<InvitacionGeneradaDto>.Fail("El ID del aula es invalido.");
+
                 if (string.IsNullOrWhiteSpace(currentUserId))
                     return ServiceResult<InvitacionGeneradaDto>.Unauthorized("Usuario no autenticado.");
 
-                var existe = await context.Aulas
+                var existe = await _context.Aulas
                     .AsNoTracking()
                     .AnyAsync(a => a.AulaId == aulaId, cancellationToken);
 
                 if (!existe)
                     return ServiceResult<InvitacionGeneradaDto>.NotFound("El aula no existe.");
 
-                string token = Guid.NewGuid().ToString("N");
+                var token = Guid.NewGuid().ToString("N");
                 var invitacion = new InvitacionAula
                 {
                     AulaId = aulaId,
@@ -51,10 +54,11 @@ namespace ACC.API.Services
                     NumUsos = 0
                 };
 
-                await context.InvitacionesAula.AddAsync(invitacion, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.InvitacionesAula.AddAsync(invitacion, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-                var link = $"{ServiceRoots.ACC_WEBAPP_Url}invitacion/aula/{token}"; 
+                var webAppBase = NormalizeBaseUrl(_endpoints.WebAppBaseUrl);
+                var link = $"{webAppBase}invitacion/aula/{token}";
 
                 var invitacionDto = new InvitacionGeneradaDto
                 {
@@ -63,9 +67,9 @@ namespace ACC.API.Services
                     ExpiraEn = invitacion.ExpiraEn
                 };
 
-                return ServiceResult<InvitacionGeneradaDto>.Ok(invitacionDto, "Invitación generada correctamente.");
+                return ServiceResult<InvitacionGeneradaDto>.Ok(invitacionDto, "Invitacion generada correctamente.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ServiceResult<InvitacionGeneradaDto>.Error(ex);
             }
@@ -78,19 +82,19 @@ namespace ACC.API.Services
 
         public async Task<ServiceResult<AulaConfigDto>> UpdateConfigAsync(int aulaId, AulaConfigUpdateDto updateDto, string currentUserId, CancellationToken cancellationToken = default)
         {
-            //if(aulaId <= 0)
-            //    return ServiceResult<AulaConfigDto>.Fail("El ID del aula es inválido.");
-
-            //var aula = await context.Aulas
-            //    .FirstOrDefaultAsync(a => a.AulaId == aulaId, cancellationToken);
-            
-            //if(aula == null)
-            //    return ServiceResult<AulaConfigDto>.NotFound("El aula no existe.");
-
+            await Task.CompletedTask;
             return ServiceResult<AulaConfigDto>.Fail("Not implemented yet.");
+        }
+
+        private static string NormalizeBaseUrl(string? rawBaseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(rawBaseUrl))
+            {
+                throw new InvalidOperationException("ServiceEndpoints:WebAppBaseUrl no esta configurado.");
+            }
+
+            var normalized = rawBaseUrl.Trim();
+            return normalized.EndsWith("/", StringComparison.Ordinal) ? normalized : $"{normalized}/";
         }
     }
 }
-
-
-
