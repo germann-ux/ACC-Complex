@@ -1,0 +1,166 @@
+services:
+  acc-redis:
+    image: redis:7-alpine
+    container_name: acc-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - acc-internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+
+  acc-migrate-academic:
+    build:
+      context: .
+      dockerfile: src/ACC.API/Containerfile
+    image: acc-api:latest
+    container_name: acc-migrate-academic
+    restart: "no"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Network__TlsTerminatedAtProxy: "true"
+      Database__ApplyMigrationsOnStartup: "true"
+      Database__MigrateOnly: "true"
+      SqlPassword: ${SQL_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Key: ${JWT_KEY}
+      ServiceEndpoints__ApiBaseUrl: http://acc-api:8080/api/
+      ServiceEndpoints__CompilerBaseUrl: http://acc-compiler:8080/
+      ServiceEndpoints__WebAppBaseUrl: http://acc-webapp:8080/
+      ConnectionStrings__acc-academic-db: Server=${DB_ACADEMIC_HOST},${DB_ACADEMIC_PORT};User ID=${DB_SQL_USER};Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=ACC_Academic
+    networks:
+      - acc-internal
+
+  acc-migrate-identity:
+    build:
+      context: .
+      dockerfile: ACC.WebApp/ACC.WebApp/Containerfile
+    image: acc-webapp:latest
+    container_name: acc-migrate-identity
+    restart: "no"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Network__TlsTerminatedAtProxy: "true"
+      Database__ApplyMigrationsOnStartup: "true"
+      Database__MigrateOnly: "true"
+      SqlPassword: ${SQL_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Key: ${JWT_KEY}
+      ServiceEndpoints__ApiBaseUrl: http://acc-api:8080/api/
+      ServiceEndpoints__CompilerBaseUrl: http://acc-compiler:8080/
+      ServiceEndpoints__WebAppBaseUrl: http://acc-webapp:8080/
+      ConnectionStrings__acc-identity-db: Server=${DB_IDENTITY_HOST},${DB_IDENTITY_PORT};User ID=${DB_SQL_USER};Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=ACC_Identity
+    networks:
+      - acc-internal
+
+  acc-compiler:
+    build:
+      context: .
+      dockerfile: src/API_CompilerACC/Containerfile
+    image: acc-compiler:latest
+    container_name: acc-compiler
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Network__TlsTerminatedAtProxy: "true"
+    networks:
+      - acc-internal
+    depends_on:
+      acc-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/alive || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  acc-api:
+    build:
+      context: .
+      dockerfile: src/ACC.API/Containerfile
+    image: acc-api:latest
+    container_name: acc-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Network__TlsTerminatedAtProxy: "true"
+      SqlPassword: ${SQL_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Key: ${JWT_KEY}
+      ServiceEndpoints__ApiBaseUrl: http://acc-api:8080/api/
+      ServiceEndpoints__CompilerBaseUrl: http://acc-compiler:8080/
+      ServiceEndpoints__WebAppBaseUrl: http://acc-webapp:8080/
+      ConnectionStrings__acc-academic-db: Server=${DB_ACADEMIC_HOST},${DB_ACADEMIC_PORT};User ID=${DB_SQL_USER};Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=ACC_Academic
+      ConnectionStrings__acc-redis: acc-redis:6379
+    networks:
+      - acc-internal
+    depends_on:
+      acc-migrate-academic:
+        condition: service_completed_successfully
+      acc-redis:
+        condition: service_healthy
+      acc-compiler:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/alive || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+
+  acc-webapp:
+    build:
+      context: .
+      dockerfile: ACC.WebApp/ACC.WebApp/Containerfile
+    image: acc-webapp:latest
+    container_name: acc-webapp
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Network__TlsTerminatedAtProxy: "true"
+      SqlPassword: ${SQL_PASSWORD}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Key: ${JWT_KEY}
+      ServiceEndpoints__ApiBaseUrl: http://acc-api:8080/api/
+      ServiceEndpoints__CompilerBaseUrl: http://acc-compiler:8080/
+      ServiceEndpoints__WebAppBaseUrl: http://acc-webapp:8080/
+      ConnectionStrings__acc-identity-db: Server=${DB_IDENTITY_HOST},${DB_IDENTITY_PORT};User ID=${DB_SQL_USER};Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=ACC_Identity
+      ConnectionStrings__acc-redis: acc-redis:6379
+    ports:
+      - "${WEBAPP_HTTP_PORT:-8080}:8080"
+    networks:
+      - acc-internal
+    depends_on:
+      acc-migrate-identity:
+        condition: service_completed_successfully
+      acc-redis:
+        condition: service_healthy
+      acc-api:
+        condition: service_healthy
+      acc-compiler:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/alive || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+
+networks:
+  acc-internal:
+    name: acc-internal
+
+volumes:
+  redis_data:
+    name: acc-redis-data

@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY ["ACC.sln", "./"]
+COPY ["ACC.WebApp/ACC.WebApp/ACC.WebApp.csproj", "ACC.WebApp/ACC.WebApp/"]
+COPY ["ACC.WebApp/ACC.WebApp.Client/ACC.WebApp.Client.csproj", "ACC.WebApp/ACC.WebApp.Client/"]
+COPY ["src/ACC.Shared/ACC.Shared.csproj", "src/ACC.Shared/"]
+COPY ["ACC.ServiceDefaults/ACC.ServiceDefaults.csproj", "ACC.ServiceDefaults/"]
+
+RUN dotnet restore "ACC.WebApp/ACC.WebApp/ACC.WebApp.csproj"
+
+COPY . .
+
+RUN dotnet publish "ACC.WebApp/ACC.WebApp/ACC.WebApp.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+
+EXPOSE 8080
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "ACC.WebApp.dll"]

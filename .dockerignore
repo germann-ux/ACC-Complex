@@ -1,0 +1,16 @@
+.git
+.vs
+.devin
+.tmp_account_ui_build
+backups-local
+
+**/bin
+**/obj
+
+Docs
+tests
+
+*.user
+*.suo
+*.tmp
+*.log
