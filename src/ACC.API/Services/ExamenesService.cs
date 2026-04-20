@@ -7,7 +7,6 @@ using ACC.Shared.Enums;
 using ACC.Shared.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 #region Contexto pedagógico (referencia rápida)
 /*
@@ -81,9 +80,6 @@ namespace ACC.API.Services
                                          .AsNoTracking()
                                          .ToListAsync()
                                          .ConfigureAwait(false);
-
-            if (examenes.Count == 0)
-                return ServiceResult<List<ExamenSubModuloDto>>.Fail("No se encontraron exámenes de submódulo.");
 
             var dto = _mapper.Map<List<ExamenSubModuloDto>>(examenes);
             return ServiceResult<List<ExamenSubModuloDto>>.Ok(dto);
@@ -172,35 +168,68 @@ namespace ACC.API.Services
         /// Asegúrate de que <see cref="ExamenIntento"/> tenga una marca temporal confiable
         /// (idealmente asignada en servidor).
         /// </remarks>
-        public async Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoPorUsuarioYExamenAsync(string userId, int examenSubModuloId)
+        public Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoPorUsuarioYExamenAsync(string userId, int examenSubModuloId)
+            => ObtenerUltimoIntentoSubModuloAsync(userId, examenSubModuloId);
+
+        public Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoPorUsuarioYExamenAsync(
+            string userId,
+            ExamenTipo tipo,
+            int examenId)
+            => tipo switch
+            {
+                ExamenTipo.SubModulo => ObtenerUltimoIntentoSubModuloAsync(userId, examenId),
+                ExamenTipo.Modulo => ObtenerUltimoIntentoModuloAsync(userId, examenId),
+                ExamenTipo.Libre => ObtenerUltimoIntentoLibreAsync(userId, examenId),
+                _ => Task.FromResult(ServiceResult<ExamenIntentoDto?>.Fail("Tipo de examen no válido."))
+            };
+
+        public async Task<ServiceResult<ExamenEstadoDto?>> ObtenerEstadoExamenAsync(string userId, ExamenTipo tipo, int examenId)
         {
-            if (examenSubModuloId <= 0)
-                return ServiceResult<ExamenIntentoDto?>.Fail("El id del examen debe ser mayor a cero.");
-
             if (string.IsNullOrWhiteSpace(userId))
-                return ServiceResult<ExamenIntentoDto?>.Fail("El id del usuario no puede estar vacío.");
+                return ServiceResult<ExamenEstadoDto?>.Fail("El id del usuario no puede estar vacio.");
 
-            // Validar existencia del examen para cortar temprano.
-            var existeExamen = await _context.ExamenesSubModulo
-                                             .AsNoTracking()
-                                             .AnyAsync(e => e.Id == examenSubModuloId)
-                                             .ConfigureAwait(false);
+            var configuracion = await ObtenerConfiguracionExamenAsync(tipo, examenId).ConfigureAwait(false);
+            if (configuracion is null)
+                return ServiceResult<ExamenEstadoDto?>.NotFound("El examen solicitado no existe.");
 
-            if (!existeExamen)
-                return ServiceResult<ExamenIntentoDto?>.Fail("El examen de submódulo no existe.");
+            var intentosQuery = CrearConsultaIntentosMismoExamen(userId, configuracion.Tipo, configuracion.ExamenId);
+            var intentosRealizados = await intentosQuery.CountAsync().ConfigureAwait(false);
+            var ultimoIntento = await intentosQuery
+                .OrderByDescending(ie => ie.FechaIntento)
+                .ThenByDescending(ie => ie.NumeroIntento)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
 
-            var ultimo = await _context.ExamenesIntentos
-                                       .AsNoTracking()
-                                       .Where(ie => ie.IdUsuario == userId && ie.ExamenSubModuloId == examenSubModuloId)
-                                       .OrderByDescending(ie => ie.FechaIntento) // Cambia el nombre si tu propiedad difiere.
-                                       .FirstOrDefaultAsync()
-                                       .ConfigureAwait(false);
+            var aprobadoRegistrado = await _context.ExamenesAprobatorios
+                .AsNoTracking()
+                .AnyAsync(a => a.UsuarioId == userId
+                               && a.Tipo == configuracion.Tipo
+                               && a.ExamenId == configuracion.ExamenId)
+                .ConfigureAwait(false);
 
-            if (ultimo is null)
-                return ServiceResult<ExamenIntentoDto?>.Fail("No se encontraron intentos para el examen y usuario solicitados.");
+            var estaHabilitado = configuracion.Tipo == ExamenTipo.Libre
+                || await _prerrequisitos
+                    .EstaHabilitadoAsync(userId, new ExamenRef(configuracion.Tipo, configuracion.ExamenId))
+                    .ConfigureAwait(false);
 
-            var ultimoDto = _mapper.Map<ExamenIntentoDto>(ultimo);
-            return ServiceResult<ExamenIntentoDto?>.Ok(ultimoDto);
+            var intentosRestantes = configuracion.IntentosMaximos == int.MaxValue
+                ? int.MaxValue
+                : Math.Max(configuracion.IntentosMaximos - intentosRealizados, 0);
+
+            var estado = new ExamenEstadoDto
+            {
+                Tipo = configuracion.Tipo,
+                ExamenId = configuracion.ExamenId,
+                EstaHabilitado = estaHabilitado,
+                IntentosRealizados = intentosRealizados,
+                IntentosMaximos = configuracion.IntentosMaximos,
+                IntentosRestantes = intentosRestantes,
+                PuedePresentar = estaHabilitado && intentosRealizados < configuracion.IntentosMaximos,
+                EstaAprobado = aprobadoRegistrado || ultimoIntento?.Aprobado == true,
+                UltimoIntento = ultimoIntento is null ? null : _mapper.Map<ExamenIntentoDto>(ultimoIntento)
+            };
+
+            return ServiceResult<ExamenEstadoDto?>.Ok(estado);
         }
 
         /// <summary>
@@ -229,8 +258,17 @@ namespace ACC.API.Services
             if (string.IsNullOrWhiteSpace(intentoDto.IdUsuario))
                 return ServiceResult<ExamenIntentoDto>.Fail("El id del usuario no puede estar vacío.");
 
-            if (intentoDto.Calificacion < 0)
-                return ServiceResult<ExamenIntentoDto>.Fail("El puntaje obtenido no puede ser negativo.");
+            if (intentoDto.NumeroAciertos < 0)
+                return ServiceResult<ExamenIntentoDto>.Fail("El numero de aciertos no puede ser negativo.");
+
+            if (intentoDto.TotalPreguntas <= 0)
+                return ServiceResult<ExamenIntentoDto>.Fail("El total de preguntas debe ser mayor a cero.");
+
+            if (intentoDto.NumeroAciertos > intentoDto.TotalPreguntas)
+                return ServiceResult<ExamenIntentoDto>.Fail("El numero de aciertos no puede exceder el total de preguntas.");
+
+            if (intentoDto.TiempoSegundos < 0)
+                return ServiceResult<ExamenIntentoDto>.Fail("El tiempo del examen no puede ser negativo.");
 
             // 1) Debe referenciar EXACTAMENTE un examen
             int fkCount = 0;
@@ -240,79 +278,32 @@ namespace ACC.API.Services
             if (fkCount != 1)
                 return ServiceResult<ExamenIntentoDto>.Fail("Debe referenciar exactamente un examen (SubMódulo, Módulo o Libre).");
 
-            // 2) Verificar existencia del examen y obtener umbral real
-            //    (ligero y seguro; no confiamos ciegamente en 'Aprobado' del cliente)
-            int umbral;
-            ExamenTipo tipo;
-            int examenId;
+            var examenRef = ObtenerReferenciaExamen(intentoDto);
+            var configuracion = await ObtenerConfiguracionExamenAsync(examenRef.tipo, examenRef.examenId).ConfigureAwait(false);
+            if (configuracion is null)
+                return ServiceResult<ExamenIntentoDto>.NotFound("El examen solicitado no existe.");
 
-            if (intentoDto.ExamenSubModuloId is int esmId)
-            {
-                var exam = await _context.ExamenesSubModulo
-                    .AsNoTracking()
-                    .Where(e => e.Id == esmId)
-                    .Select(e => new { e.Id, e.PuntajeAprobacion })
-                    .FirstOrDefaultAsync()
-                    .ConfigureAwait(false);
-
-                if (exam is null)
-                    return ServiceResult<ExamenIntentoDto>.Fail("El examen de submódulo no existe.");
-
-                umbral = exam.PuntajeAprobacion;
-                tipo = ExamenTipo.SubModulo;
-                examenId = exam.Id;
-            }
-            else if (intentoDto.ExamenModuloId is int emId)
-            {
-                var exam = await _context.ExamenesModulos
-                    .AsNoTracking()
-                    .Where(e => e.Id == emId)
-                    .Select(e => new { e.Id, e.PuntajeAprobacion })
-                    .FirstOrDefaultAsync()
-                    .ConfigureAwait(false);
-
-                if (exam is null)
-                    return ServiceResult<ExamenIntentoDto>.Fail("El examen de módulo no existe.");
-
-                umbral = exam.PuntajeAprobacion;
-                tipo = ExamenTipo.Modulo;
-                examenId = exam.Id;
-            }
-            else // intentoDto.ExamenId
-            {
-                var exam = await _context.Examenes
-                    .AsNoTracking()
-                    .Where(e => e.Id == intentoDto.ExamenId)
-                    .Select(e => new { e.Id, e.PuntajeAprobacion })
-                    .FirstOrDefaultAsync()
-                    .ConfigureAwait(false);
-
-                if (exam is null)
-                    return ServiceResult<ExamenIntentoDto>.Fail("El examen genérico no existe.");
-
-                umbral = exam.PuntajeAprobacion;
-                tipo = ExamenTipo.Libre;
-                examenId = exam.Id;
-            }
+            if (intentoDto.TotalPreguntas != configuracion.NumeroPreguntas)
+                return ServiceResult<ExamenIntentoDto>.Fail("El total de preguntas enviado no coincide con la configuracion del examen.");
 
             // 3) Mapear a entidad
             var entity = _mapper.Map<ExamenIntento>(intentoDto);
+            entity.Calificacion = Math.Round((double)intentoDto.NumeroAciertos * 100.0 / intentoDto.TotalPreguntas, 2);
+            entity.PorcentajeObtenido = entity.Calificacion;
+            entity.TotalPreguntas = intentoDto.TotalPreguntas;
+            entity.NumeroAciertos = intentoDto.NumeroAciertos;
+            entity.TiempoSegundos = intentoDto.TiempoSegundos;
 
             // 4) Sello de tiempo en servidor
             if (entity.FechaIntento == default)
                 entity.FechaIntento = DateTimeOffset.UtcNow;
 
             // 5) Numeración secuencial por (Usuario + Examen lógico)
-            var sameExamQuery = _context.ExamenesIntentos.AsNoTracking()
-                .Where(i => i.IdUsuario == entity.IdUsuario);
+            var sameExamQuery = CrearConsultaIntentosMismoExamen(entity.IdUsuario, configuracion.Tipo, configuracion.ExamenId);
 
-            sameExamQuery = tipo switch
-            {
-                ExamenTipo.SubModulo => sameExamQuery.Where(i => i.ExamenSubModuloId == examenId),
-                ExamenTipo.Modulo => sameExamQuery.Where(i => i.ExamenModuloId == examenId),
-                ExamenTipo.Libre => sameExamQuery.Where(i => i.ExamenId == examenId),
-                _ => sameExamQuery.Where(_ => false)
-            };
+            var intentosRealizados = await sameExamQuery.CountAsync().ConfigureAwait(false);
+            if (intentosRealizados >= configuracion.IntentosMaximos)
+                return ServiceResult<ExamenIntentoDto>.Fail("El usuario ya alcanzo el numero maximo de intentos para este examen.");
 
             var nextN = (await sameExamQuery
                             .Select(i => (int?)i.NumeroIntento)
@@ -322,7 +313,11 @@ namespace ACC.API.Services
             entity.NumeroIntento = nextN + 1;
 
             // 6) Determinar aprobación en servidor (con umbral real)
-            entity.Aprobado = entity.Calificacion >= umbral;
+            entity.Aprobado = EstaAprobado(
+                intentoDto.NumeroAciertos,
+                entity.PorcentajeObtenido,
+                configuracion.PuntajeAprobacion,
+                configuracion.NumeroPreguntas);
 
             try
             {
@@ -338,8 +333,8 @@ namespace ACC.API.Services
                     var yaExisteAprobatorio = await _context.ExamenesAprobatorios
                         .AsNoTracking()
                         .AnyAsync(a => a.UsuarioId == entity.IdUsuario
-                                       && a.Tipo == tipo
-                                       && a.ExamenId == examenId)
+                                       && a.Tipo == configuracion.Tipo
+                                       && a.ExamenId == configuracion.ExamenId)
                         .ConfigureAwait(false);
 
                     if (!yaExisteAprobatorio)
@@ -347,8 +342,8 @@ namespace ACC.API.Services
                         _context.ExamenesAprobatorios.Add(new ExamenAprobatorio
                         {
                             UsuarioId = entity.IdUsuario,
-                            Tipo = tipo,
-                            ExamenId = examenId,
+                            Tipo = configuracion.Tipo,
+                            ExamenId = configuracion.ExamenId,
                             ExamenIntentoId = entity.Id,
                             FechaAprobacion = DateTimeOffset.UtcNow,
                             Calificacion = entity.Calificacion
@@ -361,8 +356,8 @@ namespace ACC.API.Services
 
                     // 9) PRERREQUISITOS según tu servicio:
                     // - Aprobación de SubMódulo → podría habilitar el Examen de Módulo (ReglaB)
-                    if (tipo == ExamenTipo.SubModulo)
-                        await _prerrequisitos.EvaluarDesbloqueosPorAprobacionAsync(entity.IdUsuario, examenId);
+                    if (configuracion.Tipo == ExamenTipo.SubModulo)
+                        await _prerrequisitos.EvaluarDesbloqueosPorAprobacionAsync(entity.IdUsuario, configuracion.ExamenId);
 
                     // Nota: Si en el futuro defines desbloqueos para Módulo o Examen Libre,
                     // añade aquí su invocación explícita usando ExamenRef si aplica.
@@ -394,9 +389,6 @@ namespace ACC.API.Services
                                          .AsNoTracking()
                                          .ToListAsync()
                                          .ConfigureAwait(false);
-
-            if (examenes.Count == 0)
-                return ServiceResult<List<ExamenModuloDto>>.Fail("No se encontraron exámenes de módulo.");
 
             var examenesDto = _mapper.Map<List<ExamenModuloDto>>(examenes);
             return ServiceResult<List<ExamenModuloDto>>.Ok(examenesDto);
@@ -465,6 +457,191 @@ namespace ACC.API.Services
 
             return ServiceResult<int?>.Ok(null);
         }
+
+        private async Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoSubModuloAsync(string userId, int examenSubModuloId)
+        {
+            if (examenSubModuloId <= 0)
+                return ServiceResult<ExamenIntentoDto?>.Fail("El id del examen debe ser mayor a cero.");
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return ServiceResult<ExamenIntentoDto?>.Fail("El id del usuario no puede estar vacío.");
+
+            var existeExamen = await _context.ExamenesSubModulo
+                                             .AsNoTracking()
+                                             .AnyAsync(e => e.Id == examenSubModuloId)
+                                             .ConfigureAwait(false);
+
+            if (!existeExamen)
+                return ServiceResult<ExamenIntentoDto?>.Fail("El examen de submódulo no existe.");
+
+            return await ObtenerUltimoIntentoAsync(
+                    userId,
+                    query => query.Where(ie => ie.ExamenSubModuloId == examenSubModuloId),
+                    "No se encontraron intentos para el examen y usuario solicitados.")
+                .ConfigureAwait(false);
+        }
+
+        private async Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoModuloAsync(string userId, int examenModuloId)
+        {
+            if (examenModuloId <= 0)
+                return ServiceResult<ExamenIntentoDto?>.Fail("El id del examen debe ser mayor a cero.");
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return ServiceResult<ExamenIntentoDto?>.Fail("El id del usuario no puede estar vacío.");
+
+            var existeExamen = await _context.ExamenesModulos
+                                             .AsNoTracking()
+                                             .AnyAsync(e => e.Id == examenModuloId)
+                                             .ConfigureAwait(false);
+
+            if (!existeExamen)
+                return ServiceResult<ExamenIntentoDto?>.Fail("El examen de módulo no existe.");
+
+            return await ObtenerUltimoIntentoAsync(
+                    userId,
+                    query => query.Where(ie => ie.ExamenModuloId == examenModuloId),
+                    "No se encontraron intentos para el examen de módulo y usuario solicitados.")
+                .ConfigureAwait(false);
+        }
+
+        private async Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoLibreAsync(string userId, int examenId)
+        {
+            if (examenId <= 0)
+                return ServiceResult<ExamenIntentoDto?>.Fail("El id del examen debe ser mayor a cero.");
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return ServiceResult<ExamenIntentoDto?>.Fail("El id del usuario no puede estar vacío.");
+
+            var existeExamen = await _context.Examenes
+                                             .AsNoTracking()
+                                             .AnyAsync(e => e.Id == examenId)
+                                             .ConfigureAwait(false);
+
+            if (!existeExamen)
+                return ServiceResult<ExamenIntentoDto?>.Fail("El examen libre no existe.");
+
+            return await ObtenerUltimoIntentoAsync(
+                    userId,
+                    query => query.Where(ie => ie.ExamenId == examenId),
+                    "No se encontraron intentos para el examen libre y usuario solicitados.")
+                .ConfigureAwait(false);
+        }
+
+        private async Task<ServiceResult<ExamenIntentoDto?>> ObtenerUltimoIntentoAsync(
+            string userId,
+            Func<IQueryable<ExamenIntento>, IQueryable<ExamenIntento>> filtroExamen,
+            string mensajeNoEncontrado)
+        {
+            var ultimo = await filtroExamen(
+                    _context.ExamenesIntentos
+                        .AsNoTracking()
+                        .Where(ie => ie.IdUsuario == userId))
+                .OrderByDescending(ie => ie.FechaIntento)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+
+            if (ultimo is null)
+                return ServiceResult<ExamenIntentoDto?>.Fail(mensajeNoEncontrado);
+
+            var ultimoDto = _mapper.Map<ExamenIntentoDto>(ultimo);
+            return ServiceResult<ExamenIntentoDto?>.Ok(ultimoDto);
+        }
+
+        private static (ExamenTipo tipo, int examenId) ObtenerReferenciaExamen(ExamenIntentoDto intentoDto)
+        {
+            if (intentoDto.ExamenSubModuloId is int examenSubModuloId)
+                return (ExamenTipo.SubModulo, examenSubModuloId);
+
+            if (intentoDto.ExamenModuloId is int examenModuloId)
+                return (ExamenTipo.Modulo, examenModuloId);
+
+            if (intentoDto.ExamenId is int examenId)
+                return (ExamenTipo.Libre, examenId);
+
+            throw new InvalidOperationException("El intento no referencia ningun examen.");
+        }
+
+        private IQueryable<ExamenIntento> CrearConsultaIntentosMismoExamen(string userId, ExamenTipo tipo, int examenId)
+        {
+            var query = _context.ExamenesIntentos
+                .AsNoTracking()
+                .Where(i => i.IdUsuario == userId);
+
+            return tipo switch
+            {
+                ExamenTipo.SubModulo => query.Where(i => i.ExamenSubModuloId == examenId),
+                ExamenTipo.Modulo => query.Where(i => i.ExamenModuloId == examenId),
+                ExamenTipo.Libre => query.Where(i => i.ExamenId == examenId),
+                _ => query.Where(_ => false)
+            };
+        }
+
+        private async Task<ExamenConfiguracion?> ObtenerConfiguracionExamenAsync(ExamenTipo tipo, int examenId)
+        {
+            if (examenId <= 0)
+                return null;
+
+            if (tipo == ExamenTipo.SubModulo)
+            {
+                return await _context.ExamenesSubModulo
+                    .AsNoTracking()
+                    .Where(e => e.Id == examenId)
+                    .Select(e => new ExamenConfiguracion(
+                        ExamenTipo.SubModulo,
+                        e.Id,
+                        e.NumeroPreguntas,
+                        e.PuntajeAprobacion,
+                        e.IntentosMaximos,
+                        e.TiempoLimiteSegundos))
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(false);
+            }
+
+            if (tipo == ExamenTipo.Modulo)
+            {
+                return await _context.ExamenesModulos
+                    .AsNoTracking()
+                    .Where(e => e.Id == examenId)
+                    .Select(e => new ExamenConfiguracion(
+                        ExamenTipo.Modulo,
+                        e.Id,
+                        e.NumeroPreguntas,
+                        e.PuntajeAprobacion,
+                        e.IntentosMaximos,
+                        e.TiempoLimiteSegundos))
+                    .FirstOrDefaultAsync()
+                    .ConfigureAwait(false);
+            }
+
+            return await _context.Examenes
+                .AsNoTracking()
+                .Where(e => e.Id == examenId)
+                .Select(e => new ExamenConfiguracion(
+                    ExamenTipo.Libre,
+                    e.Id,
+                    e.NumeroPreguntas,
+                    e.PuntajeAprobacion,
+                    int.MaxValue,
+                    null))
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+        }
+
+        private static bool EstaAprobado(int numeroAciertos, double porcentajeObtenido, int puntajeAprobacion, int numeroPreguntas)
+        {
+            if (puntajeAprobacion <= numeroPreguntas)
+                return numeroAciertos >= puntajeAprobacion;
+
+            return porcentajeObtenido >= puntajeAprobacion;
+        }
+
+        private sealed record ExamenConfiguracion(
+            ExamenTipo Tipo,
+            int ExamenId,
+            int NumeroPreguntas,
+            int PuntajeAprobacion,
+            int IntentosMaximos,
+            int? TiempoLimiteSegundos);
 
     }
 }

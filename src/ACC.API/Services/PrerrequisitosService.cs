@@ -1,4 +1,4 @@
-﻿using ACC.API.Interfaces;
+using ACC.API.Interfaces;
 using ACC.Data;
 using ACC.Data.Entities;
 using ACC.Shared.Enums;
@@ -31,11 +31,13 @@ public class PrerrequisitosService : IPrerrequisitosService
         if (cached.Found)
             return cached.Value;
 
-        var enabled = await _db.ExamenesHabilitados.AsNoTracking()
+        var legacyRefId = await ResolveLegacyRefIdAsync(examen);
+        var enabled = await _db.ExamenesHabilitados
+            .AsNoTracking()
             .AnyAsync(e =>
                 e.UsuarioId == userId &&
                 e.Tipo == examen.Tipo &&
-                e.RefId == examen.RefId &&
+                (e.RefId == examen.RefId || (legacyRefId > 0 && e.RefId == legacyRefId)) &&
                 e.Habilitado);
 
         await _cache.SetAsync(cacheKey, enabled, EstadoTtl);
@@ -44,42 +46,62 @@ public class PrerrequisitosService : IPrerrequisitosService
 
     public async Task EvaluarDesbloqueosPorProgresoAsync(string userId, int subTemaId)
     {
-        var subTema = await _db.SubTemas.AsNoTracking()
+        var subTema = await _db.SubTemas
+            .AsNoTracking()
             .Include(st => st.Tema)
             .FirstOrDefaultAsync(st => st.Id_SubTema == subTemaId);
 
-        if (subTema?.Tema is null) return;
+        if (subTema?.Tema is null)
+            return;
 
         var subModuloId = subTema.Tema.Id_SubModulo;
+        var examenSubModuloId = await ObtenerExamenSubModuloIdPorSubModuloAsync(subModuloId);
 
-        if (await SubmoduloCompletadoAsync(userId, subModuloId))
-            await UpsertHabilitacionAsync(userId, new ExamenRef(ExamenTipo.SubModulo, subModuloId),
+        if (examenSubModuloId > 0 && await SubmoduloCompletadoAsync(userId, subModuloId))
+        {
+            await UpsertHabilitacionAsync(
+                userId,
+                new ExamenRef(ExamenTipo.SubModulo, examenSubModuloId),
                 "ReglaA:TodosSubtemasCompletados");
+        }
     }
 
     public async Task EvaluarDesbloqueosPorAprobacionAsync(string userId, int examenSubModuloId)
     {
-        var examenSubM = await _db.ExamenesSubModulo.AsNoTracking()
+        var examenSubM = await _db.ExamenesSubModulo
+            .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == examenSubModuloId);
-        if (examenSubM is null) return;
+        if (examenSubM is null)
+            return;
 
         var moduloId = await _db.SubModulos
             .Where(sm => sm.Id_SubModulo == examenSubM.SubModuloId)
             .Select(sm => sm.Id_Modulo)
             .FirstOrDefaultAsync();
 
-        if (moduloId == default) return;
+        if (moduloId == default)
+            return;
 
-        if (await TodosExamenesSubModuloAprobadosAsync(userId, moduloId))
-            await UpsertHabilitacionAsync(userId, new ExamenRef(ExamenTipo.Modulo, moduloId),
+        var examenModuloId = await ObtenerExamenModuloIdPorModuloAsync(moduloId);
+        if (examenModuloId > 0 && await TodosExamenesSubModuloAprobadosAsync(userId, moduloId))
+        {
+            await UpsertHabilitacionAsync(
+                userId,
+                new ExamenRef(ExamenTipo.Modulo, examenModuloId),
                 "ReglaB:TodosSubModulosAprobados");
+        }
     }
 
     public async Task EvaluarDesbloqueoSubmoduloAsync(string userId, int subModuloId)
     {
-        if (await SubmoduloCompletadoAsync(userId, subModuloId))
-            await UpsertHabilitacionAsync(userId, new ExamenRef(ExamenTipo.SubModulo, subModuloId),
+        var examenSubModuloId = await ObtenerExamenSubModuloIdPorSubModuloAsync(subModuloId);
+        if (examenSubModuloId > 0 && await SubmoduloCompletadoAsync(userId, subModuloId))
+        {
+            await UpsertHabilitacionAsync(
+                userId,
+                new ExamenRef(ExamenTipo.SubModulo, examenSubModuloId),
                 "Compat:RecalculoSubmodulo");
+        }
     }
 
     private async Task<bool> SubmoduloCompletadoAsync(string userId, int subModuloId)
@@ -88,13 +110,15 @@ public class PrerrequisitosService : IPrerrequisitosService
             .Where(t => t.Id_SubModulo == subModuloId)
             .Select(t => t.Id_Tema)
             .ToListAsync();
-        if (temaIds.Count == 0) return false;
+        if (temaIds.Count == 0)
+            return false;
 
         var subTemaIds = await _db.SubTemas
             .Where(st => temaIds.Contains(st.Id_Tema))
             .Select(st => st.Id_SubTema)
             .ToListAsync();
-        if (subTemaIds.Count == 0) return false;
+        if (subTemaIds.Count == 0)
+            return false;
 
         var completados = await _db.ProgresoUsuarios
             .Where(p => p.UsuarioId == userId && p.Completado && subTemaIds.Contains(p.SubTemaId))
@@ -114,13 +138,15 @@ public class PrerrequisitosService : IPrerrequisitosService
             .Where(sm => sm.Id_Modulo == moduloId)
             .Select(sm => sm.Id_SubModulo)
             .ToListAsync();
-        if (subModuloIds.Count == 0) return false;
+        if (subModuloIds.Count == 0)
+            return false;
 
         var examenesSubMIds = await _db.ExamenesSubModulo
             .Where(e => subModuloIds.Contains(e.SubModuloId))
             .Select(e => e.Id)
             .ToListAsync();
-        if (examenesSubMIds.Count == 0) return false;
+        if (examenesSubMIds.Count == 0)
+            return false;
 
         var aprobadosPorExamen = await _db.ExamenesIntentos
             .Where(i => i.IdUsuario == userId && i.ExamenSubModuloId != null &&
@@ -144,8 +170,11 @@ public class PrerrequisitosService : IPrerrequisitosService
                 _logger.LogInformation("UPSERT start user={User} tipo={Tipo} ref={Ref} regla={Regla}",
                     userId, (int)examen.Tipo, examen.RefId, regla);
 
-                var row = await _db.ExamenesHabilitados
-                    .FirstOrDefaultAsync(e => e.UsuarioId == userId && e.Tipo == examen.Tipo && e.RefId == examen.RefId);
+                var legacyRefId = await ResolveLegacyRefIdAsync(examen);
+                var row = await _db.ExamenesHabilitados.FirstOrDefaultAsync(e =>
+                    e.UsuarioId == userId &&
+                    e.Tipo == examen.Tipo &&
+                    (e.RefId == examen.RefId || (legacyRefId > 0 && e.RefId == legacyRefId)));
 
                 if (row is null)
                 {
@@ -160,8 +189,9 @@ public class PrerrequisitosService : IPrerrequisitosService
                     };
                     _db.ExamenesHabilitados.Add(row);
                 }
-                else if (!row.Habilitado)
+                else
                 {
+                    row.RefId = examen.RefId;
                     row.Habilitado = true;
                     row.FechaHabilitacion = DateTimeOffset.UtcNow;
                     row.ReglaFuente = regla;
@@ -180,5 +210,37 @@ public class PrerrequisitosService : IPrerrequisitosService
                 throw;
             }
         });
+    }
+
+    private Task<int> ObtenerExamenSubModuloIdPorSubModuloAsync(int subModuloId)
+    {
+        return _db.ExamenesSubModulo
+            .Where(e => e.SubModuloId == subModuloId)
+            .Select(e => e.Id)
+            .FirstOrDefaultAsync();
+    }
+
+    private Task<int> ObtenerExamenModuloIdPorModuloAsync(int moduloId)
+    {
+        return _db.ExamenesModulos
+            .Where(e => e.ModuloId == moduloId)
+            .Select(e => e.Id)
+            .FirstOrDefaultAsync();
+    }
+
+    private async Task<int> ResolveLegacyRefIdAsync(ExamenRef examen)
+    {
+        return examen.Tipo switch
+        {
+            ExamenTipo.SubModulo => await _db.ExamenesSubModulo
+                .Where(e => e.Id == examen.RefId)
+                .Select(e => e.SubModuloId)
+                .FirstOrDefaultAsync(),
+            ExamenTipo.Modulo => await _db.ExamenesModulos
+                .Where(e => e.Id == examen.RefId)
+                .Select(e => e.ModuloId)
+                .FirstOrDefaultAsync(),
+            _ => 0
+        };
     }
 }
