@@ -13,6 +13,7 @@ public sealed class LeccionesAdminService : ILeccionesAdminService
 {
     private static readonly HashSet<string> AllowedTokens = new(StringComparer.OrdinalIgnoreCase)
     {
+        SeccionesContenido.Mermaid,
         SeccionesContenido.Teoria,
         SeccionesContenido.Practica,
         SeccionesContenido.Ejemplo,
@@ -139,6 +140,9 @@ public sealed class LeccionesAdminService : ILeccionesAdminService
         entity.TituloLeccion = dto.TituloLeccion.Trim();
         entity.DescripcionLeccion = dto.DescripcionLeccion.Trim();
         entity.SubtemaId = dto.SubtemaId;
+        entity.MermaidTitulo = NormalizeOptional(dto.MermaidTitulo);
+        entity.MermaidDescripcion = NormalizeOptional(dto.MermaidDescripcion);
+        entity.MermaidCodigo = NormalizeOptional(dto.MermaidCodigo);
         entity.Teoria = dto.Teoria ?? string.Empty;
         entity.Practica = dto.Practica ?? string.Empty;
         entity.Ejemplo = dto.Ejemplo ?? string.Empty;
@@ -162,6 +166,9 @@ public sealed class LeccionesAdminService : ILeccionesAdminService
             SubtemaId = entity.SubtemaId,
             TituloLeccion = entity.TituloLeccion,
             DescripcionLeccion = entity.DescripcionLeccion,
+            MermaidTitulo = entity.MermaidTitulo,
+            MermaidDescripcion = entity.MermaidDescripcion,
+            MermaidCodigo = entity.MermaidCodigo,
             Teoria = entity.Teoria,
             Practica = entity.Practica,
             Ejemplo = entity.Ejemplo,
@@ -223,6 +230,7 @@ public sealed class LeccionesAdminService : ILeccionesAdminService
         if (invalidToken is not null)
             return ServiceResult.Fail($"Token invalido en OrdenSecciones: {invalidToken}.");
 
+        bool hasMermaid = normalized.Contains(SeccionesContenido.Mermaid);
         bool hasTeoria = normalized.Contains(SeccionesContenido.Teoria);
         bool hasPractica = normalized.Contains(SeccionesContenido.Practica);
         bool hasEjemplo = normalized.Contains(SeccionesContenido.Ejemplo);
@@ -232,6 +240,8 @@ public sealed class LeccionesAdminService : ILeccionesAdminService
         bool hasCharpDialog = normalized.Contains(SeccionesContenido.CharpDialog);
         bool hasVideo = normalized.Contains(SeccionesContenido.Video);
 
+        if (hasMermaid && string.IsNullOrWhiteSpace(dto.MermaidCodigo))
+            return ServiceResult.Fail("Token 'mermaid' requiere contenido en MermaidCodigo.");
         if (hasTeoria && string.IsNullOrWhiteSpace(dto.Teoria))
             return ServiceResult.Fail("Token 'teoria' requiere contenido en Teoria.");
         if (hasPractica && string.IsNullOrWhiteSpace(dto.Practica))
@@ -264,6 +274,7 @@ public sealed class LeccionesAdminService : ILeccionesAdminService
         if (string.IsNullOrWhiteSpace(token))
             return string.Empty;
 
+        if (token.Equals(SeccionesContenido.Mermaid, StringComparison.OrdinalIgnoreCase)) return SeccionesContenido.Mermaid;
         if (token.Equals(SeccionesContenido.Teoria, StringComparison.OrdinalIgnoreCase)) return SeccionesContenido.Teoria;
         if (token.Equals(SeccionesContenido.Practica, StringComparison.OrdinalIgnoreCase)) return SeccionesContenido.Practica;
         if (token.Equals(SeccionesContenido.Ejemplo, StringComparison.OrdinalIgnoreCase)) return SeccionesContenido.Ejemplo;

@@ -8,9 +8,9 @@ namespace ACC.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CharpController(IChatbaseClient chatbaseClient) : ControllerBase
 {
-    [AllowAnonymous]
     [HttpGet("embed-url")]
     public ActionResult<ServiceResult<CharpEmbedConfigDto>> GetEmbedUrl()
     {
