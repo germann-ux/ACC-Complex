@@ -569,7 +569,19 @@ namespace ACC.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("NumeroAciertos")
+                        .HasColumnType("int");
+
                     b.Property<int>("NumeroIntento")
+                        .HasColumnType("int");
+
+                    b.Property<double>("PorcentajeObtenido")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("TiempoSegundos")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPreguntas")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -613,6 +625,9 @@ namespace ACC.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("IntentosMaximos")
+                        .HasColumnType("int");
+
                     b.Property<int>("ModuloId")
                         .HasColumnType("int");
 
@@ -624,6 +639,9 @@ namespace ACC.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("PuntajeAprobacion")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TiempoLimiteSegundos")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -649,6 +667,9 @@ namespace ACC.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("IntentosMaximos")
+                        .HasColumnType("int");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -660,6 +681,9 @@ namespace ACC.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SubModuloId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TiempoLimiteSegundos")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -767,6 +791,15 @@ namespace ACC.Data.Migrations
 
                     b.Property<string>("Ejemplo")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MermaidCodigo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MermaidDescripcion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MermaidTitulo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NivelBloom")

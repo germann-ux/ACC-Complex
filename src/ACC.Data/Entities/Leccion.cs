@@ -83,6 +83,21 @@ namespace ACC.Data.Entities
         public ICollection<Capitulo>? Capitulos { get; set; }
 
         /// <summary>
+        /// Titulo opcional del diagrama Mermaid asociado a la leccion.
+        /// </summary>
+        public string? MermaidTitulo { get; set; } = null;
+
+        /// <summary>
+        /// Descripcion opcional del diagrama Mermaid asociado a la leccion.
+        /// </summary>
+        public string? MermaidDescripcion { get; set; } = null;
+
+        /// <summary>
+        /// Codigo Mermaid que se renderiza dentro de la leccion.
+        /// </summary>
+        public string? MermaidCodigo { get; set; } = null;
+
+        /// <summary>
         /// Seccion teorica de las lecciones, en formato html
         /// </summary>
         public string Teoria { get; set; } = string.Empty;

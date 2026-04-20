@@ -43,7 +43,7 @@ public class ContenidoCapitulo
     public NivelContenido Nivel { get; set; } = NivelContenido.General;
 
     /// <summary>
-    /// Icono del contenido (clase FontAwesome u otro identificador visual)
+    /// Icono del contenido (clase FontAwesome)
     /// </summary>
     [MaxLength(100)]
     public string IconoBadge { get; set; } = "fas fa-file";

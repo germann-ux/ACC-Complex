@@ -30,6 +30,10 @@ namespace ACC.Data.Entities
         public bool Aprobado { get; set; }
         public DateTimeOffset FechaIntento { get; set; }
         public double Calificacion { get; set; }
+        public int NumeroAciertos { get; set; }
+        public int TotalPreguntas { get; set; }
+        public int? TiempoSegundos { get; set; }
+        public double PorcentajeObtenido { get; set; }
         public int NumeroIntento { get; set; }
     }
 }
