@@ -57,8 +57,8 @@ public class ResumenEvaluacionesTests
 
         var habilitaciones = new Dictionary<EvaluacionResumenKey, bool>
         {
-            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 100)] = true,
-            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 101)] = false
+            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 10)] = true,
+            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 11)] = false
         };
 
         var items = ResumenEvaluacionesModelo.Construir(
@@ -67,8 +67,8 @@ public class ResumenEvaluacionesTests
             intentosUsuario: [],
             habilitacionesPorEvaluacion: habilitaciones);
 
-        var pendiente = items.Single(i => i.Key.RefId == 100);
-        var bloqueado = items.Single(i => i.Key.RefId == 101);
+        var pendiente = items.Single(i => i.Key.RefId == 10);
+        var bloqueado = items.Single(i => i.Key.RefId == 11);
 
         Assert.Equal(EstadoEvaluacionResumen.Pendiente, pendiente.Estado);
         Assert.Equal(EstadoEvaluacionResumen.Bloqueado, bloqueado.Estado);
@@ -84,7 +84,7 @@ public class ResumenEvaluacionesTests
 
         var habilitaciones = new Dictionary<EvaluacionResumenKey, bool>
         {
-            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 200)] = true
+            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 20)] = true
         };
 
         var fecha = new DateTimeOffset(2026, 02, 18, 10, 0, 0, TimeSpan.Zero);
@@ -112,7 +112,7 @@ public class ResumenEvaluacionesTests
 
         var habilitaciones = new Dictionary<EvaluacionResumenKey, bool>
         {
-            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 300)] = true
+            [new EvaluacionResumenKey(ExamenTipo.SubModulo, 30)] = true
         };
 
         var fecha = new DateTimeOffset(2026, 02, 18, 10, 0, 0, TimeSpan.Zero);
