@@ -1,4 +1,6 @@
-﻿namespace ACC.Shared.Interfaces
+using ACC.Shared.DTOs;
+
+namespace ACC.Shared.Interfaces
 {
     public interface IProgresoUsuarioService
     {
@@ -26,6 +28,8 @@
         /// <param name="subTemaId">ID del subtema.</param>
         /// <param name="usuarioId">ID del usuario.</param>
         Task<bool> EstaSubtemaCompletadoAsync(string usuarioId, int subTemaId);
+
+        Task<GuiaResumenDto> ObtenerResumenGuiaAsync(string usuarioId);
 
         Task<bool> ExamenHabilitadoAsync(string userId, ExamenRef examen);
         Task<bool> ExamenSubModuloHabilitadoAsync(string userId, int subModuloId);
