@@ -14,7 +14,7 @@ BEGIN TRY
 
     DECLARE @SubtemaId INT;
 
-    -- 1) Resolver el subtema objetivo con variantes de texto
+    -- Resolver el subtema objetivo con variantes de texto.
     SELECT TOP (1) @SubtemaId = st.Id_SubTema
     FROM acc_academic.SubTemas st
     WHERE st.NombreSubTema IN
@@ -31,7 +31,6 @@ BEGIN TRY
         THROW 51001, 'No se encontró el SubTema objetivo para la lección.', 1;
     END;
 
-    -- 2) Evitar duplicado exacto para este subtema
     IF EXISTS
     (
         SELECT 1
@@ -43,10 +42,9 @@ BEGIN TRY
         THROW 51002, 'Ya existe una lección con ese título para el SubTema objetivo.', 1;
     END;
 
-    -- 3) Declarar payload de lección
     DECLARE @TituloLeccion NVARCHAR(100) = N'¿Qué es el diseño de software?';
     DECLARE @DescripcionLeccion NVARCHAR(500) =
-        N'Explica el concepto de diseño de software, su papel dentro del ciclo de vida y su propósito para organizar decisiones técnicas antes de la implementación.';
+        N'Introduce qué es el diseño de software, en qué momento del desarrollo aparece y por qué ayuda a organizar un programa antes de escribir código.';
 
     DECLARE @NivelBloom NVARCHAR(20) = N'Comprender';
     DECLARE @OrdenSecciones NVARCHAR(MAX) = N'["charpDialog","video","teoria","ejemplo","practica","actividad","charpTip"]';
@@ -56,72 +54,77 @@ BEGIN TRY
 
     DECLARE @TieneCompilador BIT = 0;
 
-    DECLARE @TieneVideo BIT = 1;
+    DECLARE @TieneVideo BIT = 0;
     DECLARE @VideoId NVARCHAR(MAX) = N'VIDEO_ID_PENDIENTE_DISENO_001';
 
     DECLARE @Teoria NVARCHAR(MAX) = N'
 <div class="leccion-teoria">
-    <h3>Concepto y propósito del diseño de software</h3>
-    <p>El diseño de software define cómo se organizará una solución antes de escribir código. Establece estructura, responsabilidades y relaciones entre componentes para que el sistema sea comprensible y mantenible.</p>
-    <img src="https://placehold.co/1200x675?text=Diseno+de+software+%28imagen+pendiente%29" alt="Representación visual del diseño de software (pendiente)">
+    <h3>Una idea sencilla</h3>
+    <p>El diseño de software es la parte en la que decides cómo se va a organizar un programa antes de empezar a programarlo.</p>
+    <p>Sirve para pensar con orden qué partes tendrá el sistema, qué hará cada una y cómo trabajarán juntas.</p>
+    <img src="https://www.aicad.es/arquitectura-de-software" alt="Organización previa de un programa (pendiente)">
 
     <div class="alert alert-info">
         <p class="alert-title">Idea clave</p>
-        <p>Diseñar no es producir documentación decorativa: es tomar decisiones técnicas que reducen errores de implementación y facilitan cambios futuros.</p>
+        <p>Diseñar no es decorar documentos. Diseñar es tomar decisiones para que el programa tenga orden antes de escribir código.</p>
     </div>
 
-    <h3>Papel en el ciclo de vida</h3>
-    <p>En el ciclo de vida, el diseño conecta el análisis de requisitos con la implementación. Traduce necesidades del problema a una arquitectura que guía el desarrollo.</p>
+    <div class="fomentador">
+        <p>Si quieres profundizar más en qué es el diseño de software, puedes ver contenido más detallado en el capítulo sobre este tema haciendo clic <a href="Capitulo/Contenido/ID_CONTENIDO_PENDIENTE_DISENO_SOFTWARE">aquí</a>.</p>
+    </div>
+
+    <h3>¿Cuándo aparece?</h3>
+    <p>En el desarrollo, primero entiendes qué problema se quiere resolver. Después organizas el programa. Luego lo programas y al final lo pruebas.</p>
     <ul>
-        <li>Análisis: identifica necesidades y reglas del problema.</li>
-        <li>Diseño: define estructura, componentes y flujo de interacción.</li>
-        <li>Implementación: construye el código según las decisiones de diseño.</li>
-        <li>Pruebas y mantenimiento: valida y ajusta el sistema a nuevos cambios.</li>
+        <li><strong>Entender el problema:</strong> saber qué necesita el usuario.</li>
+        <li><strong>Diseñar:</strong> decidir cómo se organizará el programa.</li>
+        <li><strong>Programar:</strong> escribir el código.</li>
+        <li><strong>Probar:</strong> revisar si el resultado funciona como se esperaba.</li>
     </ul>
+
+    <h3>¿Para qué sirve?</h3>
+    <p>Sirve para evitar desorden, reducir errores y hacer más claro el trabajo antes de construir el sistema.</p>
 </div>';
 
     DECLARE @Ejemplo NVARCHAR(MAX) = N'
 <div class="leccion-ejemplos">
-    <h3>Ejemplo comparativo</h3>
+    <h3>Ejemplo: sistema de biblioteca</h3>
+    <p>Imagina un sistema para registrar libros, préstamos y devoluciones.</p>
 
     <div class="alert alert-error">
         <p class="alert-title">Sin diseño previo</p>
-        <p>Todo se concentra en una sola clase con métodos extensos. Al agregar una nueva regla de negocio, aparecen efectos colaterales y aumenta el tiempo de corrección.</p>
+        <p>Se empieza a programar de inmediato. Todo queda mezclado y después cuesta entender dónde registrar libros, dónde prestar y dónde devolver.</p>
     </div>
 
     <div class="alert alert-success">
         <p class="alert-title">Con diseño previo</p>
-        <p>Se separan responsabilidades por módulos: usuarios, préstamos y catálogo. Los cambios se implementan en el componente correcto sin afectar funciones no relacionadas.</p>
+        <p>Primero se decide que habrá una parte para libros, otra para préstamos y otra para devoluciones. Después programar resulta más claro.</p>
     </div>
 
-    <img src="https://placehold.co/1200x675?text=Arquitectura+modular+%28imagen+pendiente%29" alt="Esquema modular de ejemplo (pendiente)">
-
-    <p>La diferencia no está en escribir más código, sino en decidir mejor la estructura antes de implementarlo.</p>
+    <p>La diferencia está en que antes de escribir código ya sabes cómo se va a ordenar el programa.</p>
 </div>';
 
     DECLARE @Practica NVARCHAR(MAX) = N'
 <div class="leccion-practicas">
     <h3>Práctica guiada</h3>
-    <p>Caso: sistema de biblioteca escolar para registrar libros, préstamos y devoluciones.</p>
+    <p>Caso: vas a crear un sistema escolar que permita registrar alumnos, materias y calificaciones.</p>
     <ol>
-        <li>Identifica tres responsabilidades principales del sistema.</li>
-        <li>Propón tres componentes o módulos para cubrir esas responsabilidades.</li>
-        <li>Describe un riesgo técnico de implementar sin diseño previo.</li>
+        <li>Escribe tres partes que debería tener ese sistema.</li>
+        <li>Explica qué haría cada parte con una frase breve.</li>
+        <li>Describe un problema que podría aparecer si programas todo sin organizarlo antes.</li>
     </ol>
 
     <div class="alert alert-success">
         <p class="alert-title">Criterio de logro</p>
-        <p>La respuesta es adecuada si diferencia responsabilidades, propone una estructura coherente y justifica un riesgo real de mantenimiento o escalabilidad.</p>
+        <p>La respuesta es adecuada si separa funciones del sistema, explica para qué sirve cada una y reconoce un problema real de trabajar sin orden previo.</p>
     </div>
 </div>';
 
-    -- Reglas ACC: sin wrapper raíz para charpTip/charpDialog
-    DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Si una decisión afecta estructura, responsabilidades o escalabilidad, es una decisión de diseño y conviene definirla antes de codificar.</p>';
+    DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Si antes de programar ya puedes explicar qué partes tendrá tu sistema y qué hará cada una, ya estás diseñando.</p>';
 
-    DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a ubicar el diseño de software dentro del proceso completo de desarrollo.</p>
-<p>La meta es distinguir qué decisiones se toman en diseño y por qué esas decisiones impactan la calidad del código que se implementa después.</p>';
+    DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a entender qué significa diseñar software dentro del proceso de desarrollo.</p>
+<p>La meta es que distingas el momento en que se organiza el programa antes de escribir código.</p>';
 
-    -- 4) Validaciones de contrato técnico/pedagógico
     IF @NivelBloom NOT IN (N'Recordar', N'Comprender', N'Aplicar', N'Analizar', N'Evaluar', N'Crear')
     BEGIN
         THROW 51003, 'NivelBloom inválido para el contrato ACC.', 1;
@@ -214,7 +217,6 @@ BEGIN TRY
     IF @SecVideo = 0 AND (@TieneVideo = 1 OR NULLIF(LTRIM(RTRIM(ISNULL(@VideoId, N''))), N'') IS NOT NULL)
         THROW 51019, 'Sin sección video, TieneVideo debe ser 0 y VideoId debe estar limpio.', 1;
 
-    -- 5) Inserción
     INSERT INTO acc_academic.Lecciones
     (
         TituloLeccion,

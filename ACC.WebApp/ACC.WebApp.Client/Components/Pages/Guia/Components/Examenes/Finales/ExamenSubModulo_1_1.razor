@@ -1,0 +1,227 @@
+@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual
+@using ACC.WebApp.Client.Services
+@inject ExamenesServiceClient ExamenesService
+
+<ManualExamShell Title="@Examen.Nombre"
+                 Description="@Examen.Descripcion"
+                 ExamType="ExamenTipo.SubModulo"
+                 ExamRefId="@Examen.Id"
+                 Questions="@Preguntas"
+                 PassingScore="@Examen.PuntajeAprobacion"
+                 ExpectedQuestionCount="@Examen.NumeroPreguntas"
+                 TimeLimitSeconds="@Examen.TiempoLimiteSegundos"
+                 CanSubmit="@Estado.PuedePresentar"
+                 BlockReason="@ManualExamSupport.GetBlockReason(Estado)"
+                 OnSubmitAttempt="RegistrarIntentoAsync" />
+
+@code {
+    [Parameter, EditorRequired] public ExamenSubModuloDto Examen { get; set; } = default!;
+    [Parameter, EditorRequired] public ExamenEstadoDto Estado { get; set; } = default!;
+    [Parameter] public EventCallback<ExamenEstadoDto> OnEstadoActualizado { get; set; }
+
+    private IReadOnlyList<ManualExamQuestion> Preguntas => bancoPreguntas;
+
+    private readonly IReadOnlyList<ManualExamQuestion> bancoPreguntas =
+    [
+        ManualExamSupport.CreateQuestion("sm11_q1", "Cual es el objetivo principal del diseno de software?", "b",
+            [("a", "Implementar directamente el sistema"), ("b", "Definir la estructura y funcionamiento del sistema antes de programarlo"), ("c", "Disenar unicamente la interfaz grafica"), ("d", "Documentar el codigo terminado")],
+            "Parte I - Fundamentos del diseno de software",
+            "El diseno traduce los requisitos en una estructura tecnica antes de programar."),
+        ManualExamSupport.CreateQuestion("sm11_q2", "En que etapa del ciclo de vida se ubica normalmente el diseno de software?", "b",
+            [("a", "Despues de la implementacion"), ("b", "Entre el analisis de requisitos y la implementacion"), ("c", "Despues del despliegue"), ("d", "Durante las pruebas")],
+            "Parte I - Fundamentos del diseno de software",
+            "El diseno toma los requisitos analizados y prepara la solucion para su implementacion."),
+        ManualExamSupport.CreateQuestion("sm11_q3", "Que caracteristica describe mejor un buen diseno de software?", "b",
+            [("a", "Gran cantidad de codigo"), ("b", "Bajo acoplamiento y alta cohesion"), ("c", "Interfaces complejas"), ("d", "Dependencias multiples entre modulos")],
+            "Parte I - Fundamentos del diseno de software",
+            "Un buen diseno busca modulos enfocados y poco dependientes entre si."),
+        ManualExamSupport.CreateQuestion("sm11_q4", "Cual es una consecuencia comun de un mal diseno de software?", "c",
+            [("a", "Mejor rendimiento"), ("b", "Mayor facilidad de mantenimiento"), ("c", "Sistemas dificiles de modificar y escalar"), ("d", "Reduccion de errores")],
+            "Parte I - Fundamentos del diseno de software",
+            "Cuando la estructura es deficiente, cada cambio suele impactar varias partes del sistema."),
+
+        ManualExamSupport.CreateQuestion("sm11_q5", "Que caracteriza a la metodologia Cascada?", "b",
+            [("a", "Desarrollo iterativo"), ("b", "Desarrollo secuencial por fases"), ("c", "Cambios constantes en requisitos"), ("d", "Entregas semanales")],
+            "Parte II - Metodologias de desarrollo",
+            "Cascada organiza el proyecto en etapas consecutivas con poco solapamiento."),
+        ManualExamSupport.CreateQuestion("sm11_q6", "Que propone el Manifiesto Agil?", "b",
+            [("a", "Documentacion exhaustiva antes de programar"), ("b", "Adaptacion continua y colaboracion con el cliente"), ("c", "Evitar cambios en requisitos"), ("d", "Proyectos completamente rigidos")],
+            "Parte II - Metodologias de desarrollo",
+            "Agil prioriza respuesta al cambio, colaboracion y entregas frecuentes."),
+        ManualExamSupport.CreateQuestion("sm11_q7", "En Scrum, que es un Sprint?", "b",
+            [("a", "Un tipo de diagrama"), ("b", "Un ciclo corto de desarrollo con objetivos definidos"), ("c", "Un lenguaje de programacion"), ("d", "Un sistema de base de datos")],
+            "Parte II - Metodologias de desarrollo",
+            "El Sprint es una iteracion breve con un objetivo de entrega concreto."),
+        ManualExamSupport.CreateQuestion("sm11_q8", "Cual herramienta se utiliza comunmente para gestionar tareas en metodologias agiles?", "b",
+            [("a", "Photoshop"), ("b", "Trello"), ("c", "MySQL"), ("d", "GCC")],
+            "Parte II - Metodologias de desarrollo",
+            "Trello es una herramienta popular para tableros de tareas y seguimiento visual."),
+
+        ManualExamSupport.CreateQuestion("sm11_q9", "Cual es el proposito principal del modelado funcional?", "b",
+            [("a", "Disenar interfaces"), ("b", "Representar como fluye la informacion dentro del sistema"), ("c", "Escribir codigo"), ("d", "Crear bases de datos")],
+            "Parte III - Modelado funcional",
+            "El modelado funcional describe procesos, entradas, salidas y transformaciones de datos."),
+        ManualExamSupport.CreateQuestion("sm11_q10", "Que elemento es fundamental en un diagrama Entidad-Relacion?", "b",
+            [("a", "Metodos"), ("b", "Entidades y relaciones"), ("c", "Eventos"), ("d", "Procesos")],
+            "Parte III - Modelado funcional",
+            "Un diagrama E-R se construye a partir de entidades y las relaciones entre ellas."),
+        ManualExamSupport.CreateQuestion("sm11_q11", "En un diagrama E-R, que representa una relacion 1:N?", "b",
+            [("a", "Una entidad con un atributo"), ("b", "Una entidad relacionada con muchas instancias de otra"), ("c", "Dos entidades independientes"), ("d", "Dos entidades con el mismo atributo")],
+            "Parte III - Modelado funcional",
+            "La cardinalidad 1:N indica que una instancia puede vincularse con muchas de la otra entidad."),
+        ManualExamSupport.CreateQuestion("sm11_q12", "En un diagrama E-P-S, que representa el proceso?", "b",
+            [("a", "Un usuario"), ("b", "La transformacion de datos"), ("c", "Una base de datos"), ("d", "Un dispositivo")],
+            "Parte III - Modelado funcional",
+            "El proceso toma entradas y las transforma para producir salidas."),
+        ManualExamSupport.CreateQuestion("sm11_q13", "Cual es el objetivo de un DFD?", "b",
+            [("a", "Modelar estructura de clases"), ("b", "Mostrar el flujo de datos en un sistema"), ("c", "Representar algoritmos"), ("d", "Disenar interfaces")],
+            "Parte III - Modelado funcional",
+            "El DFD se centra en como circulan los datos entre procesos, almacenes y actores."),
+
+        ManualExamSupport.CreateQuestion("sm11_q14", "Que simbolo representa el inicio o fin en un diagrama de flujo?", "b",
+            [("a", "Rombo"), ("b", "Ovalo"), ("c", "Rectangulo"), ("d", "Flecha")],
+            "Parte IV - Diagramas de flujo",
+            "El ovalo o terminador indica el punto de inicio o fin del flujo."),
+        ManualExamSupport.CreateQuestion("sm11_q15", "Cual simbolo representa una operacion o proceso?", "a",
+            [("a", "Rectangulo"), ("b", "Rombo"), ("c", "Ovalo"), ("d", "Conector")],
+            "Parte IV - Diagramas de flujo",
+            "El rectangulo se usa para acciones o procesos dentro del algoritmo."),
+        ManualExamSupport.CreateQuestion("sm11_q16", "Un diagrama de flujo con multiples caminos sin condiciones claras presenta:", "b",
+            [("a", "Alta cohesion"), ("b", "Ambiguedad logica"), ("c", "Buen diseno"), ("d", "Modularidad")],
+            "Parte IV - Diagramas de flujo",
+            "Sin condiciones claras, el flujo se vuelve confuso y dificil de interpretar."),
+
+        ManualExamSupport.CreateQuestion("sm11_q17", "UML significa:", "a",
+            [("a", "Unified Modeling Language"), ("b", "Universal Modeling Logic"), ("c", "Unified Machine Layer"), ("d", "User Model Language")],
+            "Parte V - UML",
+            "UML es el lenguaje unificado de modelado para describir sistemas de software."),
+        ManualExamSupport.CreateQuestion("sm11_q18", "Cual es un diagrama estructural de UML?", "a",
+            [("a", "Diagrama de clases"), ("b", "Diagrama de secuencia"), ("c", "Diagrama de actividades"), ("d", "Diagrama de estados")],
+            "Parte V - UML",
+            "El diagrama de clases describe la estructura estatica del sistema."),
+        ManualExamSupport.CreateQuestion("sm11_q19", "Que representa un diagrama de casos de uso?", "b",
+            [("a", "Relaciones entre clases"), ("b", "Interacciones entre actores y el sistema"), ("c", "Estructura de la base de datos"), ("d", "Flujo de ejecucion de un algoritmo")],
+            "Parte V - UML",
+            "Los casos de uso muestran que hacen los usuarios con el sistema y no la implementacion interna."),
+
+        ManualExamSupport.CreateQuestion("sm11_q20", "Que es un actor en un caso de uso?", "b",
+            [("a", "Una clase interna del sistema"), ("b", "Un usuario o sistema externo que interactua con el sistema"), ("c", "Un proceso del sistema"), ("d", "Un metodo")],
+            "Parte VI - Casos de uso",
+            "El actor es la entidad externa que participa en la interaccion con el sistema."),
+        ManualExamSupport.CreateQuestion("sm11_q21", "Cual seria un ejemplo correcto de caso de uso?", "b",
+            [("a", "Base de datos"), ("b", "Cliente realiza pedido"), ("c", "Tabla productos"), ("d", "Controlador")],
+            "Parte VI - Casos de uso",
+            "Un caso de uso expresa una accion u objetivo del actor, no un componente tecnico."),
+
+        ManualExamSupport.CreateQuestion("sm11_q22", "En UML, el simbolo + indica:", "b",
+            [("a", "Metodo privado"), ("b", "Metodo publico"), ("c", "Metodo protegido"), ("d", "Metodo estatico")],
+            "Parte VII - Diagramas de clases",
+            "En UML, + representa visibilidad publica."),
+        ManualExamSupport.CreateQuestion("sm11_q23", "Que relacion UML representa la herencia?", "b",
+            [("a", "Asociacion"), ("b", "Generalizacion"), ("c", "Dependencia"), ("d", "Composicion")],
+            "Parte VII - Diagramas de clases",
+            "La generalizacion expresa que una clase deriva de otra."),
+        ManualExamSupport.CreateQuestion("sm11_q24", "Que significa composicion en UML?", "b",
+            [("a", "Relacion debil"), ("b", "Relacion donde un objeto depende completamente de otro"), ("c", "Relacion opcional"), ("d", "Relacion temporal")],
+            "Parte VII - Diagramas de clases",
+            "En composicion, la parte no tiene sentido de vida fuera del todo."),
+
+        ManualExamSupport.CreateQuestion("sm11_q25", "Que describe una arquitectura de software?", "b",
+            [("a", "El diseno visual de la interfaz"), ("b", "La estructura de alto nivel del sistema"), ("c", "El codigo del sistema"), ("d", "El hardware utilizado")],
+            "Parte VIII - Arquitectura de software",
+            "La arquitectura define capas, componentes y responsabilidades globales del sistema."),
+        ManualExamSupport.CreateQuestion("sm11_q26", "Que capa se encarga de la logica del negocio?", "b",
+            [("a", "Presentacion"), ("b", "Logica"), ("c", "Datos"), ("d", "Interfaz")],
+            "Parte VIII - Arquitectura de software",
+            "La capa de logica coordina reglas de negocio y procesos centrales."),
+        ManualExamSupport.CreateQuestion("sm11_q27", "Cual patron separa Modelo, Vista y Controlador?", "b",
+            [("a", "MVVM"), ("b", "MVC"), ("c", "Singleton"), ("d", "Observer")],
+            "Parte VIII - Arquitectura de software",
+            "MVC divide responsabilidades entre datos, interfaz y control del flujo."),
+
+        ManualExamSupport.CreateQuestion("sm11_q28", "Que es un algoritmo?", "b",
+            [("a", "Un programa ejecutable"), ("b", "Un conjunto finito de pasos para resolver un problema"), ("c", "Un diagrama UML"), ("d", "Un compilador")],
+            "Parte IX - Diseno logico y algoritmos",
+            "Un algoritmo describe pasos ordenados y finitos para resolver una tarea."),
+        ManualExamSupport.CreateQuestion(
+            "sm11_q29",
+            "Cual sera el valor final de suma?",
+            "b",
+            [("a", "8"), ("b", "10"), ("c", "12"), ("d", "4")],
+            "Parte IX - Diseno logico y algoritmos",
+            "El ciclo suma 1 + 2 + 3 + 4, por eso el resultado final es 10.",
+            [
+                ManualExamSupport.Paragraph("Observa el siguiente pseudocodigo:"),
+                ManualExamSupport.Code(
+@"suma <- 0
+para i <- 1 hasta 4
+   suma <- suma + i
+fin para",
+                    "Pseudocodigo"),
+                ManualExamSupport.Paragraph("Con base en ese flujo, determina el valor final de la variable suma.")
+            ]),
+        ManualExamSupport.CreateQuestion("sm11_q30", "Cual es la ventaja principal del pseudocodigo?", "b",
+            [("a", "Ejecutar programas"), ("b", "Representar algoritmos de forma comprensible"), ("c", "Compilar programas"), ("d", "Crear interfaces")],
+            "Parte IX - Diseno logico y algoritmos",
+            "El pseudocodigo permite explicar la logica sin depender de la sintaxis de un lenguaje real."),
+
+        ManualExamSupport.CreateQuestion("sm11_q31", "Que estructura se usa para decisiones multiples?", "b",
+            [("a", "if"), ("b", "switch"), ("c", "while"), ("d", "break")],
+            "Parte X - Estructuras de control",
+            "switch es apropiado cuando hay varias ramas mutuamente excluyentes."),
+        ManualExamSupport.CreateQuestion("sm11_q32", "Que ocurre si un ciclo carece de condicion de salida?", "b",
+            [("a", "Se detiene el programa"), ("b", "Se produce un ciclo infinito"), ("c", "Se compila automaticamente"), ("d", "Se ignora la condicion")],
+            "Parte X - Estructuras de control",
+            "Sin una condicion que termine la repeticion, el ciclo puede ejecutarse indefinidamente."),
+
+        ManualExamSupport.CreateQuestion("sm11_q33", "Que significa bajo acoplamiento?", "b",
+            [("a", "Los modulos dependen fuertemente entre si"), ("b", "Los modulos son independientes"), ("c", "Los modulos comparten codigo"), ("d", "Los modulos no se comunican")],
+            "Parte XI - Modularidad",
+            "Bajo acoplamiento significa que los modulos se afectan lo menos posible entre si."),
+        ManualExamSupport.CreateQuestion("sm11_q34", "Cual es un beneficio de la modularidad?", "b",
+            [("a", "Sistemas mas dificiles de mantener"), ("b", "Mejor escalabilidad y mantenimiento"), ("c", "Mayor dependencia entre modulos"), ("d", "Codigo duplicado")],
+            "Parte XI - Modularidad",
+            "Separar el sistema en modulos mejora evolucion, pruebas y mantenimiento."),
+
+        ManualExamSupport.CreateQuestion("sm11_q35", "Que es un mockup?", "b",
+            [("a", "Un programa ejecutable"), ("b", "Un diseno visual preliminar de una interfaz"), ("c", "Un algoritmo"), ("d", "Un sistema operativo")],
+            "Parte XII - Interfaces preliminares",
+            "Un mockup anticipa la apariencia de la interfaz antes de la implementacion final."),
+
+        ManualExamSupport.CreateQuestion("sm11_q36", "Que herramienta esta especializada en diagramas UML?", "a",
+            [("a", "StarUML"), ("b", "Excel"), ("c", "Photoshop"), ("d", "Blender")],
+            "Parte XIII - Herramientas de modelado",
+            "StarUML esta orientada especificamente al modelado UML."),
+
+        ManualExamSupport.CreateQuestion("sm11_q37", "Que busca la validacion del diseno?", "b",
+            [("a", "Eliminar codigo"), ("b", "Detectar problemas antes de la implementacion"), ("c", "Aumentar el tamano del sistema"), ("d", "Reducir documentacion")],
+            "Parte XIV - Validacion del diseno",
+            "Validar el diseno reduce errores costosos antes de escribir codigo definitivo."),
+
+        ManualExamSupport.CreateQuestion("sm11_q38", "Que es la refactorizacion?", "b",
+            [("a", "Cambiar la funcionalidad del sistema"), ("b", "Mejorar el diseno sin cambiar su comportamiento"), ("c", "Eliminar modulos"), ("d", "Crear nuevas funcionalidades")],
+            "Parte XV - Refactorizacion",
+            "Refactorizar mejora claridad y estructura manteniendo el mismo comportamiento observable."),
+
+        ManualExamSupport.CreateQuestion("sm11_q39", "Un modulo llamado SistemaGeneral controla usuarios, pagos, inventario y reportes. Que problema de diseno presenta?", "b",
+            [("a", "Alta cohesion"), ("b", "Baja cohesion"), ("c", "Bajo acoplamiento"), ("d", "Modularidad")],
+            "Parte XVI - Analisis de diseno",
+            "Ese modulo concentra demasiadas responsabilidades y por eso tiene baja cohesion."),
+        ManualExamSupport.CreateQuestion("sm11_q40", "Un sistema pequeno de inventario para una tienda local necesita una arquitectura simple y mantenible. Cual seria la opcion mas adecuada?", "b",
+            [("a", "Microservicios distribuidos"), ("b", "Arquitectura monolitica en capas"), ("c", "Arquitectura orientada a eventos"), ("d", "Arquitectura peer-to-peer")],
+            "Parte XVI - Analisis de diseno",
+            "Para un sistema pequeno, una arquitectura monolitica en capas suele ser suficiente y mas simple de mantener.")
+    ];
+
+    private async Task<ManualExamSubmissionOutcome> RegistrarIntentoAsync(ManualExamSubmission submission)
+    {
+        return await ManualExamSupport.RegisterSubModuloAttemptAsync(
+            ExamenesService,
+            Examen,
+            submission,
+            estadoActualizado => OnEstadoActualizado.InvokeAsync(estadoActualizado),
+            "Tu intento del examen final del submodulo 1.1 fue registrado.");
+    }
+}

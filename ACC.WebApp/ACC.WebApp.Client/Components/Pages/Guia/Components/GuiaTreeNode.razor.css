@@ -1,0 +1,97 @@
+.guia-tree-node {
+    display: grid;
+    gap: 8px;
+}
+
+.guia-tree-node__button {
+    width: 100%;
+    min-height: 40px;
+    padding: 0.62rem 0.72rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--acc-text-muted);
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.guia-tree-node__button:hover {
+    color: var(--acc-text);
+    background: color-mix(in srgb, var(--acc-text) 4%, transparent);
+}
+
+.guia-tree-node__button:focus-visible {
+    outline: none;
+    box-shadow: var(--acc-focus);
+}
+
+.guia-tree-node__button--root {
+    font-weight: 800;
+    color: var(--acc-text);
+}
+
+.guia-tree-node__button--active {
+    color: var(--acc-text);
+    border-color: color-mix(in srgb, var(--acc-brand-600) 38%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 8%, var(--acc-bg-3));
+}
+
+.guia-tree-node__button--path {
+    color: var(--acc-text);
+}
+
+.guia-tree-node__bullet {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--acc-border) 80%, white 10%);
+}
+
+.guia-tree-node__button--active .guia-tree-node__bullet,
+.guia-tree-node__button--path .guia-tree-node__bullet {
+    background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-blue-700));
+}
+
+.guia-tree-node__button--completed .guia-tree-node__bullet {
+    background: var(--acc-success-500);
+}
+
+.guia-tree-node__label {
+    min-width: 0;
+    font-size: 0.94rem;
+    line-height: 1.4;
+}
+
+.guia-tree-node__done {
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+    font-size: 0.9rem;
+    margin-left: auto;
+}
+
+.guia-tree-node__chevron {
+    margin-left: auto;
+    color: var(--acc-text-muted);
+    font-size: 0.78rem;
+    transition: transform 0.22s ease;
+}
+
+.guia-tree-node__button--completed .guia-tree-node__chevron {
+    margin-left: 0;
+}
+
+.guia-tree-node__button--expanded .guia-tree-node__chevron {
+    transform: rotate(90deg);
+}
+
+.guia-tree-node__children {
+    margin-left: 18px;
+    padding-left: 12px;
+    border-left: 1px solid color-mix(in srgb, var(--acc-border) 74%, transparent);
+    display: grid;
+    gap: 8px;
+}

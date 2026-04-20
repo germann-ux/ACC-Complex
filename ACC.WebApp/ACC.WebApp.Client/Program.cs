@@ -12,6 +12,8 @@ builder.Services.AddScoped(sp =>
     new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddScoped<BibliotecaClientService>();
+builder.Services.AddScoped<ExamenesServiceClient>();
+builder.Services.AddScoped<ManualExamResultStore>();
 builder.Services.AddScoped<NavegacionContenidoClient>();
 builder.Services.AddScoped<ProgresoUsuarioClient>();
 builder.Services.AddScoped<TareasAulaClient>();

@@ -1,0 +1,51 @@
+@using ACC.Shared.DTOs
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual
+@using ACC.WebApp.Client.Services
+@inject ExamenesServiceClient ExamenesService
+
+<ManualExamShell Title="@Examen.Nombre"
+                 Description="@Examen.Descripcion"
+                 ExamType="ACC.Shared.Enums.ExamenTipo.Modulo"
+                 ExamRefId="@Examen.Id"
+                 Questions="@Preguntas"
+                 PassingScore="@Examen.PuntajeAprobacion"
+                 ExpectedQuestionCount="@Examen.NumeroPreguntas"
+                 TimeLimitSeconds="@Examen.TiempoLimiteSegundos"
+                 CanSubmit="@Estado.PuedePresentar"
+                 BlockReason="@ObtenerRazonBloqueo()"
+                 OnSubmitAttempt="RegistrarIntentoAsync" />
+
+@code {
+    [Parameter, EditorRequired] public ExamenModuloDto Examen { get; set; } = default!;
+    [Parameter, EditorRequired] public ExamenEstadoDto Estado { get; set; } = default!;
+    [Parameter] public EventCallback<ExamenEstadoDto> OnEstadoActualizado { get; set; }
+
+    private IReadOnlyList<ManualExamQuestion> Preguntas
+        => bancoPreguntas.Take(Examen.NumeroPreguntas).ToList();
+
+    private readonly List<ManualExamQuestion> bancoPreguntas =
+    [
+        ManualExamSupport.CreateQuestion("m1_q1", "Que estructura repite un bloque un numero conocido de veces?", "a", [("a", "for"), ("b", "switch"), ("c", "using"), ("d", "namespace")]),
+        ManualExamSupport.CreateQuestion("m1_q2", "Que coleccion mantiene una lista tipada y dinamica?", "c", [("a", "Console"), ("b", "Tuple"), ("c", "List<T>"), ("d", "Thread")]),
+        ManualExamSupport.CreateQuestion("m1_q3", "Que palabra clave define un metodo que no devuelve valor?", "b", [("a", "null"), ("b", "void"), ("c", "empty"), ("d", "var")]),
+        ManualExamSupport.CreateQuestion("m1_q4", "Que acceso permite usar un miembro desde cualquier lugar?", "d", [("a", "internal"), ("b", "protected"), ("c", "private"), ("d", "public")]),
+        ManualExamSupport.CreateQuestion("m1_q5", "Que instruccion se usa para evaluar multiples casos?", "a", [("a", "switch"), ("b", "lock"), ("c", "yield"), ("d", "await")]),
+        ManualExamSupport.CreateQuestion("m1_q6", "Que operador compara igualdad en C#?", "c", [("a", "="), ("b", "!="), ("c", "=="), ("d", "=>")]),
+        ManualExamSupport.CreateQuestion("m1_q7", "Que palabra clave crea una instancia de una clase?", "b", [("a", "class"), ("b", "new"), ("c", "create"), ("d", "make")]),
+        ManualExamSupport.CreateQuestion("m1_q8", "Que instruccion sale de un ciclo de forma inmediata?", "d", [("a", "next"), ("b", "skip"), ("c", "stop"), ("d", "break")]),
+        ManualExamSupport.CreateQuestion("m1_q9", "Que bloque garantiza liberacion de recursos desechables?", "a", [("a", "using"), ("b", "fixed"), ("c", "unsafe"), ("d", "partial")]),
+        ManualExamSupport.CreateQuestion("m1_q10", "Que tipo representa numeros con decimales de alta precision financiera?", "c", [("a", "float"), ("b", "double"), ("c", "decimal"), ("d", "long")])
+    ];
+
+    private async Task<ManualExamSubmissionOutcome> RegistrarIntentoAsync(ManualExamSubmission submission)
+    {
+        return await ManualExamSupport.RegisterModuloAttemptAsync(
+            ExamenesService,
+            Examen,
+            submission,
+            estadoActualizado => OnEstadoActualizado.InvokeAsync(estadoActualizado));
+    }
+
+    private string ObtenerRazonBloqueo()
+        => ManualExamSupport.GetBlockReason(Estado);
+}

@@ -1,0 +1,64 @@
+<div class="guia-tree-node">
+    <button type="button"
+            class="@ObtenerClasesBoton()"
+            @onclick="() => OnNavigate.InvokeAsync(Node.Node)">
+        <span class="guia-tree-node__bullet" aria-hidden="true"></span>
+        <span class="guia-tree-node__label">@Node.Node.Nombre</span>
+
+        @if (Node.IsCompleted)
+        {
+            <i class="fa-solid fa-circle-check guia-tree-node__done" aria-hidden="true"></i>
+        }
+
+        @if (Node.Children.Count > 0)
+        {
+            <i class="fa-solid fa-chevron-right guia-tree-node__chevron" aria-hidden="true"></i>
+        }
+    </button>
+
+    @if (Node.Children.Count > 0 && Node.IsExpanded)
+    {
+        <div class="guia-tree-node__children">
+            @foreach (var child in Node.Children)
+            {
+                <GuiaTreeNode Node="child" OnNavigate="OnNavigate" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public GuiaTreeNodeViewModel Node { get; set; } = default!;
+    [Parameter, EditorRequired] public EventCallback<ACC.Shared.DTOs.NodoJerarquicoDto> OnNavigate { get; set; }
+
+    private string ObtenerClasesBoton()
+    {
+        var classes = new List<string> { "guia-tree-node__button" };
+
+        if (Node.IsRoot)
+        {
+            classes.Add("guia-tree-node__button--root");
+        }
+
+        if (Node.IsActive)
+        {
+            classes.Add("guia-tree-node__button--active");
+        }
+        else if (Node.IsInActivePath)
+        {
+            classes.Add("guia-tree-node__button--path");
+        }
+
+        if (Node.IsExpanded)
+        {
+            classes.Add("guia-tree-node__button--expanded");
+        }
+
+        if (Node.IsCompleted)
+        {
+            classes.Add("guia-tree-node__button--completed");
+        }
+
+        return string.Join(" ", classes);
+    }
+}

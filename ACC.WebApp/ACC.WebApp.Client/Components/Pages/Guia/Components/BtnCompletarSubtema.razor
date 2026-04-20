@@ -19,6 +19,7 @@
 @code {
     [Parameter] public int SubTemaId { get; set; }
     [Parameter] public int SubModuloId { get; set; } // pásalo desde el padre
+    [Parameter] public EventCallback<int> OnCompleted { get; set; }
 
     private bool completado;
     private string? mensaje;
@@ -58,6 +59,12 @@
         mensaje = habilitado
             ? "¡Subtema guardado y examen de submódulo habilitado!"
             : "Subtema guardado. Continúa con los restantes o vuelve a intentar.";
+
+        if (OnCompleted.HasDelegate)
+        {
+            await OnCompleted.InvokeAsync(SubTemaId);
+        }
+
         StateHasChanged();
     }
 }

@@ -10,30 +10,62 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Register confirmation</PageTitle>
+<PageTitle>Confirmación de registro</PageTitle>
 
 <div class="account-auth-page">
     <section class="account-auth-card account-auth-card--compact">
         <div class="account-auth-header">
             <span class="account-auth-kicker">Cuenta ACC</span>
-            <h1>Register confirmation</h1>
-            <p>Confirm your account to finish the registration process.</p>
+            <h1>Confirma tu correo</h1>
+            <p>Último paso para activar tu cuenta</p>
         </div>
 
         <section class="account-auth-body">
-            <StatusMessage Message="@statusMessage" />
+            <StatusMessage Message="@Message" />
+
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="alert alert-info" role="alert">
+                    @statusMessage
+                </div>
+            }
 
             @if (emailConfirmationLink is not null)
             {
-                <p class="account-auth-note">
-                    This app does not currently have a real email sender registered, see
-                    <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
-                    Normally this would be emailed: <a href="@emailConfirmationLink">Click here to confirm your account</a>
+                <div class="card bg-light border-info mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">Enlace de confirmación enviado</h6>
+                        <p class="small text-muted mb-3">
+                            Hemos generado un enlace de confirmación. Haz clic en el botón a continuación para confirmar tu
+                            cuenta:
+                        </p>
+                        <a href="@emailConfirmationLink" class="biblioteca-btn-completar-subtema w-100">
+                            Confirmar mi cuenta
+                        </a>
+                    </div>
+                </div>
+
+                <p class="text-center text-muted small mt-3">
+                    O copia este enlace en tu navegador:<br>
+                    <code style="word-break: break-all; font-size: 0.75rem;">@emailConfirmationLink</code>
                 </p>
             }
             else
             {
-                <p class="account-auth-note">Please check your email to confirm your account.</p>
+                <div class="alert alert-warning" role="alert">
+                    <strong>Revisa tu correo electrónico</strong>
+                    <p class="mb-0 small mt-2">
+                        Enviaremos un enlace de confirmación a tu dirección de correo.
+                        Verifica tu bandeja de entrada (y spam si es necesario).
+                    </p>
+                </div>
+
+                <div class="mt-4 pt-3 border-top">
+                    <p class="text-muted small mb-2">¿No recibiste el correo?</p>
+                    <a href="/Account/ResendEmailConfirmation" class="btn btn-outline-secondary w-100 small">
+                        Reenviar correo de confirmación
+                    </a>
+                </div>
             }
         </section>
     </section>
@@ -42,6 +74,7 @@
 @code {
     private string? emailConfirmationLink;
     private string? statusMessage;
+    private string? Message => string.Empty;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -57,15 +90,25 @@
         if (Email is null)
         {
             RedirectManager.RedirectTo("");
+            return;
         }
 
         var user = await UserManager.FindByEmailAsync(Email);
         if (user is null)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            statusMessage = "Error finding user for unspecified email";
+            statusMessage = "No pudimos encontrar la cuenta. Verifica el correo ingresado.";
+            return;
         }
-        else if (EmailSender is IdentityNoOpEmailSender)
+
+        // Si el usuario ya confirmó su email, redirigir al login
+        if (user.EmailConfirmed)
+        {
+            RedirectManager.RedirectTo("/Account/Login", new() { ["message"] = "confirmado" });
+            return;
+        }
+
+        if (EmailSender is IdentityNoOpEmailSender)
         {
             var userId = await UserManager.GetUserIdAsync(user);
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -73,6 +116,10 @@
             emailConfirmationLink = NavigationManager.GetUriWithQueryParameters(
                 NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
                 new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+        }
+        else
+        {
+            statusMessage = "Se ha enviado un correo de confirmación a tu dirección de correo electrónico.";
         }
     }
 }

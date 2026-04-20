@@ -1,45 +1,44 @@
-﻿@*DocList.razor*@
+﻿@* DocList.razor *@
+
 @rendermode InteractiveServer
+
 @using ACC.Shared.DTOs
 @using ACC.Shared.Enums
 
-<div class="biblioteca-doc-list">
+<div class="biblioteca-documentation-list">
     @if (capitulos != null && capitulos.Count > 0)
     {
         var items = Flatten(capitulos);
-
         var docsFiltrados = items
             .Where(i => Filtros is null || Filtros.IsEmpty || MatchFiltros(i, Filtros))
-            .ToList(); 
+            .ToList();
 
         @if (docsFiltrados.Count > 0)
         {
+            <div class="doclist-count ty-muted">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                @docsFiltrados.Count resultado@(docsFiltrados.Count == 1 ? "" : "s")
+            </div>
+
             @foreach (var item in docsFiltrados)
             {
                 <DocItem item="item" />
-                <br />
             }
         }
         else
         {
-            <div class="biblioteca-empty-state">
-                <div class="biblioteca-empty-icon">
-                    <i class="fas fa-search"></i>
-                </div>
-                <h3 class="biblioteca-empty-title">No se encontraron resultados</h3>
-                <p class="biblioteca-empty-description">Prueba con otros filtros o términos de búsqueda para encontrar la documentación que necesitas.</p>
-            </div>
+            <EmptyState
+                Icon="fa-magnifying-glass"
+                Titulo="Sin resultados"
+                Descripcion="Prueba con otros filtros o términos de búsqueda para encontrar la documentación que necesitas." />
         }
     }
     else
     {
-        <div class="biblioteca-empty-state">
-            <div class="biblioteca-empty-icon">
-                <i class="fas fa-search"></i>
-            </div>
-            <h3 class="biblioteca-empty-title">No se encontraron resultados</h3>
-            <p class="biblioteca-empty-description">Prueba con otros filtros o términos de búsqueda para encontrar la documentación que necesitas.</p>
-        </div>
+        <EmptyState
+            Icon="fa-folder-open"
+            Titulo="Biblioteca vacía"
+            Descripcion="Aún no hay contenido disponible. Vuelve pronto." />
     }
 </div>
 

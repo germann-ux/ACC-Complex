@@ -27,9 +27,11 @@
     --acc-brand-800: #3d1f5c;
     --acc-brand-900: #2a003f;
     /* Azul de apoyo */
-    --acc-charp-blue: #2563eb;
+    --acc-charp-blue: #5BC0DE;
     --acc-blue-600: #4f46e5;
     --acc-blue-700: #3730a3;
+    --acc-accent-cyan: #22d3ee;
+    --acc-accent-pink: #f472b6;
     /* Gradiente */
     --acc-grad-start: var(--acc-bg-0);
     --acc-grad-mid: #1c0b33;
@@ -38,6 +40,7 @@
     --acc-radius: 12px;
     --acc-radius-sm: 8px;
     --acc-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+    --acc-shadow-lg: 0 22px 60px rgba(0, 0, 0, .42);
     --acc-transition: 0.2s ease;
     --acc-transition-3s: 0.3s ease;
     /* Focus accesible */
@@ -54,6 +57,7 @@
     /* antes: --biblioteca-tertiary-dark */
     --acc-surface-hover: #32324a;
     /* antes: --biblioteca-hover-dark */
+    --acc-surface-glass: color-mix(in srgb, var(--acc-surface-2) 88%, black);
     /* Bordes/texto auxiliares */
     --acc-border-strong: #929292;
     /* antes: darker checkbox */
@@ -68,12 +72,10 @@
     /* antes icono resumen */
     /* Superficie de error boundary (se conserva visualmente) */
     --acc-danger-surface: color-mix(in srgb, #b32121 85%, black);
-
     /* Tipografia oficial ACC */
     --font-body: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     --font-heading: "Sora", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;
     --text-md: 1rem;
@@ -82,18 +84,15 @@
     --text-2xl: 1.5rem;
     --text-3xl: 1.875rem;
     --text-4xl: 2.25rem;
-
     --w-regular: 400;
     --w-medium: 500;
     --w-semibold: 600;
     --w-bold: 700;
     --w-extrabold: 800;
-
     --lh-tight: 1.12;
     --lh-snug: 1.25;
     --lh-normal: 1.5;
     --lh-relaxed: 1.72;
-
     --ls-tight: -0.01em;
     --ls-normal: 0;
     --ls-wide: 0.03em;

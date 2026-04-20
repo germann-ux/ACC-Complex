@@ -27,12 +27,12 @@ public static class ResumenEvaluacionesModelo
         IEnumerable<ExamenModuloDto>? examenesModulo)
     {
         var clavesSub = (examenesSubModulo ?? [])
-            .Where(e => e.SubModuloId > 0)
-            .Select(e => new EvaluacionResumenKey(ExamenTipo.SubModulo, e.SubModuloId));
+            .Where(e => e.Id > 0)
+            .Select(e => new EvaluacionResumenKey(ExamenTipo.SubModulo, e.Id));
 
         var clavesMod = (examenesModulo ?? [])
-            .Where(e => e.ModuloId > 0)
-            .Select(e => new EvaluacionResumenKey(ExamenTipo.Modulo, e.ModuloId));
+            .Where(e => e.Id > 0)
+            .Select(e => new EvaluacionResumenKey(ExamenTipo.Modulo, e.Id));
 
         return clavesSub
             .Concat(clavesMod)
@@ -60,7 +60,7 @@ public static class ResumenEvaluacionesModelo
 
         foreach (var examen in subCatalogo)
         {
-            var key = new EvaluacionResumenKey(ExamenTipo.SubModulo, examen.SubModuloId);
+            var key = new EvaluacionResumenKey(ExamenTipo.SubModulo, examen.Id);
             items.Add(CrearItem(
                 key: key,
                 examenId: examen.Id,
@@ -72,7 +72,7 @@ public static class ResumenEvaluacionesModelo
 
         foreach (var examen in modCatalogo)
         {
-            var key = new EvaluacionResumenKey(ExamenTipo.Modulo, examen.ModuloId);
+            var key = new EvaluacionResumenKey(ExamenTipo.Modulo, examen.Id);
             items.Add(CrearItem(
                 key: key,
                 examenId: examen.Id,
@@ -136,18 +136,13 @@ public static class ResumenEvaluacionesModelo
         IEnumerable<ExamenSubModuloDto> examenesSubModulo,
         IEnumerable<ExamenModuloDto> examenesModulo)
     {
-        var subRefPorExamen = examenesSubModulo
-            .GroupBy(e => e.Id)
-            .ToDictionary(g => g.Key, g => g.First().SubModuloId);
-
-        var modRefPorExamen = examenesModulo
-            .GroupBy(e => e.Id)
-            .ToDictionary(g => g.Key, g => g.First().ModuloId);
+        var examenesSubIds = examenesSubModulo.Select(e => e.Id).ToHashSet();
+        var examenesModIds = examenesModulo.Select(e => e.Id).ToHashSet();
 
         var intentosPorEvaluacion = new Dictionary<EvaluacionResumenKey, List<ExamenIntentoDto>>();
         foreach (var intento in intentos)
         {
-            if (!TryResolverEvaluacionKey(intento, subRefPorExamen, modRefPorExamen, out var key))
+            if (!TryResolverEvaluacionKey(intento, examenesSubIds, examenesModIds, out var key))
                 continue;
 
             if (!intentosPorEvaluacion.TryGetValue(key, out var lista))
@@ -164,25 +159,23 @@ public static class ResumenEvaluacionesModelo
 
     private static bool TryResolverEvaluacionKey(
         ExamenIntentoDto intento,
-        IReadOnlyDictionary<int, int> subRefPorExamen,
-        IReadOnlyDictionary<int, int> modRefPorExamen,
+        IReadOnlySet<int> examenesSubIds,
+        IReadOnlySet<int> examenesModIds,
         out EvaluacionResumenKey key)
     {
         if (intento.ExamenSubModuloId is int examenSubId &&
             examenSubId > 0 &&
-            subRefPorExamen.TryGetValue(examenSubId, out var subModuloRef) &&
-            subModuloRef > 0)
+            examenesSubIds.Contains(examenSubId))
         {
-            key = new EvaluacionResumenKey(ExamenTipo.SubModulo, subModuloRef);
+            key = new EvaluacionResumenKey(ExamenTipo.SubModulo, examenSubId);
             return true;
         }
 
         if (intento.ExamenModuloId is int examenModId &&
             examenModId > 0 &&
-            modRefPorExamen.TryGetValue(examenModId, out var moduloRef) &&
-            moduloRef > 0)
+            examenesModIds.Contains(examenModId))
         {
-            key = new EvaluacionResumenKey(ExamenTipo.Modulo, moduloRef);
+            key = new EvaluacionResumenKey(ExamenTipo.Modulo, examenModId);
             return true;
         }
 

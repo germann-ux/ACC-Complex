@@ -1,4 +1,4 @@
-# Guía de Lecciones (ACC) - Inserción SQL
+﻿# Guía de Lecciones (ACC) - Inserción SQL
 **Aprendiendo C# con Charp (ACC)**
 
 Este documento explica cómo **insertar y mantener** registros de lecciones en **SQL Server** de forma **coherente con el contrato de ACC** (renderizador + enums + flags).
@@ -38,6 +38,9 @@ campos:
 - `TieneCompilador` (bit)
 - `OrdenSecciones` (nvarchar(max))  <- JSON
 - `SubtemaId` (int)
+- `MermaidTitulo` (nvarchar(max))   <- texto opcional
+- `MermaidDescripcion` (nvarchar(max)) <- texto opcional
+- `MermaidCodigo` (nvarchar(max))   <- codigo Mermaid puro
 - `Teoria` (nvarchar(max))          <- HTML
 - `Practica` (nvarchar(max))        <- HTML
 - `Ejemplo` (nvarchar(max))         <- HTML
@@ -65,6 +68,7 @@ Secciones válidas:
 - `ejemplo`
 - `actividad`
 - `compilador`
+- `mermaid`
 - `charpTip`
 - `charpDialog`
 
@@ -136,6 +140,16 @@ Si la sección existe en `OrdenSecciones`, el campo correspondiente debe traer c
 
 > Regla de HTML  
 > Estos campos aceptan **solo marcado** (sin scripts). Evita `script`, `onClick`, etc.
+
+### 4.3.1 Mermaid (`mermaid`)
+Si `OrdenSecciones` contiene `"mermaid"`:
+- `MermaidCodigo` es obligatorio.
+- `MermaidTitulo` y `MermaidDescripcion` son opcionales, pero recomendables.
+- `MermaidCodigo` debe guardar solo codigo Mermaid puro.
+- No uses fences como ```mermaid``` ni wrappers HTML manuales.
+
+Si **NO** contiene `"mermaid"`:
+- `MermaidTitulo`, `MermaidDescripcion` y `MermaidCodigo` deben quedar limpios.
 
 ### 4.4 Video (`video`)
 Se contempla `video`.
@@ -210,7 +224,31 @@ SET
 WHERE IdLeccion = 12;
 ```
 
-### 6.5 Desactivar compilador
+### 6.5 Activar Mermaid
+```sql
+UPDATE ACC_Academic.Lecciones
+SET
+    MermaidTitulo      = N'Flujo simple',
+    MermaidDescripcion = N'Refuerza visualmente la idea central de la leccion.',
+    MermaidCodigo      = N'flowchart LR
+    A[Idea base] --> B[Relacion clave]
+    B --> C[Resultado]',
+    OrdenSecciones     = N'["teoria","mermaid","ejemplo","practica"]'
+WHERE IdLeccion = 12;
+```
+
+### 6.6 Limpiar Mermaid
+```sql
+UPDATE ACC_Academic.Lecciones
+SET
+    MermaidTitulo      = N'',
+    MermaidDescripcion = N'',
+    MermaidCodigo      = N'',
+    OrdenSecciones     = N'["teoria","ejemplo","practica"]'
+WHERE IdLeccion = 12;
+```
+
+### 6.7 Desactivar compilador
 ```sql
 UPDATE ACC_Academic.Lecciones
 SET
@@ -219,7 +257,7 @@ SET
 WHERE IdLeccion = 12;
 ```
 
-### 6.6 Corregir Bloom
+### 6.8 Corregir Bloom
 ```sql
 UPDATE ACC_Academic.Lecciones
 SET NivelBloom = N'Analizar'
@@ -289,8 +327,16 @@ WHERE J.[value] NOT IN
 (
     N'video', N'teoria', N'practica', N'ejemplo',
     N'actividad', N'compilador',
-    N'charpTip', N'charpDialog'
+    N'mermaid', N'charpTip', N'charpDialog'
 );
+```
+
+### 7.8 Mermaid incoherente: aparece en JSON pero no hay codigo
+```sql
+SELECT IdLeccion, TituloLeccion, MermaidCodigo, OrdenSecciones
+FROM ACC_Academic.Lecciones
+WHERE OrdenSecciones LIKE N'%"mermaid"%'
+  AND (MermaidCodigo IS NULL OR LTRIM(RTRIM(MermaidCodigo)) = N'');
 ```
 
 ---
@@ -310,6 +356,9 @@ INSERT INTO [ACC_Academic].[Lecciones]
   [TieneCompilador],
   [OrdenSecciones],
   [SubtemaId],
+  [MermaidTitulo],
+  [MermaidDescripcion],
+  [MermaidCodigo],
   [Teoria],
   [Practica],
   [Ejemplo],
@@ -342,6 +391,9 @@ SET
   [TieneCompilador] = <...>,
   [OrdenSecciones] = <...>,
   [SubtemaId] = <...>,
+  [MermaidTitulo] = <...>,
+  [MermaidDescripcion] = <...>,
+  [MermaidCodigo] = <...>,
   [Teoria] = <...>,
   [Practica] = <...>,
   [Ejemplo] = <...>,
@@ -663,4 +715,7 @@ Console.WriteLine("Hola, " + nombre);
 > Si cambias `OrdenSecciones`, revisa y sincroniza flags y contenido.  
 > El flujo manda: la lección se define por lo que **se renderiza**.
 
+Si usas `mermaid`, sigue además `ACC_Guia_Lecciones_Mermaid.md` para mantener el diagrama simple, coherente y técnicamente válido.
+
 Con esta guía, la inserción SQL queda repetible, auditable y consistente con ACC.
+

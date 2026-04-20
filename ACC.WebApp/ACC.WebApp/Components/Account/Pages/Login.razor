@@ -11,18 +11,27 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Log in</PageTitle>
+<PageTitle>Iniciar sesión</PageTitle>
 
 <div class="account-auth-page">
     <section class="account-auth-card">
         <div class="account-auth-header">
             <span class="account-auth-kicker">Cuenta ACC</span>
-            <h1>Iniciar sesion</h1>
-            <p>Usa una cuenta para iniciar sesión.</p>
+            <h1>Iniciar sesión</h1>
+            <p>Accede a tu cuenta para continuar.</p>
         </div>
 
         <section class="account-auth-body">
+            @if (!string.IsNullOrEmpty(confirmationMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>¡Excelente!</strong> @confirmationMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             <StatusMessage Message="@errorMessage" />
+            
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" role="alert" />
@@ -41,7 +50,7 @@
                 <div class="form-floating mb-3">
                     <InputText type="password" @bind-Value="Input.Password" class="form-control"
                                autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label">Contraseña</label>
                     <ValidationMessage For="() => Input.Password" class="text-danger" />
                 </div>
                 <div class="checkbox mb-3 account-checkbox">
@@ -52,12 +61,25 @@
                 </div>
                 <button type="submit" class="biblioteca-btn-completar-subtema w-100">Entrar</button>
             </EditForm>
+
+            <div class="account-auth-footer mt-4 pt-3 border-top">
+                <p class="text-center text-muted small mb-2">¿No tienes cuenta?</p>
+                <a href="/Account/Register" class="btn btn-outline-secondary w-100 small">
+                    Crear una nueva cuenta
+                </a>
+            </div>
+
+            <div class="account-help-links mt-3">
+                <a href="/Account/ForgotPassword" class="text-muted small d-block mb-2">¿Olvidaste tu contraseña?</a>
+                <a href="/Account/ResendEmailConfirmation" class="text-muted small d-block">¿No confirmaste tu correo?</a>
+            </div>
         </section>
     </section>
 </div>
 
 @code {
     private string? errorMessage;
+    private string? confirmationMessage;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -68,8 +90,21 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
+    [SupplyParameterFromQuery]
+    private string? Message { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        // Mostrar mensajes contextuales según el parámetro message
+        if (Message == "confirmado")
+        {
+            confirmationMessage = "Tu correo ha sido confirmado exitosamente. Ahora puedes iniciar sesión.";
+        }
+        else if (Message == "registered")
+        {
+            confirmationMessage = "Registro completado. Revisa tu correo para confirmar tu cuenta.";
+        }
+
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -118,7 +153,7 @@
         }
         else
         {
-            errorMessage = "Error: Invalid login attempt.";
+            errorMessage = "Error: Credenciales inválidas. Verifica tu usuario y contraseña.";
         }
     }
 

@@ -1,18 +1,44 @@
 ﻿@* ViewToggle.razor *@
+
 @using ACC.Shared.Core
 @using ACC.Shared.Enums
+
 @rendermode InteractiveServer
-<div class="biblioteca-view-toggle">
+
+<div class="vt-bar" role="group" aria-label="Filtro rápido por tipo">
+    <button class="vt-chip @(NoHayFiltros ? "vt-chip--all active" : "vt-chip--all")"
+            @onclick="LimpiarTipos"
+            title="Mostrar todo">
+        <i class="fa-solid fa-border-all" aria-hidden="true"></i>
+        <span>Todo</span>
+    </button>
+
     @foreach (var tipo in TiposRapidos)
     {
-        <button class="biblioteca-toggle-btn @(Filtros.Tipos.Contains(tipo) ? "active" : null)"
-                @onclick="() => CambiarFiltro(tipo)">
-            @tipo
+        var isActive = Filtros.Tipos.Contains(tipo);
+        <button class="vt-chip @(isActive ? "active" : null)"
+                @onclick="() => CambiarFiltro(tipo)"
+                title="@tipo.ToString()">
+            <i class="fa-solid @IconoParaTipo(tipo)" aria-hidden="true"></i>
+            <span>@tipo</span>
         </button>
     }
 </div>
 
 @code {
+    // ── helpers de UI (sólo markup, no lógica de negocio) ──
+    private bool NoHayFiltros => Filtros is null || !Filtros.Tipos.Any();
+
+    private static string IconoParaTipo(TipoContenidoCapitulo tipo) => tipo switch
+    {
+        TipoContenidoCapitulo.Documentacion => "fa-book-open",
+        TipoContenidoCapitulo.Concepto => "fa-lightbulb",
+        TipoContenidoCapitulo.Ejemplo => "fa-code",
+        TipoContenidoCapitulo.Ejercicio => "fa-dumbbell",
+        TipoContenidoCapitulo.Proyecto => "fa-diagram-project",
+        _ => "fa-tag"
+    };
+
     [Parameter, EditorRequired] public BibliotecaFiltros Filtros { get; set; } = default!;
     [Parameter] public EventCallback<BibliotecaFiltros> OnFiltrosCambiados { get; set; }
 
@@ -34,5 +60,16 @@
             nuevo.Tipos.Remove(tipo);
 
         await OnFiltrosCambiados.InvokeAsync(nuevo); 
+    }
+
+    private Task LimpiarTipos()
+    {
+        if (Filtros is null || Filtros.Tipos.Count == 0)
+            return Task.CompletedTask;
+
+        var nuevo = Filtros.Clone();
+        nuevo.Tipos.Clear();
+
+        return OnFiltrosCambiados.InvokeAsync(nuevo);
     }
 }

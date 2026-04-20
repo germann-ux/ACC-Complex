@@ -1,0 +1,252 @@
+<article class="exam-question-card @(ReviewMode ? "exam-question-card--review" : string.Empty)">
+    <header class="exam-question-card__head">
+        <div class="exam-question-card__eyebrow">
+            <span>Pregunta @QuestionNumber</span>
+            @if (!string.IsNullOrWhiteSpace(Question.SectionTitle))
+            {
+                <span>@Question.SectionTitle</span>
+            }
+        </div>
+        <ExamContentRenderer Blocks="@Question.StemBlocks" FallbackText="@Question.Prompt" />
+    </header>
+
+    <div class="exam-question-card__options">
+        @foreach (var option in Question.Options)
+        {
+            var inputId = $"{Question.Id}_{option.Key}";
+            <label class="@BuildOptionClass(option.Key)" for="@inputId">
+                <input id="@inputId"
+                       type="radio"
+                       name="@Question.Id"
+                       value="@option.Key"
+                       disabled="@ReviewMode"
+                       checked="@(SelectedOptionKey == option.Key)"
+                       @onchange="@(() => OnSelectedOptionChanged.InvokeAsync(option.Key))" />
+                <div class="exam-question-card__option-body">
+                    <div class="exam-question-card__option-line">
+                        <span class="exam-question-card__option-key">@option.Key.ToUpperInvariant()</span>
+                        <span class="exam-question-card__option-text">@option.Text</span>
+                    </div>
+
+                    @if (ReviewMode)
+                    {
+                        <div class="exam-question-card__option-flags">
+                            @if (SelectedOptionKey == option.Key)
+                            {
+                                <span class="exam-question-card__flag exam-question-card__flag--selected">Tu respuesta</span>
+                            }
+                            @if (Question.CorrectOptionKey == option.Key)
+                            {
+                                <span class="exam-question-card__flag exam-question-card__flag--correct">Correcta</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </label>
+        }
+    </div>
+
+    @if (ReviewMode && HasExplanation)
+    {
+        <aside class="exam-question-card__explanation">
+            <span>Explicaci&oacute;n</span>
+            <ExamContentRenderer Blocks="@Question.ExplanationBlocks" FallbackText="@Question.Explanation" />
+        </aside>
+    }
+</article>
+<br />
+
+@code {
+    [Parameter, EditorRequired] public ManualExamQuestion Question { get; set; } = default!;
+    [Parameter] public int QuestionNumber { get; set; }
+    [Parameter] public string? SelectedOptionKey { get; set; }
+    [Parameter] public bool ReviewMode { get; set; }
+    [Parameter] public EventCallback<string> OnSelectedOptionChanged { get; set; }
+
+    private bool HasExplanation
+        => Question.ExplanationBlocks.Count > 0 || !string.IsNullOrWhiteSpace(Question.Explanation);
+
+    private string BuildOptionClass(string optionKey)
+    {
+        var classes = new List<string> { "exam-question-card__option" };
+        var isSelected = SelectedOptionKey == optionKey;
+        var isCorrect = Question.CorrectOptionKey == optionKey;
+
+        if (isSelected)
+        {
+            classes.Add("exam-question-card__option--selected");
+        }
+
+        if (ReviewMode && isCorrect)
+        {
+            classes.Add("exam-question-card__option--correct");
+        }
+
+        if (ReviewMode && isSelected && !isCorrect)
+        {
+            classes.Add("exam-question-card__option--wrong");
+        }
+
+        return string.Join(" ", classes);
+    }
+}
+
+<style>
+    .exam-question-card {
+        display: grid;
+        gap: 1rem;
+        padding: 1.2rem;
+        border-radius: 22px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 86%, black 14%));
+        box-shadow: var(--acc-shadow);
+    }
+
+    .exam-question-card__head {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    .exam-question-card__eyebrow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+    }
+
+    .exam-question-card__eyebrow span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0.34rem 0.72rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2));
+        color: color-mix(in srgb, var(--acc-brand-300) 86%, white);
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .exam-question-card__options {
+        display: grid;
+        gap: 0.8rem;
+    }
+
+    .exam-question-card__option {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.85rem;
+        align-items: flex-start;
+        padding: 1rem 1.05rem;
+        border-radius: 18px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 76%, transparent);
+        background: color-mix(in srgb, var(--acc-bg-2) 78%, black);
+        transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+        cursor: pointer;
+    }
+
+    .exam-question-card__option:hover {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--acc-brand-600) 36%, var(--acc-border));
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+    }
+
+    .exam-question-card__option input {
+        margin-top: 0.28rem;
+        accent-color: var(--acc-brand-500);
+    }
+
+    .exam-question-card__option--selected {
+        border-color: color-mix(in srgb, var(--acc-brand-500) 54%, var(--acc-border));
+        background: linear-gradient(180deg, color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-bg-2)), color-mix(in srgb, var(--acc-bg-2) 86%, black));
+    }
+
+    .exam-question-card__option--correct {
+        border-color: color-mix(in srgb, var(--acc-success-500) 46%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-success-500) 11%, var(--acc-bg-2));
+    }
+
+    .exam-question-card__option--wrong {
+        border-color: color-mix(in srgb, var(--acc-danger-500) 48%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-danger-500) 10%, var(--acc-bg-2));
+    }
+
+    .exam-question-card__option-body {
+        display: grid;
+        gap: 0.6rem;
+        min-width: 0;
+    }
+
+    .exam-question-card__option-line {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+    }
+
+    .exam-question-card__option-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--acc-brand-600) 14%, var(--acc-bg-2));
+        color: var(--acc-text);
+        font-weight: 800;
+    }
+
+    .exam-question-card__option-text {
+        color: var(--acc-text);
+        line-height: 1.6;
+    }
+
+    .exam-question-card__option-flags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .exam-question-card__flag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .exam-question-card__flag--selected {
+        color: color-mix(in srgb, var(--acc-brand-300) 90%, white);
+        border: 1px solid color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-bg-2));
+    }
+
+    .exam-question-card__flag--correct {
+        color: color-mix(in srgb, var(--acc-success-400) 92%, white);
+        border: 1px solid color-mix(in srgb, var(--acc-success-500) 38%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-success-500) 12%, var(--acc-bg-2));
+    }
+
+    .exam-question-card__explanation {
+        display: grid;
+        gap: 0.7rem;
+        padding: 1rem 1.05rem;
+        border-radius: 18px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 78%, transparent);
+        background: color-mix(in srgb, var(--acc-surface-2) 78%, black);
+    }
+
+    .exam-question-card__explanation > span {
+        color: var(--acc-text-muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+</style>

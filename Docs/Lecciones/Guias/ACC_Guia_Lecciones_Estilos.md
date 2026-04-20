@@ -1,4 +1,4 @@
-# Guía de Lecciones (ACC) — Estilos (UI/CSS)
+﻿# Guía de Lecciones (ACC) — Estilos (UI/CSS)
 **Aprendiendo C# con Charp (ACC)**
 
 Este documento explica el **sistema de estilos visuales** que ACC aplica a las lecciones: paleta (tokens), superficies, tipografía, tablas, código, alertas, fomentador, iframes y el indicador de **Nivel Bloom**.
@@ -135,6 +135,20 @@ Para teoría y práctica, se restringe el ancho a `max-width: 900px` para evitar
 Decoradores internos (opcionales):
 - `.alert`, `.alert-info`, `.alert-warning`, `.alert-success`, `.alert-error`
 - `.fomentador` (bloque de empuje/refuerzo dentro del contenido)
+
+### 4.2 Mermaid (seccion del sistema)
+
+Mermaid no usa wrapper HTML escrito por el autor dentro de `Teoria`, `Ejemplo` o `Practica`.
+El sistema renderiza su propio bloque a partir de `MermaidCodigo`, `MermaidTitulo` y `MermaidDescripcion`.
+
+Reglas visuales practicas:
+- no incrustar estilos inline dentro de `MermaidCodigo`,
+- no usar HTML dentro de labels o nodos,
+- resaltar como maximo un nodo o un grupo pequeno,
+- mantener la paleta visual de ACC,
+- priorizar claridad sobre ornamentacion.
+
+La guia especifica de uso y criterios de diagramacion vive en `ACC_Guia_Lecciones_Mermaid.md`.
 
 ## 5) Tipografía y lectura
 

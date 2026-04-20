@@ -1,0 +1,44 @@
+@if (HasBlocks)
+{
+    <div class="exam-content-renderer">
+        @foreach (var block in Blocks)
+        {
+            switch (block.Type)
+            {
+                case ManualExamContentBlockType.Code:
+                    <ExamCodeBlock Code="@block.Text" Language="@block.Language" />
+                    break;
+                default:
+                    <p>@block.Text</p>
+                    break;
+            }
+        }
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(FallbackText))
+{
+    <div class="exam-content-renderer">
+        <p>@FallbackText</p>
+    </div>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<ManualExamContentBlock> Blocks { get; set; } = [];
+    [Parameter] public string? FallbackText { get; set; }
+
+    private bool HasBlocks => Blocks.Count > 0;
+}
+
+<style>
+    .exam-content-renderer {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    .exam-content-renderer p {
+        margin: 0;
+        color: var(--acc-text);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+</style>

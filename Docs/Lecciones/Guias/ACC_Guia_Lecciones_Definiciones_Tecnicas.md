@@ -1,4 +1,4 @@
-# Guía de Lecciones (ACC) — Definiciones técnicas
+﻿# Guía de Lecciones (ACC) — Definiciones técnicas
 **Aprendiendo C# con Charp (ACC)**
 
 Esta sección define el **contrato técnico** de una lección: qué campos existen, qué piezas reconoce el sistema, qué escribe el autor y qué renderiza automáticamente ACC.
@@ -98,6 +98,7 @@ public static class SeccionesContenido
     public const string Ejemplo = "ejemplo";
     public const string Actividad = "actividad";
     public const string Compilador = "compilador";
+    public const string Mermaid = "mermaid";
     public const string CharpTip = "charpTip";
     public const string CharpDialog = "charpDialog";
 }
@@ -160,6 +161,7 @@ Estas secciones consumen directamente el HTML guardado en la tabla:
 Estas secciones no viven como HTML del autor, sino que se renderizan por flags/campos:
 - `compilador` → depende de `TieneCompilador = 1`
 - `actividad` → depende de `TieneActividad = 1` y `UrlActividad` válido
+- `mermaid` → depende de `MermaidCodigo` y opcionalmente `MermaidTitulo`, `MermaidDescripcion`
 - `video` → depende de `TieneVideo = 1` y `VideoId`
 
 ✅ Importante: una sección puede aparecer en `OrdenSecciones` aunque no exista una columna HTML asociada, siempre que tenga su flag/campo que la soporte.
@@ -187,6 +189,7 @@ la ruta sigue la siguiente estructura: Capitulo/Contenido/numero de capitulo
 | `charpDialog` | ✅ Sí (más extenso) | Renderiza diálogo contextual |
 | `video` | ❌ No | Inyecta reproductor YouTube |
 | `actividad` | ❌ No | Inyecta iframe de actividad |
+| `mermaid` | ❌ No | Renderiza el diagrama Mermaid del sistema |
 | `compilador` | ❌ No | Renderiza compilador del sistema |
 
 ---
@@ -231,6 +234,13 @@ La actividad externa se declara por datos, no por HTML.
 - area de edicion de codigo
 - entradas stdin
 - salida del codigo
+
+### 7.4 Mermaid
+- Si `OrdenSecciones` contiene `"mermaid"`, la lección debe proporcionar `MermaidCodigo`.
+- `MermaidTitulo` y `MermaidDescripcion` son opcionales, pero recomendables cuando el diagrama necesita contexto breve.
+- `MermaidCodigo` debe contener solo código Mermaid puro, sin fences de markdown ni contenedores HTML.
+- El autor no define HTML para Mermaid; el sistema renderiza el bloque visual.
+- La guía detallada de uso vive en `ACC_Guia_Lecciones_Mermaid.md`.
 ---
 
 ## 8) HTML controlado (reglas de marcado)

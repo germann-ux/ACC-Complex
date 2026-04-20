@@ -1,31 +1,60 @@
-﻿@*BibliotecaMain.razor*@
+﻿@* BibliotecaMain.razor *@
+
 @page "/Biblioteca"
+
 @rendermode InteractiveServer
+
 @using ACC.Shared.DTOs
 @using ACC.Shared.Core
 @using ACC.WebApp.Client.Components.Pages.Biblioteca.Components
 @using ACC.WebApp.Client.Services
+
 @inject BibliotecaClientService BibliotecaService
 
 <div class="content biblioteca-app-container">
+
     <main class="biblioteca-main-content">
+
         <div class="biblioteca-header">
-            <h1 class="biblioteca-section-title">Biblioteca de ACC</h1>
-            <p class="biblioteca-section-description">Explora documentación, ejercicios y proyectos en un formato comodo de capitulos.</p>
+
+            <div class="biblioteca-header-hero">
+                <div class="biblioteca-header-icon-wrap" aria-hidden="true">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <h1 class="biblioteca-section-title ty-page-title">Biblioteca de ACC</h1>
+                    <p class="biblioteca-section-description ty-paragraph">
+                        Explora documentación, ejercicios y proyectos organizados en capítulos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="biblioteca-header-divider" aria-hidden="true"></div>
 
             <ViewToggle Filtros="@filtros"
                         OnFiltrosCambiados="OnFiltrosCambiados" />
+
         </div>
 
         @if (cargando)
         {
-            <p>Cargando contenido...</p>
+            <div class="biblioteca-loader" style="display:block;">
+                <div class="biblioteca-loader-spinner"></div>
+                <p class="biblioteca-loader-text ty-muted">Cargando contenido…</p>
+            </div>
         }
         else if (!string.IsNullOrEmpty(mensajeError))
         {
-            <div class="alert alert-danger">
-                <p>Error al cargar el contenido: @mensajeError</p>
-                <button class="btn btn-primary" @onclick="RecargarContenido">Reintentar</button>
+            <div class="biblioteca-error-state">
+                <div class="biblioteca-error-icon" aria-hidden="true">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="biblioteca-empty-title ty-section-title">Error al cargar</h3>
+                <p class="biblioteca-empty-description ty-muted">@mensajeError</p>
+                <button class="btn btn--primary biblioteca-error-retry" @onclick="RecargarContenido">
+                    <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+                    Reintentar
+                </button>
             </div>
         }
         else if (todosLosCapitulos?.Data != null)
@@ -35,14 +64,21 @@
         }
         else
         {
-            <p>No hay contenido disponible.</p>
+            <div class="biblioteca-empty-state">
+                <div class="biblioteca-empty-icon" aria-hidden="true">
+                    <i class="fa-regular fa-folder-open"></i>
+                </div>
+                <h3 class="biblioteca-empty-title ty-section-title">Sin contenido disponible</h3>
+                <p class="biblioteca-empty-description ty-muted">No hay capítulos publicados todavía.</p>
+            </div>
         }
+
     </main>
 
     <SidebarFiltros OnFiltrosCambiados="OnFiltrosCambiados"
-                    Filtros="@filtros"/>
-</div>
+                    Filtros="@filtros" />
 
+</div>
 @code {
     //private List<string> filtrosSeleccionados = new();
     private BibliotecaFiltros filtros = new();

@@ -1,0 +1,232 @@
+<section class="exam-result-hero">
+    <div class="exam-result-hero__summary">
+        <span class="exam-result-hero__badge">Resultado</span>
+        <div class="exam-result-hero__headline">
+            <h1>@Title</h1>
+            <span class="@(Passed ? "exam-result-hero__status exam-result-hero__status--pass" : "exam-result-hero__status exam-result-hero__status--fail")">
+                @(Passed ? "Aprobado" : "No aprobado")
+            </span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p>@Description</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(Message))
+        {
+            <p class="exam-result-hero__message">@Message</p>
+        }
+        @if (IsFallback)
+        {
+            <p class="exam-result-hero__note">
+                El repaso detallado solo est&aacute; disponible justo despu&eacute;s de terminar el intento actual.
+            </p>
+        }
+    </div>
+
+    <div class="exam-result-hero__metrics">
+        <article class="exam-result-hero__metric">
+            <span>Porcentaje</span>
+            <strong>@Percentage.ToString("0.##")%</strong>
+        </article>
+        <article class="exam-result-hero__metric">
+            <span>Aciertos</span>
+            <strong>@CorrectAnswers / @TotalQuestions</strong>
+        </article>
+        <article class="exam-result-hero__metric">
+            <span>Aprobaci&oacute;n</span>
+            <strong>@PassingText</strong>
+        </article>
+        <article class="exam-result-hero__metric">
+            <span>Intentos</span>
+            <strong>@AttemptsUsed usados</strong>
+            <small>@AttemptsRemaining restantes</small>
+        </article>
+        @if (TimeSeconds.HasValue)
+        {
+            <article class="exam-result-hero__metric">
+                <span>Tiempo</span>
+                <strong>@FormatSeconds(TimeSeconds.Value)</strong>
+            </article>
+        }
+    </div>
+
+    <div class="exam-result-hero__actions">
+        @if (CanRetry)
+        {
+            <a class="exam-result-hero__action exam-result-hero__action--primary" href="@RetryHref">Intentar de nuevo</a>
+        }
+        <a class="exam-result-hero__action exam-result-hero__action--ghost" href="@GuideHref">Volver a la gu&iacute;a</a>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public bool Passed { get; set; }
+    [Parameter] public bool IsFallback { get; set; }
+    [Parameter] public double Percentage { get; set; }
+    [Parameter] public int CorrectAnswers { get; set; }
+    [Parameter] public int TotalQuestions { get; set; }
+    [Parameter] public string PassingText { get; set; } = string.Empty;
+    [Parameter] public int AttemptsUsed { get; set; }
+    [Parameter] public int AttemptsRemaining { get; set; }
+    [Parameter] public int? TimeSeconds { get; set; }
+    [Parameter] public bool CanRetry { get; set; }
+    [Parameter] public string RetryHref { get; set; } = "/Guia";
+    [Parameter] public string GuideHref { get; set; } = "/Guia";
+
+    private static string FormatSeconds(int totalSeconds)
+    {
+        var duration = TimeSpan.FromSeconds(Math.Max(totalSeconds, 0));
+        return duration.TotalMinutes >= 1
+            ? $"{(int)duration.TotalMinutes}m {duration.Seconds}s"
+            : $"{duration.Seconds}s";
+    }
+}
+
+<style>
+    .exam-result-hero {
+        display: grid;
+        gap: 1.2rem;
+        padding: clamp(1.2rem, 1rem + 0.5vw, 1.8rem);
+        border-radius: 28px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background:
+            radial-gradient(circle at top right, color-mix(in srgb, var(--acc-brand-600) 18%, transparent), transparent 42%),
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 84%, black 16%));
+        box-shadow: var(--acc-shadow);
+    }
+
+    .exam-result-hero__summary {
+        display: grid;
+        gap: 0.8rem;
+    }
+
+    .exam-result-hero__headline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .exam-result-hero__headline h1 {
+        margin: 0;
+        color: var(--acc-text);
+        font-family: var(--font-heading);
+        font-size: clamp(1.52rem, 1.24rem + 0.78vw, 2.1rem);
+        letter-spacing: -0.03em;
+    }
+
+    .exam-result-hero__summary > p,
+    .exam-result-hero__message,
+    .exam-result-hero__note {
+        margin: 0;
+        color: var(--acc-text-muted);
+        line-height: 1.7;
+    }
+
+    .exam-result-hero__badge,
+    .exam-result-hero__status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0.3rem 0.72rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        width: fit-content;
+    }
+
+    .exam-result-hero__badge {
+        color: color-mix(in srgb, var(--acc-brand-300) 88%, white);
+        border: 1px solid color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2));
+    }
+
+    .exam-result-hero__status--pass {
+        color: color-mix(in srgb, var(--acc-success-400) 92%, white);
+        background: color-mix(in srgb, var(--acc-success-500) 12%, var(--acc-bg-2));
+        border: 1px solid color-mix(in srgb, var(--acc-success-500) 38%, var(--acc-border));
+    }
+
+    .exam-result-hero__status--fail {
+        color: color-mix(in srgb, var(--acc-danger-400) 94%, white);
+        background: color-mix(in srgb, var(--acc-danger-500) 12%, var(--acc-bg-2));
+        border: 1px solid color-mix(in srgb, var(--acc-danger-500) 38%, var(--acc-border));
+    }
+
+    .exam-result-hero__message {
+        color: var(--acc-text);
+        font-weight: 600;
+    }
+
+    .exam-result-hero__note {
+        padding: 0.85rem 0.95rem;
+        border-radius: 16px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 82%, transparent);
+        background: color-mix(in srgb, var(--acc-surface-2) 76%, black);
+    }
+
+    .exam-result-hero__metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .exam-result-hero__metric {
+        display: grid;
+        gap: 0.4rem;
+        padding: 1rem;
+        border-radius: 20px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 82%, transparent);
+        background: color-mix(in srgb, var(--acc-surface-2) 76%, black);
+    }
+
+    .exam-result-hero__metric span,
+    .exam-result-hero__metric small {
+        color: var(--acc-text-muted);
+    }
+
+    .exam-result-hero__metric strong {
+        color: var(--acc-text);
+        font-size: 1.05rem;
+        line-height: 1.35;
+    }
+
+    .exam-result-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+    }
+
+    .exam-result-hero__action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0.75rem 1.2rem;
+        border-radius: 999px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .exam-result-hero__action:hover {
+        transform: translateY(-1px);
+    }
+
+    .exam-result-hero__action--primary {
+        color: white;
+        background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-brand-600));
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+    }
+
+    .exam-result-hero__action--ghost {
+        color: var(--acc-text);
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background: color-mix(in srgb, var(--acc-surface-2) 76%, black);
+    }
+</style>

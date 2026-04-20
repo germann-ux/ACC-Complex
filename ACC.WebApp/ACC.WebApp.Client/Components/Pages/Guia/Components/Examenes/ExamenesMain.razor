@@ -1,50 +1,495 @@
-﻿@using ACC.Shared.DTOs
+@page "/examenes/modulo/{ModuloId:int}"
+@rendermode InteractiveServer
+
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
+@using ACC.WebApp.Client.Services
+@using ACC.Shared.Core
+@using ACC.Shared.DTOs
 @using ACC.Shared.Enums
+@using Microsoft.AspNetCore.Components.Web
+@using System.Globalization
 
-<h3>Evaluaciones disponibles</h3>
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ExamenesServiceClient ExamenesService
+@inject NavegacionContenidoClient Navegacion
+@inject NavigationManager NavigationManager
+@inject ProgresoUsuarioClient ProgresoService
 
-@if (ExamenesSubModulo?.Count > 0)
-{
-    @foreach (var examen in ExamenesSubModulo)
+<div class="exam-route-shell">
+    @if (isLoading)
     {
-        <Examen Tipo="ExamenTipo.SubModulo"
-                RefId="@examen.SubModuloId"
-                ExamenNombre="@examen.Nombre"
-                ExamenDescripcion="@examen.Descripcion"
-                OnRealizarExamen="@(id => IrAlExamen(ExamenTipo.SubModulo, id))" />
+        <section class="exam-route-surface exam-route-state" aria-live="polite">
+            <p>
+                <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+                Cargando ruta de exámenes...
+            </p>
+        </section>
     }
-}
-
-@if (ExamenesModulo is not null)
-{
-    @foreach (var examenModulo in ExamenesModulo)
+    else if (!string.IsNullOrWhiteSpace(errorMessage))
     {
-        <!-- Muestra el examen integrador del Módulo -->
-        <Examen Tipo="ExamenTipo.Modulo"
-                RefId="@examenModulo.ModuloId"
-                ExamenNombre="@examenModulo.Nombre"
-                ExamenDescripcion="@examenModulo.Descripcion"
-                OnRealizarExamen="@(id => IrAlExamen(ExamenTipo.Modulo, id))" />
+        <section class="exam-route-surface exam-route-state exam-route-state--error" role="alert">
+            <p>
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                @errorMessage
+            </p>
+        </section>
     }
-}
+    else if (viewModel is null)
+    {
+        <section class="exam-route-surface exam-route-state exam-route-state--error" role="alert">
+            <p>
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                No se pudo resolver la ruta de exámenes.
+            </p>
+        </section>
+    }
+    else if (viewModel.Steps.Count == 0)
+    {
+        <section class="exam-route-surface exam-route-state" aria-live="polite">
+            <div class="exam-route-empty">
+                <span class="exam-route-badge">Exámenes</span>
+                <h2>@ExamTextNormalizer.Normalize(viewModel.ModuleNode.Nombre)</h2>
+                <p>Este módulo aún no tiene exámenes disponibles dentro de la ruta de evaluación.</p>
+                <button type="button" class="exam-route-btn exam-route-btn--ghost" @onclick="VolverAGuiaAsync">
+                    Volver a la guía
+                </button>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="exam-route-workspace">
+            <section class="exam-route-surface exam-route-panel">
+                <div class="exam-route-head">
+                    <span class="exam-route-badge">Ruta de evaluación</span>
+                    <h1>@ExamTextNormalizer.Normalize(viewModel.ModuleNode.Nombre)</h1>
+                    <p>Selecciona un hito para revisar su contexto antes de iniciar el examen.</p>
+                </div>
+
+                <div class="exam-route-list" role="list" aria-label="Ruta de exámenes del módulo">
+                    @for (var index = 0; index < viewModel.Steps.Count; index++)
+                    {
+                        var step = viewModel.Steps[index];
+                        <article class="@ObtenerClasesPaso(step)"
+                                 role="button"
+                                 tabindex="0"
+                                 aria-pressed="@(selectedStep?.RefId == step.RefId && selectedStep.ExamType == step.ExamType)"
+                                 @onclick="() => SeleccionarPaso(step)"
+                                 @onkeydown="args => ManejarTeclaPaso(args, step)">
+                            <div class="exam-route-node" aria-hidden="true">
+                                <span class="exam-route-node__dot"></span>
+                                <span class="exam-route-node__label">@((index + 1).ToString("00", routeCulture))</span>
+                            </div>
+
+                            <div class="exam-route-item">
+                                <div class="exam-route-item__top">
+                                    <div>
+                                        <h2>@step.Title</h2>
+                                        <p>@step.Subtitle</p>
+                                    </div>
+                                    <span class="@ObtenerClasesEstado(step)">@ObtenerTextoEstado(step)</span>
+                                </div>
+
+                                <div class="exam-route-item__meta">
+                                    <span class="exam-route-pill">@ObtenerEtiquetaTipo(step)</span>
+                                    <span class="exam-route-pill">@ObtenerTextoIntentosRealizados(step)</span>
+                                    @if (step.LatestAttempt is not null)
+                                    {
+                                        <span class="exam-route-pill">Última calificación: @step.LatestAttempt.Calificacion.ToString("0.#", routeCulture)</span>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+
+            <aside class="exam-route-surface exam-route-context">
+                @if (selectedStep is not null)
+                {
+                    <div class="exam-route-context__head">
+                        <span class="@ObtenerClasesEstado(selectedStep)">@ObtenerTextoEstado(selectedStep)</span>
+                        <h2>@selectedStep.Title</h2>
+                        <p>@selectedStep.Subtitle</p>
+                    </div>
+
+                    <div class="exam-route-context__block">
+                        <h3>Objetivo</h3>
+                        <p>@ObtenerDescripcion(selectedStep.Objective)</p>
+                    </div>
+
+                    <div class="exam-route-context__block">
+                        <h3>Conocimientos previos</h3>
+                        @if (selectedStep.Prerequisites.Count > 0)
+                        {
+                            <ul class="exam-route-context__list">
+                                @foreach (var item in selectedStep.Prerequisites)
+                                {
+                                    <li>@item</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>Aún no hay precedentes registrados para este examen.</p>
+                        }
+                    </div>
+
+                    <div class="exam-route-context__block">
+                        <h3>Estado actual</h3>
+                        <div class="exam-route-context__stats">
+                            <article class="exam-route-stat">
+                                <span class="exam-route-stat__label">Habilitación</span>
+                                <span class="exam-route-stat__value">@ObtenerTextoEstado(selectedStep)</span>
+                            </article>
+                            <article class="exam-route-stat">
+                                <span class="exam-route-stat__label">Intentos realizados</span>
+                                <span class="exam-route-stat__value">@ObtenerTextoIntentosRealizados(selectedStep)</span>
+                            </article>
+                            <article class="exam-route-stat">
+                                <span class="exam-route-stat__label">Preguntas</span>
+                                <span class="exam-route-stat__value">@selectedStep.QuestionCount</span>
+                            </article>
+                            <article class="exam-route-stat">
+                                <span class="exam-route-stat__label">Puntaje mínimo</span>
+                                <span class="exam-route-stat__value">@selectedStep.PassingScore.ToString("0.#", routeCulture)</span>
+                            </article>
+                            <article class="exam-route-stat">
+                                <span class="exam-route-stat__label">Último intento</span>
+                                <span class="exam-route-stat__value">@ObtenerTextoUltimoIntento(selectedStep)</span>
+                            </article>
+                            <article class="exam-route-stat">
+                                <span class="exam-route-stat__label">Última calificación</span>
+                                <span class="exam-route-stat__value">@ObtenerTextoUltimaCalificacion(selectedStep)</span>
+                            </article>
+                        </div>
+                    </div>
+
+                    <div class="exam-route-context__actions">
+                        <button type="button"
+                                class="exam-route-btn exam-route-btn--primary"
+                                disabled="@(!selectedStep.IsEnabled)"
+                                @onclick="() => IniciarExamenAsync(selectedStep)">
+                            Iniciar examen
+                        </button>
+
+                        <button type="button" class="exam-route-btn exam-route-btn--ghost" @onclick="VolverAGuiaAsync">
+                            Volver a la guía
+                        </button>
+                    </div>
+                }
+            </aside>
+        </section>
+    }
+</div>
 
 @code {
-    [Inject] private NavigationManager nav { get; set; } = default!;
+    [Parameter] public int ModuloId { get; set; }
 
-    // Entrada
-    [Parameter] public List<ExamenSubModuloDto> ExamenesSubModulo { get; set; } = [];
-    [Parameter] public List<ExamenModuloDto>? ExamenesModulo { get; set; }
+    private readonly CultureInfo routeCulture = CultureInfo.GetCultureInfo("es-MX");
 
-    private void IrAlExamen(ExamenTipo tipo, int refId)
+    private ExamRouteViewModel? viewModel;
+    private ExamRouteStepViewModel? selectedStep;
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? userId;
+
+    protected override async Task OnInitializedAsync()
     {
-        var slug = tipo switch
-        {
-            ExamenTipo.SubModulo => "ExamenSubModulo",
-            ExamenTipo.Modulo => "ExamenModulo",
-            ExamenTipo.Libre => "ExamenLibre",
-            _ => "Examen"
-        };
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        nav.NavigateTo($"examen/{slug}/{refId}");
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        viewModel = null;
+        selectedStep = null;
+
+        try
+        {
+            viewModel = await ConstruirVistaAsync();
+            selectedStep = SeleccionarPasoInicial(viewModel.Steps);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task<ExamRouteViewModel> ConstruirVistaAsync()
+    {
+        var modulosResult = await Navegacion.ObtenerModulosAsync();
+        if (!modulosResult.Success)
+        {
+            throw new InvalidOperationException(modulosResult.Message ?? "No se pudieron cargar los módulos.");
+        }
+
+        var modulo = modulosResult.Data?.FirstOrDefault(item => item.Id == ModuloId);
+        if (modulo is null)
+        {
+            throw new InvalidOperationException("No se encontró el módulo solicitado.");
+        }
+
+        var submodulos = await ObtenerHijosAsync(modulo);
+        var examenesSubModulo = await ExamenesService.ObtenerExamanesSubMAsync();
+        var examenModulo = await ExamenesService.ObtenerExamenModPorModuloIdAsync(ModuloId);
+        var intentos = string.IsNullOrWhiteSpace(userId)
+            ? new List<ExamenIntentoDto>()
+            : await ExamenesService.ObtenerIntentosPorUsuarioAsync(userId);
+
+        var submodulosPorId = submodulos.ToDictionary(submodulo => submodulo.Id);
+
+        var tareasPasosSubModulo = examenesSubModulo
+            .Where(examen => examen.SubModuloId > 0 && submodulosPorId.ContainsKey(examen.SubModuloId))
+            .Select(async examen =>
+            {
+                var submodulo = submodulosPorId[examen.SubModuloId];
+                var temas = await ObtenerHijosAsync(submodulo);
+
+                return new ExamRouteStepViewModel
+                {
+                    RefId = examen.Id,
+                    ExamType = ExamenTipo.SubModulo,
+                    Title = ExamTextNormalizer.Normalize(
+                        string.IsNullOrWhiteSpace(examen.Nombre) ? $"Examen de {submodulo.Nombre}" : examen.Nombre),
+                    Subtitle = ExamTextNormalizer.Normalize(submodulo.Nombre),
+                    Objective = ExamTextNormalizer.Normalize(examen.Descripcion),
+                    QuestionCount = examen.NumeroPreguntas,
+                    PassingScore = examen.PuntajeAprobacion,
+                    Prerequisites = ExamTextNormalizer.NormalizeMany(temas.Select(tema => tema.Nombre)),
+                    GuideRoute = $"/contenido/SubModulo/{submodulo.Id}"
+                };
+            });
+
+        var pasos = (await Task.WhenAll(tareasPasosSubModulo)).ToList();
+        pasos = pasos
+            .OrderBy(paso => paso.ExamType == ExamenTipo.SubModulo ? 0 : 1)
+            .ThenBy(paso => paso.RefId)
+            .ToList();
+
+        if (examenModulo is not null)
+        {
+            pasos.Add(new ExamRouteStepViewModel
+            {
+                RefId = examenModulo.Id,
+                ExamType = ExamenTipo.Modulo,
+                Title = ExamTextNormalizer.Normalize(
+                    string.IsNullOrWhiteSpace(examenModulo.Nombre) ? $"Examen de {modulo.Nombre}" : examenModulo.Nombre),
+                Subtitle = "Examen final del módulo",
+                Objective = ExamTextNormalizer.Normalize(examenModulo.Descripcion),
+                QuestionCount = examenModulo.NumeroPreguntas,
+                PassingScore = examenModulo.PuntajeAprobacion,
+                Prerequisites = ExamTextNormalizer.NormalizeMany(submodulos.Select(submodulo => submodulo.Nombre)),
+                GuideRoute = $"/contenido/Modulo/{modulo.Id}"
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(userId) && pasos.Count > 0)
+        {
+            await Task.WhenAll(pasos.Select(async paso =>
+            {
+                paso.LatestAttempt = ObtenerUltimoIntento(intentos, paso.ExamType, paso.RefId);
+                paso.IsCompleted = paso.LatestAttempt?.Aprobado == true;
+                paso.IsEnabled = await ProgresoService.ExamenHabilitadoAsync(userId, paso.ExamType, paso.RefId);
+            }));
+        }
+
+        return new ExamRouteViewModel
+        {
+            ModuleNode = modulo,
+            Steps = pasos
+        };
+    }
+
+    private async Task<List<NodoJerarquicoDto>> ObtenerHijosAsync(NodoJerarquicoDto node)
+    {
+        var result = await Navegacion.ObtenerHijosAsync(node.Tipo, node.Id);
+
+        if (result.Success)
+        {
+            return result.Data ?? new List<NodoJerarquicoDto>();
+        }
+
+        if (result.StatusCode == HttpStatusCodes.NotFound)
+        {
+            return new List<NodoJerarquicoDto>();
+        }
+
+        throw new InvalidOperationException(result.Message ?? "No se pudo cargar la jerarquía del módulo.");
+    }
+
+    private static ExamenIntentoDto? ObtenerUltimoIntento(
+        IEnumerable<ExamenIntentoDto> intentos,
+        ExamenTipo tipo,
+        int refId)
+    {
+        return tipo switch
+        {
+            ExamenTipo.SubModulo => intentos
+                .Where(intento => intento.ExamenSubModuloId == refId)
+                .OrderByDescending(intento => intento.FechaIntento)
+                .ThenByDescending(intento => intento.NumeroIntento)
+                .FirstOrDefault(),
+            ExamenTipo.Modulo => intentos
+                .Where(intento => intento.ExamenModuloId == refId)
+                .OrderByDescending(intento => intento.FechaIntento)
+                .ThenByDescending(intento => intento.NumeroIntento)
+                .FirstOrDefault(),
+            _ => intentos
+                .Where(intento => intento.ExamenId == refId)
+                .OrderByDescending(intento => intento.FechaIntento)
+                .ThenByDescending(intento => intento.NumeroIntento)
+                .FirstOrDefault()
+        };
+    }
+
+    private static ExamRouteStepViewModel? SeleccionarPasoInicial(IReadOnlyList<ExamRouteStepViewModel> steps)
+    {
+        if (steps.Count == 0)
+        {
+            return null;
+        }
+
+        return steps.FirstOrDefault(step => step.IsEnabled && !step.IsCompleted)
+            ?? steps.LastOrDefault(step => step.IsCompleted)
+            ?? steps[0];
+    }
+
+    private void SeleccionarPaso(ExamRouteStepViewModel step)
+    {
+        selectedStep = step;
+    }
+
+    private void ManejarTeclaPaso(KeyboardEventArgs eventArgs, ExamRouteStepViewModel step)
+    {
+        if (eventArgs.Key is "Enter" or " ")
+        {
+            SeleccionarPaso(step);
+        }
+    }
+
+    private Task IniciarExamenAsync(ExamRouteStepViewModel step)
+    {
+        if (!step.IsEnabled)
+        {
+            return Task.CompletedTask;
+        }
+
+        var slug = step.ExamType == ExamenTipo.Modulo ? "ExamenModulo" : "ExamenSubModulo";
+        NavigationManager.NavigateTo($"/examen/{slug}/{step.RefId}");
+        return Task.CompletedTask;
+    }
+
+    private Task VolverAGuiaAsync()
+    {
+        var route = selectedStep?.GuideRoute ?? $"/contenido/Modulo/{ModuloId}";
+        NavigationManager.NavigateTo(route);
+        return Task.CompletedTask;
+    }
+
+    private string ObtenerClasesPaso(ExamRouteStepViewModel step)
+    {
+        var clases = new List<string> { "exam-route-step" };
+
+        if (step.IsCompleted)
+        {
+            clases.Add("exam-route-step--done");
+        }
+        else if (!step.IsEnabled)
+        {
+            clases.Add("exam-route-step--locked");
+        }
+        else
+        {
+            clases.Add("exam-route-step--available");
+        }
+
+        if (selectedStep?.RefId == step.RefId && selectedStep.ExamType == step.ExamType)
+        {
+            clases.Add("exam-route-step--selected");
+        }
+
+        return string.Join(" ", clases);
+    }
+
+    private static string ObtenerClasesEstado(ExamRouteStepViewModel step)
+    {
+        var clases = "exam-route-status";
+
+        if (step.IsCompleted)
+        {
+            return $"{clases} exam-route-status--done";
+        }
+
+        return step.IsEnabled
+            ? $"{clases} exam-route-status--active"
+            : $"{clases} exam-route-status--locked";
+    }
+
+    private static string ObtenerTextoEstado(ExamRouteStepViewModel step)
+    {
+        if (step.IsCompleted)
+        {
+            return "Aprobado";
+        }
+
+        return step.IsEnabled ? "Disponible" : "Bloqueado";
+    }
+
+    private static string ObtenerEtiquetaTipo(ExamRouteStepViewModel step)
+        => step.ExamType == ExamenTipo.Modulo ? "Examen final" : "Submódulo";
+
+    private static string ObtenerTextoIntentosRealizados(ExamRouteStepViewModel step)
+    {
+        var usados = step.LatestAttempt?.NumeroIntento ?? 0;
+        return usados == 0 ? "Sin intentos" : usados == 1 ? "1 intento" : $"{usados} intentos";
+    }
+
+    private string ObtenerTextoUltimoIntento(ExamRouteStepViewModel step)
+        => step.LatestAttempt is null
+            ? "Sin intentos"
+            : step.LatestAttempt.FechaIntento.ToLocalTime().ToString("dd MMM yyyy", routeCulture);
+
+    private string ObtenerTextoUltimaCalificacion(ExamRouteStepViewModel step)
+        => step.LatestAttempt is null
+            ? "Sin registro"
+            : step.LatestAttempt.Calificacion.ToString("0.#", routeCulture);
+
+    private static string ObtenerDescripcion(string? descripcion)
+        => string.IsNullOrWhiteSpace(descripcion)
+            ? "Sin descripción disponible por ahora."
+            : ExamTextNormalizer.Normalize(descripcion);
+
+    private sealed class ExamRouteViewModel
+    {
+        public NodoJerarquicoDto ModuleNode { get; init; } = default!;
+        public List<ExamRouteStepViewModel> Steps { get; init; } = new();
+    }
+
+    private sealed class ExamRouteStepViewModel
+    {
+        public int RefId { get; init; }
+        public ExamenTipo ExamType { get; init; }
+        public string Title { get; init; } = string.Empty;
+        public string Subtitle { get; init; } = string.Empty;
+        public string Objective { get; init; } = string.Empty;
+        public string GuideRoute { get; init; } = string.Empty;
+        public int QuestionCount { get; init; }
+        public double PassingScore { get; init; }
+        public List<string> Prerequisites { get; init; } = new();
+        public bool IsEnabled { get; set; }
+        public bool IsCompleted { get; set; }
+        public ExamenIntentoDto? LatestAttempt { get; set; }
     }
 }

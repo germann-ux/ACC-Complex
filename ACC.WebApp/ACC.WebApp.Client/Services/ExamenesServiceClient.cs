@@ -1,5 +1,6 @@
-﻿using ACC.Shared.Core;
+using ACC.Shared.Core;
 using ACC.Shared.DTOs;
+using ACC.Shared.Enums;
 using ACC.Shared.Utils;
 using System.Net.Http.Json;
 
@@ -12,9 +13,17 @@ namespace ACC.WebApp.Client.Services
 
         public async Task<List<ExamenSubModuloDto>> ObtenerExamanesSubMAsync()
         {
-            return await _http.GetFromJsonAsync<List<ExamenSubModuloDto>>(
-                $"{_baseUrlModExams}ExamenesSubM/todos", Options._jsonOptions
-                ) ?? [];
+            try
+            {
+                return await _http.GetFromJsonAsync<List<ExamenSubModuloDto>>(
+                    $"{_baseUrlModExams}ExamenesSubM/todos", Options._jsonOptions
+                    ) ?? [];
+            }
+            catch (HttpRequestException ex)
+                when (ex.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
+            {
+                return [];
+            }
         }
 
         public async Task<ExamenSubModuloDto?> ObtenerExamenSubMAsync(int id)
@@ -46,6 +55,31 @@ namespace ACC.WebApp.Client.Services
                 );
         }
 
+        public async Task<ExamenIntentoDto?> ObtenerUltimoIntentoPorUsuarioYExamenAsync(
+            string userId,
+            ExamenTipo tipo,
+            int examenId)
+        {
+            return await _http.GetFromJsonAsync<ExamenIntentoDto?>(
+                $"{_baseUrlModExams}ExamIntento/usuario/{userId}/tipo/{tipo}/examen/{examenId}",
+                Options._jsonOptions);
+        }
+
+        public async Task<ExamenEstadoDto?> ObtenerEstadoExamenAsync(ExamenTipo tipo, int examenId)
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<ExamenEstadoDto?>(
+                    $"{_baseUrlModExams}estado/{tipo}/{examenId}",
+                    Options._jsonOptions);
+            }
+            catch (HttpRequestException ex)
+                when (ex.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
         public async Task<ExamenIntentoDto?> RegistrarIntentoExamenAsync(ExamenIntentoDto intentoDto)
         {
             var response = await _http.PostAsJsonAsync(
@@ -63,9 +97,27 @@ namespace ACC.WebApp.Client.Services
 
         public async Task<List<ExamenModuloDto>> ObtenerExamenesModAsync()
         {
-            return await _http.GetFromJsonAsync<List<ExamenModuloDto>>(
-                $"{_baseUrlModExams}ExamenesMod/todos", Options._jsonOptions
-                ) ?? [];
+            try
+            {
+                return await _http.GetFromJsonAsync<List<ExamenModuloDto>>(
+                    $"{_baseUrlModExams}ExamenesMod/todos", Options._jsonOptions
+                    ) ?? [];
+            }
+            catch (HttpRequestException ex)
+                when (ex.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
+            {
+                return [];
+            }
+        }
+
+        public async Task<ExamenModuloDto?> ObtenerExamenModAsync(int id)
+        {
+            if (id <= 0)
+                return null;
+
+            return await _http.GetFromJsonAsync<ExamenModuloDto?>(
+                $"{_baseUrlModExams}ExamenesMod/{id}",
+                Options._jsonOptions);
         }
 
         public async Task<ExamenSubModuloDto?> ObtenerExamenSubMPorSubModuloIdAsync(int subModuloId)

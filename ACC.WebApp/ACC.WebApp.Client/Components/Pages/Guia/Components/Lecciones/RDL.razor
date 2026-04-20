@@ -41,6 +41,18 @@
     {
         switch (seccion)
         {
+            case SeccionesContenido.Mermaid:
+                if (!string.IsNullOrWhiteSpace(Leccion.MermaidCodigo))
+                {
+                    <div class="leccion-mermaid-block">
+                        <MermaidSection
+                            Titulo="@Leccion.MermaidTitulo"
+                            Descripcion="@Leccion.MermaidDescripcion"
+                            Codigo="@Leccion.MermaidCodigo" />
+                    </div>
+                }
+                break;
+
             case SeccionesContenido.CharpDialog:
                 <CharpDialog Texto ="@Leccion.CharpDialog"/>
                 break;

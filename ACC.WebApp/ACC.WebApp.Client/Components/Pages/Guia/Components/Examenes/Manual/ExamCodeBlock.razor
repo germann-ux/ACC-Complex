@@ -1,0 +1,48 @@
+<figure class="exam-code-block">
+    @if (!string.IsNullOrWhiteSpace(Language))
+    {
+        <figcaption>@Language</figcaption>
+    }
+    <pre><code>@Code</code></pre>
+</figure>
+
+@code {
+    [Parameter, EditorRequired] public string Code { get; set; } = string.Empty;
+    [Parameter] public string? Language { get; set; }
+}
+
+<style>
+    .exam-code-block {
+        display: grid;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 1rem 1.05rem;
+        border-radius: 16px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 82%, transparent);
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 94%, black 6%), color-mix(in srgb, var(--acc-bg-3) 90%, black 10%));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .exam-code-block figcaption {
+        color: var(--acc-brand-400);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    .exam-code-block pre {
+        margin: 0;
+        overflow-x: auto;
+        white-space: pre;
+    }
+
+    .exam-code-block code {
+        color: var(--acc-text);
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+</style>

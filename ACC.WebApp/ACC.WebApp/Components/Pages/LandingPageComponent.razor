@@ -5,6 +5,7 @@
 
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 @if (_redirigiendo)
 {
@@ -97,7 +98,7 @@ else
 
         <section class="feature-section" id="plataforma">
             <div class="container">
-                <div class="section-heading">
+                <div class="section-heading scroll-animate">
                     <span class="section-kicker">Plataforma real</span>
                     <h2 class="section-title">Lo que si puedes hacer hoy en ACC</h2>
                     <p class="section-text">
@@ -106,9 +107,10 @@ else
                 </div>
 
                 <div class="feature-grid">
-                    @foreach (var feature in features)
+                    @for (var i = 0; i < features.Length; i++)
                     {
-                        <article class="feature-card">
+                        var feature = features[i];
+                        <article class="feature-card scroll-animate scroll-delay-@(i % 4)">
                             <div class="feature-card-top">
                                 <span class="feature-icon-wrap">
                                     <i class="@feature.Icon feature-icon"></i>
@@ -134,7 +136,7 @@ else
 
         <section class="journey-section" id="recorrido">
             <div class="container journey-layout">
-                <div class="journey-copy">
+                <div class="journey-copy scroll-animate">
                     <span class="section-kicker">Recorrido sugerido</span>
                     <h2 class="section-title section-title--left">Como se vive la plataforma cuando ya entras</h2>
                     <p class="section-text section-text--left">
@@ -147,7 +149,7 @@ else
                     @for (var index = 0; index < journeySteps.Length; index++)
                     {
                         var step = journeySteps[index];
-                        <article class="journey-step">
+                        <article class="journey-step scroll-animate">
                             <span class="journey-index">0@(index + 1)</span>
                             <div>
                                 <h3>@step.Title</h3>
@@ -161,15 +163,16 @@ else
 
         <section class="roles-section" id="roles">
             <div class="container">
-                <div class="section-heading">
+                <div class="section-heading scroll-animate">
                     <span class="section-kicker">Roles y contexto</span>
                     <h2 class="section-title">La experiencia cambia segun el tipo de usuario</h2>
                 </div>
 
                 <div class="roles-grid">
-                    @foreach (var role in roles)
+                    @for (var i = 0; i < roles.Length; i++)
                     {
-                        <article class="role-card">
+                        var role = roles[i];
+                        <article class="role-card scroll-animate scroll-delay-@(i % 3)">
                             <div class="role-card-top">
                                 <i class="@role.Icon"></i>
                                 <h3>@role.Title</h3>
@@ -189,7 +192,7 @@ else
 
         <section class="faq-section" id="preguntas">
             <div class="container">
-                <div class="section-heading">
+                <div class="section-heading scroll-animate">
                     <span class="section-kicker">Preguntas frecuentes</span>
                     <h2 class="section-title">Dudas comunes sobre el estado actual de ACC</h2>
                 </div>
@@ -197,20 +200,23 @@ else
                 <div class="faq-list">
                     @for (var index = 0; index < faqs.Length; index++)
                     {
-                        var faq = faqs[index];
-                        <article class="faq-item @(faqAbierta == index ? "active" : string.Empty)">
-                            <button type="button"
-                                    class="faq-question"
-                                    aria-expanded="@(faqAbierta == index)"
-                                    @onclick="() => ToggleFaq(index)">
-                                <span>@faq.Question</span>
-                                <i class="fa-solid fa-chevron-down faq-icon"></i>
-                            </button>
+                        var i = index;
+                        var faq = faqs[i];
+                        <div class="scroll-animate scroll-delay-@(i % 3)">
+                            <article class="faq-item @(faqAbierta == i ? "active" : string.Empty)">
+                                <button type="button"
+                                        class="faq-question"
+                                        aria-expanded="@(faqAbierta == i)"
+                                        @onclick="() => ToggleFaq(i)">
+                                    <span>@faq.Question</span>
+                                    <i class="fa-solid fa-chevron-down faq-icon"></i>
+                                </button>
 
-                            <div class="faq-answer @(faqAbierta == index ? "faq-answer-open" : string.Empty)">
-                                <p>@faq.Answer</p>
-                            </div>
-                        </article>
+                                <div class="faq-answer @(faqAbierta == i ? "faq-answer-open" : string.Empty)">
+                                    <p>@faq.Answer</p>
+                                </div>
+                            </article>
+                        </div>
                     }
                 </div>
             </div>
@@ -218,7 +224,7 @@ else
 
         <section class="final-cta" id="acceso">
             <div class="final-cta-bg"></div>
-            <div class="container final-cta-content">
+            <div class="container final-cta-content scroll-animate">
                 <span class="section-kicker section-kicker--center">Acceso</span>
                 <h2 class="final-cta-title">Entra a ACC y empieza desde tu resumen, no desde una pantalla vacia.</h2>
                 <p class="final-cta-text">
@@ -356,6 +362,28 @@ else
         {
             _redirigiendo = true;
             Navigation.NavigateTo("/Resumen", forceLoad: true);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !estaAutenticado)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", @"
+                    const obs = new IntersectionObserver((entries) => {
+                        entries.forEach(e => {
+                            if(e.isIntersecting) {
+                                e.target.classList.add('scrolled-in');
+                                obs.unobserve(e.target);
+                            }
+                        });
+                    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+                    document.querySelectorAll('.scroll-animate').forEach(el => obs.observe(el));
+                ");
+            }
+            catch { /* Ignore JS errors on prerender or if eval blocked */ }
         }
     }
 

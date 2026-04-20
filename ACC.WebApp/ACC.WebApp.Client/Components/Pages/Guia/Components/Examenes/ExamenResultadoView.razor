@@ -1,0 +1,272 @@
+@page "/examen/resultado/{Tipo}/{RefId:int}"
+@rendermode InteractiveServer
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
+@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual
+@using ACC.WebApp.Client.Services
+@inject ExamenesServiceClient ExamenesService
+@inject ManualExamResultStore ResultStore
+
+@if (isLoading)
+{
+    <section class="exam-result-view__state">
+        <p>Cargando resultado del examen...</p>
+    </section>
+}
+else if (!string.IsNullOrWhiteSpace(error))
+{
+    <section class="exam-result-view__state exam-result-view__state--error">
+        <h2>No se pudo abrir el resultado</h2>
+        <p>@error</p>
+    </section>
+}
+else if (viewModel is not null)
+{
+    <section class="exam-result-view">
+        <ExamResultHero Title="@viewModel.Title"
+                        Description="@viewModel.Description"
+                        Message="@viewModel.Message"
+                        Passed="@viewModel.Passed"
+                        IsFallback="@viewModel.IsFallback"
+                        Percentage="@viewModel.Percentage"
+                        CorrectAnswers="@viewModel.CorrectAnswers"
+                        TotalQuestions="@viewModel.TotalQuestions"
+                        PassingText="@viewModel.PassingText"
+                        AttemptsUsed="@viewModel.AttemptsUsed"
+                        AttemptsRemaining="@viewModel.AttemptsRemaining"
+                        TimeSeconds="@viewModel.TimeSeconds"
+                        CanRetry="@viewModel.CanRetry"
+                        RetryHref="@viewModel.RetryHref"
+                        GuideHref="@viewModel.GuideHref" />
+
+        @if (viewModel.Snapshot is not null)
+        {
+            <ExamReviewPanel Questions="@viewModel.Snapshot.Questions"
+                             SelectedOptions="@viewModel.Snapshot.SelectedOptions" />
+        }
+        else
+        {
+            <article class="exam-result-view__fallback">
+                <h2>Repaso detallado no disponible</h2>
+                <p>Este resultado se abri&oacute; sin el snapshot del intento actual, por lo que solo se muestran las m&eacute;tricas b&aacute;sicas del &uacute;ltimo intento registrado.</p>
+            </article>
+        }
+    </section>
+}
+
+@code {
+    [Parameter] public string? Tipo { get; set; }
+    [Parameter] public int RefId { get; set; }
+
+    private string? error;
+    private bool isLoading;
+    private ResultViewModel? viewModel;
+
+    private ExamenTipo ExamType => ManualExamSupport.ParseType(Tipo);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        error = null;
+        viewModel = null;
+
+        if (RefId <= 0)
+        {
+            error = "Identificador de examen inv\u00E1lido.";
+            isLoading = false;
+            return;
+        }
+
+        if (ExamType == ExamenTipo.Libre)
+        {
+            error = $"Tipo de examen no soportado: '{Tipo}'.";
+            isLoading = false;
+            return;
+        }
+
+        try
+        {
+            var snapshot = ResultStore.Get(ExamType, RefId);
+            var estado = await ExamenesService.ObtenerEstadoExamenAsync(ExamType, RefId);
+
+            if (snapshot is null && estado?.UltimoIntento is null)
+            {
+                error = "No hay un intento reciente disponible para mostrar.";
+                return;
+            }
+
+            var metadata = await LoadMetadataAsync(snapshot);
+            if (metadata is null)
+            {
+                error = "No se pudo obtener la informaci\u00F3n del examen.";
+                return;
+            }
+
+            viewModel = BuildViewModel(
+                snapshot,
+                estado,
+                metadata.Value.title,
+                metadata.Value.description,
+                metadata.Value.passingScore,
+                metadata.Value.totalQuestions);
+        }
+        catch (Exception ex)
+        {
+            error = $"No se pudo cargar el resultado: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task<(string title, string? description, int passingScore, int totalQuestions)?> LoadMetadataAsync(
+        ManualExamResultSnapshot? snapshot)
+    {
+        if (snapshot is not null)
+        {
+            return (
+                ExamTextNormalizer.Normalize(snapshot.Title, "Examen"),
+                ExamTextNormalizer.Normalize(snapshot.Description),
+                snapshot.PassingScore,
+                snapshot.Submission.TotalPreguntas);
+        }
+
+        if (ExamType == ExamenTipo.SubModulo)
+        {
+            var examen = await ExamenesService.ObtenerExamenSubMAsync(RefId);
+            return examen is null
+                ? null
+                : (
+                    ExamTextNormalizer.Normalize(examen.Nombre, "Examen"),
+                    ExamTextNormalizer.Normalize(examen.Descripcion),
+                    examen.PuntajeAprobacion,
+                    examen.NumeroPreguntas);
+        }
+
+        var examenModulo = await ExamenesService.ObtenerExamenModAsync(RefId);
+        return examenModulo is null
+            ? null
+            : (
+                ExamTextNormalizer.Normalize(examenModulo.Nombre, "Examen"),
+                ExamTextNormalizer.Normalize(examenModulo.Descripcion),
+                examenModulo.PuntajeAprobacion,
+                examenModulo.NumeroPreguntas);
+    }
+
+    private ResultViewModel BuildViewModel(
+        ManualExamResultSnapshot? snapshot,
+        ExamenEstadoDto? estado,
+        string title,
+        string? description,
+        int passingScore,
+        int totalQuestions)
+    {
+        var retryHref = ManualExamSupport.BuildExamRoute(ExamType, RefId);
+        const string guideHref = "/Guia";
+
+        if (snapshot is not null)
+        {
+            var currentState = snapshot.Outcome.EstadoActualizado ?? estado;
+            return new ResultViewModel
+            {
+                Title = title,
+                Description = description,
+                Message = snapshot.Outcome.SuccessMessage ?? "Tu intento fue registrado correctamente.",
+                Passed = snapshot.Outcome.Aprobado,
+                IsFallback = false,
+                Percentage = snapshot.Outcome.PorcentajeObtenido,
+                CorrectAnswers = snapshot.Submission.NumeroAciertos,
+                TotalQuestions = snapshot.Submission.TotalPreguntas,
+                PassingText = ManualExamSupport.GetPassingText(snapshot.PassingScore, snapshot.Submission.TotalPreguntas),
+                AttemptsUsed = currentState?.IntentosRealizados ?? 0,
+                AttemptsRemaining = currentState?.IntentosRestantes ?? 0,
+                TimeSeconds = snapshot.Submission.TiempoSegundos,
+                CanRetry = !snapshot.Outcome.Aprobado && (currentState?.PuedePresentar ?? false),
+                RetryHref = retryHref,
+                GuideHref = guideHref,
+                Snapshot = snapshot
+            };
+        }
+
+        var ultimoIntento = estado!.UltimoIntento!;
+        return new ResultViewModel
+        {
+            Title = title,
+            Description = description,
+            Message = "Se muestran las m\u00E9tricas b\u00E1sicas del \u00FAltimo intento registrado.",
+            Passed = ultimoIntento.Aprobado,
+            IsFallback = true,
+            Percentage = ultimoIntento.PorcentajeObtenido,
+            CorrectAnswers = ultimoIntento.NumeroAciertos,
+            TotalQuestions = ultimoIntento.TotalPreguntas,
+            PassingText = ManualExamSupport.GetPassingText(passingScore, totalQuestions),
+            AttemptsUsed = estado.IntentosRealizados,
+            AttemptsRemaining = estado.IntentosRestantes,
+            TimeSeconds = ultimoIntento.TiempoSegundos,
+            CanRetry = estado.PuedePresentar && !estado.EstaAprobado,
+            RetryHref = retryHref,
+            GuideHref = guideHref
+        };
+    }
+
+    private sealed class ResultViewModel
+    {
+        public required string Title { get; init; }
+        public string? Description { get; init; }
+        public string? Message { get; init; }
+        public bool Passed { get; init; }
+        public bool IsFallback { get; init; }
+        public double Percentage { get; init; }
+        public int CorrectAnswers { get; init; }
+        public int TotalQuestions { get; init; }
+        public required string PassingText { get; init; }
+        public int AttemptsUsed { get; init; }
+        public int AttemptsRemaining { get; init; }
+        public int? TimeSeconds { get; init; }
+        public bool CanRetry { get; init; }
+        public required string RetryHref { get; init; }
+        public required string GuideHref { get; init; }
+        public ManualExamResultSnapshot? Snapshot { get; init; }
+    }
+}
+
+<style>
+    .exam-result-view {
+        display: grid;
+        gap: 1.25rem;
+        width: min(1200px, calc(100% - 32px));
+        margin: 28px auto 42px;
+    }
+
+    .exam-result-view__state,
+    .exam-result-view__fallback {
+        width: min(1200px, calc(100% - 32px));
+        margin: 28px auto 42px;
+        padding: 1.2rem 1.25rem;
+        border-radius: 24px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 86%, black 14%));
+        box-shadow: var(--acc-shadow);
+    }
+
+    .exam-result-view__state h2,
+    .exam-result-view__fallback h2 {
+        margin: 0 0 0.55rem;
+        color: var(--acc-text);
+        font-family: var(--font-heading);
+    }
+
+    .exam-result-view__state p,
+    .exam-result-view__fallback p {
+        margin: 0;
+        color: var(--acc-text-muted);
+        line-height: 1.65;
+    }
+
+    .exam-result-view__state--error {
+        border-color: color-mix(in srgb, var(--acc-danger-500) 42%, var(--acc-border));
+    }
+</style>

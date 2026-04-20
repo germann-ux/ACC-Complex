@@ -1,0 +1,425 @@
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
+@using ACC.WebApp.Client.Services
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject ManualExamResultStore ResultStore
+
+<section class="manual-exam-shell">
+    <header class="manual-exam-shell__hero">
+        <div class="manual-exam-shell__hero-copy">
+            <span class="manual-exam-shell__badge">Evaluaci&oacute;n manual</span>
+            <h2>@DisplayTitle</h2>
+            @if (!string.IsNullOrWhiteSpace(DisplayDescription))
+            {
+                <p>@DisplayDescription</p>
+            }
+        </div>
+
+        <div class="manual-exam-shell__hero-stats">
+            <article class="manual-exam-shell__stat">
+                <span>Preguntas</span>
+                <strong>@Questions.Count</strong>
+            </article>
+            <article class="manual-exam-shell__stat">
+                <span>Aprobaci&oacute;n</span>
+                <strong>@ManualExamSupport.GetPassingText(PassingScore, Questions.Count)</strong>
+            </article>
+            <article class="manual-exam-shell__stat">
+                <span>Progreso</span>
+                <strong>@ObtenerProgresoTexto()</strong>
+            </article>
+            @if (TimeLimitSeconds.HasValue)
+            {
+                <article class="manual-exam-shell__stat">
+                    <span>Tiempo</span>
+                    <strong>@ObtenerTiempoTexto()</strong>
+                </article>
+            }
+        </div>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(configurationError))
+    {
+        <article class="manual-exam-shell__message manual-exam-shell__message--error">
+            <h3>Configuraci&oacute;n inv&aacute;lida</h3>
+            <p>@configurationError</p>
+        </article>
+    }
+    else if (!CanSubmit)
+    {
+        <article class="manual-exam-shell__message">
+            <h3>Examen no disponible</h3>
+            <p>@BlockReason</p>
+        </article>
+    }
+    else
+    {
+        <EditForm Model="selectedOptions">
+            <div class="manual-exam-shell__questions">
+                @for (var index = 0; index < Questions.Count; index++)
+                {
+                    var question = Questions[index];
+                    <ExamQuestionCard Question="@question"
+                                      QuestionNumber="@(index + 1)"
+                                      SelectedOptionKey="@ObtenerSeleccion(question.Id)"
+                                      OnSelectedOptionChanged="(value => SeleccionarOpcion(question.Id, value))" />
+                }
+            </div>
+        </EditForm>
+
+        @if (!string.IsNullOrWhiteSpace(submissionError))
+        {
+            <article class="manual-exam-shell__message manual-exam-shell__message--error">
+                <h3>No se pudo enviar</h3>
+                <p>@submissionError</p>
+            </article>
+        }
+
+        <div class="manual-exam-shell__actions">
+            <p>Responde todas las preguntas antes de enviar el examen.</p>
+            <button type="button"
+                    class="manual-exam-shell__submit"
+                    disabled="@isSubmitting"
+                    @onclick="SubmitAsync">
+                @(isSubmitting ? "Registrando..." : "Enviar examen")
+            </button>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Examen";
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public ExamenTipo ExamType { get; set; }
+    [Parameter] public int ExamRefId { get; set; }
+    [Parameter] public IReadOnlyList<ManualExamQuestion> Questions { get; set; } = Array.Empty<ManualExamQuestion>();
+    [Parameter] public int PassingScore { get; set; }
+    [Parameter] public int ExpectedQuestionCount { get; set; }
+    [Parameter] public int? TimeLimitSeconds { get; set; }
+    [Parameter] public bool CanSubmit { get; set; } = true;
+    [Parameter] public string BlockReason { get; set; } = "Este examen no est\u00E1 disponible por ahora.";
+    [Parameter] public Func<ManualExamSubmission, Task<ManualExamSubmissionOutcome>>? OnSubmitAttempt { get; set; }
+
+    private readonly Dictionary<string, string> selectedOptions = new();
+    private string? submissionError;
+    private string? configurationError;
+    private bool isSubmitting;
+    private int elapsedSeconds;
+    private System.Timers.Timer? timer;
+
+    private string DisplayTitle => ExamTextNormalizer.Normalize(Title, "Examen");
+
+    private string? DisplayDescription => ExamTextNormalizer.Normalize(Description);
+
+    protected override void OnParametersSet()
+    {
+        configurationError = null;
+
+        if (ExpectedQuestionCount <= 0)
+        {
+            configurationError = "La configuraci\u00F3n del examen es inv\u00E1lida: NumeroPreguntas debe ser mayor a cero.";
+        }
+        else if (Questions.Count != ExpectedQuestionCount)
+        {
+            configurationError = "La configuraci\u00F3n manual del examen no coincide con el n\u00FAmero de preguntas esperado.";
+        }
+
+        EnsureTimerState();
+    }
+
+    private void EnsureTimerState()
+    {
+        var shouldRunTimer = CanSubmit && string.IsNullOrWhiteSpace(configurationError);
+
+        if (!shouldRunTimer)
+        {
+            timer?.Stop();
+            return;
+        }
+
+        if (timer is not null)
+            return;
+
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += async (_, _) =>
+        {
+            elapsedSeconds++;
+            await InvokeAsync(StateHasChanged);
+
+            if (TimeLimitSeconds.HasValue && elapsedSeconds >= TimeLimitSeconds.Value)
+            {
+                await InvokeAsync(SubmitAsync);
+            }
+        };
+        timer.AutoReset = true;
+        timer.Start();
+    }
+
+    private string? ObtenerSeleccion(string questionId)
+        => selectedOptions.TryGetValue(questionId, out var value) ? value : null;
+
+    private void SeleccionarOpcion(string questionId, string optionKey)
+    {
+        selectedOptions[questionId] = optionKey;
+        submissionError = null;
+    }
+
+    private string ObtenerProgresoTexto()
+        => $"{selectedOptions.Count}/{Questions.Count} respondidas";
+
+    private string ObtenerTiempoTexto()
+    {
+        if (!TimeLimitSeconds.HasValue)
+        {
+            return "Sin limite";
+        }
+
+        var restante = Math.Max(TimeLimitSeconds.Value - elapsedSeconds, 0);
+        return $"{restante}s restantes";
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (isSubmitting || !CanSubmit || !string.IsNullOrWhiteSpace(configurationError))
+        {
+            return;
+        }
+
+        if (selectedOptions.Count != Questions.Count)
+        {
+            submissionError = "Debes responder todas las preguntas antes de enviar el examen.";
+            return;
+        }
+
+        if (OnSubmitAttempt is null)
+        {
+            submissionError = "No hay un controlador disponible para registrar este examen.";
+            return;
+        }
+
+        isSubmitting = true;
+        submissionError = null;
+
+        var numeroAciertos = Questions.Count(question =>
+            selectedOptions.TryGetValue(question.Id, out var selectedKey)
+            && string.Equals(selectedKey, question.CorrectOptionKey, StringComparison.OrdinalIgnoreCase));
+
+        var submission = new ManualExamSubmission
+        {
+            NumeroAciertos = numeroAciertos,
+            TotalPreguntas = Questions.Count,
+            TiempoSegundos = elapsedSeconds
+        };
+
+        try
+        {
+            var outcome = await OnSubmitAttempt(submission);
+            if (!outcome.Success)
+            {
+                submissionError = outcome.ErrorMessage ?? "No se pudo registrar el intento.";
+                return;
+            }
+
+            ResultStore.Set(new ManualExamResultSnapshot
+            {
+                Tipo = ExamType,
+                RefId = ExamRefId,
+                Title = DisplayTitle,
+                Description = DisplayDescription,
+                PassingScore = PassingScore,
+                TimeLimitSeconds = TimeLimitSeconds,
+                SubmittedAt = DateTimeOffset.UtcNow,
+                Questions = Questions,
+                SelectedOptions = new Dictionary<string, string>(selectedOptions),
+                Submission = submission,
+                Outcome = outcome
+            });
+
+            NavigationManager.NavigateTo(ManualExamSupport.BuildResultRoute(ExamType, ExamRefId));
+        }
+        catch (Exception)
+        {
+            submissionError = "Ocurrió un error inesperado al enviar el examen. Intenta de nuevo.";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (timer is null)
+        {
+            return;
+        }
+
+        timer.Stop();
+        timer.Dispose();
+        timer = null;
+    }
+}
+
+<style>
+    .manual-exam-shell {
+        display: grid;
+        gap: 1.25rem;
+        min-width: 0;
+    }
+
+    .manual-exam-shell__hero {
+        display: grid;
+        gap: 1.1rem;
+        padding: clamp(1.2rem, 1rem + 0.5vw, 1.8rem);
+        border-radius: 28px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background:
+            radial-gradient(circle at top right, color-mix(in srgb, var(--acc-brand-600) 18%, transparent), transparent 42%),
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 84%, black 16%));
+        box-shadow: var(--acc-shadow);
+    }
+
+    .manual-exam-shell__hero-copy {
+        display: grid;
+        gap: 0.7rem;
+    }
+
+    .manual-exam-shell__hero-copy h2 {
+        margin: 0;
+        color: var(--acc-text);
+        font-family: var(--font-heading);
+        font-size: clamp(1.52rem, 1.24rem + 0.78vw, 2.1rem);
+        letter-spacing: -0.03em;
+    }
+
+    .manual-exam-shell__hero-copy p {
+        margin: 0;
+        color: var(--acc-text-muted);
+        line-height: 1.7;
+    }
+
+    .manual-exam-shell__badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        width: fit-content;
+        padding: 0.3rem 0.72rem;
+        border-radius: 999px;
+        color: color-mix(in srgb, var(--acc-brand-300) 88%, white);
+        border: 1px solid color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+        background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2));
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .manual-exam-shell__hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .manual-exam-shell__stat {
+        display: grid;
+        gap: 0.4rem;
+        padding: 1rem;
+        border-radius: 20px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 82%, transparent);
+        background: color-mix(in srgb, var(--acc-surface-2) 76%, black);
+    }
+
+    .manual-exam-shell__stat span {
+        color: var(--acc-text-muted);
+        font-size: 0.82rem;
+    }
+
+    .manual-exam-shell__stat strong {
+        color: var(--acc-text);
+        font-size: 1.05rem;
+        line-height: 1.35;
+    }
+
+    .manual-exam-shell__message {
+        padding: 1.1rem 1.15rem;
+        border-radius: 20px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 86%, black 14%));
+        box-shadow: var(--acc-shadow);
+    }
+
+    .manual-exam-shell__message h3 {
+        margin: 0 0 0.4rem;
+        color: var(--acc-text);
+        font-family: var(--font-heading);
+    }
+
+    .manual-exam-shell__message p {
+        margin: 0;
+        color: var(--acc-text-muted);
+        line-height: 1.65;
+    }
+
+    .manual-exam-shell__message--error {
+        border-color: color-mix(in srgb, var(--acc-danger-500) 42%, var(--acc-border));
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-danger-500) 6%, var(--acc-surface-2)), color-mix(in srgb, var(--acc-bg-2) 90%, black 10%));
+    }
+
+    .manual-exam-shell__message--error h3 {
+        color: color-mix(in srgb, var(--acc-danger-400) 92%, white);
+    }
+
+    .manual-exam-shell__questions {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .manual-exam-shell__actions {
+        display: grid;
+        gap: 0.75rem;
+        justify-items: center;
+        padding: 1rem 0 0;
+    }
+
+    .manual-exam-shell__actions p {
+        margin: 0;
+        color: var(--acc-text-muted);
+        font-size: 0.88rem;
+        text-align: center;
+    }
+
+    .manual-exam-shell__submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        min-width: 200px;
+        padding: 0.8rem 1.6rem;
+        border: none;
+        border-radius: 999px;
+        color: white;
+        background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-brand-600));
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .manual-exam-shell__submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24);
+    }
+
+    .manual-exam-shell__submit:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .manual-exam-shell__submit:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+</style>

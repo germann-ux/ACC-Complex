@@ -1,147 +1,334 @@
-﻿@page "/Guia"
+@page "/Guia"
 @rendermode InteractiveServer
 
-@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
-@using ACC.Shared.Enums
 @using ACC.WebApp.Client.Services
 @using ACC.Shared.DTOs
 @using ACC.Shared.Core
 
 @inject NavegacionContenidoClient Navegacion
-@inject ExamenesServiceClient ExamenesService
+@inject ProgresoUsuarioClient ProgresoUsuario
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="guia-page">
+    <div class="guia-hero-stack">
+        <section class="guia-card guia-header" aria-label="Encabezado de la guia">
+            <div class="guia-header__content">
+                <div class="guia-header__copy">
+                    <span class="guia-header__eyebrow">Ruta formativa ACC</span>
+                    <h1>Guia de estudios</h1>
+                    <p>La guia organiza el contenido de ACC en modulos progresivos que representan las etapas fundamentales del recorrido academico en desarrollo de software con C#.</p>
+                </div>
+
+                <div class="guia-journey__intro">
+                    <div class="guia-journey__copy">
+                        <h2>Recorrido academico estructurado</h2>
+                        <p>Cada modulo se presenta como una etapa de avance dentro de la guia, con mayor presencia visual y una lectura mas clara del trayecto completo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="guia-card guia-overview" aria-label="Panorama de la ruta">
+            <div class="guia-overview__copy">
+                <span class="guia-overview__label">Panorama de la ruta</span>
+                <h2>@ObtenerResumenRuta()</h2>
+                <p>@ObtenerDetalleRuta()</p>
+            </div>
+
+            @if (modulos.Count > 0)
+            {
+                <ol class="guia-header__track" aria-label="Etapas disponibles">
+                    @for (var index = 0; index < modulos.Count; index++)
+                    {
+                        var moduloTrack = modulos[index];
+                        <li class="guia-header__track-item guia-header__track-item--@ObtenerClaseAcento(index)"
+                            style="@ObtenerEstiloProgresoTrack(moduloTrack.Id)">
+                            <span class="sr-only">@($"Etapa {index + 1}: {moduloTrack.Nombre}")</span>
+                        </li>
+                    }
+                </ol>
+            }
+
+            @if (resumenGuia is not null)
+            {
+                <div class="guia-header__progress" aria-label="Progreso general del usuario">
+                    <div class="guia-header__progress-head">
+                        <span class="guia-header__progress-label">Progreso general</span>
+                        <strong>@($"{resumenGuia.ProgresoPorcentaje}%")</strong>
+                    </div>
+
+                    <div class="guia-header__progress-bar"
+                         role="progressbar"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         aria-valuenow="@resumenGuia.ProgresoPorcentaje"
+                         aria-label="Progreso general de la guia">
+                        <span class="guia-header__progress-fill" style="@($"width: {resumenGuia.ProgresoPorcentaje}%;")"></span>
+                    </div>
+
+                    <div class="guia-header__progress-meta">
+                        <span>@($"{resumenGuia.SubTemasCompletados} de {resumenGuia.TotalSubTemas} subtemas completados")</span>
+                        <span>@($"{resumenGuia.TotalLecciones} lecciones · {resumenGuia.TotalEvaluaciones} evaluaciones · {resumenGuia.TotalPracticas} practicas")</span>
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+
+    @if (loadingModulos)
+    {
+        <section class="guia-card guia-state" aria-live="polite">
+            <p>
+                <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+                Cargando modulos...
+            </p>
+        </section>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorModulos))
+    {
+        <section class="guia-card guia-state guia-state--error" role="alert">
+            <p>
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                No se pudieron cargar los modulos: @errorModulos
+            </p>
+        </section>
+    }
+    else if (modulos.Count == 0)
+    {
+        <section class="guia-card guia-state" aria-live="polite">
+            <p>
+                <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                No hay modulos disponibles por ahora.
+            </p>
+        </section>
+    }
+    else
+    {
+        <section class="guia-journey" aria-label="Recorrido academico">
+            <section class="guia-modulos-grid" aria-label="Lista de modulos">
+                @for (var index = 0; index < modulos.Count; index++)
+                {
+                    var modulo = modulos[index];
+                    var resumenModulo = ObtenerResumenModuloDatos(modulo.Id);
+
+                    <a class="guia-modulo-card guia-modulo-card--@ObtenerClaseAcento(index)"
+                       href="@ObtenerRutaModulo(modulo.Id)"
+                       aria-label="@($"Abrir {modulo.Nombre}")">
+                        <span class="guia-modulo-card__accent" aria-hidden="true"></span>
+
+                        <div class="guia-modulo-card__top">
+                            <span class="guia-modulo-card__eyebrow">Etapa @ObtenerIndiceEtapa(index + 1)</span>
+                            <span class="guia-modulo-card__position">Modulo @ObtenerIndiceEtapa(index + 1) de @ObtenerIndiceEtapa(modulos.Count)</span>
+                        </div>
+
+                        <div class="guia-modulo-card__content">
+                            <h2>@modulo.Nombre</h2>
+                            <p>@ObtenerDescripcionModulo(modulo.Descripcion)</p>
+                        </div>
+
+                        <div class="guia-modulo-card__divider" aria-hidden="true"></div>
+
+                        @if (resumenModulo is not null)
+                        {
+                            <dl class="guia-modulo-card__stats" aria-label="@($"Metricas de {modulo.Nombre}")">
+                                <div class="guia-modulo-card__stat-row">
+                                    <dt>Lecciones</dt>
+                                    <dd>@resumenModulo.LeccionesCount</dd>
+                                </div>
+
+                                <div class="guia-modulo-card__stat-row">
+                                    <dt>Temas</dt>
+                                    <dd>@resumenModulo.TemasCount</dd>
+                                </div>
+
+                                <div class="guia-modulo-card__stat-row">
+                                    <dt>Subtemas</dt>
+                                    <dd>@resumenModulo.SubTemasCount</dd>
+                                </div>
+
+                                <div class="guia-modulo-card__stat-row guia-modulo-card__stat-row--wide">
+                                    <dt>Tiempo estimado de finalizacion</dt>
+                                    <dd>@ObtenerTiempoEstimadoModulo(resumenModulo.LeccionesCount)</dd>
+                                </div>
+                            </dl>
+
+                            <div class="guia-modulo-card__progress" aria-label="@($"Avance en {modulo.Nombre}")">
+                                <div class="guia-modulo-card__progress-head">
+                                    <span class="guia-modulo-card__meta-label">Avance del modulo</span>
+                                    <strong>@($"{resumenModulo.ProgresoPorcentaje}%")</strong>
+                                </div>
+
+                                <div class="guia-modulo-card__progress-bar"
+                                     role="progressbar"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100"
+                                     aria-valuenow="@resumenModulo.ProgresoPorcentaje"
+                                     aria-label="@($"Progreso de {modulo.Nombre}")">
+                                    <span class="guia-modulo-card__progress-fill" style="@($"width: {resumenModulo.ProgresoPorcentaje}%;")"></span>
+                                </div>
+
+                                <span class="guia-modulo-card__progress-copy">@($"{resumenModulo.SubTemasCompletados} de {resumenModulo.SubTemasCount} subtemas completados")</span>
+                            </div>
+                        }
+
+                        <div class="guia-modulo-card__footer">
+                            <div class="guia-modulo-card__meta">
+                                <span class="guia-modulo-card__meta-label">Ubicacion dentro de la ruta</span>
+                                <strong>@ObtenerPosicionEnRuta(index, modulos.Count)</strong>
+                            </div>
+
+                            <span class="guia-modulo-card__cta">
+                                Abrir modulo
+                                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </a>
+                }
+            </section>
+        </section>
+    }
+</div>
+
 @code {
-    // Evita nulos desde el primer render
     private List<NodoJerarquicoDto> modulos = new();
-    private List<ExamenSubModuloDto> examenesSubM = new();
-    private List<ExamenModuloDto> examenesMod = new();
-
     private ServiceResult<List<NodoJerarquicoDto>>? modulosResult;
+    private GuiaResumenDto? resumenGuia;
+    private Dictionary<int, GuiaModuloResumenDto> resumenesModulo = new();
 
-    private int? moduloSeleccionadoId;
-
-    // Estados de carga / error
     private bool loadingModulos;
-    private bool loadingExamenes;
     private string? errorModulos;
-    private string? errorExamenes;
+    private string? userId;
 
     protected override async Task OnInitializedAsync()
     {
         loadingModulos = true;
-        loadingExamenes = true;
         errorModulos = null;
-        errorExamenes = null;
-
-        Task<ServiceResult<List<NodoJerarquicoDto>>>? modulosTask = null;
-        Task<List<ExamenSubModuloDto>>? subTask = null;
-        Task<List<ExamenModuloDto>>? modTask = null;
+        resumenGuia = null;
+        resumenesModulo.Clear();
 
         try
         {
-            // Carga paralela: módulos + (exámenes submódulo + módulo)
-            modulosTask = Navegacion.ObtenerModulosAsync();
-            subTask = ExamenesService.ObtenerExamanesSubMAsync();
-            modTask = ExamenesService.ObtenerExamenesModAsync();
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
 
-            await Task.WhenAll(modulosTask!, subTask!, modTask!);
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            }
 
-            modulosResult = modulosTask.Result;
-            modulos = modulosResult.Data ?? new();
-            examenesSubM = subTask.Result ?? new();
-            examenesMod = modTask.Result ?? new();
+            modulosResult = await Navegacion.ObtenerModulosAsync();
+            modulos = (modulosResult.Data ?? new())
+                .OrderBy(modulo => modulo.Id)
+                .ToList();
 
             if (!modulosResult.Success)
+            {
                 errorModulos = modulosResult.Message;
+            }
+            else if (!string.IsNullOrWhiteSpace(userId))
+            {
+                resumenGuia = await ProgresoUsuario.ObtenerResumenGuiaAsync(userId);
+                resumenesModulo = (resumenGuia?.Modulos ?? [])
+                    .OrderBy(modulo => modulo.Orden)
+                    .ToDictionary(modulo => modulo.ModuloId);
+            }
         }
         catch (Exception ex)
         {
-            if (modulosTask is not null && modulosTask.IsCompletedSuccessfully)
-            {
-                modulosResult = modulosTask.Result;
-                modulos = modulosResult.Data ?? new();
-                if (!modulosResult.Success)
-                    errorModulos = modulosResult.Message;
-            }
-            else
-            {
-                errorModulos = ex.Message;
-            }
-            errorExamenes = ex.Message;
+            errorModulos = ex.Message;
         }
         finally
         {
             loadingModulos = false;
-            loadingExamenes = false;
         }
     }
 
-    private void SeleccionarModulo(int idModulo)
+    private static string ObtenerRutaModulo(int idModulo) => $"/contenido/Modulo/{idModulo}";
+
+    private static string ObtenerIndiceEtapa(int index) => index.ToString("00");
+
+    private static string ObtenerClaseAcento(int index) => (index % 4) switch
     {
-        moduloSeleccionadoId = idModulo;
-        // Más adelante: aquí se puede disparar carga específica por submódulo si es nesesario. 
-        // await CargarExamenesDeSubmoduloAsync(idSubModulo);
+        0 => "violet",
+        1 => "blue",
+        2 => "green",
+        _ => "orange"
+    };
+
+    private static string ObtenerDescripcionModulo(string? descripcion)
+        => string.IsNullOrWhiteSpace(descripcion)
+            ? "Explora esta etapa del recorrido para continuar avanzando dentro de la guia."
+            : descripcion;
+
+    private static string ObtenerPosicionEnRuta(int index, int totalModulos)
+        => index switch
+        {
+            0 => "Inicio del recorrido",
+            _ when index == totalModulos - 1 => "Etapa de consolidacion",
+            _ => "Tramo intermedio del aprendizaje"
+        };
+
+    private GuiaModuloResumenDto? ObtenerResumenModuloDatos(int moduloId)
+        => resumenesModulo.GetValueOrDefault(moduloId);
+
+    private string ObtenerResumenRuta()
+        => resumenGuia is not null
+            ? $"{resumenGuia.TotalModulos} etapas, {resumenGuia.TotalLecciones} lecciones y {resumenGuia.TotalEvaluaciones} evaluaciones distribuidas en la guia."
+            : modulos.Count switch
+            {
+                0 => "La ruta se esta preparando.",
+                1 => "1 etapa disponible para iniciar el recorrido.",
+                _ => $"{modulos.Count} etapas organizadas para recorrer la guia."
+            };
+
+    private string ObtenerDetalleRuta()
+        => resumenGuia is not null
+            ? $"Has completado {resumenGuia.SubTemasCompletados} de {resumenGuia.TotalSubTemas} subtemas disponibles en toda la ruta."
+            : modulos.Count switch
+            {
+                0 => "Todavia no hay etapas publicadas.",
+                1 => "La ruta actual concentra todo el contenido en una sola etapa.",
+                _ => "Explora las etapas de aprendizaje en orden para avanzar exitosamente."
+            };
+
+    private string ObtenerEstiloProgresoTrack(int moduloId)
+    {
+        if (resumenGuia is null)
+        {
+            return string.Empty;
+        }
+
+        var resumen = ObtenerResumenModuloDatos(moduloId);
+        if (resumen is null || resumen.ProgresoPorcentaje == 0)
+        {
+            return "opacity: 0.35; filter: grayscale(1); transition: all 0.2s ease-in-out;";
+        }
+        
+        return string.Empty;
+    }
+
+    private static string ObtenerTiempoEstimadoModulo(int leccionesCount)
+    {
+        if (leccionesCount <= 0)
+        {
+            return "Por definir";
+        }
+
+        var minimo = leccionesCount * 12;
+        var maximo = leccionesCount * 18;
+        return $"{FormatearDuracion(minimo)} - {FormatearDuracion(maximo)}";
+    }
+
+    private static string FormatearDuracion(int minutosTotales)
+    {
+        var horas = minutosTotales / 60;
+        var minutos = minutosTotales % 60;
+
+        return horas switch
+        {
+            0 => $"{minutos} min",
+            _ when minutos == 0 => $"{horas} h",
+            _ => $"{horas} h {minutos} min"
+        };
     }
 }
-
-<div class="guia-navegador-container">
-    <h3 class="guia-navegador-title">Guía De Estudios</h3>
-    <p>Completa el contenido de cada modulo para adquirir conocimientos.</p>
-
-    @if (loadingModulos)
-    {
-        <p class="guia-navegador-loading">Cargando módulos...</p>
-    }
-    else if (!string.IsNullOrWhiteSpace(errorModulos))
-    {
-        <p class="error">No se pudieron cargar los módulos: @errorModulos</p>
-    }
-    else if (modulos.Count == 0)
-    {
-        <p>No hay módulos disponibles.</p>
-    }
-    else
-    {
-        @foreach (var modulo in modulos)
-        {
-            <div class="card">
-                <div class="modulo-card-title">
-                    @modulo?.Nombre <span></span>
-                </div>
-                <div class="modulo-card-desc">
-                    @modulo?.Descripcion
-                </div>
-                <button @onclick="() => SeleccionarModulo(modulo.Id)"
-                        class="guia-navegador-btn @(moduloSeleccionadoId == modulo.Id ? "selected" : "")">
-                    Navegar
-                </button>
-            </div>
-        }
-    }
-
-    @if (moduloSeleccionadoId.HasValue)
-    {
-        <GuiaMainComponent Tipo="@TipoNodoJerarquico.Modulo.ToString()" Id="@moduloSeleccionadoId.Value" />
-    }
-
-    @if (loadingExamenes)
-    {
-        <p>cargando exámenes...</p>
-    }
-    else if (!string.IsNullOrWhiteSpace(errorExamenes))
-    {
-        <p class="error">No se pudieron cargar los exámenes: @errorExamenes</p>
-    }
-    else
-    {
-        @* Renderiza sólo si hay data; si tu componente tolera lista vacía, puedes omitir estas guardas *@
-        @if (examenesMod.Count > 0)
-        {
-            <ExamenesMain ExamenesModulo="@examenesMod" />
-        }        
-        @if (examenesSubM.Count > 0)
-        {
-            <br />
-            <ExamenesMain ExamenesSubModulo="@examenesSubM" />
-        }
-    }
-</div>

@@ -17,7 +17,7 @@
     let defaultCode = `using System;
 class Program {
     static void Main(string[] args) {
-        Console.WriteLine("Hola desde ACC!");
+        Console.WriteLine("Hola mundo desde ACC!");
     }
 }`;
     window.codeMirrorEditor.setValue(defaultCode);

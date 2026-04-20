@@ -1,0 +1,53 @@
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+
+<section class="mermaid-section" aria-label="@SectionLabel">
+    <div class="mermaid-section-header">
+        <span class="mermaid-section-badge">Diagrama</span>
+
+        @if (!string.IsNullOrWhiteSpace(Titulo) || !string.IsNullOrWhiteSpace(Descripcion))
+        {
+            <div class="mermaid-section-copy">
+                @if (!string.IsNullOrWhiteSpace(Titulo))
+                {
+                    <h3>@Titulo</h3>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Descripcion))
+                {
+                    <p>@Descripcion</p>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mermaid-section-shell">
+        <div class="mermaid-section-scroller">
+            <div class="mermaid-section-canvas-frame">
+                <div id="@_containerId" class="mermaid-section-canvas"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string? Titulo { get; set; }
+    [Parameter] public string? Descripcion { get; set; }
+    [Parameter, EditorRequired] public string Codigo { get; set; } = string.Empty;
+
+    private readonly string _containerId = $"mermaid_{Guid.NewGuid():N}";
+    private string? _lastRenderedCode;
+    private string SectionLabel => string.IsNullOrWhiteSpace(Titulo) ? "Diagrama Mermaid" : $"Diagrama Mermaid: {Titulo}";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (string.IsNullOrWhiteSpace(Codigo))
+            return;
+
+        if (!firstRender && string.Equals(_lastRenderedCode, Codigo, StringComparison.Ordinal))
+            return;
+
+        _lastRenderedCode = Codigo;
+        await JS.InvokeVoidAsync("accMermaid.render", _containerId, Codigo);
+    }
+}

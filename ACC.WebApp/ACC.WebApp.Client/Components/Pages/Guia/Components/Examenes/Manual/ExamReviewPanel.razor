@@ -1,0 +1,83 @@
+<section class="exam-review-panel">
+    <div class="exam-review-panel__head">
+        <span class="exam-review-panel__badge">Repaso</span>
+        <h2>Revisi&oacute;n completa del intento</h2>
+        <p>Consulta cada pregunta, la respuesta marcada y la opci&oacute;n correcta.</p>
+    </div>
+
+    <div class="exam-review-panel__list">
+        @for (var index = 0; index < Questions.Count; index++)
+        {
+            var question = Questions[index];
+            <ExamQuestionCard Question="@question"
+                              QuestionNumber="@(index + 1)"
+                              SelectedOptionKey="@GetSelectedOption(question.Id)"
+                              ReviewMode="true" />
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<ManualExamQuestion> Questions { get; set; } = [];
+    [Parameter] public IReadOnlyDictionary<string, string> SelectedOptions { get; set; } =
+        new Dictionary<string, string>();
+
+    private string? GetSelectedOption(string questionId)
+        => SelectedOptions.TryGetValue(questionId, out var value) ? value : null;
+}
+
+<style>
+    .exam-review-panel {
+        display: grid;
+        gap: 1.15rem;
+        min-width: 0;
+    }
+
+    .exam-review-panel__head {
+        display: grid;
+        gap: 0.6rem;
+        padding: 1.2rem 1.25rem;
+        border-radius: 24px;
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        background:
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 88%, black 12%));
+        box-shadow: var(--acc-shadow);
+    }
+
+    .exam-review-panel__head h2,
+    .exam-review-panel__head p {
+        margin: 0;
+    }
+
+    .exam-review-panel__head h2 {
+        color: var(--acc-text);
+        font-family: var(--font-heading);
+        letter-spacing: -0.02em;
+    }
+
+    .exam-review-panel__head p {
+        color: var(--acc-text-muted);
+        line-height: 1.6;
+    }
+
+    .exam-review-panel__badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        width: fit-content;
+        padding: 0.28rem 0.7rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2));
+        border: 1px solid color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+        color: color-mix(in srgb, var(--acc-brand-300) 86%, white);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .exam-review-panel__list {
+        display: grid;
+        gap: 1rem;
+    }
+</style>

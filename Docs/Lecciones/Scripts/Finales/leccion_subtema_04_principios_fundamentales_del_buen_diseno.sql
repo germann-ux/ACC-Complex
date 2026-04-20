@@ -17,8 +17,8 @@ BEGIN TRY
     IF NOT EXISTS (SELECT 1 FROM acc_academic.SubTemas WHERE Id_SubTema = @SubtemaId)
         THROW 53201, 'No existe el SubTemaId=4 en acc_academic.SubTemas.', 1;
 
-        DECLARE @TituloLeccion NVARCHAR(100) = N'Principios fundamentales del buen diseño';
-            DECLARE @DescripcionLeccion NVARCHAR(500) = N'Presenta ideas base para escribir código ordenado, claro y fácil de mantener.';
+    DECLARE @TituloLeccion NVARCHAR(100) = N'Principios fundamentales del buen diseño';
+    DECLARE @DescripcionLeccion NVARCHAR(500) = N'Presenta ideas base para mantener un sistema más ordenado, claro y fácil de modificar.';
     DECLARE @NivelBloom NVARCHAR(20) = N'Comprender';
     DECLARE @OrdenSecciones NVARCHAR(MAX) = N'["charpDialog","video","teoria","ejemplo","practica","actividad","charpTip"]';
 
@@ -28,42 +28,66 @@ BEGIN TRY
     DECLARE @TieneVideo BIT = 1;
     DECLARE @VideoId NVARCHAR(20) = N'ST04VIDPEND01';
 
-            DECLARE @Teoria NVARCHAR(MAX) = N'
+    DECLARE @Teoria NVARCHAR(MAX) = N'
 <div class="leccion-teoria">
-    <h3>Ideas base</h3>
+    <h3>Ideas que ayudan a mantener el orden</h3>
+    <p>Un buen diseño no depende solo de que el programa funcione. También importa que sea claro, que no mezcle demasiadas cosas y que pueda modificarse sin romper todo.</p>
+    <p>Para lograrlo, existen algunas ideas base que ayudan a revisar si el sistema está bien organizado.</p>
     <ul>
-        <li><strong>Cohesion:</strong> una clase debe enfocarse en una tarea principal.</li>
-        <li><strong>Acoplamiento bajo:</strong> una parte no debe depender demasiado de otra.</li>
-        <li><strong>Responsabilidad única:</strong> si una clase hace muchas cosas, conviene dividirla.</li>
-        <li><strong>Reutilización:</strong> si una logica se repite, es mejor centralizarla.</li>
+        <li><strong>Una tarea principal por parte:</strong> cada clase o parte del sistema debería encargarse de algo concreto. A esto se le relaciona con la cohesión y la responsabilidad única.</li>
+        <li><strong>Pocas dependencias innecesarias:</strong> una parte no debería estar demasiado amarrada a muchas otras. Eso se relaciona con el acoplamiento bajo.</li>
+        <li><strong>Evitar mezclar demasiadas funciones:</strong> si una clase hace muchas cosas, cuesta más entenderla, probarla y cambiarla.</li>
+        <li><strong>Reunir lo que se repite:</strong> si una misma lógica aparece varias veces, conviene llevarla a un solo lugar para no mantenerla por separado.</li>
     </ul>
-    <img src="https://placehold.co/1200x675?text=Principios+de+código+ordenado" alt="Principios base de diseño (pendiente)">
-</div>';
+    <img src="https://placehold.co/1200x675?text=Principios+de+codigo+ordenado" alt="Ideas base de un diseño ordenado (pendiente)">
 
-            DECLARE @Ejemplo NVARCHAR(MAX) = N'
-<div class="leccion-ejemplos">
-    <h3>Ejemplo</h3>
-    <p>Si una sola clase valida usuarios, envia correos y genera reportes, el código se vuelve dificil de mantener.</p>
-    <p>Si separas esas tareas en clases pequeñas, todo queda más claro.</p>
-    <img src="https://placehold.co/1200x675?text=Clase+grande+vs+clases+pequeñas" alt="Comparacion de enfoque (pendiente)">
-</div>';
+    <div class="alert alert-info">
+        <p class="alert-title">Punto clave</p>
+        <p>Estos principios no existen para hacer el diseño más complicado. Sirven para que el sistema sea más claro de entender y más fácil de cambiar con el tiempo.</p>
+    </div>
 
-            DECLARE @Practica NVARCHAR(MAX) = N'
-<div class="leccion-practicas">
-    <h3>Práctica</h3>
-    <ol>
-        <li>Elige una clase de tu proyecto.</li>
-        <li>Explica cual debería ser su tarea principal.</li>
-        <li>Indica que parte moverias a otra clase.</li>
-    </ol>
-    <div class="alert alert-success">
-        <p class="alert-title">Criterio de logro</p>
-        <p>Está correcto si detectas mezcla de tareas y propones una separacion concreta.</p>
+    <div class="fomentador">
+        <p>Si quieres profundizar más en estas ideas base del buen diseño, puedes ver contenido más detallado en el capítulo sobre principios de diseño haciendo clic <a href="Capitulo/Contenido/ID_CONTENIDO_PENDIENTE_PRINCIPIOS_DISENO">aquí</a>.</p>
     </div>
 </div>';
 
-            DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Si te cuesta explicar para que sirve una clase en una frase, probablemente esta haciendo de más.</p>';
-            DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a usar reglas simples para detectar cuando un diseño se complica.</p><p>La meta es escribir código más claro para ti y para tu equipo.</p>';
+    DECLARE @Ejemplo NVARCHAR(MAX) = N'
+<div class="leccion-ejemplos">
+    <h3>Ejemplo comparativo</h3>
+    <p>Imagina una clase que registra usuarios, envía correos y genera reportes.</p>
+
+    <div class="alert alert-error">
+        <p class="alert-title">Diseño confuso</p>
+        <p>Todo está en una sola clase. Cuando cambias una parte, aumentan las posibilidades de afectar otra que no tenía relación directa.</p>
+    </div>
+
+    <div class="alert alert-success">
+        <p class="alert-title">Diseño más claro</p>
+        <p>Una clase registra usuarios, otra envía correos y otra genera reportes. Cada una tiene una función más concreta y el sistema resulta más fácil de mantener.</p>
+    </div>
+
+    <img src="https://placehold.co/1200x675?text=Clase+grande+vs+clases+claras" alt="Comparación entre una clase sobrecargada y varias clases claras (pendiente)">
+
+    <p>La mejora no está en dividir por dividir, sino en separar tareas cuando ya están demasiado mezcladas.</p>
+</div>';
+
+    DECLARE @Practica NVARCHAR(MAX) = N'
+<div class="leccion-practicas">
+    <h3>Práctica guiada</h3>
+    <p>Lee este caso: una sola clase se encarga de validar usuarios, guardar datos, enviar correos y generar reportes.</p>
+    <ol>
+        <li>Escribe qué tareas distintas están mezcladas en esa clase.</li>
+        <li>Propón cómo las separarías en partes más claras.</li>
+        <li>Explica por qué esa separación haría más fácil entender o cambiar el sistema.</li>
+    </ol>
+    <div class="alert alert-success">
+        <p class="alert-title">Criterio de logro</p>
+        <p>Está correcto si detectas mezcla de responsabilidades, propones una separación razonable y explicas una mejora concreta en claridad o mantenimiento.</p>
+    </div>
+</div>';
+
+    DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Si te cuesta explicar en una sola frase para qué sirve una clase, probablemente está haciendo más de lo que debería.</p>';
+    DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a revisar ideas simples que ayudan a detectar cuándo un diseño está ordenado y cuándo empieza a complicarse.</p><p>La meta es que reconozcas señales básicas de claridad, mezcla de tareas y repetición innecesaria.</p>';
 
     IF EXISTS
     (
@@ -152,4 +176,3 @@ BEGIN CATCH
     THROW;
 END CATCH;
 GO
-

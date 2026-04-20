@@ -1,0 +1,15 @@
+@* EmptyState.razor — componente reutilizable *@
+
+<div class="empty-state">
+    <div class="empty-state__icon" aria-hidden="true">
+        <i class="fa-solid @Icon"></i>
+    </div>
+    <h3 class="empty-state__title ty-section-title">@Titulo</h3>
+    <p class="empty-state__desc ty-muted">@Descripcion</p>
+</div>
+
+@code {
+    [Parameter] public string Icon        { get; set; } = "fa-folder-open";
+    [Parameter] public string Titulo      { get; set; } = "Sin resultados";
+    [Parameter] public string Descripcion { get; set; } = "";
+}

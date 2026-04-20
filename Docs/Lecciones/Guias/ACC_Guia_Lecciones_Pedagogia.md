@@ -1,4 +1,4 @@
-# Guía de Lecciones (ACC) — Pedagogía
+﻿# Guía de Lecciones (ACC) — Pedagogía
 **Aprendiendo C# con Charp (ACC)**
 
 Este documento explica **cómo diseñar lecciones que enseñen bien** dentro del marco de ACC:  
@@ -84,11 +84,11 @@ El nivel Bloom se elige por:
 | Nivel Bloom | Secciones que suelen encajar | Orden típico recomendado |
 |-------------|------------------------------|---------------------------|
 | **Recordar** | `charpDialog` (introducción muy corta), `teoria` mínima, `charpTip` (recordatorio), `practica` micro (opcional) | `["charpDialog","teoria","charpTip"]` o `["charpDialog","teoria","practica","charpTip"]` |
-| **Comprender** | `charpDialog`, `teoria`, `ejemplo`, `practica` explicativa, `charpTip` | `["charpDialog","teoria","ejemplo","practica","charpTip"]` |
-| **Aplicar** | `charpDialog` (brief), `teoria` mínima, `ejemplo`, `compilador`, `practica` fuerte, `actividad` (si aplica) | `["charpDialog","teoria","ejemplo","compilador","practica"]` o `["charpDialog","teoria","ejemplo","practica","actividad"]` |
-| **Analizar** | `charpDialog` (planteamiento), `teoria` (criterios), `ejemplo` comparativo, `practica` diagnóstico, `charpTip` | `["charpDialog","teoria","ejemplo","practica","charpTip"]` |
+| **Comprender** | `charpDialog`, `teoria`, `mermaid` (si aclara), `ejemplo`, `practica` explicativa, `charpTip` | `["charpDialog","teoria","mermaid","ejemplo","practica","charpTip"]` o `["charpDialog","teoria","ejemplo","practica","charpTip"]` |
+| **Aplicar** | `charpDialog` (brief), `teoria` mínima, `mermaid` (opcional), `ejemplo`, `compilador`, `practica` fuerte, `actividad` (si aplica) | `["charpDialog","teoria","mermaid","ejemplo","compilador","practica"]` o `["charpDialog","teoria","ejemplo","practica","actividad"]` |
+| **Analizar** | `charpDialog` (planteamiento), `teoria` (criterios), `mermaid` (mapa o comparación), `ejemplo` comparativo, `practica` diagnóstico, `charpTip` | `["charpDialog","teoria","mermaid","ejemplo","practica","charpTip"]` |
 | **Evaluar** | `charpDialog` (criterios), `teoria` (estándar), `ejemplo` (caso), `practica` (revisión), `charpTip` | `["charpDialog","teoria","ejemplo","practica","charpTip"]` |
-| **Crear** | `charpDialog` (brief), `teoria` (mínimos), `compilador`, `practica` (mini-proyecto), `charpTip` | `["charpDialog","teoria","compilador","practica","charpTip"]` |
+| **Crear** | `charpDialog` (brief), `teoria` (mínimos), `mermaid` (solo si ordena la idea), `compilador`, `practica` (mini-proyecto), `charpTip` | `["charpDialog","teoria","compilador","practica","charpTip"]` o `["charpDialog","teoria","mermaid","compilador","practica","charpTip"]` |
 
 ## 4.1 Reglas semánticas importantes
 
@@ -98,6 +98,7 @@ El nivel Bloom se elige por:
 - `ejemplo` concreta la teoría mediante casos.
 - `practica` consolida mediante acción.
 - `actividad` representa una experiencia externa o interactiva (URL).
+- `mermaid` refuerza una sola idea visual cuando el texto se beneficia de un mapa, flujo o comparacion.
 - `compilador` habilita experimentación directa con código.
 
 ## 4.2 Reglas de coherencia del sistema
@@ -252,7 +253,24 @@ Buenas prácticas:
 Anti-patrón:
 - incluirlo si no se usará.
 
-### 6.9 `fomentador` (bloque Biblioteca)
+### 6.9 `mermaid`
+Intención:
+- reforzar una sola idea visual mediante un diagrama simple.
+
+Buenas prácticas:
+- usarlo para flujo, jerarquia, comparacion o secuencia,
+- una sola idea por diagrama,
+- etiquetas cortas,
+- complementa el texto, no lo sustituye.
+
+Anti-patrón:
+- usarlo solo por estetica,
+- meter demasiados conceptos en el mismo diagrama,
+- diagramas grandes o cargados.
+
+La implementacion visual y tecnica se detalla en `ACC_Guia_Lecciones_Mermaid.md`.
+
+### 6.10 `fomentador` (bloque Biblioteca)
 Intención:
 - llevar al estudiante a profundizar en la Biblioteca.
 
@@ -283,6 +301,7 @@ Checklist corto base:
 - [ ] ¿Hay al menos 1 ejemplo si la lección introduce algo nuevo?
 - [ ] ¿CharpTip/CharpDialog aportan valor y no relleno?
 - [ ] ¿La dificultad es coherente con el nivel y el módulo?
+- [ ] Si hay Mermaid, realmente aclara una sola idea?
 - [ ] ¿Hay fomentador cuando realmente ayuda a profundizar?
 
 ---

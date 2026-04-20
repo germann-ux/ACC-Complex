@@ -1,14 +1,14 @@
-﻿@using ACC.Shared.Enums
+@using ACC.Shared.Enums
 @using ACC.WebApp.Client.Services
 @inject AuthenticationStateProvider AuthProvider
 @inject ProgresoUsuarioClient ProgresoService
 
 @code {
     [Parameter] public ExamenTipo Tipo { get; set; } = ExamenTipo.SubModulo;
-    [Parameter] public int RefId { get; set; }                      // SubModuloId | ModuloId | ExamenId
+    [Parameter] public int RefId { get; set; }                      // ExamenSubModulo.Id | ExamenModulo.Id | Examen.Id
     [Parameter] public string ExamenNombre { get; set; } = "Examen";
     [Parameter] public string ExamenDescripcion { get; set; } = "";
-    [Parameter] public EventCallback<int> OnRealizarExamen { get; set; } // devuelve RefId
+    [Parameter] public EventCallback<int> OnRealizarExamen { get; set; } // devuelve Id real del examen
 
     private bool examenDesbloqueado;
     private string Icono => Tipo switch
@@ -26,7 +26,6 @@
 
         if (!string.IsNullOrWhiteSpace(userId) && RefId > 0)
         {
-            // Firma correcta: (userId, tipo, refId)
             examenDesbloqueado = await ProgresoService.ExamenHabilitadoAsync(userId, Tipo, RefId);
         }
     }

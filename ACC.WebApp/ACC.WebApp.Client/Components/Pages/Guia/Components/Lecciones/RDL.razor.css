@@ -41,6 +41,16 @@
     font-size: 0.82rem;
 }
 
+.leccion-mermaid-block {
+    margin: 1.75rem 0 2.1rem;
+}
+
+@media (max-width: 640px) {
+    .leccion-mermaid-block {
+        margin: 1.4rem 0 1.75rem;
+    }
+}
+
 @media (max-width: 640px) {
     .leccion-nav-arrow {
         width: 2.1rem;

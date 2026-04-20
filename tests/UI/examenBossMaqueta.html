@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ACC - Examenes (Maqueta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --acc-bg-0: #0f0f0f;
+            --acc-bg-1: #121218;
+            --acc-bg-2: #1e1e2a;
+            --acc-bg-3: #282838;
+            --acc-border: #3f3f5a;
+            --acc-text: #f8fafc;
+            --acc-text-muted: #cbd5e1;
+            --acc-brand-500: #8b5cf6;
+            --acc-brand-600: #9926fe;
+            --acc-brand-700: #7c3aed;
+            --acc-blue-700: #3730a3;
+            --acc-success-500: #22c55e;
+            --acc-warning-500: #f59e0b;
+            --acc-danger-500: #ef4444;
+            --acc-radius: 14px;
+            --acc-radius-sm: 10px;
+            --acc-shadow: 0 18px 44px rgba(0, 0, 0, .34);
+            --acc-shadow-soft: 0 10px 24px rgba(0, 0, 0, .24);
+            --acc-focus: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 55%, white);
+            --font-body: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-heading: "Sora", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            color: var(--acc-text);
+            background:
+                radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--acc-brand-700) 18%, transparent), transparent 28%),
+                radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--acc-blue-700) 14%, transparent), transparent 22%),
+                linear-gradient(180deg, color-mix(in srgb, var(--acc-bg-0) 92%, black), var(--acc-bg-1) 48%, color-mix(in srgb, var(--acc-brand-700) 18%, var(--acc-bg-1)));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid color-mix(in srgb, var(--acc-border) 72%, transparent);
+            background: color-mix(in srgb, var(--acc-bg-0) 82%, black);
+        }
+
+        .topbar__inner,
+        .page {
+            width: min(1320px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .topbar__inner {
+            min-height: 74px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand__mark {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-blue-700));
+            box-shadow: 0 0 0 8px color-mix(in srgb, var(--acc-brand-600) 18%, transparent);
+        }
+
+        .brand__title {
+            margin: 0;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -.01em;
+        }
+
+        .brand__sub {
+            margin: 2px 0 0;
+            color: var(--acc-text-muted);
+            font-size: .82rem;
+        }
+
+        .page {
+            padding: 26px 0 42px;
+        }
+
+        .intro {
+            margin-bottom: 18px;
+        }
+
+        .intro__eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .36rem .72rem;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--acc-brand-600) 38%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2));
+            color: color-mix(in srgb, var(--acc-brand-500) 84%, white);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .intro h1 {
+            margin: 14px 0 8px;
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+            line-height: 1.08;
+            letter-spacing: -.03em;
+        }
+
+        .intro p {
+            margin: 0;
+            max-width: 70ch;
+            color: var(--acc-text-muted);
+            line-height: 1.68;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .surface {
+            border: 1px solid color-mix(in srgb, var(--acc-border) 78%, transparent);
+            border-radius: var(--acc-radius);
+            background: color-mix(in srgb, var(--acc-bg-2) 88%, black);
+            box-shadow: var(--acc-shadow-soft);
+        }
+
+        .panel {
+            padding: 18px;
+        }
+
+        .panel--sticky {
+            position: sticky;
+            top: 92px;
+        }
+
+        .panel__title {
+            margin: 0;
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            letter-spacing: -.01em;
+        }
+
+        .panel__sub {
+            margin: 6px 0 0;
+            color: var(--acc-text-muted);
+            font-size: .9rem;
+            line-height: 1.56;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: .26rem .62rem;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--acc-border) 80%, transparent);
+            background: color-mix(in srgb, var(--acc-bg-3) 84%, black);
+            color: var(--acc-text);
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge--active {
+            border-color: color-mix(in srgb, var(--acc-brand-600) 54%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-brand-600) 14%, var(--acc-bg-3));
+        }
+
+        .badge--ok {
+            border-color: color-mix(in srgb, var(--acc-success-500) 54%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-success-500) 12%, var(--acc-bg-3));
+        }
+
+        .badge--warn {
+            border-color: color-mix(in srgb, var(--acc-warning-500) 54%, var(--acc-border));
+            background: color-mix(in srgb, var(--acc-warning-500) 12%, var(--acc-bg-3));
+        }
+
+        .badge--locked {
+            color: color-mix(in srgb, var(--acc-text-muted) 86%, white);
+        }
+
+        .exam-route {
+            --route-axis: 28px;
+            --route-column: 56px;
+            --route-dot: 28px;
+            position: relative;
+            margin-top: 16px;
+            display: grid;
+            gap: 0;
+        }
+
+        .exam-route::before,
+        .exam-route::after {
+            content: "";
+            position: absolute;
+            left: var(--route-axis);
+            top: 18px;
+            width: 2px;
+            border-radius: 999px;
+            transform: translateX(-50%);
+        }
+
+        .exam-route::before {
+            bottom: 18px;
+            background: color-mix(in srgb, var(--acc-border) 84%, black);
+        }
+
+        .exam-route::after {
+            height: 41%;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--acc-success-500) 84%, white 6%), color-mix(in srgb, var(--acc-brand-500) 86%, white 10%));
+            box-shadow: 0 0 16px color-mix(in srgb, var(--acc-brand-600) 24%, transparent);
+        }
+
+        .route-step {
+            position: relative;
+            display: grid;
+            grid-template-columns: var(--route-column) minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+            padding: 0 0 16px;
+        }
+
+        .route-step:last-child {
+            padding-bottom: 0;
+        }
+
+        .route-node {
+            position: relative;
+            display: flex;
+            width: var(--route-column);
+            justify-content: center;
+            padding-top: 4px;
+        }
+
+        .route-node__dot {
+            width: var(--route-dot);
+            height: var(--route-dot);
+            border-radius: 999px;
+            border: 2px solid color-mix(in srgb, var(--acc-border) 85%, white 4%);
+            background: color-mix(in srgb, var(--acc-bg-3) 88%, black);
+            box-shadow: 0 0 0 6px color-mix(in srgb, var(--acc-bg-2) 92%, transparent);
+            position: relative;
+            z-index: 1;
+        }
+
+        .route-node__label {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--route-dot);
+            text-align: center;
+            line-height: var(--route-dot);
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .05em;
+            color: var(--acc-text-muted);
+            z-index: 2;
+        }
+
+        .route-step--done .route-node__dot {
+            border-color: color-mix(in srgb, var(--acc-success-500) 86%, white 8%);
+            background: color-mix(in srgb, var(--acc-success-500) 88%, white 6%);
+        }
+
+        .route-step--active .route-node__dot {
+            border-color: color-mix(in srgb, var(--acc-brand-500) 88%, white 8%);
+            background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-blue-700));
+            box-shadow:
+                0 0 0 6px color-mix(in srgb, var(--acc-brand-600) 18%, transparent),
+                0 0 20px color-mix(in srgb, var(--acc-brand-600) 30%, transparent);
+        }
+
+        .route-step--active .route-node__label {
+            color: color-mix(in srgb, var(--acc-brand-500) 84%, white 10%);
+        }
+
+        .route-step--locked .route-node__dot {
+            opacity: .72;
+            filter: saturate(.55);
+        }
+
+        .exam-item {
+            padding: 14px 16px 16px;
+            border-radius: 16px;
+            border: 1px solid color-mix(in srgb, var(--acc-border) 74%, transparent);
+            background: color-mix(in srgb, var(--acc-bg-2) 70%, black);
+            display: grid;
+            gap: 12px;
+        }
+
+        .exam-item--selected {
+            border-color: color-mix(in srgb, var(--acc-brand-600) 42%, var(--acc-border));
+            background: linear-gradient(180deg, color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2)), color-mix(in srgb, var(--acc-bg-2) 86%, black));
+            box-shadow: 0 16px 28px rgba(20, 10, 42, .22);
+        }
+
+        .exam-item__top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .exam-item__title {
+            margin: 0;
+            font-family: var(--font-heading);
+            font-size: 1.08rem;
+            line-height: 1.2;
+        }
+
+        .exam-item__subtitle {
+            margin: 6px 0 0;
+            color: var(--acc-text-muted);
+            font-size: .9rem;
+            line-height: 1.56;
+        }
+
+        .exam-item__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .48rem .68rem;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--acc-border) 76%, transparent);
+            background: color-mix(in srgb, var(--acc-bg-2) 84%, black);
+            color: var(--acc-text-muted);
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .exam-item__body {
+            color: var(--acc-text-muted);
+            line-height: 1.62;
+            font-size: .94rem;
+        }
+
+        .exam-item__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: .72rem 1rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font-weight: 800;
+            cursor: default;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: var(--acc-focus);
+        }
+
+        .btn--primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-blue-700));
+            border-color: color-mix(in srgb, var(--acc-brand-700) 75%, black);
+        }
+
+        .btn--ghost {
+            color: var(--acc-text);
+            background: color-mix(in srgb, var(--acc-bg-2) 74%, black);
+            border-color: color-mix(in srgb, var(--acc-border) 80%, transparent);
+        }
+
+        .context-head {
+            display: grid;
+            gap: 10px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid color-mix(in srgb, var(--acc-border) 74%, transparent);
+        }
+
+        .context-title {
+            margin: 0;
+            font-family: var(--font-heading);
+            font-size: 1.26rem;
+            line-height: 1.16;
+        }
+
+        .context-block {
+            margin-top: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .context-block h3 {
+            margin: 0;
+            font-family: var(--font-heading);
+            font-size: .96rem;
+            letter-spacing: -.01em;
+        }
+
+        .context-block p,
+        .context-block li {
+            color: var(--acc-text-muted);
+            line-height: 1.6;
+            font-size: .92rem;
+        }
+
+        .context-list {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .context-kpis {
+            display: grid;
+            gap: 10px;
+        }
+
+        .kpi {
+            padding: 12px 13px;
+            border-radius: var(--acc-radius-sm);
+            border: 1px solid color-mix(in srgb, var(--acc-border) 76%, transparent);
+            background: color-mix(in srgb, var(--acc-bg-2) 84%, black);
+        }
+
+        .kpi__label {
+            color: var(--acc-text-muted);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+        .kpi__value {
+            display: block;
+            margin-top: 6px;
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .mono {
+            font-family: var(--font-code);
+        }
+
+        @media (max-width: 980px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .panel--sticky {
+                position: static;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .topbar__inner,
+            .exam-item__top {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .exam-item__actions {
+                display: grid;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar__inner">
+            <div class="brand">
+                <span class="brand__mark" aria-hidden="true"></span>
+                <div>
+                    <p class="brand__title">ACC - Aprendiendo C# con Charp</p>
+                    <p class="brand__sub">Maqueta UI para la vista de examenes</p>
+                </div>
+            </div>
+            <span class="badge badge--active">Examenes</span>
+        </div>
+    </header>
+
+    <main class="page">
+        <section class="intro">
+            <span class="intro__eyebrow">Ruta de evaluacion</span>
+            <h1>Selecciona un examen y revisa su contexto antes de iniciarlo.</h1>
+            <p>
+                La vista se organiza como una lista de hitos a la izquierda y un panel de contexto a la derecha. El
+                examen seleccionado muestra su objetivo y los conocimientos previos necesarios para
+                resolverlo de forma adecuada.
+            </p>
+        </section>
+
+        <section class="workspace">
+            <section class="surface panel">
+                <h2 class="panel__title">Examenes del modulo</h2>
+                <p class="panel__sub">Cada item funciona como un hito dentro de la ruta. El seleccionado activa el panel derecho.</p>
+
+                <div class="exam-route">
+                    <article class="route-step route-step--done">
+                        <div class="route-node">
+                            <span class="route-node__dot"></span>
+                            <span class="route-node__label">01</span>
+                        </div>
+
+                        <div class="exam-item">
+                            <div class="exam-item__top">
+                                <div>
+                                    <h3 class="exam-item__title">Examen de Submodulo 2.1</h3>
+                                    <p class="exam-item__subtitle">Fundamentos de orientacion a objetos.</p>
+                                </div>
+                                <span class="badge badge--ok">Completado</span>
+                            </div>
+
+                            <div class="exam-item__meta">
+                                <span class="meta-pill">Submodulo 2.1</span>
+                                <span class="meta-pill">Intentos usados: 1/3</span>
+                                <span class="meta-pill">Ultima calificacion: 94</span>
+                            </div>
+
+                            <div class="exam-item__body">
+                                Primer hito superado dentro de la ruta del modulo.
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="route-step route-step--active">
+                        <div class="route-node">
+                            <span class="route-node__dot"></span>
+                            <span class="route-node__label">02</span>
+                        </div>
+
+                        <div class="exam-item exam-item--selected">
+                            <div class="exam-item__top">
+                                <div>
+                                    <h3 class="exam-item__title">Examen de Submodulo 2.2</h3>
+                                    <p class="exam-item__subtitle">Clases, objetos y encapsulamiento.</p>
+                                </div>
+                                <span class="badge badge--active">Actual</span>
+                            </div>
+
+                            <div class="exam-item__meta">
+                                <span class="meta-pill">Submodulo 2.2</span>
+                                <span class="meta-pill">Intentos usados: 1/3</span>
+                                <span class="meta-pill">Ultima calificacion: 72</span>
+                            </div>
+
+                            <div class="exam-item__body">
+                                Hito actual de la ruta. Este examen ya esta habilitado y concentra el bloque de clases,
+                                propiedades, metodos y encapsulamiento.
+                            </div>
+
+                            <div class="exam-item__actions">
+                                <span class="btn btn--primary">Iniciar examen</span>
+                                <span class="btn btn--ghost">Volver a la guia</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="route-step route-step--locked">
+                        <div class="route-node">
+                            <span class="route-node__dot"></span>
+                            <span class="route-node__label">03</span>
+                        </div>
+
+                        <div class="exam-item">
+                            <div class="exam-item__top">
+                                <div>
+                                    <h3 class="exam-item__title">Examen de Submodulo 2.3</h3>
+                                    <p class="exam-item__subtitle">Herencia y polimorfismo.</p>
+                                </div>
+                                <span class="badge badge--locked">Bloqueado</span>
+                            </div>
+
+                            <div class="exam-item__meta">
+                                <span class="meta-pill">Submodulo 2.3</span>
+                                <span class="meta-pill">Sin intentos</span>
+                            </div>
+
+                            <div class="exam-item__body">
+                                Se habilita al completar el contenido del submodulo correspondiente.
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="route-step route-step--locked">
+                        <div class="route-node">
+                            <span class="route-node__dot"></span>
+                            <span class="route-node__label">04</span>
+                        </div>
+
+                        <div class="exam-item">
+                            <div class="exam-item__top">
+                                <div>
+                                    <h3 class="exam-item__title">Examen de Modulo II</h3>
+                                    <p class="exam-item__subtitle">Integracion de contenidos del modulo.</p>
+                                </div>
+                                <span class="badge badge--locked">Bloqueado</span>
+                            </div>
+
+                            <div class="exam-item__meta">
+                                <span class="meta-pill">Modulo II</span>
+                                <span class="meta-pill">Integrador</span>
+                            </div>
+
+                            <div class="exam-item__body">
+                                Cierre de la ruta del modulo. Se habilita cuando todos los submodulos hayan sido completados.
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <aside class="surface panel panel--sticky">
+                <div class="context-head">
+                    <span class="badge badge--active">Examen seleccionado</span>
+                    <h2 class="context-title">Examen de Submodulo 2.2</h2>
+                    <p class="panel__sub">Clases, objetos y encapsulamiento.</p>
+                </div>
+
+                <div class="context-block">
+                    <h3>Objetivo</h3>
+                    <p>
+                        Verificar que el estudiante pueda modelar clases y objetos, aplicar encapsulamiento y usar
+                        propiedades y metodos de forma correcta dentro del contexto del submodulo 2.2.
+                    </p>
+                </div>
+
+                <div class="context-block">
+                    <h3>Conocimientos previos</h3>
+                    <ul class="context-list">
+                        <li>Tema 2.2.1 - Definir una clase.</li>
+                        <li>Tema 2.2.2 - Crear instancias y trabajar con objetos.</li>
+                        <li>Tema 2.2.3 - Encapsulamiento y propiedades.</li>
+                        <li>Subtema 2.2.3.1 - Campos privados.</li>
+                        <li>Subtema 2.2.3.2 - Propiedades get/set.</li>
+                    </ul>
+                </div>
+
+                <div class="context-block">
+                    <h3>Estado actual</h3>
+                    <div class="context-kpis">
+                        <article class="kpi">
+                            <span class="kpi__label">Habilitacion</span>
+                            <span class="kpi__value">Disponible</span>
+                        </article>
+                        <article class="kpi">
+                            <span class="kpi__label">Intentos</span>
+                            <span class="kpi__value">1/3</span>
+                        </article>
+                        <article class="kpi">
+                            <span class="kpi__label">Ultima calificacion</span>
+                            <span class="kpi__value mono">72</span>
+                        </article>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+</body>
+</html>

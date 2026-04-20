@@ -18,7 +18,7 @@ BEGIN TRY
         THROW 53101, 'No existe el SubTemaId=3 en acc_academic.SubTemas.', 1;
 
     DECLARE @TituloLeccion NVARCHAR(100) = N'Tipos de diseño: lógico vs físico';
-    DECLARE @DescripcionLeccion NVARCHAR(500) = N'Explica de forma simple dos niveles del diseño: primero se organiza el programa en un plan claro y después ese plan se lleva a una implementación real.';
+    DECLARE @DescripcionLeccion NVARCHAR(500) = N'Explica de forma simple la diferencia entre organizar un programa primero y construirlo después en herramientas reales.';
     DECLARE @NivelBloom NVARCHAR(20) = N'Analizar';
     DECLARE @OrdenSecciones NVARCHAR(MAX) = N'["charpDialog","video","teoria","ejemplo","practica","actividad","charpTip"]';
 
@@ -30,48 +30,60 @@ BEGIN TRY
 
     DECLARE @Teoria NVARCHAR(MAX) = N'
 <div class="leccion-teoria">
+    <h3>Dos momentos del mismo trabajo</h3>
+    <p>Cuando diseñas un programa, primero piensas cómo se va a organizar y después llevas esa organización a algo real. A esos dos momentos se les suele llamar diseño lógico y diseño físico.</p>
+
     <h3>Diseño lógico</h3>
-    <p>Es el plan general del programa. Aquí decides qué partes tendrá y qué trabajo hará cada parte.</p>
-    <p>Ejemplo: en una plataforma de cursos, defines una parte para alumnos, otra para cursos y otra para inscripciones.</p>
+    <p>Es la parte en la que decides el orden general del programa. Aquí piensas qué partes tendrá, para qué servirá cada una y cómo se relacionarán entre sí.</p>
+    <p>Todavía no estás programando ni creando tablas. Estás organizando la idea del sistema.</p>
 
     <h3>Diseño físico</h3>
-    <p>Es cuando ese plan se construye en una herramienta real. Aquí creas tablas, campos, conexiones y reglas para que el sistema funcione.</p>
-    <p>La idea es mantener el mismo orden del plan, pero ya llevado a código y base de datos.</p>
-    <img src="https://placehold.co/1200x675?text=Lógico+vs+Físico+%28imagen+pendiente%29" alt="Comparación entre plan general e implementación real (pendiente)">
+    <p>Es la parte en la que esa organización se lleva a herramientas reales. Aquí aparecen el código, la base de datos, las tablas, las conexiones y otros elementos concretos del sistema.</p>
+    <p>La meta es que lo que planeaste primero se convierta en un sistema que ya puede construirse y funcionar.</p>
+    <img src="https://placehold.co/1200x675?text=Logico+vs+Fisico+%28imagen+pendiente%29" alt="Comparación entre organización e implementación real (pendiente)">
 
     <div class="alert alert-info">
         <p class="alert-title">Punto clave</p>
-        <p>Primero organizas cómo se va a construir; después lo implementas. Ese orden ayuda a evitar retrabajo y confusión.</p>
+        <p>El diseño lógico organiza el programa. El diseño físico toma esa organización y la convierte en algo que ya puede implementarse en tecnología real.</p>
+    </div>
+
+    <div class="fomentador">
+        <p>Si quieres profundizar más en la diferencia entre organizar un sistema y llevarlo a una implementación real, puedes ver contenido más detallado en el capítulo sobre diseño lógico y físico haciendo clic <a href="Capitulo/Contenido/ID_CONTENIDO_PENDIENTE_DISENO_LOGICO_FISICO">aquí</a>.</p>
     </div>
 </div>';
 
     DECLARE @Ejemplo NVARCHAR(MAX) = N'
 <div class="leccion-ejemplos">
     <h3>Ejemplo: plataforma de cursos</h3>
-    <p><strong>Paso 1 (lógico):</strong> decides que un alumno puede entrar a varios cursos y que cada curso guarda su lista de alumnos.</p>
-    <p><strong>Paso 2 (físico):</strong> creas tablas como <code>Alumnos</code>, <code>Cursos</code> e <code>Inscripciones</code> para guardar esos datos.</p>
-    <p>El primer paso da claridad; el segundo lo vuelve funcional.</p>
-    <img src="https://placehold.co/1200x675?text=Plan+de+partes+y+tablas+reales" alt="Paso de organización a implementación real (pendiente)">
+    <p>Imagina una plataforma donde los alumnos se inscriben a cursos.</p>
+    <p><strong>Momento lógico:</strong> decides que habrá una parte para alumnos, otra para cursos y otra para inscripciones. También decides que un alumno puede estar en varios cursos.</p>
+    <p><strong>Momento físico:</strong> esa organización se lleva a algo concreto creando tablas como <code>Alumnos</code>, <code>Cursos</code> e <code>Inscripciones</code>, además del código necesario para guardar y consultar datos.</p>
+    <img src="https://placehold.co/1200x675?text=Plan+general+y+construccion+real" alt="Paso de organización a implementación real (pendiente)">
+
+    <div class="alert alert-success">
+        <p class="alert-title">Lo importante</p>
+        <p>Primero decides cómo se ordenará el sistema; después haces que ese orden exista de verdad en la aplicación.</p>
+    </div>
 </div>';
 
     DECLARE @Practica NVARCHAR(MAX) = N'
 <div class="leccion-practicas">
     <h3>Práctica de clasificación</h3>
-    <p>Lee cada decisión y clasifícala como lógica o física:</p>
+    <p>Indica si cada acción corresponde al diseño lógico o al diseño físico. Después explica brevemente por qué.</p>
     <ol>
         <li>Decidir que habrá una parte para alumnos y otra para cursos.</li>
         <li>Crear la tabla <code>Alumnos</code> en SQL Server.</li>
-        <li>Definir que un alumno puede estar en varios cursos.</li>
+        <li>Definir que un alumno puede estar inscrito en varios cursos.</li>
         <li>Configurar la conexión de la aplicación con la base de datos.</li>
     </ol>
     <div class="alert alert-success">
         <p class="alert-title">Criterio de logro</p>
-        <p>Está correcto si separas decisiones de organización (lógico) de decisiones de implementación real (físico).</p>
+        <p>Está correcto si separas decisiones de organización del sistema de acciones donde ya se construye en tecnología real.</p>
     </div>
 </div>';
 
-    DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Si estás organizando qué partes tendrá tu programa, estás en lógico; si ya lo estás montando en herramientas reales, estás en físico.</p>';
-    DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a ver dos pasos que trabajan juntos: planear y construir.</p><p>Si los separas bien, entiendes mejor qué decidir primero y qué implementar después.</p>';
+    DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Si estás decidiendo cómo se ordena el programa, vas en lógico. Si ya lo estás montando en código o base de datos, vas en físico.</p>';
+    DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a distinguir dos momentos que trabajan juntos: organizar el sistema y construirlo.</p><p>La meta es que sepas qué decisiones pertenecen al diseño lógico y cuáles al diseño físico.</p>';
 
     IF EXISTS
     (

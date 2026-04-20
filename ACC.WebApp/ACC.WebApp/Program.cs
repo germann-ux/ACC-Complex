@@ -44,7 +44,7 @@ var compilerBaseUrl = NormalizeBaseUrl(endpointOptions.CompilerBaseUrl, nameof(S
 
 builder.AddServiceDefaults();// quizas quitar luego...
 
-builder.Services.AddAutoMapper(typeof(UserMappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(UserMappingProfile).Assembly);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
@@ -71,6 +71,7 @@ builder.Services.AddScoped<AgendaClientService>();
 builder.Services.AddScoped<AgendaRealtimeNotifier>();
 // --- Examenes:
 builder.Services.AddScoped<ExamenesServiceClient>();
+builder.Services.AddScoped<ManualExamResultStore>();
 // Program.cs (WebApp)
 // Cadenas de Conexión a base de datos de identidad // 
 

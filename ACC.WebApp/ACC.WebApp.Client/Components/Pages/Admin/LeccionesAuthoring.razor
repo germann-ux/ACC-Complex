@@ -59,7 +59,20 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label">OrdenSecciones (coma)</label>
-                    <input class="form-control" @bind="_ordenInput" placeholder="teoria,practica,ejemplo,actividad,compilador,charpTip,charpDialog,video" />
+                    <input class="form-control" @bind="_ordenInput" placeholder="mermaid,teoria,practica,ejemplo,actividad,compilador,charpTip,charpDialog,video" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">MermaidTitulo</label>
+                    <input class="form-control" @bind="_draft.MermaidTitulo" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">MermaidDescripcion</label>
+                    <input class="form-control" @bind="_draft.MermaidDescripcion" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">MermaidCodigo</label>
+                    <textarea class="form-control font-monospace" rows="6" @bind="_draft.MermaidCodigo"
+                              placeholder="flowchart TD&#10;A[Inicio] --> B{Decision}&#10;B -- Si --> C[Continua]&#10;B -- No --> D[Finaliza]"></textarea>
                 </div>
                 <div class="col-12">
                     <label class="form-label">Teoria</label>
@@ -150,6 +163,9 @@
             SubtemaId = item.SubtemaId,
             TituloLeccion = item.TituloLeccion,
             DescripcionLeccion = item.DescripcionLeccion,
+            MermaidTitulo = item.MermaidTitulo,
+            MermaidDescripcion = item.MermaidDescripcion,
+            MermaidCodigo = item.MermaidCodigo,
             Teoria = item.Teoria,
             Practica = item.Practica,
             Ejemplo = item.Ejemplo,
@@ -208,6 +224,9 @@
             IdLeccion = _draft.IdLeccion,
             TituloLeccion = _draft.TituloLeccion,
             DescripcionLeccion = _draft.DescripcionLeccion,
+            MermaidTitulo = _draft.MermaidTitulo,
+            MermaidDescripcion = _draft.MermaidDescripcion,
+            MermaidCodigo = _draft.MermaidCodigo,
             Teoria = _draft.Teoria,
             Practica = _draft.Practica,
             Ejemplo = _draft.Ejemplo,

@@ -17,8 +17,8 @@ BEGIN TRY
     IF NOT EXISTS (SELECT 1 FROM acc_academic.SubTemas WHERE Id_SubTema = @SubtemaId)
         THROW 53301, 'No existe el SubTemaId=5 en acc_academic.SubTemas.', 1;
 
-        DECLARE @TituloLeccion NVARCHAR(100) = N'Ventajas de un buen diseño vs consecuencias de uno malo';
-            DECLARE @DescripcionLeccion NVARCHAR(500) = N'Compara que pasa cuando un programa esta bien organizado y que problemas aparecen cuando el diseño es confuso.';
+    DECLARE @TituloLeccion NVARCHAR(100) = N'Ventajas de un buen diseño vs consecuencias de uno malo';
+    DECLARE @DescripcionLeccion NVARCHAR(500) = N'Compara qué ocurre cuando un sistema está bien organizado y qué problemas aparecen cuando el diseño es confuso.';
     DECLARE @NivelBloom NVARCHAR(20) = N'Analizar';
     DECLARE @OrdenSecciones NVARCHAR(MAX) = N'["charpDialog","video","teoria","ejemplo","practica","actividad","charpTip"]';
 
@@ -28,53 +28,77 @@ BEGIN TRY
     DECLARE @TieneVideo BIT = 1;
     DECLARE @VideoId NVARCHAR(20) = N'ST05VIDPEND01';
 
-            DECLARE @Teoria NVARCHAR(MAX) = N'
+    DECLARE @Teoria NVARCHAR(MAX) = N'
 <div class="leccion-teoria">
-    <h3>Con buen diseño</h3>
+    <h3>El diseño se nota cuando hay que cambiar algo</h3>
+    <p>Un buen diseño no solo ayuda al inicio del proyecto. Su valor se nota sobre todo cuando hay que corregir errores, agregar funciones nuevas o modificar una parte del sistema.</p>
+    <p>Cuando el programa está bien organizado, esos cambios suelen ser más claros y más seguros. Cuando está mal organizado, hasta un cambio pequeño puede traer problemas en cadena.</p>
+
+    <h3>Qué pasa con un buen diseño</h3>
     <ul>
-        <li>Los cambios son más rapidos.</li>
-        <li>Es más fácil corregir errores.</li>
-        <li>Agregar funciones nuevas es más seguro.</li>
+        <li>Es más fácil entender dónde hacer un cambio.</li>
+        <li>Corregir errores toma menos tiempo.</li>
+        <li>Agregar una función nueva implica menos riesgo.</li>
+        <li>El sistema resulta más claro para quien lo mantiene.</li>
     </ul>
-    <h3>Con mal diseño</h3>
+
+    <h3>Qué pasa con un mal diseño</h3>
     <ul>
-        <li>Un cambio pequeno rompe otras partes.</li>
-        <li>Corregir errores toma más tiempo.</li>
-        <li>El equipo evita tocar código por miedo a romper algo.</li>
+        <li>Un cambio pequeño puede afectar partes que no parecían relacionadas.</li>
+        <li>Encontrar errores cuesta más trabajo.</li>
+        <li>Agregar funciones nuevas se vuelve más inseguro.</li>
+        <li>El equipo empieza a evitar cambios por miedo a romper algo.</li>
     </ul>
-    <img src="https://placehold.co/1200x675?text=Diseño+ordenado+vs+diseño+confuso" alt="Comparacion de resultados (pendiente)">
+
+    <img src="https://placehold.co/1200x675?text=Diseno+ordenado+vs+diseno+confuso" alt="Comparación entre un diseño claro y uno confuso (pendiente)">
+
+    <div class="alert alert-info">
+        <p class="alert-title">Punto clave</p>
+        <p>La diferencia entre un buen diseño y uno malo no siempre se nota el primer día. Muchas veces se hace evidente cuando el sistema empieza a cambiar.</p>
+    </div>
+
+    <div class="fomentador">
+        <p>Si quieres profundizar más en cómo impacta el diseño en los cambios, errores y mantenimiento del sistema, puedes ver contenido más detallado en el capítulo sobre ventajas y riesgos del diseño haciendo clic <a href="Capitulo/Contenido/ID_CONTENIDO_PENDIENTE_VENTAJAS_RIESGOS_DISENO">aquí</a>.</p>
+    </div>
 </div>';
 
-            DECLARE @Ejemplo NVARCHAR(MAX) = N'
+    DECLARE @Ejemplo NVARCHAR(MAX) = N'
 <div class="leccion-ejemplos">
-    <h3>Comparacion</h3>
+    <h3>Un mismo cambio en dos escenarios</h3>
+    <p>Imagina que en un sistema escolar ahora se necesita guardar el teléfono del alumno.</p>
+
     <div class="alert alert-success">
-        <p class="alert-title">Caso ordenado</p>
-        <p>Se agrega un campo nuevo y solo se modifica una parte del código.</p>
+        <p class="alert-title">Escenario con buen diseño</p>
+        <p>El cambio se hace en la parte del sistema que maneja alumnos. Las demás partes casi no se tocan y el ajuste resulta más rápido y predecible.</p>
     </div>
+
     <div class="alert alert-error">
-        <p class="alert-title">Caso confuso</p>
-        <p>El mismo cambio obliga a tocar muchos archivos y aparecen errores en cadena.</p>
+        <p class="alert-title">Escenario con mal diseño</p>
+        <p>La información del alumno está mezclada en varias partes. Para agregar el teléfono hay que tocar muchos archivos y aparecen errores en lugares que no se esperaban.</p>
     </div>
-    <img src="https://placehold.co/1200x675?text=Impacto+de+un+cambio+simple" alt="Impacto de cambio en dos escenarios (pendiente)">
+
+    <img src="https://placehold.co/1200x675?text=Impacto+de+un+mismo+cambio" alt="Comparación del impacto de un mismo cambio (pendiente)">
+
+    <p>El cambio es el mismo, pero el esfuerzo y el riesgo cambian mucho según el diseño que tenga el sistema.</p>
 </div>';
 
-            DECLARE @Practica NVARCHAR(MAX) = N'
+    DECLARE @Practica NVARCHAR(MAX) = N'
 <div class="leccion-practicas">
-    <h3>Práctica</h3>
+    <h3>Práctica guiada</h3>
+    <p>Lee este caso: para agregar un dato nuevo, un equipo tuvo que modificar muchos archivos y después aparecieron errores en otras partes del sistema.</p>
     <ol>
-        <li>Describe un cambio pequeno que hiciste en un proyecto.</li>
-        <li>Explica si fue fácil o dificil y por que.</li>
-        <li>Propone una mejora de diseño para evitar ese problema.</li>
+        <li>Escribe dos señales que muestran que ese diseño tenía problemas.</li>
+        <li>Explica una ventaja que habría tenido un diseño más claro en ese mismo caso.</li>
+        <li>Propón una mejora general para evitar que un cambio simple afecte demasiadas partes.</li>
     </ol>
     <div class="alert alert-success">
         <p class="alert-title">Criterio de logro</p>
-        <p>Está correcto si explicas el impacto real del diseño en tiempo y errores.</p>
+        <p>Está correcto si identificas señales de desorden, explicas una ventaja real de un buen diseño y propones una mejora orientada a reducir riesgo al cambiar.</p>
     </div>
 </div>';
 
-            DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Un buen diseño se nota cuando cambiar algo no se vuelve una cadena de problemas.</p>';
-            DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a comparar código ordenado contra código desordenado.</p><p>La meta es ver como el diseño impacta en el trabajo diario.</p>';
+    DECLARE @CharpTip NVARCHAR(MAX) = N'<p><strong>Tip Charp:</strong> Un buen diseño suele pasar desapercibido hasta que necesitas cambiar algo. Ahí es donde se nota si el sistema ayuda o estorba.</p>';
+    DECLARE @CharpDialog NVARCHAR(MAX) = N'<p>En esta lección vas a comparar lo que ocurre cuando un sistema está bien organizado y lo que ocurre cuando no lo está.</p><p>La meta es que relaciones el diseño con cambios, errores y mantenimiento del trabajo diario.</p>';
 
     IF EXISTS
     (
@@ -163,4 +187,3 @@ BEGIN CATCH
     THROW;
 END CATCH;
 GO
-

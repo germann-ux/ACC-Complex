@@ -1,90 +1,202 @@
-﻿@page "/contenido/{Tipo}/{Id:int}"
+@page "/contenido/{Tipo}/{Id:int}"
 
 @rendermode InteractiveServer
 
-@using ACC.WebApp.Client.Services;
-@using ACC.Shared.DTOs;
-@using ACC.Shared.Core;
-@using ACC.Shared.Enums;
-@using ACC.WebApp.Client.Components.Pages.Guia.Components
+@using ACC.WebApp.Client.Services
+@using ACC.Shared.Core
+@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+@using System.Globalization
 
 @inject NavegacionContenidoClient Navegacion
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-@inject ProgresoUsuarioClient experiencia
-@inject IJSRuntime JS
+@inject ProgresoUsuarioClient Experiencia
 
-<div class="guia-main-container">
-    <div class="guia-main-toolbar">
-        <div class="guia-nav-arrows" aria-label="Navegacion de contenido">
-            <button type="button" class="guia-nav-arrow" @onclick="async () => await NavegarAtrasAsync()" title="Volver">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <button type="button" class="guia-nav-arrow" @onclick="async () => await NavegarAdelanteAsync()" title="Avanzar">
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-        </div>
-    </div>
-
-    <h3 class="guia-main-title">Navegando: @TipoEnum</h3>
-
+<div class="guia-main-shell">
     @if (isLoading)
     {
-        <p class="guia-main-loading">Cargando...</p>
+        <section class="guia-main-card guia-main-state" aria-live="polite">
+            <p>
+                <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+                Cargando contenido...
+            </p>
+        </section>
     }
     else if (!enumValido)
     {
-        <p class="guia-main-error">Tipo no válido: @Tipo</p>
+        <section class="guia-main-card guia-main-state guia-main-state--error" role="alert">
+            <p>
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                Tipo de contenido no valido: @Tipo
+            </p>
+        </section>
     }
-    else if (hijosResult is not null && !hijosResult.Success && hijosResult.StatusCode != HttpStatusCodes.NotFound)
+    else if (!string.IsNullOrWhiteSpace(errorMessage) || resolvedContext is null || navigationTree is null)
     {
-        <p class="guia-main-error">@hijosResult.Message</p>
-    }
-    else if (hijos.Count > 0)
-    {
-    <ul class="guia-main-list">
-    @foreach (var nodo in hijos)
-    {
-        bool completado = estadosSubtemas.TryGetValue(nodo.Id, out var estado) && estado;
-
-        <li class="guia-main-list-item @(nodo.Tipo == TipoNodoJerarquico.SubTema && completado ? "subtema-completado" : "")"
-            @onclick="async () => await IrANodo(nodo)">
-
-            <div class="guia-main-header">
-                <p><strong class="capitulo-strong">@nodo.Nombre</strong></p>
-            </div>
-
-            <span class="guia-main-badge">@nodo.Tipo</span>
-
-            <p class="guia-main-desc">@nodo.Descripcion</p>
-
-            @if (nodo.Tipo == TipoNodoJerarquico.SubTema && completado)
-            {
-                <span class="subtema-completado-badge subtema-completado-pos">
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                        <circle cx="10" cy="10" r="10" fill="#26b050" />
-                        <path d="M6 10.5L9 13.5L14 8.5" stroke="white" stroke-width="2"
-                              stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Completado
-                </span>
-            }
-            else if (nodo.Tipo == TipoNodoJerarquico.SubTema)
-            {
-                <BtnCompletarSubtema SubTemaId="@nodo.Id"
-                                     SubModuloId="@Id" />
-            }
-        </li>
-    }
-</ul>
+        <section class="guia-main-card guia-main-state guia-main-state--error" role="alert">
+            <p>
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                @(errorMessage ?? "No se pudo cargar la guia.")
+            </p>
+        </section>
     }
     else
     {
-        @* <p class="guia-main-empty">No se encontraron elementos hijos.</p> *@
-        <InfoComponent 
-            Title="No hay contenido disponible"
-            Message="No se encontraron elementos hijos para este nodo."
-            StatusCode="204" ReturnUrl="/Guia" />
+        <section class="guia-main-workspace">
+            <div class="guia-main-column">
+                <section class="guia-main-card guia-main-context">
+                    <nav class="guia-main-breadcrumb" aria-label="Ruta de navegacion" title="@ObtenerRutaCompleta()">
+                        <button type="button"
+                                class="guia-main-breadcrumb__link guia-main-breadcrumb__item guia-main-breadcrumb__item--root"
+                                title="Guia"
+                                @onclick="IrAGuiaAsync">
+                            Guia
+                        </button>
+
+                        @foreach (var ancestor in resolvedContext.BreadcrumbAncestors)
+                        {
+                            <span class="guia-main-breadcrumb__separator">/</span>
+                            <button type="button"
+                                    class="guia-main-breadcrumb__link guia-main-breadcrumb__item guia-main-breadcrumb__item--ancestor"
+                                    title="@ancestor.Nombre"
+                                    @onclick="() => IrANodo(ancestor)">
+                                @ancestor.Nombre
+                            </button>
+                        }
+
+                        <span class="guia-main-breadcrumb__separator">/</span>
+                        <span class="guia-main-breadcrumb__current guia-main-breadcrumb__item guia-main-breadcrumb__item--current"
+                              title="@resolvedContext.CurrentNode.Nombre">
+                            @resolvedContext.CurrentNode.Nombre
+                        </span>
+                    </nav>
+
+                    <div class="guia-main-context__body">
+                        <div class="guia-main-context__copy">
+                            <h2>@resolvedContext.CurrentNode.Nombre</h2>
+                            <p>@ObtenerDescripcion(resolvedContext.CurrentNode.Descripcion)</p>
+                        </div>
+                    </div>
+
+                    @if (ObtenerNodoContextual() is not null || moduleSummary is not null)
+                    {
+                        <div class="guia-main-context__detail-row">
+                            @if (ObtenerNodoContextual() is not null)
+                            {
+                                var contextoNodo = ObtenerNodoContextual()!;
+                                <div class="guia-main-contextual-card">
+                                    <span class="guia-main-contextual-card__label">@ObtenerEtiquetaContextual()</span>
+                                    <h3>@contextoNodo.Nombre</h3>
+                                    <p>@ObtenerDescripcion(contextoNodo.Descripcion)</p>
+                                </div>
+                            }
+
+                            <div class="guia-main-context__actions">
+                                @if (moduleSummary is not null)
+                                {
+                                    <div class="guia-main-progress-card" aria-label="Progreso del modulo">
+                                        <div class="guia-main-progress-card__head">
+                                            <span class="guia-main-progress-card__label">Progreso del modulo</span>
+                                            <strong>@($"{moduleSummary.ProgresoPorcentaje}%")</strong>
+                                        </div>
+
+                                        <div class="guia-main-progress-card__bar"
+                                             role="progressbar"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100"
+                                             aria-valuenow="@moduleSummary.ProgresoPorcentaje"
+                                             aria-label="Progreso del modulo actual">
+                                            <span class="guia-main-progress-card__fill" style="@($"width: {moduleSummary.ProgresoPorcentaje}%;")"></span>
+                                        </div>
+
+                                        <div class="guia-main-progress-card__meta">
+                                            <span>@($"{moduleSummary.SubTemasCompletados} de {moduleSummary.SubTemasCount} subtemas completados")</span>
+                                            <span>@($"{moduleSummary.LeccionesCount} lecciones · {moduleSummary.EvaluacionesCount} evaluaciones · {moduleSummary.PracticasCount} practicas")</span>
+                                        </div>
+                                    </div>
+                                }
+
+                                <button type="button" class="guia-main-btn guia-main-btn--primary" @onclick="IrAExamenesAsync">
+                                    Ir a examenes
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </section>
+
+                <section class="guia-main-card guia-main-section">
+                    <div class="guia-main-section__head">
+                        <div>
+                            <h3>@ObtenerTituloSeccion(resolvedContext.CurrentNode.Tipo)</h3>
+                            <p>@ObtenerDescripcionSeccion(resolvedContext.CurrentNode.Tipo)</p>
+                        </div>
+                    </div>
+
+                    @if (resolvedContext.CurrentChildren.Count == 0)
+                    {
+                        <div class="guia-main-empty" aria-live="polite">
+                            <p>No hay contenido disponible en este tramo de la guia.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="guia-main-list">
+                            @for (var index = 0; index < resolvedContext.CurrentChildren.Count; index++)
+                            {
+                                var nodo = resolvedContext.CurrentChildren[index];
+                                var completado = EstaSubTemaCompletado(nodo.Id);
+
+                                <article class="guia-main-item @(nodo.Tipo == TipoNodoJerarquico.SubTema && completado ? "guia-main-item--completed" : string.Empty)"
+                                         @onclick="() => IrANodo(nodo)">
+                                    <div class="guia-main-item__mark">@((index + 1).ToString("00", CultureInfo.InvariantCulture))</div>
+
+                                    <div class="guia-main-item__copy">
+                                        <h4>@nodo.Nombre</h4>
+                                        <p>@ObtenerDescripcion(nodo.Descripcion)</p>
+                                    </div>
+
+                                    <div class="guia-main-item__side">
+                                        @if (nodo.Tipo == TipoNodoJerarquico.SubTema && completado)
+                                        {
+                                            <span class="guia-main-status guia-main-status--done">
+                                                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                                                Completado
+                                            </span>
+                                        }
+                                        else if (nodo.Tipo == TipoNodoJerarquico.SubTema && resolvedContext.ActiveSubModulo is not null)
+                                        {
+                                            <BtnCompletarSubtema SubTemaId="@nodo.Id"
+                                                                 SubModuloId="@resolvedContext.ActiveSubModulo.Id"
+                                                                 OnCompleted="MarcarSubtemaCompletoAsync" />
+                                        }
+                                        else
+                                        {
+                                            <span class="guia-main-item__go" aria-hidden="true">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </span>
+                                        }
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+            </div>
+
+            <aside class="guia-main-card guia-main-tree">
+                <div class="guia-main-tree__head">
+                    <div>
+                        <h3>Mapa del recorrido</h3>
+                        <p>@ObtenerDescripcionMapa()</p>
+                    </div>
+                </div>
+
+                <div class="guia-main-tree__body">
+                    <GuiaTreeNode Node="navigationTree" OnNavigate="IrANodo" />
+                </div>
+            </aside>
+        </section>
     }
 </div>
 
@@ -92,17 +204,15 @@
     [Parameter] public string Tipo { get; set; } = string.Empty;
     [Parameter] public int Id { get; set; }
 
-    private ServiceResult<List<NodoJerarquicoDto>>? hijosResult;
-    private List<NodoJerarquicoDto> hijos = new();
+    private ResolvedContext? resolvedContext;
+    private GuiaTreeNodeViewModel? navigationTree;
     private bool isLoading = true;
     private bool enumValido = true;
     private string? userId;
+    private string? errorMessage;
+    private GuiaModuloResumenDto? moduleSummary;
 
-    private Dictionary<int, bool> estadosSubtemas = new();
-
-    private TipoNodoJerarquico TipoEnum => Enum.TryParse<TipoNodoJerarquico>(Tipo, ignoreCase: true, out var result)
-        ? result
-        : default;
+    private readonly Dictionary<int, bool> estadosSubtemas = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,59 +227,469 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        enumValido = Enum.TryParse<TipoNodoJerarquico>(Tipo, ignoreCase: true, out var result);
+        enumValido = Enum.TryParse<TipoNodoJerarquico>(Tipo, ignoreCase: true, out var tipoActual);
+        errorMessage = null;
+        resolvedContext = null;
+        navigationTree = null;
+        moduleSummary = null;
+        estadosSubtemas.Clear();
 
         if (!enumValido)
         {
-            hijosResult = null;
-            hijos.Clear();
+            isLoading = false;
             return;
         }
 
         isLoading = true;
-        hijosResult = await Navegacion.ObtenerHijosAsync(result, Id);
-        hijos = hijosResult.Data ?? new();
 
-        if (hijosResult?.Success == true && userId is not null)
+        try
         {
-            estadosSubtemas.Clear();
+            resolvedContext = await ResolverContextoAsync(tipoActual, Id);
 
-            foreach (var hijo in hijos)
+            if (tipoActual == TipoNodoJerarquico.SubTema && !string.IsNullOrWhiteSpace(userId))
             {
-                if (hijo.Tipo == TipoNodoJerarquico.SubTema)
+                try
                 {
-                    try
-                    {
-                        var estado = await experiencia.ObtenerEstadoSubtema(userId, hijo.Id);
-                        estadosSubtemas[hijo.Id] = estado;
-                    }
-                    catch
-                    {
-                        estadosSubtemas[hijo.Id] = false;
-                    }
+                    await Experiencia.GuardarProgresoSubTemaAsync(userId, Id);
                 }
+                catch
+                {
+                }
+            }
+
+            await CargarEstadosSubtemasAsync(resolvedContext);
+            await CargarResumenModuloAsync(resolvedContext.ModuleNode.Id);
+            navigationTree = ConstruirArbol(resolvedContext);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CargarResumenModuloAsync(int moduleId)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return;
+        }
+
+        try
+        {
+            var resumen = await Experiencia.ObtenerResumenGuiaAsync(userId);
+            moduleSummary = resumen?.Modulos.FirstOrDefault(modulo => modulo.ModuloId == moduleId);
+        }
+        catch
+        {
+            moduleSummary = null;
+        }
+    }
+
+    private async Task<ResolvedContext> ResolverContextoAsync(TipoNodoJerarquico tipoActual, int idActual)
+    {
+        if (tipoActual == TipoNodoJerarquico.Modulo)
+        {
+            var modulosResult = await Navegacion.ObtenerModulosAsync();
+            if (!modulosResult.Success)
+            {
+                throw new InvalidOperationException(modulosResult.Message ?? "No se pudieron cargar los modulos.");
+            }
+
+            var moduloActual = modulosResult.Data?.FirstOrDefault(modulo => modulo.Id == idActual);
+            if (moduloActual is null)
+            {
+                throw new InvalidOperationException("No se encontro el modulo solicitado.");
+            }
+
+            var submodulos = await ObtenerHijosPermitidosAsync(moduloActual);
+
+            return new ResolvedContext
+            {
+                CurrentNode = moduloActual,
+                ModuleNode = moduloActual,
+                BreadcrumbAncestors = new List<NodoJerarquicoDto>(),
+                CurrentChildren = submodulos,
+                ModuleChildren = submodulos
+            };
+        }
+
+        var rutaResult = await Navegacion.ObtenerRutaAsync(tipoActual, idActual);
+        if (!rutaResult.Success)
+        {
+            throw new InvalidOperationException(rutaResult.Message ?? "No se pudo resolver la ruta del contenido.");
+        }
+
+        var breadcrumbAncestors = rutaResult.Data ?? new List<NodoJerarquicoDto>();
+        if (breadcrumbAncestors.Count == 0)
+        {
+            throw new InvalidOperationException("No se encontro la ruta del contenido actual.");
+        }
+
+        var parentRouteNode = breadcrumbAncestors[^1];
+        var nodoActual = await ResolverNodoHijoAsync(parentRouteNode, tipoActual, idActual);
+
+        var moduleNode = breadcrumbAncestors.FirstOrDefault(node => node.Tipo == TipoNodoJerarquico.Modulo);
+        if (moduleNode is null)
+        {
+            throw new InvalidOperationException("No se encontro el modulo raiz del contenido actual.");
+        }
+
+        var moduleChildren = await ObtenerHijosPermitidosAsync(moduleNode);
+
+        NodoJerarquicoDto? activeSubModulo = null;
+        List<NodoJerarquicoDto> activeSubModuloChildren = new();
+
+        if (tipoActual == TipoNodoJerarquico.SubModulo)
+        {
+            activeSubModulo = nodoActual;
+        }
+        else
+        {
+            var subModuloRouteNode = breadcrumbAncestors.FirstOrDefault(node => node.Tipo == TipoNodoJerarquico.SubModulo);
+            if (subModuloRouteNode is not null)
+            {
+                activeSubModulo = moduleChildren.FirstOrDefault(node => node.Id == subModuloRouteNode.Id && node.Tipo == TipoNodoJerarquico.SubModulo);
             }
         }
 
-        isLoading = false;
+        if (activeSubModulo is not null)
+        {
+            activeSubModuloChildren = await ObtenerHijosPermitidosAsync(activeSubModulo);
+        }
+
+        NodoJerarquicoDto? activeTheme = null;
+        List<NodoJerarquicoDto> activeThemeChildren = new();
+
+        if (tipoActual == TipoNodoJerarquico.Tema)
+        {
+            activeTheme = nodoActual;
+        }
+        else if (tipoActual == TipoNodoJerarquico.SubTema)
+        {
+            var themeRouteNode = breadcrumbAncestors.FirstOrDefault(node => node.Tipo == TipoNodoJerarquico.Tema);
+            if (themeRouteNode is not null)
+            {
+                activeTheme = activeSubModuloChildren.FirstOrDefault(node => node.Id == themeRouteNode.Id && node.Tipo == TipoNodoJerarquico.Tema);
+            }
+        }
+
+        if (activeTheme is not null)
+        {
+            activeThemeChildren = await ObtenerHijosPermitidosAsync(activeTheme);
+        }
+
+        NodoJerarquicoDto? activeSubTema = null;
+        List<NodoJerarquicoDto> activeSubTemaChildren = new();
+
+        if (tipoActual == TipoNodoJerarquico.SubTema)
+        {
+            activeSubTema = nodoActual;
+            activeSubTemaChildren = await ObtenerHijosPermitidosAsync(activeSubTema);
+        }
+
+        var currentChildren = tipoActual switch
+        {
+            TipoNodoJerarquico.Modulo => moduleChildren,
+            TipoNodoJerarquico.SubModulo => activeSubModuloChildren,
+            TipoNodoJerarquico.Tema => activeThemeChildren,
+            TipoNodoJerarquico.SubTema => activeSubTemaChildren,
+            _ => new List<NodoJerarquicoDto>()
+        };
+
+        return new ResolvedContext
+        {
+            CurrentNode = nodoActual,
+            ModuleNode = moduleNode,
+            ActiveSubModulo = activeSubModulo,
+            ActiveTheme = activeTheme,
+            ActiveSubTema = activeSubTema,
+            BreadcrumbAncestors = breadcrumbAncestors,
+            CurrentChildren = currentChildren,
+            ModuleChildren = moduleChildren,
+            ActiveSubModuloChildren = activeSubModuloChildren,
+            ActiveThemeChildren = activeThemeChildren,
+            ActiveSubTemaChildren = activeSubTemaChildren
+        };
+    }
+
+    private async Task<NodoJerarquicoDto> ResolverNodoHijoAsync(NodoJerarquicoDto parentNode, TipoNodoJerarquico tipoActual, int idActual)
+    {
+        var children = await ObtenerHijosPermitidosAsync(parentNode);
+        var currentNode = children.FirstOrDefault(node => node.Id == idActual && node.Tipo == tipoActual);
+
+        return currentNode
+            ?? throw new InvalidOperationException("No se encontro el nodo actual dentro de la jerarquia.");
+    }
+
+    private async Task<List<NodoJerarquicoDto>> ObtenerHijosPermitidosAsync(NodoJerarquicoDto node)
+    {
+        var result = await Navegacion.ObtenerHijosAsync(node.Tipo, node.Id);
+
+        if (result.Success)
+        {
+            return result.Data ?? new List<NodoJerarquicoDto>();
+        }
+
+        if (result.StatusCode == HttpStatusCodes.NotFound)
+        {
+            return new List<NodoJerarquicoDto>();
+        }
+
+        throw new InvalidOperationException(result.Message ?? "No se pudo cargar la jerarquia del contenido.");
+    }
+
+    private async Task CargarEstadosSubtemasAsync(ResolvedContext context)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return;
+        }
+
+        var subTemaIds = context.CurrentChildren
+            .Concat(context.ActiveThemeChildren)
+            .Where(node => node.Tipo == TipoNodoJerarquico.SubTema)
+            .Select(node => node.Id)
+            .Distinct()
+            .ToList();
+
+        foreach (var subTemaId in subTemaIds)
+        {
+            try
+            {
+                estadosSubtemas[subTemaId] = await Experiencia.ObtenerEstadoSubtema(userId, subTemaId);
+            }
+            catch
+            {
+                estadosSubtemas[subTemaId] = false;
+            }
+        }
+    }
+
+    private GuiaTreeNodeViewModel ConstruirArbol(ResolvedContext context)
+    {
+        var moduleNode = CrearTreeNode(context.ModuleNode, isRoot: true);
+
+        foreach (var subModulo in context.ModuleChildren)
+        {
+            var subModuloNode = CrearTreeNode(subModulo);
+
+            if (context.ActiveSubModulo?.Id == subModulo.Id)
+            {
+                subModuloNode.IsExpanded = true;
+
+                foreach (var theme in context.ActiveSubModuloChildren)
+                {
+                    var themeNode = CrearTreeNode(theme);
+
+                    if (context.ActiveTheme?.Id == theme.Id)
+                    {
+                        themeNode.IsExpanded = true;
+
+                        foreach (var subTema in context.ActiveThemeChildren)
+                        {
+                            var subTemaNode = CrearTreeNode(subTema);
+
+                            if (context.ActiveSubTema?.Id == subTema.Id)
+                            {
+                                subTemaNode.IsExpanded = true;
+
+                                foreach (var lesson in context.ActiveSubTemaChildren)
+                                {
+                                    subTemaNode.Children.Add(CrearTreeNode(lesson));
+                                }
+                            }
+
+                            themeNode.Children.Add(subTemaNode);
+                        }
+                    }
+
+                    subModuloNode.Children.Add(themeNode);
+                }
+            }
+
+            moduleNode.Children.Add(subModuloNode);
+        }
+
+        return moduleNode;
+    }
+
+    private GuiaTreeNodeViewModel CrearTreeNode(NodoJerarquicoDto node, bool isRoot = false)
+    {
+        return new GuiaTreeNodeViewModel
+        {
+            Node = node,
+            IsRoot = isRoot,
+            IsActive = resolvedContext is not null
+                && node.Id == resolvedContext.CurrentNode.Id
+                && node.Tipo == resolvedContext.CurrentNode.Tipo,
+            IsExpanded = isRoot,
+            IsInActivePath = EstaEnRutaActiva(node),
+            IsCompleted = node.Tipo == TipoNodoJerarquico.SubTema && EstaSubTemaCompletado(node.Id)
+        };
+    }
+
+    private bool EstaEnRutaActiva(NodoJerarquicoDto node)
+    {
+        if (resolvedContext is null)
+        {
+            return false;
+        }
+
+        return node.Tipo switch
+        {
+            TipoNodoJerarquico.Modulo => node.Id == resolvedContext.ModuleNode.Id,
+            TipoNodoJerarquico.SubModulo => resolvedContext.ActiveSubModulo?.Id == node.Id,
+            TipoNodoJerarquico.Tema => resolvedContext.ActiveTheme?.Id == node.Id,
+            TipoNodoJerarquico.SubTema => resolvedContext.ActiveSubTema?.Id == node.Id,
+            _ => false
+        };
+    }
+
+    private bool EstaSubTemaCompletado(int subTemaId)
+        => estadosSubtemas.TryGetValue(subTemaId, out var completado) && completado;
+
+    private NodoJerarquicoDto? ObtenerNodoContextual()
+    {
+        if (resolvedContext is null)
+        {
+            return null;
+        }
+
+        return resolvedContext.CurrentNode.Tipo == TipoNodoJerarquico.Modulo
+            ? resolvedContext.CurrentNode
+            : resolvedContext.ActiveSubModulo;
+    }
+
+    private string ObtenerEtiquetaContextual()
+        => resolvedContext?.CurrentNode.Tipo == TipoNodoJerarquico.Modulo
+            ? "Modulo actual"
+            : "Submodulo actual";
+
+    private static string ObtenerTituloSeccion(TipoNodoJerarquico tipoActual) => tipoActual switch
+    {
+        TipoNodoJerarquico.Modulo => "Submodulos del modulo",
+        TipoNodoJerarquico.SubModulo => "Temas del submodulo",
+        TipoNodoJerarquico.Tema => "Subtemas del tema",
+        TipoNodoJerarquico.SubTema => "Lecciones del subtema",
+        _ => "Contenido disponible"
+    };
+
+    private static string ObtenerDescripcionSeccion(TipoNodoJerarquico tipoActual) => tipoActual switch
+    {
+        TipoNodoJerarquico.Modulo => "Selecciona el siguiente submodulo para continuar tu ruta de estudio.",
+        TipoNodoJerarquico.SubModulo => "Explora los temas disponibles dentro del submodulo activo.",
+        TipoNodoJerarquico.Tema => "Continua con los subtemas del tema activo y marca tu progreso.",
+        TipoNodoJerarquico.SubTema => "Abre la leccion que necesitas para seguir avanzando en este tramo.",
+        _ => "Explora el siguiente nivel de la guia."
+    };
+
+    private static string ObtenerDescripcion(string? descripcion)
+        => string.IsNullOrWhiteSpace(descripcion)
+            ? "Sin descripcion disponible por ahora."
+            : descripcion;
+
+    private string ObtenerRutaCompleta()
+        => resolvedContext is null
+            ? "Guia"
+            : string.Join(" / ",
+                new[] { "Guia" }
+                    .Concat(resolvedContext.BreadcrumbAncestors.Select(node => node.Nombre))
+                    .Concat(new[] { resolvedContext.CurrentNode.Nombre }));
+
+    private string ObtenerDescripcionMapa()
+        => resolvedContext is null
+            ? "Explora la jerarquia del modulo actual sin salir de la guia."
+            : $"Sigue la estructura de {resolvedContext.ModuleNode.Nombre} y ubica tu posicion actual dentro del recorrido.";
+
+    private Task IrAGuiaAsync()
+    {
+        NavigationManager.NavigateTo("/Guia");
+        return Task.CompletedTask;
+    }
+
+    private Task IrAExamenesAsync()
+    {
+        if (resolvedContext is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        NavigationManager.NavigateTo($"/examenes/modulo/{resolvedContext.ModuleNode.Id}");
+        return Task.CompletedTask;
     }
 
     private async Task IrANodo(NodoJerarquicoDto nodo)
     {
         var tipoStr = nodo.Tipo.ToString();
-        var ruta = tipoStr == "Leccion"
+        var ruta = tipoStr == nameof(TipoNodoJerarquico.Leccion)
             ? $"/leccion/{nodo.Id}"
             : $"/contenido/{tipoStr}/{nodo.Id}";
 
-        if (tipoStr == "SubTema" && !string.IsNullOrEmpty(userId))
+        if (nodo.Tipo == TipoNodoJerarquico.SubTema && !string.IsNullOrWhiteSpace(userId))
         {
-            await experiencia.GuardarProgresoSubTemaAsync(userId, nodo.Id);
+            try
+            {
+                await Experiencia.GuardarProgresoSubTemaAsync(userId, nodo.Id);
+            }
+            catch
+            {
+            }
         }
 
         NavigationManager.NavigateTo(ruta);
     }
 
-    private ValueTask NavegarAtrasAsync() => JS.InvokeVoidAsync("guiaNavigation.back");
+    private Task MarcarSubtemaCompletoAsync(int subTemaId)
+    {
+        var yaCompletado = estadosSubtemas.TryGetValue(subTemaId, out var completadoActual) && completadoActual;
+        estadosSubtemas[subTemaId] = true;
 
-    private ValueTask NavegarAdelanteAsync() => JS.InvokeVoidAsync("guiaNavigation.forward");
+        if (!yaCompletado && moduleSummary is not null)
+        {
+            moduleSummary.SubTemasCompletados = Math.Min(moduleSummary.SubTemasCompletados + 1, moduleSummary.SubTemasCount);
+            moduleSummary.ProgresoPorcentaje = moduleSummary.SubTemasCount == 0
+                ? 0
+                : (int)Math.Round((double)moduleSummary.SubTemasCompletados * 100 / moduleSummary.SubTemasCount, MidpointRounding.AwayFromZero);
+        }
+
+        if (navigationTree is not null)
+        {
+            ActualizarEstadoSubtemaEnArbol(navigationTree, subTemaId);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static void ActualizarEstadoSubtemaEnArbol(GuiaTreeNodeViewModel node, int subTemaId)
+    {
+        if (node.Node.Tipo == TipoNodoJerarquico.SubTema && node.Node.Id == subTemaId)
+        {
+            node.IsCompleted = true;
+        }
+
+        foreach (var child in node.Children)
+        {
+            ActualizarEstadoSubtemaEnArbol(child, subTemaId);
+        }
+    }
+
+    private sealed class ResolvedContext
+    {
+        public NodoJerarquicoDto CurrentNode { get; init; } = default!;
+        public NodoJerarquicoDto ModuleNode { get; init; } = default!;
+        public NodoJerarquicoDto? ActiveSubModulo { get; init; }
+        public NodoJerarquicoDto? ActiveTheme { get; init; }
+        public NodoJerarquicoDto? ActiveSubTema { get; init; }
+        public List<NodoJerarquicoDto> BreadcrumbAncestors { get; init; } = new();
+        public List<NodoJerarquicoDto> CurrentChildren { get; init; } = new();
+        public List<NodoJerarquicoDto> ModuleChildren { get; init; } = new();
+        public List<NodoJerarquicoDto> ActiveSubModuloChildren { get; init; } = new();
+        public List<NodoJerarquicoDto> ActiveThemeChildren { get; init; } = new();
+        public List<NodoJerarquicoDto> ActiveSubTemaChildren { get; init; } = new();
+    }
 }

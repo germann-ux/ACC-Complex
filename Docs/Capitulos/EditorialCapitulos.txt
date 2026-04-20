@@ -1,0 +1,319 @@
+Contrato Editorial de Capítulos – ACC v1.2
+
+1. Propósito
+
+Este documento define la estructura, reglas y criterios obligatorios para la redacción de capítulos dentro de ACC.
+
+Un capítulo representa un dominio conceptual compuesto por múltiples conceptos relacionados, organizados de forma estructurada, coherente y progresiva.
+
+Su objetivo es permitir:
+
+- comprensión profunda de un dominio
+- organización mental clara de los conceptos
+- navegación estructurada del conocimiento
+
+2. Naturaleza del capítulo
+
+Un capítulo en ACC:
+
+- no aborda un único concepto aislado
+- agrupa múltiples conceptos dentro de un mismo dominio
+- establece relaciones entre dichos conceptos
+- construye una estructura conceptual interna
+
+El capítulo debe comportarse como un sistema de conocimiento, no como una colección de definiciones.
+
+3. Estructura obligatoria
+
+3.1 Título del capítulo
+
+- Representa el dominio conceptual abordado
+- Debe ser técnico, claro y delimitado
+- No debe ser ambiguo ni excesivamente amplio
+
+3.2 Índice interno
+
+- Lista jerárquica de secciones y subsecciones
+- Debe reflejar la estructura conceptual del capítulo
+- Orden lógico obligatorio:
+  - de general a específico, o
+  - de base a especialización
+
+3.3 Introducción editorial
+
+Debe incluir:
+
+- delimitación del dominio
+- conceptos principales a tratar
+- nivel de profundidad del contenido
+
+Restricciones:
+
+- no incluir narrativa motivacional
+- no incluir ejemplos extensos
+- no introducir contenido técnico profundo
+
+3.4 Cómo abordar este capítulo (opcional)
+
+Puede incluir:
+
+- conocimientos previos recomendados
+- forma sugerida de lectura:
+  - lineal
+  - consulta por secciones
+- advertencias sobre densidad conceptual
+
+Uso recomendado en capítulos complejos.
+
+3.5 Marco conceptual del capítulo
+
+Debe presentar una visión estructurada del dominio.
+
+Debe incluir:
+
+- conceptos base
+- conceptos derivados
+- conceptos relacionados
+
+Formato permitido:
+
+- listado estructurado
+- clasificación
+- agrupación temática
+
+Restricción:
+
+- no desarrollar en profundidad
+- no sustituir al desarrollo principal
+
+3.6 Desarrollo conceptual estructurado
+
+El contenido principal del capítulo.
+
+Se organiza en secciones.
+
+3.6.1 Subtítulo
+
+- Representa el concepto o grupo de conceptos
+- Debe ser preciso y coherente con el índice
+
+3.6.2 Desarrollo
+
+- Explicación técnica clara y progresiva
+- Coherente con el dominio del capítulo
+- Puede incluir:
+  - desgloses
+  - comparaciones
+  - clasificaciones
+
+3.6.3 Definiciones contextuales
+
+- Se incluyen solo cuando son necesarias
+- Deben ser:
+  - breves
+  - funcionales
+  - alineadas al contexto
+
+Prohibido:
+
+- definir todo por sistema
+- incluir definiciones redundantes
+
+3.6.4 Modelo conceptual (cuando aplique)
+
+- Forma de entender el concepto desde una perspectiva estructural
+- Puede incluir:
+  - analogías técnicas
+  - representaciones mentales
+  - simplificaciones controladas
+
+Restricción:
+
+- no sustituye al desarrollo técnico
+- no debe ser informal ni superficial
+
+3.6.5 Relación interna (cuando aplique)
+
+- Explica cómo el concepto se conecta con otros dentro del capítulo
+- Refuerza la coherencia estructural
+
+3.7 Estructuras o clasificaciones (cuando aplique)
+
+- Organización formal del conocimiento
+
+Puede incluir:
+
+- tipos
+- categorías
+- jerarquías
+
+Restricción:
+
+- debe aportar claridad
+- evitar redundancia
+
+3.8 Precisión terminológica
+
+Debe incluir:
+
+- diferenciación de conceptos similares
+- delimitación de términos
+- aclaración de ambigüedades
+
+3.9 Consideraciones y límites
+
+Debe definir:
+
+- alcance del capítulo
+- qué queda fuera
+- restricciones conceptuales
+
+Objetivo:
+
+- evitar interpretaciones incorrectas
+
+3.10 Errores comunes o confusiones frecuentes
+
+Debe incluir:
+
+- interpretaciones incorrectas comunes
+- confusiones entre conceptos
+- errores típicos de comprensión
+
+Objetivo:
+
+- reforzar la comprensión correcta
+- anticipar fallos del lector
+
+3.11 Glosario del capítulo
+
+- Lista de términos utilizados
+
+Cada entrada debe ser:
+
+- breve
+- consistente con el contenido
+- no redundante
+
+3.12 Síntesis conceptual
+
+Debe incluir:
+
+- resumen estructurado del capítulo
+- conceptos clave tratados
+- relaciones principales entre ellos
+
+3.13 Aplicación conceptual
+
+Debe responder:
+
+- ¿dónde se usa este conocimiento?
+- ¿qué decisiones permite tomar?
+- ¿qué problemas ayuda a resolver?
+
+Restricción:
+
+- no incluir ejercicios
+- no incluir implementación detallada
+
+3.14 Referencias internas
+
+Debe vincular con:
+
+- lecciones relacionadas
+- otros capítulos
+- módulos asociados
+
+4. Reglas editoriales obligatorias
+
+4.1 Enfoque de dominio
+
+El capítulo debe abordar un conjunto coherente de conceptos dentro de un mismo dominio.
+
+4.2 Definición contextual selectiva
+
+Solo se definen los conceptos necesarios para sostener la comprensión.
+
+4.3 Coherencia interna
+
+Todos los conceptos deben pertenecer al mismo dominio conceptual.
+
+4.4 Progresión estructurada
+
+El contenido debe avanzar de forma lógica:
+
+- general → específico
+- base → aplicación
+
+4.5 Relacionalidad
+
+Los conceptos deben presentarse como un sistema interconectado.
+
+4.6 Unidad de idea por sección
+
+Cada sección debe tener un enfoque claro y delimitado.
+
+4.7 Control de densidad conceptual
+
+Debe evitarse:
+
+- saturación de conceptos
+- sobrecarga en una sola sección
+
+4.8 Lenguaje técnico accesible
+
+El lenguaje debe ser:
+
+- preciso
+- claro
+- sin simplificación excesiva
+- sin formalismo innecesario
+
+4.9 Separación entre explicación y modelo
+
+Cuando exista modelo conceptual:
+
+- no debe mezclarse con la explicación técnica
+- debe complementar, no sustituir
+
+4.10 Consistencia terminológica
+
+Un mismo concepto debe:
+
+- mantener el mismo nombre
+- evitar sinónimos innecesarios
+
+5. Criterios de calidad
+
+Un capítulo se considera válido si:
+
+- mantiene coherencia conceptual interna
+- presenta una estructura clara
+- permite entender el dominio como sistema
+- no depende de conocimiento externo no declarado
+- no presenta redundancia innecesaria
+
+6. Consideraciones de implementación en ACC
+
+Este contrato está diseñado para ser:
+
+- compatible con renderizado modular
+- adaptable a bloques dinámicos
+- integrable con navegación interna
+
+Cada sección puede mapearse a componentes como:
+
+- bloques de texto
+- bloques de definición
+- bloques de relación
+- bloques de advertencia (errores comunes)
+
+7. Observación final
+
+El capítulo no debe enseñar solo “qué es” cada concepto.
+
+Debe permitir que el lector entienda:
+
+- cómo se organizan
+- cómo se relacionan
+- y cómo se utilizan dentro de un sistema real

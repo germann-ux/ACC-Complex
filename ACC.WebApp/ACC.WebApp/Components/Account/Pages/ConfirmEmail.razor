@@ -6,26 +6,66 @@
 @using ACC.WebApp.Data;
 
 @inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Confirm email</PageTitle>
+<PageTitle>Confirmar correo electrónico</PageTitle>
 
 <div class="account-auth-page">
     <section class="account-auth-card account-auth-card--compact">
         <div class="account-auth-header">
             <span class="account-auth-kicker">Cuenta ACC</span>
-            <h1>Confirm email</h1>
-            <p>We are validating your email confirmation link.</p>
+            <h1>@pageTitle</h1>
+            <p>@pageDescription</p>
         </div>
 
         <section class="account-auth-body">
-            <StatusMessage Message="@statusMessage" />
+            @if (!isConfirming)
+            {
+                <StatusMessage Message="@statusMessage" />
+
+                @if (confirmationSucceeded)
+                {
+                    <div class="alert alert-success" role="alert">
+                        <div class="d-flex gap-2">
+                            <div style="font-size: 1.5rem;">✓</div>
+                            <div>
+                                <strong>¡Cuenta confirmada!</strong>
+                                <p class="mb-0 small mt-1">Serás redirigido al inicio de sesión en unos momentos...</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(statusMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Error:</strong> @statusMessage
+                    </div>
+                    <a href="/Account/Login" class="biblioteca-btn-completar-subtema w-100 mt-3">
+                        Volver a inicio de sesión
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="d-flex justify-content-center align-items-center" style="padding: 3rem 0;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Validando...</span>
+                    </div>
+                </div>
+                <p class="text-center text-muted small">Validando tu correo electrónico...</p>
+            }
         </section>
     </section>
 </div>
 
 @code {
     private string? statusMessage;
+    private string pageTitle => isConfirming ? "Validando correo" : (confirmationSucceeded ? "Éxito" : "Error");
+    private string pageDescription => isConfirming ? "Por favor espera mientras validamos tu correo..." : "Tu correo ha sido confirmado";
+
+    private bool isConfirming = true;
+    private bool confirmationSucceeded = false;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -41,19 +81,44 @@
         if (UserId is null || Code is null)
         {
             RedirectManager.RedirectTo("");
+            return;
         }
 
         var user = await UserManager.FindByIdAsync(UserId);
         if (user is null)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            statusMessage = $"Error loading user with ID {UserId}";
+            statusMessage = "Usuario no encontrado. Verifica el enlace de confirmación.";
+            isConfirming = false;
+            return;
         }
-        else
+
+        try
         {
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
             var result = await UserManager.ConfirmEmailAsync(user, code);
-            statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
+
+            if (result.Succeeded)
+            {
+                confirmationSucceeded = true;
+                statusMessage = null;
+                // Redirigir a Login después de 2 segundos
+                await Task.Delay(2000);
+                RedirectManager.RedirectTo("/Account/Login");
+            }
+            else
+            {
+                statusMessage = result.Errors.FirstOrDefault()?.Description
+                    ?? "No se pudo confirmar el correo. Intenta de nuevo.";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = "Ocurrió un error al confirmar el correo. Intenta de nuevo.";
+        }
+        finally
+        {
+            isConfirming = false;
         }
     }
 }

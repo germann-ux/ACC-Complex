@@ -1,0 +1,484 @@
+.exam-route-shell {
+    --exam-route-space-xs: clamp(0.48rem, 0.44rem + 0.1vw, 0.58rem);
+    --exam-route-space-sm: clamp(0.72rem, 0.66rem + 0.16vw, 0.84rem);
+    --exam-route-space-md: clamp(0.92rem, 0.84rem + 0.22vw, 1.08rem);
+    --exam-route-space-lg: clamp(1.12rem, 1rem + 0.28vw, 1.32rem);
+    --exam-route-space-xl: clamp(1.34rem, 1.18rem + 0.4vw, 1.68rem);
+    --exam-route-text-sm: clamp(0.88rem, 0.84rem + 0.1vw, 0.95rem);
+    --exam-route-text-md: clamp(0.96rem, 0.92rem + 0.12vw, 1.03rem);
+    --exam-route-text-lg: clamp(1.1rem, 1.02rem + 0.18vw, 1.2rem);
+    --exam-route-axis: 28px;
+    --exam-route-column: 56px;
+    --exam-route-dot: 28px;
+    width: min(1500px, calc(100% - 32px));
+    max-width: 1500px;
+    margin: 28px auto 42px;
+}
+
+.exam-route-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--exam-route-space-lg);
+    align-items: start;
+}
+
+.exam-route-surface {
+    min-width: 0;
+    border: 1px solid color-mix(in srgb, var(--acc-border) 82%, transparent);
+    border-radius: var(--acc-radius);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-surface-2) 90%, black 10%));
+    box-shadow: var(--acc-shadow);
+}
+
+.exam-route-panel,
+.exam-route-context,
+.exam-route-state {
+    padding: var(--exam-route-space-xl);
+}
+
+.exam-route-state p,
+.exam-route-empty p {
+    margin: 0;
+    color: var(--acc-text-muted);
+    font-size: var(--exam-route-text-md);
+    line-height: 1.64;
+}
+
+.exam-route-state p {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--exam-route-space-xs);
+}
+
+.exam-route-state .fa-circle-notch {
+    color: var(--acc-brand-500);
+    animation: exam-route-spin 0.9s linear infinite;
+}
+
+.exam-route-state--error {
+    border-color: color-mix(in srgb, var(--acc-danger-500) 44%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-danger-500) 8%, var(--acc-surface-2));
+}
+
+.exam-route-state--error p,
+.exam-route-state--error i {
+    color: color-mix(in srgb, var(--acc-danger-500) 88%, white);
+}
+
+.exam-route-empty {
+    display: grid;
+    gap: var(--exam-route-space-sm);
+}
+
+.exam-route-empty h2,
+.exam-route-head h1,
+.exam-route-context__head h2,
+.exam-route-item h2,
+.exam-route-context__block h3 {
+    margin: 0;
+    color: var(--acc-text);
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+}
+
+.exam-route-empty h2,
+.exam-route-head h1 {
+    font-size: clamp(1.46rem, 1.24rem + 0.56vw, 1.9rem);
+    line-height: 1.1;
+}
+
+.exam-route-head p,
+.exam-route-context__head p,
+.exam-route-item p,
+.exam-route-context__block p,
+.exam-route-context__block li {
+    color: var(--acc-text-muted);
+    font-size: var(--exam-route-text-md);
+    line-height: 1.62;
+}
+
+.exam-route-head {
+    display: grid;
+    gap: 10px;
+}
+
+.exam-route-badge,
+.exam-route-status,
+.exam-route-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.exam-route-badge,
+.exam-route-status {
+    padding: 0.26rem 0.66rem;
+}
+
+.exam-route-badge {
+    width: fit-content;
+    color: color-mix(in srgb, var(--acc-brand-500) 84%, white);
+    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 42%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-bg-2));
+}
+
+.exam-route-list {
+    margin-top: var(--exam-route-space-lg);
+    display: grid;
+    gap: 0;
+}
+
+.exam-route-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--exam-route-column) minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 0 0 18px;
+    outline: none;
+}
+
+.exam-route-step:last-child {
+    padding-bottom: 0;
+}
+
+.exam-route-step:focus-visible .exam-route-item {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-brand-600) 42%, transparent);
+}
+
+.exam-route-node {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: var(--exam-route-column);
+    padding-top: 4px;
+}
+
+.exam-route-node::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--exam-route-dot) + 8px);
+    left: 50%;
+    bottom: -18px;
+    width: 2px;
+    border-radius: 999px;
+    transform: translateX(-50%);
+    background: color-mix(in srgb, var(--acc-border) 84%, black);
+}
+
+.exam-route-step:last-child .exam-route-node::after {
+    display: none;
+}
+
+.exam-route-step--done .exam-route-node::after,
+.exam-route-step--selected .exam-route-node::after {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc-success-500) 76%, white 6%), color-mix(in srgb, var(--acc-brand-500) 84%, white 8%));
+}
+
+.exam-route-node__dot {
+    position: relative;
+    z-index: 1;
+    width: var(--exam-route-dot);
+    height: var(--exam-route-dot);
+    border-radius: 999px;
+    border: 2px solid color-mix(in srgb, var(--acc-border) 82%, white 4%);
+    background: color-mix(in srgb, var(--acc-bg-3) 88%, black);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--acc-surface-2) 94%, transparent);
+}
+
+.exam-route-node__label {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    z-index: 2;
+    width: var(--exam-route-dot);
+    transform: translateX(-50%);
+    color: var(--acc-text-muted);
+    text-align: center;
+    line-height: var(--exam-route-dot);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+.exam-route-step--available .exam-route-node__dot {
+    border-color: color-mix(in srgb, var(--acc-brand-600) 56%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-bg-3));
+}
+
+.exam-route-step--done .exam-route-node__dot {
+    border-color: color-mix(in srgb, var(--acc-success-500) 84%, white 8%);
+    background: color-mix(in srgb, var(--acc-success-500) 84%, white 8%);
+}
+
+.exam-route-step--locked .exam-route-node__dot {
+    opacity: 0.72;
+    filter: saturate(0.55);
+}
+
+.exam-route-step--selected .exam-route-node__dot {
+    box-shadow:
+        0 0 0 6px color-mix(in srgb, var(--acc-brand-600) 16%, transparent),
+        0 0 18px color-mix(in srgb, var(--acc-brand-600) 26%, transparent);
+}
+
+.exam-route-step--selected:not(.exam-route-step--done) .exam-route-node__dot {
+    background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-blue-700));
+    border-color: color-mix(in srgb, var(--acc-brand-500) 88%, white 8%);
+}
+
+.exam-route-step--selected .exam-route-node__label {
+    color: color-mix(in srgb, var(--acc-brand-500) 88%, white 8%);
+}
+
+.exam-route-item {
+    min-width: 0;
+    padding: 14px 16px 16px;
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--acc-border) 76%, transparent);
+    background: color-mix(in srgb, var(--acc-bg-2) 76%, black);
+    display: grid;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+.exam-route-step:hover .exam-route-item {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+}
+
+.exam-route-step--selected .exam-route-item {
+    border-color: color-mix(in srgb, var(--acc-brand-600) 42%, var(--acc-border));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2)), color-mix(in srgb, var(--acc-bg-2) 84%, black));
+    box-shadow: 0 16px 28px rgba(20, 10, 42, 0.2);
+}
+
+.exam-route-step--done .exam-route-item {
+    border-color: color-mix(in srgb, var(--acc-success-500) 28%, var(--acc-border));
+}
+
+.exam-route-item__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.exam-route-item h2 {
+    font-size: 1.02rem;
+    line-height: 1.18;
+}
+
+.exam-route-item p {
+    margin: 6px 0 0;
+    font-size: var(--exam-route-text-sm);
+}
+
+.exam-route-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.exam-route-pill {
+    padding: 0.42rem 0.66rem;
+    color: var(--acc-text-muted);
+    border: 1px solid color-mix(in srgb, var(--acc-border) 78%, transparent);
+    background: color-mix(in srgb, var(--acc-bg-2) 84%, black);
+    letter-spacing: 0.03em;
+    text-transform: none;
+    font-size: 0.8rem;
+}
+
+.exam-route-status {
+    border: 1px solid color-mix(in srgb, var(--acc-border) 78%, transparent);
+    background: color-mix(in srgb, var(--acc-bg-3) 86%, black);
+    color: var(--acc-text);
+}
+
+.exam-route-status--active {
+    border-color: color-mix(in srgb, var(--acc-brand-600) 48%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-brand-600) 12%, var(--acc-bg-3));
+    color: color-mix(in srgb, var(--acc-brand-500) 84%, white);
+}
+
+.exam-route-status--done {
+    border-color: color-mix(in srgb, var(--acc-success-500) 46%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-success-500) 12%, var(--acc-bg-3));
+    color: color-mix(in srgb, var(--acc-success-500) 88%, white);
+}
+
+.exam-route-status--locked {
+    color: color-mix(in srgb, var(--acc-text-muted) 82%, white);
+}
+
+.exam-route-context {
+    position: sticky;
+    top: 92px;
+    display: grid;
+    gap: var(--exam-route-space-md);
+}
+
+.exam-route-context__head {
+    display: grid;
+    gap: 10px;
+    padding-bottom: var(--exam-route-space-md);
+    border-bottom: 1px solid color-mix(in srgb, var(--acc-border) 74%, transparent);
+}
+
+.exam-route-context__head h2 {
+    font-size: 1.22rem;
+    line-height: 1.16;
+}
+
+.exam-route-context__head p {
+    margin: 0;
+    font-size: var(--exam-route-text-sm);
+}
+
+.exam-route-context__block {
+    display: grid;
+    gap: 10px;
+}
+
+.exam-route-context__block h3 {
+    font-size: 0.96rem;
+}
+
+.exam-route-context__block p {
+    margin: 0;
+    font-size: var(--exam-route-text-sm);
+}
+
+.exam-route-context__list {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+.exam-route-context__list li {
+    font-size: var(--exam-route-text-sm);
+}
+
+.exam-route-context__stats {
+    display: grid;
+    gap: 10px;
+}
+
+.exam-route-stat {
+    padding: 12px 13px;
+    border-radius: var(--acc-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--acc-border) 76%, transparent);
+    background: color-mix(in srgb, var(--acc-bg-2) 84%, black);
+    display: grid;
+    gap: 6px;
+}
+
+.exam-route-stat__label {
+    color: var(--acc-text-muted);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.exam-route-stat__value {
+    color: var(--acc-text);
+    font-family: var(--font-heading);
+    font-size: 1.02rem;
+    line-height: 1.2;
+}
+
+.exam-route-context__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.exam-route-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0.72rem 1rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-size: var(--exam-route-text-sm);
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exam-route-btn--primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--acc-brand-500), var(--acc-blue-700));
+    border-color: color-mix(in srgb, var(--acc-brand-700) 75%, black);
+}
+
+.exam-route-btn--primary:hover:enabled,
+.exam-route-btn--ghost:hover {
+    transform: translateY(-1px);
+}
+
+.exam-route-btn--ghost {
+    color: var(--acc-text);
+    background: color-mix(in srgb, var(--acc-bg-2) 74%, black);
+    border-color: color-mix(in srgb, var(--acc-border) 80%, transparent);
+}
+
+.exam-route-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.56;
+    filter: saturate(0.7);
+}
+
+@keyframes exam-route-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 1080px) {
+    .exam-route-workspace {
+        grid-template-columns: minmax(0, 1fr) 330px;
+    }
+}
+
+@media (max-width: 980px) {
+    .exam-route-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .exam-route-context {
+        position: static;
+    }
+}
+
+@media (max-width: 720px) {
+    .exam-route-shell {
+        margin: 24px auto 34px;
+    }
+
+    .exam-route-panel,
+    .exam-route-context,
+    .exam-route-state {
+        padding: var(--exam-route-space-lg);
+    }
+
+    .exam-route-item__top,
+    .exam-route-context__actions {
+        display: grid;
+    }
+
+    .exam-route-btn {
+        width: 100%;
+    }
+}

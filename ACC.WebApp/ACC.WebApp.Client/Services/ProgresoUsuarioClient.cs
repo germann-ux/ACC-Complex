@@ -1,4 +1,4 @@
-﻿using ACC.Shared.Core;
+using ACC.Shared.Core;
 using ACC.Shared.DTOs;
 using ACC.Shared.Enums;
 using ACC.Shared.Utils;
@@ -7,9 +7,10 @@ using System.Text.Json;
 
 namespace ACC.WebApp.Client.Services;
 
-public class ProgresoUsuarioClient(HttpClient http)
+public class ProgresoUsuarioClient(HttpClient http, ExamenesServiceClient examenesService)
 {
     private readonly HttpClient _http = http;
+    private readonly ExamenesServiceClient _examenesService = examenesService;
     private readonly string _baseUrl = "ProgresoUsuario";
 
     public record ExamenHabilitadoDto(bool ExamenHabilitado);
@@ -24,11 +25,19 @@ public class ProgresoUsuarioClient(HttpClient http)
         return result?.ExamenHabilitado ?? false;
     }
 
-    public Task<bool> ExamenSubModuloHabilitadoAsync(string userId, int subModuloId)
-        => ExamenHabilitadoAsync(userId, ExamenTipo.SubModulo, subModuloId);
+    public async Task<bool> ExamenSubModuloHabilitadoAsync(string userId, int subModuloId)
+    {
+        var examen = await _examenesService.ObtenerExamenSubMPorSubModuloIdAsync(subModuloId);
+        return examen is not null
+            && await ExamenHabilitadoAsync(userId, ExamenTipo.SubModulo, examen.Id);
+    }
 
-    public Task<bool> ExamenModuloHabilitadoAsync(string userId, int moduloId)
-        => ExamenHabilitadoAsync(userId, ExamenTipo.Modulo, moduloId);
+    public async Task<bool> ExamenModuloHabilitadoAsync(string userId, int moduloId)
+    {
+        var examen = await _examenesService.ObtenerExamenModPorModuloIdAsync(moduloId);
+        return examen is not null
+            && await ExamenHabilitadoAsync(userId, ExamenTipo.Modulo, examen.Id);
+    }
 
     public Task<bool> ExamenLibreHabilitadoAsync(string userId, int examenId)
         => ExamenHabilitadoAsync(userId, ExamenTipo.Libre, examenId);
@@ -71,5 +80,16 @@ public class ProgresoUsuarioClient(HttpClient http)
         }
 
         return false;
+    }
+
+    public async Task<GuiaResumenDto?> ObtenerResumenGuiaAsync(string usuarioId)
+    {
+        if (string.IsNullOrWhiteSpace(usuarioId))
+        {
+            return null;
+        }
+
+        var url = $"{_baseUrl}/resumen-guia/{usuarioId}";
+        return await _http.GetFromJsonAsync<GuiaResumenDto>(url, Options._jsonOptions);
     }
 }

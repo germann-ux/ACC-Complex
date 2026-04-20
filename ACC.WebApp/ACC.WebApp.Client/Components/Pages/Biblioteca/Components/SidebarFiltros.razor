@@ -1,19 +1,46 @@
-﻿@rendermode InteractiveServer
+﻿@* SidebarFiltros.razor *@
+
+@rendermode InteractiveServer
+
 @using ACC.Shared.Enums
 @using ACC.Shared.Core
 
-<div class="biblioteca-sidebar">
+<aside class="biblioteca-sidebar" role="complementary" aria-label="Filtros de la biblioteca">
+
     <div class="biblioteca-sidebar-header">
-        <h2 class="biblioteca-sidebar-title">Filtros</h2>
+        <div class="sf-header-inner">
+            <i class="fa-solid fa-sliders sf-header-icon" aria-hidden="true"></i>
+            <h2 class="biblioteca-sidebar-title">Filtros</h2>
+        </div>
+
+        @{
+            var totalActivos = Filtros.Tipos.Count + Filtros.Niveles.Count + Filtros.Dificultades.Count;
+        }
+        @if (totalActivos > 0)
+        {
+            <button class="sf-clear-btn ty-muted" @onclick="LimpiarFiltros" title="Limpiar todos los filtros">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                <span>@totalActivos</span>
+            </button>
+        }
     </div>
 
     <div class="biblioteca-sidebar-content">
 
-        <!-- TIPOS -->
+        <!-- ── TIPOS ──────────────────────────────── -->
         <div class="biblioteca-filter-group biblioteca-filter-group-tipos">
             <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(TipoContenidoCapitulo))">
-                <span>Tipo de contenido</span>
-                <i class="fa-regular @(ExpandTipo ? "fa-square-caret-up" : "fa-square-caret-down") biblioteca-filter-caret" aria-hidden="true"></i>
+                <div class="sf-group-label">
+                    <i class="fa-regular fa-file-lines sf-group-icon" aria-hidden="true"></i>
+                    <span>Tipo de contenido</span>
+                </div>
+                <div class="sf-group-right">
+                    @if (Filtros.Tipos.Count > 0)
+                    {
+                        <span class="sf-badge">@Filtros.Tipos.Count</span>
+                    }
+                    <i class="fa-solid @(ExpandTipo ? "fa-chevron-up" : "fa-chevron-down") biblioteca-filter-caret" aria-hidden="true"></i>
+                </div>
             </div>
 
             @if (ExpandTipo)
@@ -21,9 +48,12 @@
                 <div class="biblioteca-filter-items">
                     @foreach (var t in Tipos)
                     {
-                        <div class="biblioteca-filter-item @(Filtros.Tipos.Contains(t) ? "active" : "")"
-                             @onclick="() => ToggleTipo(t)">
-                            <i class="fa-regular @(Filtros.Tipos.Contains(t) ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
+                        var activo = Filtros.Tipos.Contains(t);
+                        <div class="biblioteca-filter-item @(activo ? "active" : "")"
+                             @onclick="() => ToggleTipo(t)"
+                             role="checkbox"
+                             aria-checked="@activo.ToString().ToLower()">
+                            <i class="fa-solid @(activo ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
                             <span>@EnumDisplay.Name(t)</span>
                         </div>
                     }
@@ -31,11 +61,20 @@
             }
         </div>
 
-        <!-- NIVELES -->
+        <!-- ── NIVELES ────────────────────────────── -->
         <div class="biblioteca-filter-group biblioteca-filter-group-niveles">
             <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(NivelContenido))">
-                <span>Nivel</span>
-                <i class="fa-regular @(ExpandNivel ? "fa-square-caret-up" : "fa-square-caret-down") biblioteca-filter-caret" aria-hidden="true"></i>
+                <div class="sf-group-label">
+                    <i class="fa-regular fa-chart-bar sf-group-icon" aria-hidden="true"></i>
+                    <span>Nivel</span>
+                </div>
+                <div class="sf-group-right">
+                    @if (Filtros.Niveles.Count > 0)
+                    {
+                        <span class="sf-badge">@Filtros.Niveles.Count</span>
+                    }
+                    <i class="fa-solid @(ExpandNivel ? "fa-chevron-up" : "fa-chevron-down") biblioteca-filter-caret" aria-hidden="true"></i>
+                </div>
             </div>
 
             @if (ExpandNivel)
@@ -43,9 +82,12 @@
                 <div class="biblioteca-filter-items">
                     @foreach (var n in Niveles)
                     {
-                        <div class="biblioteca-filter-item @(Filtros.Niveles.Contains(n) ? "active" : "")"
-                             @onclick="() => ToggleNivel(n)">
-                            <i class="fa-regular @(Filtros.Niveles.Contains(n) ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
+                        var activo = Filtros.Niveles.Contains(n);
+                        <div class="biblioteca-filter-item @(activo ? "active" : "")"
+                             @onclick="() => ToggleNivel(n)"
+                             role="checkbox"
+                             aria-checked="@activo.ToString().ToLower()">
+                            <i class="fa-solid @(activo ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
                             <span>@EnumDisplay.Name(n)</span>
                         </div>
                     }
@@ -53,11 +95,20 @@
             }
         </div>
 
-        <!-- DIFICULTAD -->
+        <!-- ── DIFICULTAD ─────────────────────────── -->
         <div class="biblioteca-filter-group biblioteca-filter-group-dificultad">
             <div class="biblioteca-filter-title" @onclick="() => ToggleGrupo(nameof(DificultadContenido))">
-                <span>Dificultad</span>
-                <i class="fa-regular @(ExpandDificultad ? "fa-square-caret-up" : "fa-square-caret-down") biblioteca-filter-caret" aria-hidden="true"></i>
+                <div class="sf-group-label">
+                    <i class="fa-solid fa-fire sf-group-icon" aria-hidden="true"></i>
+                    <span>Dificultad</span>
+                </div>
+                <div class="sf-group-right">
+                    @if (Filtros.Dificultades.Count > 0)
+                    {
+                        <span class="sf-badge">@Filtros.Dificultades.Count</span>
+                    }
+                    <i class="fa-solid @(ExpandDificultad ? "fa-chevron-up" : "fa-chevron-down") biblioteca-filter-caret" aria-hidden="true"></i>
+                </div>
             </div>
 
             @if (ExpandDificultad)
@@ -65,9 +116,12 @@
                 <div class="biblioteca-filter-items">
                     @foreach (var d in Dificultades)
                     {
-                        <div class="biblioteca-filter-item @(Filtros.Dificultades.Contains(d) ? "active" : "")"
-                             @onclick="() => ToggleDificultad(d)">
-                            <i class="fa-regular @(Filtros.Dificultades.Contains(d) ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
+                        var activo = Filtros.Dificultades.Contains(d);
+                        <div class="biblioteca-filter-item @(activo ? "active" : "")"
+                             @onclick="() => ToggleDificultad(d)"
+                             role="checkbox"
+                             aria-checked="@activo.ToString().ToLower()">
+                            <i class="fa-solid @(activo ? "fa-circle-check" : "fa-circle") biblioteca-filter-icon" aria-hidden="true"></i>
                             <span>@EnumDisplay.Name(d)</span>
                         </div>
                     }
@@ -76,8 +130,7 @@
         </div>
 
     </div>
-</div>
-
+</aside>
 @code {
     [Parameter, EditorRequired] public BibliotecaFiltros Filtros { get; set; } = default!;
     [Parameter] public EventCallback<BibliotecaFiltros> OnFiltrosCambiados { get; set; }
@@ -122,4 +175,7 @@
         if (!nuevo.Dificultades.Add(d)) nuevo.Dificultades.Remove(d);
         await OnFiltrosCambiados.InvokeAsync(nuevo);
     }
+
+    private Task LimpiarFiltros()
+        => OnFiltrosCambiados.InvokeAsync(new BibliotecaFiltros());
 }

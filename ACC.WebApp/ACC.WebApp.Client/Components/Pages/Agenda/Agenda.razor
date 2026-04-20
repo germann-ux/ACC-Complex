@@ -16,25 +16,26 @@
 @inject NavigationManager navegador
 @inject IJSRuntime JS
 
-<div class="agenda-page">
-    @if (isAuthError)
-    {
-        <InfoComponent Title="Necesitas iniciar sesion"
-                       Message="Necesitas iniciar sesion para ver tu agenda."
-                       StatusCode="401"
-                       ReturnUrl="@($"/Account/Login?returnUrl={Uri.EscapeDataString(navegador.Uri)}")" />
-    }
-    else if (isLoadingTareas)
-    {
-        <section class="agenda-card agenda-state" aria-live="polite">
-            <p>
-                <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
-                Cargando agenda...
-            </p>
-        </section>
-    }
-    else
-    {
+<div class="agenda-shell">
+    <div class="agenda-page">
+        @if (isAuthError)
+        {
+            <InfoComponent Title="Necesitas iniciar sesion"
+                           Message="Necesitas iniciar sesion para ver tu agenda."
+                           StatusCode="401"
+                           ReturnUrl="@($"/Account/Login?returnUrl={Uri.EscapeDataString(navegador.Uri)}")" />
+        }
+        else if (isLoadingTareas)
+        {
+            <section class="agenda-card agenda-state" aria-live="polite">
+                <p>
+                    <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+                    Cargando agenda...
+                </p>
+            </section>
+        }
+        else
+        {
         var asignadas = AsignadasFiltradas.ToList();
         var personales = PersonalesFiltradas.ToList();
         var totalResultados = asignadas.Count + personales.Count;
@@ -58,27 +59,52 @@
 
         <section class="agenda-card agenda-belt" aria-label="Metricas de agenda">
             <article class="agenda-pill">
-                <span>Personales pendientes</span>
+                <div class="agenda-pill-copy">
+                    <span class="agenda-pill-icon" aria-hidden="true">
+                        <i class="fa-solid fa-list-check"></i>
+                    </span>
+                    <span>Personales pendientes</span>
+                </div>
                 <strong>@TotalPendientesPersonales</strong>
             </article>
 
             <article class="agenda-pill">
-                <span>Asignadas pendientes</span>
+                <div class="agenda-pill-copy">
+                    <span class="agenda-pill-icon" aria-hidden="true">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </span>
+                    <span>Asignadas pendientes</span>
+                </div>
                 <strong>@TotalPendientesAsignadas</strong>
             </article>
 
             <article class="agenda-pill agenda-pill--warning">
-                <span>Vencidas</span>
+                <div class="agenda-pill-copy">
+                    <span class="agenda-pill-icon" aria-hidden="true">
+                        <i class="fa-solid fa-clock"></i>
+                    </span>
+                    <span>Vencidas</span>
+                </div>
                 <strong>@TotalVencidas</strong>
             </article>
 
             <article class="agenda-pill agenda-pill--success">
-                <span>Completadas</span>
+                <div class="agenda-pill-copy">
+                    <span class="agenda-pill-icon" aria-hidden="true">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </span>
+                    <span>Completadas</span>
+                </div>
                 <strong>@TotalCompletadas</strong>
             </article>
 
             <article class="agenda-pill agenda-pill--progress">
-                <span>Progreso</span>
+                <div class="agenda-pill-copy">
+                    <span class="agenda-pill-icon" aria-hidden="true">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </span>
+                    <span>Progreso</span>
+                </div>
                 <strong>@ProgresoGeneralPct%</strong>
             </article>
         </section>
@@ -218,7 +244,7 @@
                                                         @(item.Completada ? "Reabrir" : "Completar")
                                                     </button>
 
-                                                    @if (!item.Completada)
+                                                    @if (!item.Completada && item.FechaLimite.HasValue)
                                                     {
                                                         <button type="button"
                                                                 class="agenda-item-chip"
@@ -294,7 +320,7 @@
                                                             @(item.Completada ? "Reabrir" : "Completar")
                                                         </button>
 
-                                                        @if (!item.Completada)
+                                                        @if (!item.Completada && item.FechaLimite.HasValue)
                                                         {
                                                             <button type="button"
                                                                     class="agenda-item-chip"
@@ -340,8 +366,8 @@
                 }
             </section>
         </section>
-    }
-</div>
+        }
+    </div>
 
 @if (!isAuthError && !isLoadingTareas)
 {
@@ -357,38 +383,171 @@
 @if (isCreateModalOpen)
 {
     <div class="agenda-modal-backdrop" @onclick="CerrarModalCrear">
-        <section class="agenda-card agenda-modal" role="dialog" aria-modal="true" aria-label="Nueva tarea" @onclick:stopPropagation="true">
+        <section class="agenda-card agenda-modal" role="dialog" aria-modal="true" aria-labelledby="agenda-create-title" @onclick:stopPropagation="true">
             <header class="agenda-modal-head">
-                <h3>Nueva tarea personal</h3>
+                <div class="agenda-modal-head-copy">
+                    <div class="agenda-modal-mark" aria-hidden="true">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+
+                    <div>
+                        <p class="agenda-modal-kicker">Agenda personal</p>
+                        <h3 id="agenda-create-title">Nueva tarea personal</h3>
+                        <p class="agenda-modal-subtitle">Crea un recordatorio claro, define cuando vence y mantenlo visible dentro de tu semana.</p>
+                    </div>
+                </div>
+
                 <button type="button" class="agenda-modal-close" @onclick="CerrarModalCrear" disabled="@isActionBusy" aria-label="Cerrar modal">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </header>
 
-            <div class="agenda-modal-form">
-                <label>
-                    <span>Titulo</span>
-                    <input type="text" placeholder="Ejemplo: Terminar resumen de clase" @bind="nuevoTitulo" maxlength="120" />
-                </label>
+            <form class="agenda-modal-form" @onsubmit="CrearTareaPersonalAsync" @onsubmit:preventDefault="true">
+                <div class="agenda-modal-body">
+                    @if (!string.IsNullOrWhiteSpace(actionMessage))
+                    {
+                        <div class="@ModalFeedbackClass" role="status">
+                            @actionMessage
+                        </div>
+                    }
 
-                <label>
-                    <span>Descripcion</span>
-                    <textarea placeholder="Notas breves para esta tarea" @bind="nuevaDescripcion" maxlength="500"></textarea>
-                </label>
+                    <section class="@TituloFieldClass">
+                        <div class="agenda-modal-field-head">
+                            <label class="agenda-modal-label" for="agenda-create-title-input">Titulo</label>
+                            <span class="agenda-modal-inline-note">Obligatorio</span>
+                        </div>
 
-                <label>
-                    <span>Fecha limite</span>
-                    <input type="datetime-local" @bind="nuevaFechaLimiteLocal" />
-                </label>
-            </div>
+                        <input id="agenda-create-title-input"
+                               class="agenda-modal-input"
+                               type="text"
+                               placeholder="Ejemplo: Terminar resumen de clase"
+                               @bind="nuevoTitulo"
+                               @bind:event="oninput"
+                               maxlength="@MaxTituloLength"
+                               autofocus
+                               aria-invalid="@TieneErrorTitulo" />
 
-            <footer class="agenda-modal-actions">
-                <button type="button" class="agenda-btn agenda-btn--ghost" @onclick="CerrarModalCrear" disabled="@isActionBusy">Cancelar</button>
-                <button type="button" class="agenda-btn agenda-btn--primary" @onclick="CrearTareaPersonalAsync" disabled="@isActionBusy">Crear tarea</button>
-            </footer>
+                        <div class="agenda-modal-field-foot">
+                            <p class="agenda-modal-help">Usa un nombre corto y accionable para encontrarla rapido.</p>
+                            <span class="@TituloCounterClass">@($"{nuevoTitulo.Length}/{MaxTituloLength}")</span>
+                        </div>
+
+                        @if (TieneErrorTitulo)
+                        {
+                            <p class="agenda-modal-error">El titulo es obligatorio.</p>
+                        }
+                    </section>
+
+                    <div class="agenda-modal-split">
+                        <section class="agenda-modal-field agenda-modal-field--date">
+                            <div class="agenda-modal-field-head">
+                                <label class="agenda-modal-label" for="agenda-create-date-input">Fecha limite</label>
+                                <label class="agenda-modal-inline-note" style="cursor: pointer;">
+                                    <input type="checkbox" @bind="usarNuevaFechaLimite" /> Definir fecha
+                                </label>
+                            </div>
+
+                            @if (usarNuevaFechaLimite)
+                            {
+                                <input id="agenda-create-date-input"
+                                       class="agenda-modal-input"
+                                       type="datetime-local"
+                                       @bind="nuevaFechaLimiteLocal" />
+
+                                <div class="agenda-modal-presets" role="group" aria-label="Atajos de fecha">
+                                    <button type="button"
+                                            class="@FechaPresetClass(0)"
+                                            @onclick="() => AplicarFechaRapida(0)">
+                                        Hoy
+                                    </button>
+                                    <button type="button"
+                                            class="@FechaPresetClass(1)"
+                                            @onclick="() => AplicarFechaRapida(1)">
+                                        Manana
+                                    </button>
+                                    <button type="button"
+                                            class="@FechaPresetClass(3)"
+                                            @onclick="() => AplicarFechaRapida(3)">
+                                        +3 dias
+                                    </button>
+                                    <button type="button"
+                                            class="@FechaPresetClass(7)"
+                                            @onclick="() => AplicarFechaRapida(7)">
+                                        +7 dias
+                                    </button>
+                                </div>
+
+                                <p class="agenda-modal-help">La agenda la destacara segun urgencia y vencimiento.</p>
+                            }
+                            else
+                            {
+                                <div class="agenda-modal-input" style="background-color: transparent; border: 1px dashed var(--border-color); color: var(--text-muted); text-align: center; display: flex; align-items: center; justify-content: center;">
+                                    Sin fecha limite
+                                </div>
+                                <p class="agenda-modal-help">No se destacara por urgencia en tu agenda.</p>
+                            }
+                        </section>
+
+                        <aside class="agenda-modal-summary" aria-live="polite">
+                            @if (usarNuevaFechaLimite)
+                            {
+                                <span class="agenda-modal-summary-kicker">Vista previa</span>
+                                <strong>@ResumenFechaCreacion</strong>
+                                <p>@ResumenPrioridadCreacion</p>
+                            }
+                            else
+                            {
+                                <span class="agenda-modal-summary-kicker">Vista previa</span>
+                                <strong>Sin fecha</strong>
+                                <p>La tarea entrara en tu lista general sin competir con lo mas urgente.</p>
+                            }
+                        </aside>
+                    </div>
+
+                    <section class="agenda-modal-field">
+                        <div class="agenda-modal-field-head">
+                            <label class="agenda-modal-label" for="agenda-create-description-input">Descripcion</label>
+                            <span class="agenda-modal-inline-note">Opcional</span>
+                        </div>
+
+                        <textarea id="agenda-create-description-input"
+                                  class="agenda-modal-input agenda-modal-textarea"
+                                  placeholder="Notas breves, contexto o siguiente paso"
+                                  @bind="nuevaDescripcion"
+                                  @bind:event="oninput"
+                                  maxlength="@MaxDescripcionLength"></textarea>
+
+                        <div class="agenda-modal-field-foot">
+                            <p class="agenda-modal-help">Anade contexto breve, enlaces o una referencia rapida si te ayuda.</p>
+                            <span class="@DescripcionCounterClass">@($"{nuevaDescripcion.Length}/{MaxDescripcionLength}")</span>
+                        </div>
+                    </section>
+                </div>
+
+                <footer class="agenda-modal-footer">
+                    <p>Se guardara en tu agenda personal y podras moverla, completarla o reprogramarla despues.</p>
+
+                    <div class="agenda-modal-actions">
+                        <button type="button" class="agenda-btn agenda-btn--ghost" @onclick="CerrarModalCrear" disabled="@isActionBusy">Cancelar</button>
+                        <button type="submit" class="agenda-btn agenda-btn--primary" disabled="@isActionBusy">
+                            @if (isActionBusy)
+                            {
+                                <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+                                <span>Creando...</span>
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <span>Crear tarea</span>
+                            }
+                        </button>
+                    </div>
+                </footer>
+            </form>
         </section>
     </div>
-}
+    }
+</div>
 
 @code {
     private enum AgendaWorkFilter
@@ -425,6 +584,8 @@
     private const string LocalStorageFiltroKey = "acc.agenda.filtro";
     private const string LocalStorageAgrupacionKey = "acc.agenda.agrupacion";
     private const int UndoDeleteWindowSeconds = 5;
+    private const int MaxTituloLength = 120;
+    private const int MaxDescripcionLength = 500;
 
     private List<TareaPersonalDto> tareasPersonales = [];
     private List<TareaAlumnoListadoDto> tareasAsignadas = [];
@@ -440,11 +601,13 @@
     private bool ignoreNextNotification;
     private bool isCreateModalOpen;
     private bool isActionBusy;
+    private bool showCreateValidation;
     private string? actionMessage;
     private bool actionMessageOk;
 
     private string nuevoTitulo = string.Empty;
     private string nuevaDescripcion = string.Empty;
+    private bool usarNuevaFechaLimite = true;
     private DateTime nuevaFechaLimiteLocal = DateTime.Now.AddDays(1);
 
     private int? highlightedPersonalId;
@@ -515,6 +678,24 @@
 
     private string MensajeDeshacerEliminar
         => $"Tarea eliminada. Puedes deshacer en {pendingDeleteSecondsLeft} {(pendingDeleteSecondsLeft == 1 ? "segundo" : "segundos")}.";
+
+    private bool TieneErrorTitulo => showCreateValidation && string.IsNullOrWhiteSpace(nuevoTitulo);
+
+    private bool TituloCounterEnLimite => nuevoTitulo.Length >= 95;
+
+    private bool DescripcionCounterEnLimite => nuevaDescripcion.Length >= 420;
+
+    private string ModalFeedbackClass => actionMessageOk ? "agenda-modal-feedback ok" : "agenda-modal-feedback error";
+
+    private string TituloFieldClass => TieneErrorTitulo ? "agenda-modal-field has-error" : "agenda-modal-field";
+
+    private string TituloCounterClass => TituloCounterEnLimite ? "agenda-modal-counter is-warning" : "agenda-modal-counter";
+
+    private string DescripcionCounterClass => DescripcionCounterEnLimite ? "agenda-modal-counter is-warning" : "agenda-modal-counter";
+
+    private string ResumenFechaCreacion => FormatearResumenFecha(nuevaFechaLimiteLocal);
+
+    private string ResumenPrioridadCreacion => FormatearResumenPrioridad(nuevaFechaLimiteLocal);
 
     protected override async Task OnInitializedAsync()
     {
@@ -798,6 +979,7 @@
     private void AbrirModalCrear()
     {
         actionMessage = null;
+        showCreateValidation = false;
         isCreateModalOpen = true;
     }
 
@@ -820,7 +1002,9 @@
     {
         nuevoTitulo = string.Empty;
         nuevaDescripcion = string.Empty;
+        usarNuevaFechaLimite = true;
         nuevaFechaLimiteLocal = DateTime.Now.AddDays(1);
+        showCreateValidation = false;
         isCreateModalOpen = false;
     }
 
@@ -831,12 +1015,14 @@
             return;
         }
 
+        showCreateValidation = true;
         if (string.IsNullOrWhiteSpace(nuevoTitulo))
         {
-            SetActionMessage("El titulo es obligatorio.", ok: false);
+            actionMessage = null;
             return;
         }
 
+        actionMessage = null;
         isActionBusy = true;
         try
         {
@@ -844,7 +1030,9 @@
             {
                 TareaPersonalTitulo = nuevoTitulo.Trim(),
                 TareaPersonalDescripcion = string.IsNullOrWhiteSpace(nuevaDescripcion) ? null : nuevaDescripcion.Trim(),
-                TareaPersonalFechaLimite = DateTime.SpecifyKind(nuevaFechaLimiteLocal, DateTimeKind.Local).ToUniversalTime(),
+                TareaPersonalFechaLimite = usarNuevaFechaLimite 
+                    ? DateTime.SpecifyKind(nuevaFechaLimiteLocal, DateTimeKind.Local).ToUniversalTime() 
+                    : null,
                 Completada = false
             };
 
@@ -879,6 +1067,83 @@
         {
             isActionBusy = false;
         }
+    }
+
+    private void AplicarFechaRapida(int dias)
+    {
+        var horaBase = nuevaFechaLimiteLocal.TimeOfDay;
+        if (horaBase == TimeSpan.Zero)
+        {
+            horaBase = DateTime.Now.TimeOfDay;
+        }
+
+        var propuesta = DateTime.Today.AddDays(dias).Add(horaBase);
+        if (propuesta <= DateTime.Now)
+        {
+            propuesta = DateTime.Now.AddMinutes(30);
+        }
+
+        nuevaFechaLimiteLocal = propuesta;
+    }
+
+    private bool EsFechaRapidaActiva(int dias)
+        => nuevaFechaLimiteLocal.Date == DateTime.Today.AddDays(dias);
+
+    private string FechaPresetClass(int dias)
+        => EsFechaRapidaActiva(dias) ? "agenda-modal-preset active" : "agenda-modal-preset";
+
+    private static string FormatearResumenFecha(DateTime fecha)
+    {
+        var dias = (fecha.Date - DateTime.Today).Days;
+
+        if (dias < 0)
+        {
+            return $"Vence desde hace {Math.Abs(dias)} dias";
+        }
+
+        if (dias == 0)
+        {
+            return $"Vence hoy a las {fecha:HH:mm}";
+        }
+
+        if (dias == 1)
+        {
+            return $"Vence manana a las {fecha:HH:mm}";
+        }
+
+        if (dias <= 7)
+        {
+            return $"Vence en {dias} dias a las {fecha:HH:mm}";
+        }
+
+        return $"Vence el {fecha:dd/MM/yyyy} a las {fecha:HH:mm}";
+    }
+
+    private static string FormatearResumenPrioridad(DateTime fecha)
+    {
+        var dias = (fecha.Date - DateTime.Today).Days;
+
+        if (dias < 0)
+        {
+            return "Aparecera como vencida al crearla, revisa si esa fecha sigue siendo correcta.";
+        }
+
+        if (dias == 0)
+        {
+            return "Se destacara en tu agenda de hoy para que la resuelvas primero.";
+        }
+
+        if (dias <= 3)
+        {
+            return "Entrara como una prioridad cercana dentro de tu semana.";
+        }
+
+        if (dias <= 7)
+        {
+            return "Quedara visible en tus proximas tareas y recordatorios.";
+        }
+
+        return "Quedara planificada sin competir con lo mas urgente.";
     }
 
     private async Task EnfocarTareaPersonalAsync(int tareaPersonalId)
@@ -958,12 +1223,16 @@
             return;
         }
 
+        if (!tarea.TareaPersonalFechaLimite.HasValue)
+        {
+            SetActionMessage("La tarea no tiene fecha limite, asi que no se puede posponer.", ok: false);
+            return;
+        }
+
         isActionBusy = true;
         try
         {
-            var baseLocal = tarea.TareaPersonalFechaLimite.HasValue
-                ? ToLocal(tarea.TareaPersonalFechaLimite.Value)
-                : DateTime.Now;
+            var baseLocal = ToLocal(tarea.TareaPersonalFechaLimite.Value);
 
             if (baseLocal < DateTime.Now)
             {

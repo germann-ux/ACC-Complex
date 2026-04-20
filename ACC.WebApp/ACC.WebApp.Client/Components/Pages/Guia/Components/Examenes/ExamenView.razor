@@ -1,69 +1,139 @@
 @page "/examen/{slug}/{refId:int}"
 @rendermode InteractiveServer
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
+@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Finales
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual
 @using ACC.WebApp.Client.Services
 @inject ExamenesServiceClient ExamenesService
 
-@code {
-    [Parameter] public string? Slug { get; set; }  // ExamenSubModulo | ExamenModulo
-    [Parameter] public int RefId { get; set; }     // SubModuloId | ModuloId
+@if (isLoading)
+{
+    <p>Cargando examen...</p>
+}
+else if (!string.IsNullOrWhiteSpace(error))
+{
+    <section class="manual-exam-view manual-exam-view--error">
+        <h3>No se pudo abrir el examen</h3>
+        <p>@error</p>
+    </section>
+}
+else if (estadoExamen is null)
+{
+    <section class="manual-exam-view manual-exam-view--error">
+        <h3>Sin estado disponible</h3>
+        <p>No fue posible resolver el estado actual del examen.</p>
+    </section>
+}
+else
+{
+    <section class="manual-exam-view">
+        <header class="manual-exam-view__header">
+            <span class="manual-exam-view__badge">@EtiquetaTipo</span>
+            <h1>@titulo</h1>
+            @if (!string.IsNullOrWhiteSpace(descripcion))
+            {
+                <p>@descripcion</p>
+            }
+            <div class="manual-exam-view__meta">
+                <span>@ObtenerEstadoTexto()</span>
+                <span>Intentos: @estadoExamen.IntentosRealizados / @ObtenerTextoIntentosMaximos()</span>
+                @if (estadoExamen.UltimoIntento is not null)
+                {
+                    <span>&Uacute;ltimo resultado: @estadoExamen.UltimoIntento.PorcentajeObtenido.ToString("0.##")%</span>
+                }
+            </div>
+        </header>
 
-    private string? titulo;
+        @switch (TipoExamen)
+        {
+            case ExamenTipo.SubModulo when examenSubModulo is not null && RefId == 1:
+                <ExamenSubModulo_1_1 Examen="examenSubModulo" Estado="estadoExamen" OnEstadoActualizado="ActualizarEstadoAsync" />
+                break;
+            case ExamenTipo.Modulo when examenModulo is not null && RefId == 1:
+                <ExamenModulo_1 Examen="examenModulo" Estado="estadoExamen" OnEstadoActualizado="ActualizarEstadoAsync" />
+                break;
+            default:
+                <article class="manual-exam-view__unavailable">
+                    <h3>Examen manual pendiente</h3>
+                    <p>Este examen ya usa el host manual, pero a&uacute;n no tiene un componente Razor espec&iacute;fico asignado para el tipo <strong>@EtiquetaTipo</strong> con id <strong>@RefId</strong>.</p>
+                    <p>Agrega un componente manual y reg&iacute;stralo en el switch de esta vista para habilitarlo.</p>
+                </article>
+                break;
+        }
+    </section>
+}
+
+@code {
+    [Parameter] public string? Slug { get; set; }
+    [Parameter] public int RefId { get; set; }
+
+    private string titulo = "Examen";
     private string? descripcion;
-    private string? contenidoHtml;
     private string? error;
     private bool isLoading;
+    private ExamenSubModuloDto? examenSubModulo;
+    private ExamenModuloDto? examenModulo;
+    private ExamenEstadoDto? estadoExamen;
+
+    private ExamenTipo TipoExamen
+        => ManualExamSupport.ParseType(Slug);
+
+    private string EtiquetaTipo
+        => TipoExamen == ExamenTipo.Modulo ? "Examen de m\u00F3dulo" : "Examen de subm\u00F3dulo";
 
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
         error = null;
-        titulo = null;
-        descripcion = null;
-        contenidoHtml = null;
+        examenSubModulo = null;
+        examenModulo = null;
+        estadoExamen = null;
 
         if (RefId <= 0)
         {
-            error = "Identificador de examen inválido.";
+            error = "Identificador de examen inv\u00E1lido.";
             isLoading = false;
             return;
         }
 
         try
         {
-            var slugNorm = (Slug ?? string.Empty).Trim().ToLowerInvariant();
-            switch (slugNorm)
+            estadoExamen = await ExamenesService.ObtenerEstadoExamenAsync(TipoExamen, RefId);
+            if (estadoExamen is null)
             {
-                case "examensubmodulo":
-                case "submodulo":
-                    var examenSub = await ExamenesService.ObtenerExamenSubMPorSubModuloIdAsync(RefId);
-                    if (examenSub is null)
-                    {
-                        error = "No se encontró el examen de submódulo solicitado.";
-                        return;
-                    }
+                error = "No se pudo obtener el estado del examen.";
+                return;
+            }
 
-                    titulo = examenSub.Nombre;
-                    descripcion = examenSub.Descripcion;
-                    contenidoHtml = examenSub.ContenidoHtml;
-                    break;
+            if (TipoExamen == ExamenTipo.SubModulo)
+            {
+                examenSubModulo = await ExamenesService.ObtenerExamenSubMAsync(RefId);
+                if (examenSubModulo is null)
+                {
+                    error = "No se encontr\u00F3 el examen de subm\u00F3dulo solicitado.";
+                    return;
+                }
 
-                case "examenmodulo":
-                case "modulo":
-                    var examenMod = await ExamenesService.ObtenerExamenModPorModuloIdAsync(RefId);
-                    if (examenMod is null)
-                    {
-                        error = "No se encontró el examen de módulo solicitado.";
-                        return;
-                    }
+                titulo = ExamTextNormalizer.Normalize(examenSubModulo.Nombre, "Examen");
+                descripcion = ExamTextNormalizer.Normalize(examenSubModulo.Descripcion);
+            }
+            else if (TipoExamen == ExamenTipo.Modulo)
+            {
+                examenModulo = await ExamenesService.ObtenerExamenModAsync(RefId);
+                if (examenModulo is null)
+                {
+                    error = "No se encontr\u00F3 el examen de m\u00F3dulo solicitado.";
+                    return;
+                }
 
-                    titulo = examenMod.Nombre;
-                    descripcion = examenMod.Descripcion;
-                    contenidoHtml = examenMod.ContenidoHtml;
-                    break;
-
-                default:
-                    error = $"Tipo de examen no soportado: '{Slug}'.";
-                    break;
+                titulo = ExamTextNormalizer.Normalize(examenModulo.Nombre, "Examen");
+                descripcion = ExamTextNormalizer.Normalize(examenModulo.Descripcion);
+            }
+            else
+            {
+                error = $"Tipo de examen no soportado: '{Slug}'.";
             }
         }
         catch (Exception ex)
@@ -75,24 +145,88 @@
             isLoading = false;
         }
     }
+
+    private Task ActualizarEstadoAsync(ExamenEstadoDto estadoActualizado)
+    {
+        estadoExamen = estadoActualizado;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private string ObtenerEstadoTexto()
+    {
+        if (estadoExamen is null)
+            return "Sin estado";
+
+        if (estadoExamen.EstaAprobado)
+            return "Aprobado";
+
+        if (!estadoExamen.EstaHabilitado)
+            return "Bloqueado";
+
+        if (!estadoExamen.PuedePresentar)
+            return "Sin intentos";
+
+        return "Disponible";
+    }
+
+    private string ObtenerTextoIntentosMaximos()
+        => estadoExamen?.IntentosMaximos == int.MaxValue
+            ? "Ilimitados"
+            : estadoExamen?.IntentosMaximos.ToString() ?? "-";
 }
 
-@if (isLoading)
-{
-    <p>Cargando examen...</p>
-}
-else if (!string.IsNullOrWhiteSpace(error))
-{
-    <p class="error">@error</p>
-}
-else
-{
-    <section>
-        <h3>@titulo</h3>
-        @if (!string.IsNullOrWhiteSpace(descripcion))
-        {
-            <p>@descripcion</p>
+<style>
+    .manual-exam-view {
+        display: grid;
+        gap: 1.5rem;
+        width: min(1200px, calc(100% - 32px));
+        margin: 28px auto 42px;
+    }
+
+    .manual-exam-view__header,
+    .manual-exam-view__unavailable,
+    .manual-exam-view--error {
+        background:
+            radial-gradient(circle at top right, color-mix(in srgb, var(--acc-brand-600) 14%, transparent), transparent 42%),
+            linear-gradient(180deg, color-mix(in srgb, var(--acc-surface-2) 96%, black 4%), color-mix(in srgb, var(--acc-bg-2) 86%, black 14%));
+        border: 1px solid color-mix(in srgb, var(--acc-border) 84%, transparent);
+        border-radius: 24px;
+        color: var(--acc-text);
+        padding: 1.35rem;
+        box-shadow: var(--acc-shadow);
+    }
+
+    .manual-exam-view__header h1,
+    .manual-exam-view__unavailable h3,
+    .manual-exam-view--error h3 {
+        margin: 0 0 0.75rem;
+    }
+
+    .manual-exam-view__badge {
+        background: color-mix(in srgb, var(--acc-brand-600) 10%, var(--acc-bg-2));
+        border: 1px solid color-mix(in srgb, var(--acc-brand-600) 34%, var(--acc-border));
+        border-radius: 999px;
+        color: color-mix(in srgb, var(--acc-brand-300) 88%, white);
+        display: inline-flex;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        padding: 0.35rem 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .manual-exam-view__meta {
+        color: var(--acc-text-muted);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+    }
+
+    @@media (max-width: 720px) {
+        .manual-exam-view__meta {
+            flex-direction: column;
         }
-        <ExamenRender ContenidoHtml="@(contenidoHtml ?? string.Empty)" />
-    </section>
-}
+    }
+</style>
