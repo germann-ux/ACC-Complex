@@ -10,6 +10,12 @@ public sealed class LeccionAdminDto
 
     public string DescripcionLeccion { get; set; } = string.Empty;
 
+    public string? MermaidTitulo { get; set; }
+
+    public string? MermaidDescripcion { get; set; }
+
+    public string? MermaidCodigo { get; set; }
+
     public string Teoria { get; set; } = string.Empty;
 
     public string Practica { get; set; } = string.Empty;
@@ -34,4 +40,3 @@ public sealed class LeccionAdminDto
 
     public List<string> OrdenSecciones { get; set; } = [];
 }
-

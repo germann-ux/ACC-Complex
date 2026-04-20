@@ -5,6 +5,7 @@ namespace ACC.Shared.Utils;
 public static class SeccionesContenido
 {
     public const string Video = "video";
+    public const string Mermaid = "mermaid";
     public const string Teoria = "teoria";
     public const string Practica = "practica";
     public const string Ejemplo = "ejemplo";
@@ -18,6 +19,7 @@ public static class SeccionesContenido
         new Dictionary<TipoSeccionContenido, string>
         {
             {TipoSeccionContenido.Video, Video},
+            {TipoSeccionContenido.Mermaid, Mermaid},
             { TipoSeccionContenido.Teoria, Teoria },
             { TipoSeccionContenido.Practica, Practica },
             { TipoSeccionContenido.Ejemplo, Ejemplo },

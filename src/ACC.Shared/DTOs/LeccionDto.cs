@@ -47,6 +47,21 @@ namespace ACC.Shared.DTOs
         /// </summary>
         public string DescripcionLeccion { get; set; } = string.Empty;
         /// <summary>
+        /// Titulo opcional del diagrama Mermaid.
+        /// </summary>
+        public string? MermaidTitulo { get; set; } = null;
+
+        /// <summary>
+        /// Descripcion opcional del diagrama Mermaid.
+        /// </summary>
+        public string? MermaidDescripcion { get; set; } = null;
+
+        /// <summary>
+        /// Codigo fuente Mermaid a renderizar en la leccion.
+        /// </summary>
+        public string? MermaidCodigo { get; set; } = null;
+
+        /// <summary>
         /// Seccion teorica de las lecciones, en formato html
         /// </summary>
         public string Teoria { get; set; } = string.Empty;

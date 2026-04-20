@@ -14,6 +14,8 @@ namespace ACC.Shared.DTOs
         public string Descripcion { get; set; } = default!;
         public int NumeroPreguntas { get; set; }
         public int PuntajeAprobacion { get; set; }
+        public int IntentosMaximos { get; set; } = 3;
+        public int? TiempoLimiteSegundos { get; set; }
         public string ContenidoHtml { get; set; } = default!;
 
         /// Relación N:1 con Módulo

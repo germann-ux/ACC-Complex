@@ -8,6 +8,7 @@ namespace ACC.Shared.Enums;
 
 public enum TipoSeccionContenido
 {
+    Mermaid,
     Teoria,
     Practica,
     Ejemplo,
