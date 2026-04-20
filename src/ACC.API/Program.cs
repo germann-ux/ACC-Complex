@@ -10,6 +10,7 @@ using ACC.Shared.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -32,7 +33,7 @@ if (tlsTerminatedAtProxy)
 }
 
 builder.AddServiceDefaults();
-builder.Services.AddAutoMapper(typeof(ACCmappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(ACCmappingProfile).Assembly); 
 builder.Services.Configure<ServiceEndpointsOptions>(builder.Configuration.GetSection(ServiceEndpointsOptions.SectionName));
 var endpointOptions = builder.Configuration.GetSection(ServiceEndpointsOptions.SectionName).Get<ServiceEndpointsOptions>() ?? new ServiceEndpointsOptions();
 var compilerBaseUrl = NormalizeBaseUrl(endpointOptions.CompilerBaseUrl, nameof(ServiceEndpointsOptions.CompilerBaseUrl));
