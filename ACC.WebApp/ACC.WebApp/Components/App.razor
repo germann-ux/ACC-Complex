@@ -1,3 +1,6 @@
+@using System.Text.Json
+@inject IConfiguration Configuration
+
 <!DOCTYPE html>
     <html lang="es">
 
@@ -21,7 +24,6 @@
         <link rel="stylesheet" href="AccStyles_capitulos.css" />
         <link rel="stylesheet" href="AccStyles_lecciones.css" />
         <link rel="stylesheet" href="ACC.WebApp.styles.css" />
-        <link rel="stylesheet" href="ACC.WebApp.Client.styles.css" />
 
         <!--CSS de codeMirror-->
         <link rel="stylesheet" href="JS/CodeMirror/codemirror.min.css" />
@@ -73,6 +75,16 @@
         <script src="JS/AccMermaid.js" defer></script>
         <script src="JS/ResumenChart.js" defer></script>
         <script src="JS/GuiaNavigation.js" defer></script>
+        <script>
+            window.accChatbase = @((MarkupString)JsonSerializer.Serialize(new
+            {
+                enabled = Configuration.GetValue<bool>("Chatbase:Enabled"),
+                chatbotId = Configuration["Chatbase:ChatbotId"],
+                domain = Configuration["Chatbase:Domain"],
+                loadDelayMs = Configuration.GetValue<int?>("Chatbase:LoadDelayMs") ?? 0
+            }));
+        </script>
+        <script src="JS/ChatbaseLoader.js" defer></script>
         <!-- Script de blazor wasm, debe ir al final -->
         <script src="_framework/blazor.web.js"></script>
     </body>
