@@ -1,29 +1,31 @@
-﻿@rendermode InteractiveServer
-@using ACC.Shared.DTOs;
-@using ACC.Shared.Enums; 
-@using ACC.Shared.Utils; 
-@using ACC.WebApp.Client.Components.Pages.ACC_Compiler;
-@using ACC.WebApp.Client.Components.Pages.Guia.Modals;
+@rendermode InteractiveServer
+@using ACC.Shared.DTOs
 @inject IJSRuntime JS
 
 @code {
     [Parameter] public LeccionDto Leccion { get; set; } = default!;
+
     private ModalActividades? ModalActividad;
     private string? urlActividadActual;
-    private string mensajeError = string.Empty;
+
     private void ShowActivity(string url)
     {
         urlActividadActual = url;
         ModalActividad?.OpenModal();
     }
 
+    private string? NivelBloomLeccion => Leccion.Bloques
+        .OrderBy(x => x.Orden)
+        .Select(x => x.NivelBloom)
+        .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+
     private ValueTask NavegarAtrasAsync() => JS.InvokeVoidAsync("guiaNavigation.back");
 
     private ValueTask NavegarAdelanteAsync() => JS.InvokeVoidAsync("guiaNavigation.forward");
 }
 
-@* Renderiza el modal una sola vez, fuera del bucle *@
 <ModalActividades Url="@urlActividadActual" @ref="ModalActividad" />
+
 <div class="content leccion-container">
     <div class="leccion-toolbar">
         <div class="leccion-nav-arrows" aria-label="Navegacion de leccion">
@@ -35,85 +37,25 @@
             </button>
         </div>
     </div>
-    <div class="nivel-bloom @Leccion.NivelBloom"><p>Nivel de bloom: @Leccion.NivelBloom</p></div>
-    @* <br /> *@
-    @foreach (var seccion in Leccion.OrdenSecciones)
+
+    @if (!string.IsNullOrWhiteSpace(NivelBloomLeccion))
     {
-        switch (seccion)
+        <div class="nivel-bloom @NivelBloomLeccion"><p>Nivel de bloom: @NivelBloomLeccion</p></div>
+    }
+
+    @if (Leccion.Bloques.Count == 0)
+    {
+        <InfoComponent
+            Title="Leccion sin bloques"
+            Message="La leccion no tiene bloques configurados."
+            StatusCode="204"
+            ReturnUrl="/Guia" />
+    }
+    else
+    {
+        @foreach (var bloque in Leccion.Bloques.OrderBy(x => x.Orden))
         {
-            case SeccionesContenido.Mermaid:
-                if (!string.IsNullOrWhiteSpace(Leccion.MermaidCodigo))
-                {
-                    <div class="leccion-mermaid-block">
-                        <MermaidSection
-                            Titulo="@Leccion.MermaidTitulo"
-                            Descripcion="@Leccion.MermaidDescripcion"
-                            Codigo="@Leccion.MermaidCodigo" />
-                    </div>
-                }
-                break;
-
-            case SeccionesContenido.CharpDialog:
-                <CharpDialog Texto ="@Leccion.CharpDialog"/>
-                break;
-
-            case SeccionesContenido.CharpTip:
-                 <CharpTip Texto="@Leccion.CharpTip"/>
-                break;
-
-            case SeccionesContenido.Teoria:
-                if (!string.IsNullOrEmpty(Leccion.Teoria))
-                {
-                    @((MarkupString)Leccion.Teoria)
-                }
-                break;
-
-            case SeccionesContenido.Ejemplo:
-                if (!string.IsNullOrEmpty(Leccion.Ejemplo))
-                {
-                    @((MarkupString)Leccion.Ejemplo)
-                }
-                break;
-
-            case SeccionesContenido.Practica:
-            if (!string.IsNullOrEmpty(Leccion.Practica))
-                {
-                    @((MarkupString)Leccion.Practica)
-                }
-                break;
-
-            case SeccionesContenido.Actividad:
-                if (Leccion.TieneActividad && !string.IsNullOrEmpty(Leccion.UrlActividad))
-                {
-                    <button class="expand-btn" @onclick="() => ShowActivity(Leccion.UrlActividad!)">
-                        Ver actividad interactiva
-                    </button>
-                }
-                break;
-
-            case SeccionesContenido.Compilador:
-                if (Leccion.TieneCompilador)
-                {
-                    <CompiladorACC />
-                }
-                break;
-
-            case SeccionesContenido.Video:
-                if (!string.IsNullOrEmpty(Leccion.VideoId))
-                {
-                    <LiteYouTube VideoId="@Leccion.VideoId" />
-                }
-                break;
-
-            default: 
-                mensajeError = $"La seccion '{seccion}' no es reconocida y no se puede mostrar";
-                @* <p style="color:red">[Sección desconocida: @seccion]</p> *@
-                <InfoComponent 
-                    Title="Sección desconocida"
-                    Message=@mensajeError
-                    StatusCode="400" ReturnUrl="/Guia" />
-
-                break;
+            <BloqueLeccionRenderer Bloque="@bloque" OnShowActividad="ShowActivity" />
         }
     }
 </div>

@@ -66,7 +66,9 @@ public class ACCmappingProfile : Profile
         // Mapeo entre SubTema y SubTemaDto
         CreateMap<SubTema, SubTemaDto>().ReverseMap();
 
-        // Mapeo entre Leccion y LeccionDto
+        // Mapeo entre Leccion y bloques interactivos
+        CreateMap<BloqueLeccion, BloqueLeccionDto>().ReverseMap();
+        CreateMap<BloqueLeccionUpsertDto, BloqueLeccion>();
         CreateMap<Leccion, LeccionDto>().ReverseMap();
 
         // Mapeo entre Tag y TagDto

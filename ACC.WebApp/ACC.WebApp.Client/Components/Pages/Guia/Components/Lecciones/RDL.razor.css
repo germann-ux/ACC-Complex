@@ -45,6 +45,88 @@
     margin: 1.75rem 0 2.1rem;
 }
 
+.leccion-block {
+    margin: 1.35rem 0;
+}
+
+.leccion-block-header {
+    margin-bottom: 0.75rem;
+}
+
+.leccion-block-header h3 {
+    font-size: 1.05rem;
+    margin: 0 0 0.35rem;
+}
+
+.leccion-block-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+}
+
+.leccion-block-meta span {
+    border: 1px solid rgba(91, 61, 171, 0.2);
+    border-radius: 0.45rem;
+    padding: 0.18rem 0.45rem;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.leccion-image-block {
+    margin: 0;
+}
+
+.leccion-image-block img {
+    display: block;
+    max-width: 100%;
+    border-radius: 0.5rem;
+}
+
+.leccion-image-block figcaption {
+    margin-top: 0.45rem;
+    color: color-mix(in srgb, var(--biblioteca-secondary-dark) 72%, white);
+    font-size: 0.9rem;
+}
+
+.interactive-block {
+    border: 1px solid rgba(91, 61, 171, 0.18);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.interactive-question {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+}
+
+.interactive-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.45rem 0;
+}
+
+.interactive-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.interactive-feedback {
+    margin: 0.7rem 0 0;
+    font-weight: 700;
+}
+
+.interactive-feedback.is-success {
+    color: #146c43;
+}
+
+.interactive-feedback.is-error {
+    color: #b02a37;
+}
+
 @media (max-width: 640px) {
     .leccion-mermaid-block {
         margin: 1.4rem 0 1.75rem;

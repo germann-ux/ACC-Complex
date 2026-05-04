@@ -39,6 +39,9 @@ namespace ACC.Data
         /// <summary>Lecciones atómicas dentro de un subtema.</summary>
         public DbSet<Leccion> Lecciones => Set<Leccion>();
 
+        /// <summary>Bloques interactivos ordenados que componen una leccion.</summary>
+        public DbSet<BloqueLeccion> BloquesLeccion => Set<BloqueLeccion>();
+
         /// <summary>Tags reutilizables para etiquetar módulos, temas, capítulos, etc.</summary>
         public DbSet<Tag> Tags => Set<Tag>();
 
@@ -121,6 +124,7 @@ namespace ACC.Data
             modelBuilder.Entity<UsuarioSubTemas>().HasKey(ust => new { ust.Id_Usuario, ust.Id_SubTema });
 
             modelBuilder.Entity<Leccion>().HasKey(l => l.IdLeccion);
+            modelBuilder.Entity<BloqueLeccion>().HasKey(b => b.IdBloqueLeccion);
             modelBuilder.Entity<Capitulo>().HasKey(c => c.IdCapitulo);
 
             // TAGS:
@@ -230,6 +234,56 @@ namespace ACC.Data
                 .WithMany(st => st.Lecciones)
                 .HasForeignKey(l => l.SubtemaId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Leccion>()
+                .Property(l => l.OrigenLeccion)
+                .HasConversion<string>()
+                .HasMaxLength(32)
+                .IsRequired();
+
+            modelBuilder.Entity<Leccion>()
+                .Property(l => l.EstadoLeccion)
+                .HasConversion<string>()
+                .HasMaxLength(32)
+                .IsRequired();
+
+            modelBuilder.Entity<Leccion>()
+                .HasOne(l => l.Aula)
+                .WithMany(a => a.Lecciones)
+                .HasForeignKey(l => l.AulaId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<BloqueLeccion>(entity =>
+            {
+                entity.ToTable("BloquesLeccion");
+
+                entity.Property(x => x.TipoBloque)
+                    .HasConversion<string>()
+                    .HasMaxLength(64)
+                    .IsRequired();
+
+                entity.Property(x => x.ConfiguracionJson)
+                    .IsRequired();
+
+                entity.Property(x => x.Titulo)
+                    .HasMaxLength(160);
+
+                entity.Property(x => x.NivelBloom)
+                    .HasMaxLength(64);
+
+                entity.Property(x => x.Puntaje)
+                    .HasColumnType("decimal(6,2)");
+
+                entity.HasOne(x => x.Leccion)
+                    .WithMany(x => x.Bloques)
+                    .HasForeignKey(x => x.LeccionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => new { x.LeccionId, x.Orden })
+                    .IsUnique();
+
+                entity.HasIndex(x => new { x.LeccionId, x.TipoBloque });
+            });
 
             // Capítulo -> Lección (opcional, 1:n desde Lección)
             modelBuilder.Entity<Capitulo>()

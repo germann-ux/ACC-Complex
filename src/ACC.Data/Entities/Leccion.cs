@@ -1,11 +1,8 @@
 ﻿using ACC.Shared.Enums;
 using ACC.Shared.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Metadata;
 
 namespace ACC.Data.Entities
 {
@@ -37,39 +34,27 @@ namespace ACC.Data.Entities
         public string DescripcionLeccion { get; set; } = string.Empty;
 
         /// <summary>
-        /// Contenido principal de la lección el cual es renderizado (puede incluir HTML, markdown, etc.).
-        /// </summary>
-        //[Obsolete("Campo obsoleto, se fragmento en las nuevas propiedades 'Teoria', 'Practica', 'Ejemplo'")]
-        //public string? HtmlBody { get; set; }
-        
-        /// <summary>
-        /// Indica si la lección tiene una actividad asociada.
-        /// </summary>
-        [Required]
-        public bool TieneActividad { get; set; } = false;
-
-        /// <summary>
-        /// URL de la actividad asociada, si existe.
-        /// </summary>
-        [AllowNull]
-        public string? UrlActividad { get; set; } = null;
-
-        /// <summary>
-        /// Indica si la lección incluye un compilador interactivo.
-        /// </summary>
-        public bool TieneCompilador { get; set; } = false;
-
-        /// <summary>
-        /// Orden de las secciones de la lección (por ejemplo: ["introducción", "teoría", "ejercicios"]).
-        /// </summary>
-        [Required]
-        public List<string> OrdenSecciones { get; set; } = [];
-
-        /// <summary>
         /// Identificador del SubTema al que pertenece la lección (clave foránea).
         /// </summary>
         [Required]
         public int SubtemaId { get; set; }
+
+        /// <summary>
+        /// Identificador opcional del aula cuando la lección pertenece a APP.
+        /// </summary>
+        public int? AulaId { get; set; }
+
+        /// <summary>
+        /// Origen lógico de la lección: contenido oficial o contenido APP.
+        /// </summary>
+        [Required]
+        public OrigenLeccion OrigenLeccion { get; set; } = OrigenLeccion.Oficial;
+
+        /// <summary>
+        /// Estado editorial de la lección.
+        /// </summary>
+        [Required]
+        public EstadoLeccion EstadoLeccion { get; set; } = EstadoLeccion.Borrador;
 
         /// <summary>
         /// Referencia de navegación al SubTema padre.
@@ -78,64 +63,20 @@ namespace ACC.Data.Entities
         public SubTema? SubTema { get; set; }
 
         /// <summary>
+        /// Referencia opcional al aula de origen cuando la lección se crea desde APP.
+        /// </summary>
+        [ForeignKey(nameof(AulaId))]
+        public Aula? Aula { get; set; }
+
+        /// <summary>
         /// Colección de capítulos que pueden estar asociados a esta lección (relación inversa).
         /// </summary>
         public ICollection<Capitulo>? Capitulos { get; set; }
 
         /// <summary>
-        /// Titulo opcional del diagrama Mermaid asociado a la leccion.
+        /// Bloques ordenados que componen la experiencia didactica de la leccion.
         /// </summary>
-        public string? MermaidTitulo { get; set; } = null;
-
-        /// <summary>
-        /// Descripcion opcional del diagrama Mermaid asociado a la leccion.
-        /// </summary>
-        public string? MermaidDescripcion { get; set; } = null;
-
-        /// <summary>
-        /// Codigo Mermaid que se renderiza dentro de la leccion.
-        /// </summary>
-        public string? MermaidCodigo { get; set; } = null;
-
-        /// <summary>
-        /// Seccion teorica de las lecciones, en formato html
-        /// </summary>
-        public string Teoria { get; set; } = string.Empty;
-        /// <summary>
-        /// Seccion conectora a la practica, no nesesariamente una practica redactada u tarea por definicion
-        /// </summary>
-        public string Practica { get; set; } = string.Empty;
-        /// <summary>
-        /// Seccion de ejemplos en la leccion, simples y sencillos o mas extensos si es nesesario.
-        /// </summary>
-        public string Ejemplo { get; set; } = string.Empty;
-
-        // ------------------ Fin de la nueva implementación ------------------ //
-
-        // Añadidos: CharpTip y CharpDialog
-        /// <summary>
-        /// Propiedad para manejar el tip Charp en las lecciones.
-        /// </summary>
-        public string? CharpTip { get; set; } = null;
-        /// <summary>
-        /// Propiedad para manejar el diálogo Charp en las lecciones.
-        /// </summary>
-        public string? CharpDialog { get; set; } = null;
-
-        /// <summary>
-        /// Nivel de la taxonomia de bloom asociado a la lección.
-        /// Recordar, Comprender, Aplicar, Analizar, Evaluar, Crear
-        /// </summary>
-        public string NivelBloom { get; set; } = string.Empty;
-        /// <summary>
-        /// Id del video de youtube que se desee mostrar en la lección.
-        /// </summary>
-        public string? VideoId { get; set; }
-        /// <summary>
-        /// flag para saber si la lección tiene video asociado.
-        /// </summary>
-        public bool TieneVideo { get; set; }
-
+        public ICollection<BloqueLeccion> Bloques { get; set; } = [];
 
         // --- // ------------------ Implementación de la interfaz INodoJerarquico ------------------ // --- //
 

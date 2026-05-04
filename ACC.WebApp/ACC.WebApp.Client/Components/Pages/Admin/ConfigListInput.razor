@@ -1,0 +1,40 @@
+@using ACC.Shared.DTOs
+@using System.Text.Json
+
+<div class="mb-2">
+    <label class="form-label">@Label (una linea por elemento)</label>
+    <textarea class="form-control" rows="4" @oninput="HandleInput">@CurrentValue</textarea>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public BloqueLeccionUpsertDto Bloque { get; set; } = default!;
+    [Parameter, EditorRequired] public string Property { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public Action<BloqueLeccionUpsertDto, string, string>? OnChanged { get; set; }
+
+    private string CurrentValue => string.Join(Environment.NewLine, GetList(Bloque, Property));
+
+    private void HandleInput(ChangeEventArgs args)
+    {
+        OnChanged?.Invoke(Bloque, Property, args.Value?.ToString() ?? string.Empty);
+    }
+
+    private static List<string> GetList(BloqueLeccionUpsertDto bloque, string property)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(bloque.ConfiguracionJson) ? "{}" : bloque.ConfiguracionJson);
+            if (!document.RootElement.TryGetProperty(property, out var value) || value.ValueKind != JsonValueKind.Array)
+                return [];
+
+            return value.EnumerateArray()
+                .Where(x => x.ValueKind == JsonValueKind.String)
+                .Select(x => x.GetString() ?? string.Empty)
+                .ToList();
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+}

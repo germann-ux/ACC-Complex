@@ -3,13 +3,15 @@
 @attribute [Authorize(Roles = "Administrador,Docente")]
 @using ACC.Shared.Core
 @using ACC.Shared.DTOs
+@using ACC.Shared.Enums
 @using ACC.Shared.Utils
 @using ACC.WebApp.Client.Components.Pages.Guia.Components.Lecciones
 @using ACC.WebApp.Client.Services
 @using Microsoft.AspNetCore.Authorization
+@using System.Text.Json
 @inject LeccionesAdminClientService LeccionesAdminClient
 
-<h3>Lecciones Admin (MVP)</h3>
+<h3>Constructor de lecciones</h3>
 
 @if (!string.IsNullOrWhiteSpace(_message))
 {
@@ -17,32 +19,35 @@
 }
 
 <div class="row g-3">
-    <div class="col-12 col-lg-4">
+    <div class="col-12 col-lg-3">
         <div class="card p-3">
             <div class="mb-2">
                 <label class="form-label">Filtro SubtemaId</label>
                 <input class="form-control" type="number" @bind="_filtroSubtemaId" />
             </div>
-            <button class="btn btn-sm btn-outline-primary mb-3" @onclick="CargarLeccionesAsync">Recargar</button>
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-sm btn-outline-primary" @onclick="CargarLeccionesAsync">Recargar</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="Limpiar">Nueva</button>
+            </div>
 
             <ul class="list-group">
                 @foreach (var item in _lecciones)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>#@item.IdLeccion - @item.TituloLeccion</span>
-                        <div>
-                            <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => Editar(item)">Editar</button>
-                            <button class="btn btn-sm btn-success" @onclick="() => PublicarAsync(item.IdLeccion)">Publicar</button>
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between gap-2">
+                            <span>#@item.IdLeccion - @item.TituloLeccion</span>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => Editar(item)">Editar</button>
                         </div>
+                        <button class="btn btn-sm btn-success mt-2" @onclick="() => PublicarAsync(item.IdLeccion)">Publicar</button>
                     </li>
                 }
             </ul>
         </div>
     </div>
 
-    <div class="col-12 col-lg-8">
+    <div class="col-12 col-lg-5">
         <div class="card p-3">
-            <h5>@(_draft.IdLeccion == 0 ? "Crear" : $"Editar #{_draft.IdLeccion}")</h5>
+            <h5>@(_draft.IdLeccion == 0 ? "Crear leccion" : $"Editar #{_draft.IdLeccion}")</h5>
 
             <div class="row g-2">
                 <div class="col-md-4">
@@ -57,85 +62,173 @@
                     <label class="form-label">Descripcion</label>
                     <textarea class="form-control" rows="2" @bind="_draft.DescripcionLeccion"></textarea>
                 </div>
-                <div class="col-12">
-                    <label class="form-label">OrdenSecciones (coma)</label>
-                    <input class="form-control" @bind="_ordenInput" placeholder="mermaid,teoria,practica,ejemplo,actividad,compilador,charpTip,charpDialog,video" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">MermaidTitulo</label>
-                    <input class="form-control" @bind="_draft.MermaidTitulo" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">MermaidDescripcion</label>
-                    <input class="form-control" @bind="_draft.MermaidDescripcion" />
-                </div>
-                <div class="col-12">
-                    <label class="form-label">MermaidCodigo</label>
-                    <textarea class="form-control font-monospace" rows="6" @bind="_draft.MermaidCodigo"
-                              placeholder="flowchart TD&#10;A[Inicio] --> B{Decision}&#10;B -- Si --> C[Continua]&#10;B -- No --> D[Finaliza]"></textarea>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Teoria</label>
-                    <textarea class="form-control" rows="3" @bind="_draft.Teoria"></textarea>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Practica</label>
-                    <textarea class="form-control" rows="3" @bind="_draft.Practica"></textarea>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Ejemplo</label>
-                    <textarea class="form-control" rows="3" @bind="_draft.Ejemplo"></textarea>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">UrlActividad</label>
-                    <input class="form-control" @bind="_draft.UrlActividad" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">VideoId</label>
-                    <input class="form-control" @bind="_draft.VideoId" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">CharpTip</label>
-                    <textarea class="form-control" rows="2" @bind="_draft.CharpTip"></textarea>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">CharpDialog</label>
-                    <textarea class="form-control" rows="2" @bind="_draft.CharpDialog"></textarea>
-                </div>
-                <div class="col-md-4 form-check mt-2 ms-2">
-                    <input class="form-check-input" type="checkbox" @bind="_draft.TieneActividad" />
-                    <label class="form-check-label">TieneActividad</label>
-                </div>
-                <div class="col-md-4 form-check mt-2">
-                    <input class="form-check-input" type="checkbox" @bind="_draft.TieneCompilador" />
-                    <label class="form-check-label">TieneCompilador</label>
-                </div>
-                <div class="col-md-4 form-check mt-2">
-                    <input class="form-check-input" type="checkbox" @bind="_draft.TieneVideo" />
-                    <label class="form-check-label">TieneVideo</label>
-                </div>
             </div>
+
+            <hr />
+
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                <h6 class="m-0">Bloques</h6>
+                <select class="form-select form-select-sm w-auto" @onchange="AgregarBloque">
+                    <option value="">Agregar bloque</option>
+                    @foreach (var tipo in Enum.GetValues<TipoBloqueLeccion>())
+                    {
+                        <option value="@tipo">@BloquesLeccionCatalogo.Nombres[tipo]</option>
+                    }
+                </select>
+            </div>
+
+            @if (_draft.Bloques.Count == 0)
+            {
+                <p class="text-muted">Esta leccion aun no tiene bloques.</p>
+            }
+            else
+            {
+                <div class="list-group">
+                    @for (var i = 0; i < _draft.Bloques.Count; i++)
+                    {
+                        var index = i;
+                        var bloque = _draft.Bloques[index];
+                        <button type="button"
+                                class="list-group-item list-group-item-action @(index == _selectedBlockIndex ? "active" : "")"
+                                @onclick="() => SeleccionarBloque(index)">
+                            <div class="d-flex justify-content-between">
+                                <span>@bloque.Orden. @BloquesLeccionCatalogo.Nombres[bloque.TipoBloque]</span>
+                                <span>@bloque.Titulo</span>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
 
             <div class="mt-3">
                 <button class="btn btn-primary me-2" @onclick="GuardarAsync">Guardar</button>
-                <button class="btn btn-outline-secondary" @onclick="Limpiar">Nuevo</button>
+                <button class="btn btn-outline-secondary" @onclick="Limpiar">Limpiar</button>
             </div>
         </div>
 
-        <div class="card p-3 mt-3">
-            <h5>Preview (RDL)</h5>
+        @if (SelectedBlock is not null)
+        {
+            <div class="card p-3 mt-3">
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                    <h5 class="m-0">Editar bloque</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="MoverBloqueArriba" disabled="@(_selectedBlockIndex <= 0)">Subir</button>
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="MoverBloqueAbajo" disabled="@(_selectedBlockIndex >= _draft.Bloques.Count - 1)">Bajar</button>
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="DuplicarBloque">Duplicar</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="EliminarBloque">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo</label>
+                        <select class="form-select" value="@SelectedBlock.TipoBloque" @onchange="CambiarTipoBloque">
+                            @foreach (var tipo in Enum.GetValues<TipoBloqueLeccion>())
+                            {
+                                <option value="@tipo">@BloquesLeccionCatalogo.Nombres[tipo]</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Titulo opcional</label>
+                        <input class="form-control" @bind="SelectedBlock.Titulo" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nivel Bloom</label>
+                        <input class="form-control" @bind="SelectedBlock.NivelBloom" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Puntaje</label>
+                        <input class="form-control" type="number" step="0.01" @bind="SelectedBlock.Puntaje" />
+                    </div>
+                    <div class="col-md-4 form-check mt-4">
+                        <input class="form-check-input" type="checkbox" @bind="SelectedBlock.EsObligatorio" />
+                        <label class="form-check-label">Obligatorio</label>
+                    </div>
+                </div>
+
+                <hr />
+                @switch (SelectedBlock.TipoBloque)
+                {
+                    case TipoBloqueLeccion.TextoHtml:
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="html" Label="HTML" Rows="8" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.Imagen:
+                        <ConfigInput Bloque="@SelectedBlock" Property="url" Label="URL" OnChanged="SetConfigString" />
+                        <ConfigInput Bloque="@SelectedBlock" Property="alt" Label="Texto alternativo" OnChanged="SetConfigString" />
+                        <ConfigInput Bloque="@SelectedBlock" Property="caption" Label="Pie de imagen" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.Video:
+                        <ConfigInput Bloque="@SelectedBlock" Property="videoId" Label="YouTube VideoId" OnChanged="SetConfigString" />
+                        <ConfigInput Bloque="@SelectedBlock" Property="proveedor" Label="Proveedor" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.Mermaid:
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="codigo" Label="Codigo Mermaid" Rows="7" OnChanged="SetConfigString" />
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="descripcion" Label="Descripcion" Rows="2" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.CharpTip:
+                    case TipoBloqueLeccion.CharpDialog:
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="texto" Label="Texto" Rows="3" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.ActividadExterna:
+                        <ConfigInput Bloque="@SelectedBlock" Property="url" Label="URL" OnChanged="SetConfigString" />
+                        <ConfigInput Bloque="@SelectedBlock" Property="textoBoton" Label="Texto del boton" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.Compilador:
+                        <ConfigInput Bloque="@SelectedBlock" Property="lenguaje" Label="Lenguaje" OnChanged="SetConfigString" />
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="codigoInicial" Label="Codigo inicial" Rows="6" OnChanged="SetConfigString" />
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="instrucciones" Label="Instrucciones" Rows="3" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.OpcionMultiple:
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="pregunta" Label="Pregunta" Rows="2" OnChanged="SetConfigString" />
+                        <ConfigListInput Bloque="@SelectedBlock" Property="opciones" Label="Opciones" OnChanged="SetConfigList" />
+                        <ConfigInput Bloque="@SelectedBlock" Property="respuestaCorrecta" Label="Respuesta correcta" OnChanged="SetConfigString" />
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="retroalimentacion" Label="Retroalimentacion" Rows="2" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.VerdaderoFalso:
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="afirmacion" Label="Afirmacion" Rows="2" OnChanged="SetConfigString" />
+                        <ConfigBoolInput Bloque="@SelectedBlock" Property="respuestaCorrecta" Label="Respuesta correcta" OnChanged="SetConfigBool" />
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="retroalimentacion" Label="Retroalimentacion" Rows="2" OnChanged="SetConfigString" />
+                        break;
+                    case TipoBloqueLeccion.RespuestaCorta:
+                        <ConfigTextArea Bloque="@SelectedBlock" Property="pregunta" Label="Pregunta" Rows="2" OnChanged="SetConfigString" />
+                        <ConfigInput Bloque="@SelectedBlock" Property="respuestaEsperada" Label="Respuesta esperada" OnChanged="SetConfigString" />
+                        <ConfigBoolInput Bloque="@SelectedBlock" Property="esAutoevaluacion" Label="Autoevaluacion" OnChanged="SetConfigBool" />
+                        break;
+                    case TipoBloqueLeccion.Checklist:
+                        <ConfigListInput Bloque="@SelectedBlock" Property="items" Label="Items" OnChanged="SetConfigList" />
+                        break;
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card p-3">
+            <h5>Preview</h5>
             <RDL Leccion="@BuildPreview()" />
         </div>
     </div>
 </div>
 
 @code {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = false,
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly List<LeccionAdminDto> _lecciones = [];
     private LeccionAdminDto _draft = new();
     private int? _filtroSubtemaId;
-    private string _ordenInput = "teoria,practica,ejemplo";
+    private int _selectedBlockIndex = -1;
     private string? _message;
     private bool _isError;
+
+    private BloqueLeccionUpsertDto? SelectedBlock =>
+        _selectedBlockIndex >= 0 && _selectedBlockIndex < _draft.Bloques.Count
+            ? _draft.Bloques[_selectedBlockIndex]
+            : null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,28 +256,19 @@
             SubtemaId = item.SubtemaId,
             TituloLeccion = item.TituloLeccion,
             DescripcionLeccion = item.DescripcionLeccion,
-            MermaidTitulo = item.MermaidTitulo,
-            MermaidDescripcion = item.MermaidDescripcion,
-            MermaidCodigo = item.MermaidCodigo,
-            Teoria = item.Teoria,
-            Practica = item.Practica,
-            Ejemplo = item.Ejemplo,
-            CharpTip = item.CharpTip,
-            CharpDialog = item.CharpDialog,
-            NivelBloom = item.NivelBloom,
-            TieneActividad = item.TieneActividad,
-            UrlActividad = item.UrlActividad,
-            TieneCompilador = item.TieneCompilador,
-            TieneVideo = item.TieneVideo,
-            VideoId = item.VideoId,
-            OrdenSecciones = item.OrdenSecciones.ToList()
+            Bloques = item.Bloques
+                .OrderBy(x => x.Orden)
+                .Select(CloneBlock)
+                .ToList()
         };
-        _ordenInput = string.Join(",", _draft.OrdenSecciones);
+
+        ReindexarBloques();
+        _selectedBlockIndex = _draft.Bloques.Count > 0 ? 0 : -1;
     }
 
     private async Task GuardarAsync()
     {
-        _draft.OrdenSecciones = ParseOrdenSecciones();
+        ReindexarBloques();
 
         ServiceResult<LeccionAdminDto>? response;
         if (_draft.IdLeccion == 0)
@@ -215,58 +299,217 @@
         SetMessage(response.Message ?? "Publicado.", false);
     }
 
+    private void AgregarBloque(ChangeEventArgs args)
+    {
+        if (!Enum.TryParse<TipoBloqueLeccion>(args.Value?.ToString(), out var tipo))
+            return;
+
+        var bloque = new BloqueLeccionUpsertDto
+        {
+            TipoBloque = tipo,
+            Orden = _draft.Bloques.Count + 1,
+            ConfiguracionJson = BloquesLeccionCatalogo.ConfiguracionInicial[tipo]
+        };
+
+        _draft.Bloques.Add(bloque);
+        _selectedBlockIndex = _draft.Bloques.Count - 1;
+    }
+
+    private void SeleccionarBloque(int index)
+    {
+        _selectedBlockIndex = index;
+    }
+
+    private void CambiarTipoBloque(ChangeEventArgs args)
+    {
+        if (SelectedBlock is null || !Enum.TryParse<TipoBloqueLeccion>(args.Value?.ToString(), out var tipo))
+            return;
+
+        SelectedBlock.TipoBloque = tipo;
+        SelectedBlock.ConfiguracionJson = BloquesLeccionCatalogo.ConfiguracionInicial[tipo];
+    }
+
+    private void MoverBloqueArriba()
+    {
+        if (_selectedBlockIndex <= 0)
+            return;
+
+        (_draft.Bloques[_selectedBlockIndex - 1], _draft.Bloques[_selectedBlockIndex]) =
+            (_draft.Bloques[_selectedBlockIndex], _draft.Bloques[_selectedBlockIndex - 1]);
+
+        _selectedBlockIndex--;
+        ReindexarBloques();
+    }
+
+    private void MoverBloqueAbajo()
+    {
+        if (_selectedBlockIndex < 0 || _selectedBlockIndex >= _draft.Bloques.Count - 1)
+            return;
+
+        (_draft.Bloques[_selectedBlockIndex + 1], _draft.Bloques[_selectedBlockIndex]) =
+            (_draft.Bloques[_selectedBlockIndex], _draft.Bloques[_selectedBlockIndex + 1]);
+
+        _selectedBlockIndex++;
+        ReindexarBloques();
+    }
+
+    private void DuplicarBloque()
+    {
+        if (SelectedBlock is null)
+            return;
+
+        _draft.Bloques.Insert(_selectedBlockIndex + 1, CloneBlock(SelectedBlock));
+        _selectedBlockIndex++;
+        ReindexarBloques();
+    }
+
+    private void EliminarBloque()
+    {
+        if (SelectedBlock is null)
+            return;
+
+        _draft.Bloques.RemoveAt(_selectedBlockIndex);
+        ReindexarBloques();
+        _selectedBlockIndex = Math.Min(_selectedBlockIndex, _draft.Bloques.Count - 1);
+    }
+
+    private void Limpiar()
+    {
+        _draft = new LeccionAdminDto();
+        _selectedBlockIndex = -1;
+    }
+
     private LeccionDto BuildPreview()
     {
-        var order = ParseOrdenSecciones();
+        ReindexarBloques();
 
         return new LeccionDto
         {
             IdLeccion = _draft.IdLeccion,
             TituloLeccion = _draft.TituloLeccion,
             DescripcionLeccion = _draft.DescripcionLeccion,
-            MermaidTitulo = _draft.MermaidTitulo,
-            MermaidDescripcion = _draft.MermaidDescripcion,
-            MermaidCodigo = _draft.MermaidCodigo,
-            Teoria = _draft.Teoria,
-            Practica = _draft.Practica,
-            Ejemplo = _draft.Ejemplo,
-            CharpTip = _draft.CharpTip,
-            CharpDialog = _draft.CharpDialog,
-            NivelBloom = _draft.NivelBloom,
-            TieneActividad = _draft.TieneActividad,
-            UrlActividad = _draft.UrlActividad,
-            TieneCompilador = _draft.TieneCompilador,
-            TieneVideo = _draft.TieneVideo,
-            VideoId = _draft.VideoId,
-            OrdenSecciones = order
+            SubtemaId = _draft.SubtemaId,
+            Bloques = _draft.Bloques
+                .OrderBy(x => x.Orden)
+                .Select(x => new BloqueLeccionDto
+                {
+                    IdBloqueLeccion = x.IdBloqueLeccion,
+                    TipoBloque = x.TipoBloque,
+                    Orden = x.Orden,
+                    ConfiguracionJson = x.ConfiguracionJson,
+                    Titulo = x.Titulo,
+                    NivelBloom = x.NivelBloom,
+                    EsObligatorio = x.EsObligatorio,
+                    Puntaje = x.Puntaje
+                })
+                .ToList()
         };
     }
 
-    private List<string> ParseOrdenSecciones()
+    private void ReindexarBloques()
     {
-        return _ordenInput
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(NormalizeToken)
+        for (var i = 0; i < _draft.Bloques.Count; i++)
+            _draft.Bloques[i].Orden = i + 1;
+    }
+
+    private static BloqueLeccionUpsertDto CloneBlock(BloqueLeccionUpsertDto source)
+    {
+        return new BloqueLeccionUpsertDto
+        {
+            IdBloqueLeccion = source.IdBloqueLeccion,
+            TipoBloque = source.TipoBloque,
+            Orden = source.Orden,
+            ConfiguracionJson = source.ConfiguracionJson,
+            Titulo = source.Titulo,
+            NivelBloom = source.NivelBloom,
+            EsObligatorio = source.EsObligatorio,
+            Puntaje = source.Puntaje
+        };
+    }
+
+    private string GetConfigString(BloqueLeccionUpsertDto bloque, string property)
+    {
+        using var document = ParseConfig(bloque);
+        return document.RootElement.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString() ?? string.Empty
+            : string.Empty;
+    }
+
+    private bool GetConfigBool(BloqueLeccionUpsertDto bloque, string property)
+    {
+        using var document = ParseConfig(bloque);
+        return document.RootElement.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.True;
+    }
+
+    private List<string> GetConfigList(BloqueLeccionUpsertDto bloque, string property)
+    {
+        using var document = ParseConfig(bloque);
+        if (!document.RootElement.TryGetProperty(property, out var value) || value.ValueKind != JsonValueKind.Array)
+            return [];
+
+        return value.EnumerateArray()
+            .Where(x => x.ValueKind == JsonValueKind.String)
+            .Select(x => x.GetString() ?? string.Empty)
             .ToList();
     }
 
-    private static string NormalizeToken(string token)
+    private static JsonDocument ParseConfig(BloqueLeccionUpsertDto bloque)
     {
-        if (token.Equals(SeccionesContenido.CharpTip, StringComparison.OrdinalIgnoreCase) ||
-            token.Equals("charptip", StringComparison.OrdinalIgnoreCase))
-            return SeccionesContenido.CharpTip;
-
-        if (token.Equals(SeccionesContenido.CharpDialog, StringComparison.OrdinalIgnoreCase) ||
-            token.Equals("charpdialog", StringComparison.OrdinalIgnoreCase))
-            return SeccionesContenido.CharpDialog;
-
-        return token.Trim().ToLowerInvariant();
+        try
+        {
+            return JsonDocument.Parse(string.IsNullOrWhiteSpace(bloque.ConfiguracionJson) ? "{}" : bloque.ConfiguracionJson);
+        }
+        catch (JsonException)
+        {
+            return JsonDocument.Parse("{}");
+        }
     }
 
-    private void Limpiar()
+    private void SetConfigString(BloqueLeccionUpsertDto bloque, string property, string? value)
     {
-        _draft = new LeccionAdminDto();
-        _ordenInput = "teoria,practica,ejemplo";
+        var values = ReadMutableConfig(bloque);
+        values[property] = value ?? string.Empty;
+        bloque.ConfiguracionJson = JsonSerializer.Serialize(values, JsonOptions);
+    }
+
+    private void SetConfigBool(BloqueLeccionUpsertDto bloque, string property, bool value)
+    {
+        var values = ReadMutableConfig(bloque);
+        values[property] = value;
+        bloque.ConfiguracionJson = JsonSerializer.Serialize(values, JsonOptions);
+    }
+
+    private void SetConfigList(BloqueLeccionUpsertDto bloque, string property, string rawValue)
+    {
+        var values = ReadMutableConfig(bloque);
+        values[property] = rawValue
+            .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+        bloque.ConfiguracionJson = JsonSerializer.Serialize(values, JsonOptions);
+    }
+
+    private static Dictionary<string, object?> ReadMutableConfig(BloqueLeccionUpsertDto bloque)
+    {
+        using var document = ParseConfig(bloque);
+        var values = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in document.RootElement.EnumerateObject())
+        {
+            values[property.Name] = property.Value.ValueKind switch
+            {
+                JsonValueKind.String => property.Value.GetString(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.Number when property.Value.TryGetDecimal(out var decimalValue) => decimalValue,
+                JsonValueKind.Array => property.Value.EnumerateArray()
+                    .Where(x => x.ValueKind == JsonValueKind.String)
+                    .Select(x => x.GetString() ?? string.Empty)
+                    .ToList(),
+                _ => property.Value.GetRawText()
+            };
+        }
+
+        return values;
     }
 
     private void SetMessage(string message, bool isError)

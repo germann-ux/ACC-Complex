@@ -61,7 +61,10 @@ namespace ACC.API.Services
                         .ToListAsync(),
 
                     TipoNodoJerarquico.SubTema => await _context.Lecciones
-                        .Where(l => l.SubtemaId == idPadre)
+                        .Where(l => l.SubtemaId == idPadre
+                            && l.OrigenLeccion == OrigenLeccion.Oficial
+                            && l.EstadoLeccion == EstadoLeccion.Publicado
+                            && l.AulaId == null)
                         .Select(l => new NodoJerarquicoDto(l.IdLeccion, l.TituloLeccion, l.SubtemaId, l.DescripcionLeccion, TipoNodoJerarquico.Leccion))
                         .ToListAsync(),
 
@@ -154,7 +157,13 @@ namespace ACC.API.Services
                 if (cached is { Found: true, Value: not null })
                     return cached.Value;
 
-                var leccion = await _context.Lecciones.FirstOrDefaultAsync(le => le.IdLeccion == idLeccion);
+                var leccion = await _context.Lecciones
+                    .AsNoTracking()
+                    .Include(le => le.Bloques.OrderBy(b => b.Orden))
+                    .FirstOrDefaultAsync(le => le.IdLeccion == idLeccion
+                        && le.OrigenLeccion == OrigenLeccion.Oficial
+                        && le.EstadoLeccion == EstadoLeccion.Publicado
+                        && le.AulaId == null);
                 if (leccion is null)
                     return ServiceResult<LeccionDto>.NotFound("No se encontro la leccion especificada.");
 

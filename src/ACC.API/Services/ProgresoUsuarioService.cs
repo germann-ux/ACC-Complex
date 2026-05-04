@@ -112,7 +112,13 @@ namespace ACC.API.Services
                         .SelectMany(sm => sm.Temas)
                         .SelectMany(t => t.SubTemas)
                         .SelectMany(st => st.Lecciones)
-                        .Count(l => l.TieneActividad || l.TieneCompilador),
+                        .Count(l => l.Bloques.Any(b =>
+                            b.TipoBloque == TipoBloqueLeccion.ActividadExterna ||
+                            b.TipoBloque == TipoBloqueLeccion.Compilador ||
+                            b.TipoBloque == TipoBloqueLeccion.OpcionMultiple ||
+                            b.TipoBloque == TipoBloqueLeccion.VerdaderoFalso ||
+                            b.TipoBloque == TipoBloqueLeccion.RespuestaCorta ||
+                            b.TipoBloque == TipoBloqueLeccion.Checklist)),
                     EvaluacionesCount = m.SubModulos.SelectMany(sm => sm.Examenes!).Count()
                         + _dbContext.ExamenesModulos.Count(em => em.ModuloId == m.Id_Modulo)
                 })

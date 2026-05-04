@@ -1,0 +1,36 @@
+@using ACC.Shared.DTOs
+@using System.Text.Json
+
+<div class="mb-2">
+    <label class="form-label">@Label</label>
+    <input class="form-control" value="@CurrentValue" @oninput="HandleInput" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public BloqueLeccionUpsertDto Bloque { get; set; } = default!;
+    [Parameter, EditorRequired] public string Property { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public Action<BloqueLeccionUpsertDto, string, string?>? OnChanged { get; set; }
+
+    private string CurrentValue => GetString(Bloque, Property);
+
+    private void HandleInput(ChangeEventArgs args)
+    {
+        OnChanged?.Invoke(Bloque, Property, args.Value?.ToString());
+    }
+
+    private static string GetString(BloqueLeccionUpsertDto bloque, string property)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(string.IsNullOrWhiteSpace(bloque.ConfiguracionJson) ? "{}" : bloque.ConfiguracionJson);
+            return document.RootElement.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
+                ? value.GetString() ?? string.Empty
+                : string.Empty;
+        }
+        catch (JsonException)
+        {
+            return string.Empty;
+        }
+    }
+}

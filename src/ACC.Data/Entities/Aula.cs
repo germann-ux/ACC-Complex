@@ -33,6 +33,7 @@ public class Aula
 
     // Navs propias
     public ICollection<AulaEstudiante> AulaEstudiantes { get; set; } = [];
+    public ICollection<Leccion> Lecciones { get; set; } = [];
     public ICollection<Anuncio> Anuncios { get; set; } = [];
     public ICollection<Tarea> Tareas { get; set; } = [];
     public ICollection<Evaluacion> Evaluaciones { get; set; } = [];

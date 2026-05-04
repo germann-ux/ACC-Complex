@@ -1,0 +1,297 @@
+@rendermode InteractiveServer
+@using ACC.Shared.DTOs
+@using ACC.Shared.Enums
+@using ACC.WebApp.Client.Components.Pages.ACC_Compiler
+@using System.Text.Json
+
+<section class="leccion-block @($"leccion-block-{Bloque.TipoBloque.ToString().ToLowerInvariant()}")">
+    @if (!string.IsNullOrWhiteSpace(Bloque.Titulo) || Bloque.EsObligatorio || Bloque.Puntaje.HasValue)
+    {
+        <header class="leccion-block-header">
+            @if (!string.IsNullOrWhiteSpace(Bloque.Titulo))
+            {
+                <h3>@Bloque.Titulo</h3>
+            }
+            @if (Bloque.EsObligatorio || Bloque.Puntaje.HasValue)
+            {
+                <div class="leccion-block-meta">
+                    @if (Bloque.EsObligatorio)
+                    {
+                        <span>Obligatorio</span>
+                    }
+                    @if (Bloque.Puntaje.HasValue)
+                    {
+                        <span>@Bloque.Puntaje.Value.ToString("0.##") pts</span>
+                    }
+                </div>
+            }
+        </header>
+    }
+
+    @switch (Bloque.TipoBloque)
+    {
+        case TipoBloqueLeccion.TextoHtml:
+            var texto = ReadConfig<TextoHtmlConfig>();
+            <div class="contenido-html">@((MarkupString)(texto.Html ?? string.Empty))</div>
+            break;
+
+        case TipoBloqueLeccion.Imagen:
+            var imagen = ReadConfig<ImagenConfig>();
+            if (!string.IsNullOrWhiteSpace(imagen.Url))
+            {
+                <figure class="leccion-image-block">
+                    <img src="@imagen.Url" alt="@imagen.Alt" />
+                    @if (!string.IsNullOrWhiteSpace(imagen.Caption))
+                    {
+                        <figcaption>@imagen.Caption</figcaption>
+                    }
+                </figure>
+            }
+            break;
+
+        case TipoBloqueLeccion.Video:
+            var video = ReadConfig<VideoConfig>();
+            if (!string.IsNullOrWhiteSpace(video.VideoId))
+            {
+                <LiteYouTube VideoId="@video.VideoId" />
+            }
+            break;
+
+        case TipoBloqueLeccion.Mermaid:
+            var mermaid = ReadConfig<MermaidConfig>();
+            if (!string.IsNullOrWhiteSpace(mermaid.Codigo))
+            {
+                <div class="leccion-mermaid-block">
+                    <MermaidSection Titulo="@Bloque.Titulo" Descripcion="@mermaid.Descripcion" Codigo="@mermaid.Codigo" />
+                </div>
+            }
+            break;
+
+        case TipoBloqueLeccion.CharpTip:
+            var tip = ReadConfig<TextoConfig>();
+            <CharpTip Texto="@tip.Texto" />
+            break;
+
+        case TipoBloqueLeccion.CharpDialog:
+            var dialog = ReadConfig<TextoConfig>();
+            <CharpDialog Texto="@dialog.Texto" />
+            break;
+
+        case TipoBloqueLeccion.ActividadExterna:
+            var actividad = ReadConfig<ActividadConfig>();
+            if (!string.IsNullOrWhiteSpace(actividad.Url))
+            {
+                <button class="expand-btn" @onclick="() => OnShowActividad.InvokeAsync(actividad.Url)">
+                    @(string.IsNullOrWhiteSpace(actividad.TextoBoton) ? "Ver actividad interactiva" : actividad.TextoBoton)
+                </button>
+            }
+            break;
+
+        case TipoBloqueLeccion.Compilador:
+            var compilador = ReadConfig<CompiladorConfig>();
+            if (!string.IsNullOrWhiteSpace(compilador.Instrucciones))
+            {
+                <div class="fomentador">@((MarkupString)compilador.Instrucciones)</div>
+            }
+            <CompiladorACC />
+            break;
+
+        case TipoBloqueLeccion.OpcionMultiple:
+            var opcionMultiple = ReadConfig<OpcionMultipleConfig>();
+            <div class="interactive-block">
+                <p class="interactive-question">@opcionMultiple.Pregunta</p>
+                @foreach (var opcion in opcionMultiple.Opciones)
+                {
+                    <label class="interactive-option">
+                        <input type="radio" name="@OptionGroupName" value="@opcion" @onchange="() => _opcionSeleccionada = opcion" />
+                        <span>@opcion</span>
+                    </label>
+                }
+                <button type="button" class="btn btn-sm btn-primary" @onclick="() => _respuestaRevisada = true">Comprobar</button>
+                @if (_respuestaRevisada)
+                {
+                    <p class="@FeedbackClass(_opcionSeleccionada == opcionMultiple.RespuestaCorrecta)">
+                        @FeedbackText(_opcionSeleccionada == opcionMultiple.RespuestaCorrecta, opcionMultiple.Retroalimentacion)
+                    </p>
+                }
+            </div>
+            break;
+
+        case TipoBloqueLeccion.VerdaderoFalso:
+            var vf = ReadConfig<VerdaderoFalsoConfig>();
+            <div class="interactive-block">
+                <p class="interactive-question">@vf.Afirmacion</p>
+                <div class="interactive-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => CheckBool(true)">Verdadero</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => CheckBool(false)">Falso</button>
+                </div>
+                @if (_respuestaBooleana.HasValue)
+                {
+                    <p class="@FeedbackClass(_respuestaBooleana == vf.RespuestaCorrecta)">
+                        @FeedbackText(_respuestaBooleana == vf.RespuestaCorrecta, vf.Retroalimentacion)
+                    </p>
+                }
+            </div>
+            break;
+
+        case TipoBloqueLeccion.RespuestaCorta:
+            var respuestaCorta = ReadConfig<RespuestaCortaConfig>();
+            <div class="interactive-block">
+                <label class="interactive-question" for="@ShortAnswerId">@respuestaCorta.Pregunta</label>
+                <input id="@ShortAnswerId" class="form-control" @bind="_respuestaCorta" />
+                <button type="button" class="btn btn-sm btn-primary" @onclick="() => _respuestaCortaRevisada = true">Revisar</button>
+                @if (_respuestaCortaRevisada)
+                {
+                    var coincide = string.Equals(_respuestaCorta?.Trim(), respuestaCorta.RespuestaEsperada?.Trim(), StringComparison.OrdinalIgnoreCase);
+                    <p class="@FeedbackClass(coincide)">
+                        @(coincide ? "Respuesta correcta." : $"Respuesta esperada: {respuestaCorta.RespuestaEsperada}")
+                    </p>
+                }
+            </div>
+            break;
+
+        case TipoBloqueLeccion.Checklist:
+            var checklist = ReadConfig<ChecklistConfig>();
+            EnsureChecklistState(checklist.Items.Count);
+            <div class="interactive-block">
+                @for (var i = 0; i < checklist.Items.Count; i++)
+                {
+                    var index = i;
+                    <label class="interactive-option">
+                        <input type="checkbox" checked="@_checklist[index]" @onchange="args => _checklist[index] = (bool)(args.Value ?? false)" />
+                        <span>@checklist.Items[index]</span>
+                    </label>
+                }
+            </div>
+            break;
+
+        default:
+            <InfoComponent
+                Title="Bloque desconocido"
+                Message="@($"El bloque '{Bloque.TipoBloque}' no se puede mostrar.")"
+                StatusCode="400"
+                ReturnUrl="/Guia" />
+            break;
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public BloqueLeccionDto Bloque { get; set; } = default!;
+    [Parameter] public EventCallback<string> OnShowActividad { get; set; }
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private string? _opcionSeleccionada;
+    private bool _respuestaRevisada;
+    private bool? _respuestaBooleana;
+    private string? _respuestaCorta;
+    private bool _respuestaCortaRevisada;
+    private readonly List<bool> _checklist = [];
+    private string OptionGroupName => $"opcion_{Bloque.IdBloqueLeccion}_{Bloque.Orden}";
+    private string ShortAnswerId => $"respuesta_{Bloque.IdBloqueLeccion}_{Bloque.Orden}";
+
+    private T ReadConfig<T>() where T : new()
+    {
+        if (string.IsNullOrWhiteSpace(Bloque.ConfiguracionJson))
+            return new T();
+
+        return JsonSerializer.Deserialize<T>(Bloque.ConfiguracionJson, JsonOptions) ?? new T();
+    }
+
+    private void CheckBool(bool value)
+    {
+        _respuestaBooleana = value;
+    }
+
+    private void EnsureChecklistState(int count)
+    {
+        while (_checklist.Count < count)
+            _checklist.Add(false);
+
+        while (_checklist.Count > count)
+            _checklist.RemoveAt(_checklist.Count - 1);
+    }
+
+    private static string FeedbackClass(bool success)
+        => success ? "interactive-feedback is-success" : "interactive-feedback is-error";
+
+    private static string FeedbackText(bool success, string? feedback)
+    {
+        if (!string.IsNullOrWhiteSpace(feedback))
+            return feedback;
+
+        return success ? "Respuesta correcta." : "Revisa tu respuesta e intenta nuevamente.";
+    }
+
+    private sealed class TextoHtmlConfig
+    {
+        public string? Html { get; set; }
+    }
+
+    private sealed class ImagenConfig
+    {
+        public string? Url { get; set; }
+        public string? Alt { get; set; }
+        public string? Caption { get; set; }
+    }
+
+    private sealed class VideoConfig
+    {
+        public string? VideoId { get; set; }
+        public string? Proveedor { get; set; }
+    }
+
+    private sealed class MermaidConfig
+    {
+        public string? Codigo { get; set; }
+        public string? Descripcion { get; set; }
+    }
+
+    private sealed class TextoConfig
+    {
+        public string? Texto { get; set; }
+    }
+
+    private sealed class ActividadConfig
+    {
+        public string? Url { get; set; }
+        public string? TextoBoton { get; set; }
+    }
+
+    private sealed class CompiladorConfig
+    {
+        public string? Lenguaje { get; set; }
+        public string? CodigoInicial { get; set; }
+        public string? Instrucciones { get; set; }
+    }
+
+    private sealed class OpcionMultipleConfig
+    {
+        public string? Pregunta { get; set; }
+        public List<string> Opciones { get; set; } = [];
+        public string? RespuestaCorrecta { get; set; }
+        public string? Retroalimentacion { get; set; }
+    }
+
+    private sealed class VerdaderoFalsoConfig
+    {
+        public string? Afirmacion { get; set; }
+        public bool RespuestaCorrecta { get; set; }
+        public string? Retroalimentacion { get; set; }
+    }
+
+    private sealed class RespuestaCortaConfig
+    {
+        public string? Pregunta { get; set; }
+        public string? RespuestaEsperada { get; set; }
+        public bool EsAutoevaluacion { get; set; } = true;
+    }
+
+    private sealed class ChecklistConfig
+    {
+        public List<string> Items { get; set; } = [];
+    }
+}
