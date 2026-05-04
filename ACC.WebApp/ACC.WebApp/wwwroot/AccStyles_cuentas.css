@@ -1201,7 +1201,7 @@ input:-webkit-autofill:focus {
     gap: 0.62rem;
     width: 100%;
     border: 1px solid color-mix(in srgb, var(--acc-border) 86%, white 4%);
-    border-radius: 0.78rem;
+    border-radius: 0.3rem;
     background: color-mix(in srgb, var(--acc-surface-3) 84%, black);
     color: var(--acc-text-muted);
     padding: 0.68rem 0.8rem;

@@ -90,6 +90,17 @@ public class ProgresoUsuarioClient(HttpClient http, ExamenesServiceClient examen
         }
 
         var url = $"{_baseUrl}/resumen-guia/{usuarioId}";
-        return await _http.GetFromJsonAsync<GuiaResumenDto>(url, Options._jsonOptions);
+        try
+        {
+            using var response = await _http.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadFromJsonAsync<GuiaResumenDto>(Options._jsonOptions);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

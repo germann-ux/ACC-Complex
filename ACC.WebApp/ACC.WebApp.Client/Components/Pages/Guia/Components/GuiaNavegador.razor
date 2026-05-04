@@ -13,17 +13,35 @@
     <div class="guia-hero-stack">
         <section class="guia-card guia-header" aria-label="Encabezado de la guia">
             <div class="guia-header__content">
-                <div class="guia-header__copy">
-                    <span class="guia-header__eyebrow">Ruta formativa ACC</span>
-                    <h1>Guia de estudios</h1>
-                    <p>La guia organiza el contenido de ACC en modulos progresivos que representan las etapas fundamentales del recorrido academico en desarrollo de software con C#.</p>
+                <div class="guia-header__main">
+
+                    <div class="guia-header__copy">
+                        <h1>Guia de estudios</h1>
+                        <p>La guia organiza el contenido de ACC en modulos progresivos que representan las etapas fundamentales del recorrido academico en desarrollo de software con C#.</p>
+                        <p><strong>Recorrido academico estructurado</strong></p>
+                        <p>Cada modulo se presenta como una etapa de avance dentro de la guia, con mayor presencia visual y una lectura mas clara del trayecto completo.</p>
+                    </div>
                 </div>
 
                 <div class="guia-journey__intro">
                     <div class="guia-journey__copy">
-                        <h2>Recorrido academico estructurado</h2>
-                        <p>Cada modulo se presenta como una etapa de avance dentro de la guia, con mayor presencia visual y una lectura mas clara del trayecto completo.</p>
+                       
                     </div>
+
+                    <ul class="guia-header__features" aria-label="Caracteristicas de la guia">
+                        <li>
+                            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                            <span>Modulos progresivos</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                            <span>Avance medible</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code" aria-hidden="true"></i>
+                            <span>Enfoque en C#</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </section>
@@ -34,6 +52,41 @@
                 <h2>@ObtenerResumenRuta()</h2>
                 <p>@ObtenerDetalleRuta()</p>
             </div>
+
+            @if (resumenGuia is not null)
+            {
+                <dl class="guia-overview__metrics" aria-label="Resumen numerico de la ruta">
+                    <div class="guia-overview__metric">
+                        <dt>Etapas</dt>
+                        <dd>@resumenGuia.TotalModulos</dd>
+                    </div>
+                    <div class="guia-overview__metric">
+                        <dt>Lecciones</dt>
+                        <dd>@resumenGuia.TotalLecciones</dd>
+                    </div>
+                    <div class="guia-overview__metric">
+                        <dt>Evaluaciones</dt>
+                        <dd>@resumenGuia.TotalEvaluaciones</dd>
+                    </div>
+                    <div class="guia-overview__metric">
+                        <dt>Practicas</dt>
+                        <dd>@resumenGuia.TotalPracticas</dd>
+                    </div>
+                </dl>
+            }
+            else
+            {
+                <dl class="guia-overview__metrics" aria-label="Resumen numerico de la ruta">
+                    <div class="guia-overview__metric">
+                        <dt>Etapas</dt>
+                        <dd>@modulos.Count</dd>
+                    </div>
+                    <div class="guia-overview__metric">
+                        <dt>Estado</dt>
+                        <dd>@(modulos.Count > 0 ? "Disponible" : "En espera")</dd>
+                    </div>
+                </dl>
+            }
 
             @if (modulos.Count > 0)
             {
@@ -116,13 +169,10 @@
                        aria-label="@($"Abrir {modulo.Nombre}")">
                         <span class="guia-modulo-card__accent" aria-hidden="true"></span>
 
-                        <div class="guia-modulo-card__top">
-                            <span class="guia-modulo-card__eyebrow">Etapa @ObtenerIndiceEtapa(index + 1)</span>
-                            <span class="guia-modulo-card__position">Modulo @ObtenerIndiceEtapa(index + 1) de @ObtenerIndiceEtapa(modulos.Count)</span>
-                        </div>
-
                         <div class="guia-modulo-card__content">
-                            <h2>@modulo.Nombre</h2>
+                            <div class="guia-modulo-card__heading">
+                                <h2>@modulo.Nombre</h2>
+                            </div>
                             <p>@ObtenerDescripcionModulo(modulo.Descripcion)</p>
                         </div>
 
@@ -227,10 +277,7 @@
             }
             else if (!string.IsNullOrWhiteSpace(userId))
             {
-                resumenGuia = await ProgresoUsuario.ObtenerResumenGuiaAsync(userId);
-                resumenesModulo = (resumenGuia?.Modulos ?? [])
-                    .OrderBy(modulo => modulo.Orden)
-                    .ToDictionary(modulo => modulo.ModuloId);
+                await CargarResumenGuiaAsync(userId);
             }
         }
         catch (Exception ex)
@@ -243,9 +290,15 @@
         }
     }
 
-    private static string ObtenerRutaModulo(int idModulo) => $"/contenido/Modulo/{idModulo}";
+    private async Task CargarResumenGuiaAsync(string usuarioId)
+    {
+        resumenGuia = await ProgresoUsuario.ObtenerResumenGuiaAsync(usuarioId);
+        resumenesModulo = (resumenGuia?.Modulos ?? [])
+            .OrderBy(modulo => modulo.Orden)
+            .ToDictionary(modulo => modulo.ModuloId);
+    }
 
-    private static string ObtenerIndiceEtapa(int index) => index.ToString("00");
+    private static string ObtenerRutaModulo(int idModulo) => $"/contenido/Modulo/{idModulo}";
 
     private static string ObtenerClaseAcento(int index) => (index % 4) switch
     {

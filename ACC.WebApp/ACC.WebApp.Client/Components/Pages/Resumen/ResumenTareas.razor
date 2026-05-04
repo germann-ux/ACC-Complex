@@ -1,9 +1,12 @@
-﻿@using ACC.Shared.DTOs
-@rendermode  InteractiveServer
+@using ACC.Shared.DTOs
 @using ACC.Shared.Enums
-@using System.Linq
+@rendermode InteractiveServer
+
 <div class="resumen-tareas card">
-    <h2>Tareas Pendientes</h2>
+    <div class="tasks-header">
+        <h2>Tareas Pendientes</h2>
+        <a class="tasks-agenda-link" href="/Agenda">Ver en agenda</a>
+    </div>
 
     @if (IsLoading)
     {
@@ -11,125 +14,65 @@
     }
     else
     {
-        var mostrarVacias = string.IsNullOrWhiteSpace(ErrorMessage);
+        var tareasResumen = ObtenerTareasResumen();
+        var asignadasPendientes = TotalAsignadasPendientes;
+        var personalesPendientes = TotalPersonalesPendientes;
 
         if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <p>@ErrorMessage</p>
+            <p class="error-state">@ErrorMessage</p>
         }
 
-        <div class="tasks-row">
-            <!-- Tareas Asignadas -->
-            <div class="task-col">
-                <h3><i class="fas fa-clipboard-list section-icon icon-assigned"></i> Tareas Asignadas</h3>
-                @if (TareasPendientes is not null)
-                {
-                    if (TareasPendientes.TotalPendientes == 0)
-                    {
-                        <p class="empty-state">No tienes tareas pendientes.</p>
-                    }
-                    else
-                    {
-                        <div class="tasks-summary">
-                            <div class="task-item summary-item summary-overdue">
-                                <div class="task-icon">
-                                    <i class="fas fa-triangle-exclamation"></i>
-                                </div>
-                                <div>
-                                    <p class="task-title">Vencidas</p>
-                                    <p class="task-desc summary-value">@TareasPendientes.Vencidas</p>
-                                </div>
-                            </div>
-                            <div class="task-item summary-item summary-today">
-                                <div class="task-icon">
-                                    <i class="fas fa-calendar-day"></i>
-                                </div>
-                                <div>
-                                    <p class="task-title">Para hoy</p>
-                                    <p class="task-desc summary-value">@TareasPendientes.ParaHoy</p>
-                                </div>
-                            </div>
-                            <div class="task-item summary-item summary-upcoming">
-                                <div class="task-icon">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div>
-                                    <p class="task-title">Próximas</p>
-                                    <p class="task-desc summary-value">@TareasPendientes.Proximas</p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                }
+        <div class="tasks-metrics-grid" aria-label="Resumen de tareas pendientes">
+            <article class="task-metric-card task-metric-card--overdue">
+                <p class="task-metric-label">Vencidas</p>
+                <p class="task-metric-value">@TotalVencidas</p>
+                <p class="task-metric-meta">Requieren atención</p>
+            </article>
 
-                @if (TareasAsignadas != null)
-                {
-                    var pendientes = TareasAsignadas.Where(EsPendiente).ToList();
-                    if (pendientes.Count > 0)
-                    {
-                        <div class="scrollable-tasks">
-                            @{
-                                var count = 0;
-                            }
-                            @foreach (var tarea in pendientes)
-                            {
-                                if (count++ >= MaxAsignadas)
-                                {
-                                    break;
-                                }
-                                <div class="task-item task-list-item">
-                                    <div class="task-icon">
-                                        <i class="fas fa-tasks"></i>
-                                    </div>
-                                    <div>
-                                        <p class="task-title">@tarea.Titulo</p>
-                                        @if (!string.IsNullOrWhiteSpace(tarea.EnunciadoCorto))
-                                        {
-                                            <p class="task-desc">@tarea.EnunciadoCorto</p>
-                                        }
-                                        <p class="task-meta">@EstadoTexto(tarea) • Vence @FechaCorta(tarea.FechaLimite)</p>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else if (mostrarVacias)
-                    {
-                        <p class="empty-state">No tienes tareas asignadas.</p>
-                    }
-                }
-                else if (mostrarVacias)
-                {
-                    <p class="empty-state">No tienes tareas asignadas.</p>
-                }
-            </div>
+            <article class="task-metric-card task-metric-card--today">
+                <p class="task-metric-label">Para hoy</p>
+                <p class="task-metric-value">@TotalParaHoy</p>
+                <p class="task-metric-meta">Prioridad del día</p>
+            </article>
 
-            <!-- Tareas Personales -->
-            <div class="task-col">
-                <h3><i class="fas fa-user-check section-icon icon-personal"></i> Tareas Personales</h3>
-                @if (TareasPersonales != null && TareasPersonales.Count > 0)
-                {
-                    <div class="scrollable-tasks">
-                        @foreach (var tarea in TareasPersonales)
-                        {
-                            <div class="task-item task-list-item">
-                                <div class="task-icon">
-                                    <i class="fas fa-user-edit"></i>
-                                </div>
-                                <div>
-                                    <p class="task-title">@tarea.TareaPersonalTitulo</p>
-                                    <p class="task-desc">@tarea.TareaPersonalDescripcion</p>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else if (mostrarVacias)
-                {
-                    <p class="empty-state">No tienes tareas personales.</p>
-                }
-            </div>
+            <article class="task-metric-card task-metric-card--upcoming">
+                <p class="task-metric-label">Próximas</p>
+                <p class="task-metric-value">@TotalProximas</p>
+                <p class="task-metric-meta">Siguientes entregas</p>
+            </article>
         </div>
+
+        <div class="tasks-counts">
+            <span class="task-chip">Asignadas pendientes: @asignadasPendientes</span>
+            <span class="task-chip">Personales pendientes: @personalesPendientes</span>
+        </div>
+
+        @if (tareasResumen.Count == 0)
+        {
+            <p class="empty-state">No tienes tareas pendientes.</p>
+        }
+        else
+        {
+            <section class="tasks-priority-panel">
+                <h3>Atención inmediata</h3>
+                <div class="tasks-priority-list">
+                    @foreach (var tarea in tareasResumen)
+                    {
+                        <article class="task-summary-item @ObtenerClaseUrgencia(tarea.Urgencia)">
+                            <div>
+                                <p class="task-title">@tarea.Titulo</p>
+                                <div class="task-meta-row">
+                                    <span class="task-badge">@tarea.Tipo</span>
+                                    <span class="task-badge">@tarea.Estado</span>
+                                    <span class="task-badge">@tarea.FechaTexto</span>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
     }
 </div>
 
@@ -141,17 +84,99 @@
     [Parameter] public string? ErrorMessage { get; set; }
     [Parameter] public int MaxAsignadas { get; set; } = 5;
 
+    private int TotalAsignadasPendientes => TareasAsignadas.Count(EsPendiente);
+
+    private int TotalPersonalesPendientes => TareasPersonales.Count(EsPendiente);
+
+    private int TotalVencidas => TareasPendientes?.Vencidas ?? ContarPorUrgencia(TareaResumenUrgencia.Vencida);
+
+    private int TotalParaHoy => TareasPendientes?.ParaHoy ?? ContarPorUrgencia(TareaResumenUrgencia.Hoy);
+
+    private int TotalProximas => TareasPendientes?.Proximas ?? ContarPorUrgencia(TareaResumenUrgencia.Proxima);
+
+    private List<TareaResumenItem> ObtenerTareasResumen()
+    {
+        var asignadas = TareasAsignadas
+            .Where(EsPendiente)
+            .Select(tarea => new TareaResumenItem(
+                Titulo: TextoOrDefault(tarea.Titulo),
+                Tipo: "Asignada",
+                Estado: EstadoTexto(tarea),
+                Fecha: tarea.FechaLimite,
+                FechaTexto: $"Vence {FechaCorta(tarea.FechaLimite)}",
+                Urgencia: ClasificarFecha(tarea.FechaLimite)));
+
+        var personales = TareasPersonales
+            .Where(EsPendiente)
+            .Select(tarea => new TareaResumenItem(
+                Titulo: TextoOrDefault(tarea.TareaPersonalTitulo),
+                Tipo: "Personal",
+                Estado: "Pendiente",
+                Fecha: tarea.TareaPersonalFechaLimite,
+                FechaTexto: FechaTextoPersonal(tarea.TareaPersonalFechaLimite),
+                Urgencia: ClasificarFecha(tarea.TareaPersonalFechaLimite)));
+
+        return asignadas
+            .Concat(personales)
+            .OrderBy(tarea => tarea.Urgencia)
+            .ThenBy(tarea => tarea.Fecha ?? DateTime.MaxValue)
+            .ThenBy(tarea => tarea.Titulo)
+            .Take(Math.Max(0, MaxAsignadas))
+            .ToList();
+    }
+
+    private int ContarPorUrgencia(TareaResumenUrgencia urgencia)
+    {
+        var asignadas = TareasAsignadas
+            .Where(EsPendiente)
+            .Count(tarea => ClasificarFecha(tarea.FechaLimite) == urgencia);
+
+        var personales = TareasPersonales
+            .Where(EsPendiente)
+            .Count(tarea => ClasificarFecha(tarea.TareaPersonalFechaLimite) == urgencia);
+
+        return asignadas + personales;
+    }
+
     private static bool EsPendiente(TareaAlumnoListadoDto tarea)
-        => tarea.Estado != TareaEstado.Completada;
+        => tarea.Estado != TareaEstado.Completada
+           && tarea.EstadoEntrega != TareaEstadoEntrega.Calificada
+           && tarea.EstadoEntrega != TareaEstadoEntrega.Entregada
+           && tarea.EstadoEntrega != TareaEstadoEntrega.EntregadaTarde;
+
+    private static bool EsPendiente(TareaPersonalDto tarea)
+        => tarea.Completada != true;
+
+    private static TareaResumenUrgencia ClasificarFecha(DateTime fecha)
+        => ClasificarFecha((DateTime?)fecha);
+
+    private static TareaResumenUrgencia ClasificarFecha(DateTime? fecha)
+    {
+        if (!fecha.HasValue)
+            return TareaResumenUrgencia.SinFecha;
+
+        var fechaLocal = fecha.Value.ToLocalTime().Date;
+        var hoy = DateTime.Today;
+
+        if (fechaLocal < hoy)
+            return TareaResumenUrgencia.Vencida;
+
+        if (fechaLocal == hoy)
+            return TareaResumenUrgencia.Hoy;
+
+        return TareaResumenUrgencia.Proxima;
+    }
+
+    private static string ObtenerClaseUrgencia(TareaResumenUrgencia urgencia)
+        => urgencia switch
+        {
+            TareaResumenUrgencia.Vencida => "task-summary-item--overdue",
+            TareaResumenUrgencia.Hoy => "task-summary-item--today",
+            _ => "task-summary-item--upcoming"
+        };
 
     private static string EstadoTexto(TareaAlumnoListadoDto tarea)
     {
-        if (tarea.EstadoEntrega == TareaEstadoEntrega.Calificada)
-            return "Calificada";
-        if (tarea.EstadoEntrega == TareaEstadoEntrega.EntregadaTarde)
-            return "Entregada tarde";
-        if (tarea.EstadoEntrega == TareaEstadoEntrega.Entregada)
-            return "Entregada";
         if (tarea.EstadoEntrega == TareaEstadoEntrega.DevueltaParaCorreccion)
             return "Devuelta";
 
@@ -159,11 +184,32 @@
         {
             TareaEstado.NoIniciada => "No iniciada",
             TareaEstado.EnProgreso => "En progreso",
-            TareaEstado.Completada => "Completada",
             _ => tarea.Estado.ToString()
         };
     }
 
     private static string FechaCorta(DateTime fecha)
         => fecha.ToLocalTime().ToString("dd MMM");
+
+    private static string FechaTextoPersonal(DateTime? fecha)
+        => fecha.HasValue ? $"Vence {FechaCorta(fecha.Value)}" : "Sin fecha";
+
+    private static string TextoOrDefault(string? texto)
+        => string.IsNullOrWhiteSpace(texto) ? "(Sin título)" : texto.Trim();
+
+    private sealed record TareaResumenItem(
+        string Titulo,
+        string Tipo,
+        string Estado,
+        DateTime? Fecha,
+        string FechaTexto,
+        TareaResumenUrgencia Urgencia);
+
+    private enum TareaResumenUrgencia
+    {
+        Vencida = 0,
+        Hoy = 1,
+        Proxima = 2,
+        SinFecha = 3
+    }
 }

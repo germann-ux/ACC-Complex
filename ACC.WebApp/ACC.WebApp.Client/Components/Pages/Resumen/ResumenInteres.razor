@@ -1,49 +1,81 @@
-﻿@rendermode InteractiveServer
+@rendermode InteractiveServer
 @using ACC.Shared.DTOs
 @using ACC.WebApp.Client.Services
 @inject BibliotecaClientService BibliotecaSvc
 
 <div class="resumen-interes card">
-    <h2>Esto podría interesarte</h2>
+    <div class="interes-header">
+        <h2>Esto podría interesarte</h2>
+        <a class="interes-library-link" href="/Biblioteca">Abrir biblioteca</a>
+    </div>
 
     @if (_cargando)
     {
         <p>Cargando recomendaciones...</p>
     }
-    else if (_recs is null || _recs.Count == 0)
+    else if (!string.IsNullOrWhiteSpace(_error))
     {
-        <p>No tenemos recomendaciones por ahora.</p>
+        <p class="error-state">@_error</p>
+    }
+    else if (_recs.Count == 0)
+    {
+        <p class="empty-state">No hay contenidos disponibles por ahora.</p>
     }
     else
     {
-        <div class="interes-buttons">
-            @foreach (var cap in _recs)
+        <div class="interes-list">
+            @foreach (var item in _recs)
             {
-                <a class="interest-btn" href="@($"/Capitulo/Contenido/{cap.IdContenido}")" title="@cap.Titulo">
-                    <i class="fas fa-book-open"></i> @Trunca(cap.Titulo, 40)
-                </a>
+                <article class="interes-item">
+                    <div>
+                        <p class="interes-title">@item.Titulo</p>
+                        <p class="interes-desc">@item.CapituloTitulo</p>
+                        <div class="interes-meta">
+                            <span class="interes-badge">@item.Tipo</span>
+                            @if (!string.IsNullOrWhiteSpace(item.Duracion))
+                            {
+                                <span class="interes-badge">@item.Duracion</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Nivel))
+                            {
+                                <span class="interes-badge">@item.Nivel</span>
+                            }
+                        </div>
+                    </div>
+                    <a class="interes-action"
+                       href="@($"/Capitulo/Contenido/{item.IdContenido}")"
+                       aria-label="@($"Abrir contenido: {item.Titulo}")">
+                        Abrir
+                    </a>
+                </article>
             }
         </div>
     }
 </div>
 
 @code {
-    private bool _cargando = true;
-    private List<ContenidoCapituloDto>? _recs;
+    private const int Count = 4;
 
-    private const int MaxId = 100;
-    private const int Count = 5;
+    private bool _cargando = true;
+    private string? _error;
+    private List<ContenidoInteresItem> _recs = [];
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var res = await BibliotecaSvc.ObtenerRecomendadosAsync(count: Count, maxIdContenido: MaxId);
-            _recs = res.Success ? (res.Data ?? new()) : new();
+            var res = await BibliotecaSvc.ObtenerCapitulosAsync();
+            if (!res.Success)
+            {
+                _error = res.Message ?? "No se pudieron cargar las recomendaciones.";
+                return;
+            }
+
+            _recs = CrearRecomendaciones(res.Data ?? []);
         }
-        catch
+        catch (Exception ex)
         {
-            _recs = new();
+            _error = $"No se pudieron cargar las recomendaciones: {ex.Message}";
         }
         finally
         {
@@ -51,6 +83,42 @@
         }
     }
 
-    private static string Trunca(string? s, int len)
-        => string.IsNullOrWhiteSpace(s) ? "Capítulo" : (s.Length <= len ? s : s.Substring(0, len - 1) + "…");
+    private static List<ContenidoInteresItem> CrearRecomendaciones(IEnumerable<CapituloDto> capitulos)
+    {
+        return capitulos
+            .SelectMany(capitulo => (capitulo.Contenidos ?? [])
+                .Where(contenido => contenido.IdContenido > 0)
+                .Select(contenido => new ContenidoInteresItem(
+                    IdContenido: contenido.IdContenido,
+                    Titulo: TextoOrDefault(contenido.Titulo, "Contenido de biblioteca"),
+                    CapituloTitulo: TextoOrDefault(capitulo.TituloCapitulo, "Biblioteca"),
+                    Tipo: contenido.Tipo.ToString(),
+                    Duracion: contenido.Duracion,
+                    Nivel: contenido.Nivel.ToString(),
+                    FechaReferencia: ObtenerFechaReferencia(contenido))))
+            .OrderByDescending(item => item.FechaReferencia)
+            .ThenBy(item => item.Titulo)
+            .Take(Count)
+            .ToList();
+    }
+
+    private static DateTime ObtenerFechaReferencia(ContenidoCapituloDto contenido)
+    {
+        if (contenido.FechaActualizacion != default)
+            return contenido.FechaActualizacion;
+
+        return contenido.FechaCreacion;
+    }
+
+    private static string TextoOrDefault(string? texto, string fallback)
+        => string.IsNullOrWhiteSpace(texto) ? fallback : texto.Trim();
+
+    private sealed record ContenidoInteresItem(
+        int IdContenido,
+        string Titulo,
+        string CapituloTitulo,
+        string Tipo,
+        string Duracion,
+        string Nivel,
+        DateTime FechaReferencia);
 }

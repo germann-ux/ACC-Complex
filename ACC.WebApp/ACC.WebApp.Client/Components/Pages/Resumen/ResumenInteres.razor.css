@@ -1,49 +1,137 @@
-﻿.resumen-interes.card {
-    background: #1a1a2e;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
+.resumen-interes.card {
+    background: var(--acc-surface-2);
+    border-radius: var(--acc-radius);
+    box-shadow: var(--acc-shadow);
     margin-bottom: 1.5rem;
     padding: 1.5rem;
-    color: #f0f0f0;
+    color: var(--acc-text);
     max-width: 1140px;
-    border: none;
+    border: 1px solid var(--acc-border);
+}
+
+.interes-header {
+    align-items: center;
+    display: flex;
+    gap: .75rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
 }
 
 .resumen-interes h2 {
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 1rem;
+    margin: 0;
+    font-weight: 800;
     font-family: var(--font-heading);
+    background: linear-gradient(90deg, var(--acc-text), color-mix(in srgb, var(--acc-brand-500) 35%, white));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.interes-buttons {
+.interes-library-link,
+.interes-action {
+    align-items: center;
+    border-radius: var(--acc-radius-sm);
+    display: inline-flex;
+    font-size: .78rem;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 34px;
+    padding: .4rem .65rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.interes-library-link {
+    background: color-mix(in srgb, var(--acc-surface-3) 82%, black);
+    border: 1px solid var(--acc-border);
+    color: var(--acc-text);
+}
+
+.interes-action {
+    background: var(--acc-brand-600);
+    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 78%, white);
+    color: white;
+}
+
+.interes-library-link:focus-visible,
+.interes-action:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--acc-brand-500) 72%, white);
+    outline-offset: 2px;
+}
+
+.interes-list {
+    display: grid;
+    gap: .55rem;
+}
+
+.interes-item {
+    align-items: center;
+    background: var(--acc-surface-3);
+    border: 1px solid var(--acc-border);
+    border-radius: var(--acc-radius-sm);
+    display: grid;
+    gap: .75rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: .65rem .72rem;
+}
+
+.interes-title {
+    color: var(--acc-text);
+    font-weight: 700;
+    margin: 0;
+}
+
+.interes-desc {
+    color: var(--acc-text-muted);
+    font-size: .88rem;
+    margin: .2rem 0 0;
+}
+
+.interes-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: .35rem;
+    margin-top: .45rem;
 }
 
-.interest-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #2e2e5e;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin: .25rem 0;
+.interes-badge {
+    background: color-mix(in srgb, var(--acc-surface-3) 80%, black);
+    border: 1px solid var(--acc-border);
+    border-radius: 999px;
+    color: var(--acc-text);
+    font-size: .75rem;
+    padding: .2rem .55rem;
 }
 
-    .interest-btn i {
-        font-size: 1rem;
+.empty-state {
+    margin: .2rem 0;
+    padding: .75rem .85rem;
+    border: 1px dashed color-mix(in srgb, var(--acc-border) 75%, white);
+    border-radius: var(--acc-radius-sm);
+    color: var(--acc-text-muted);
+    background: color-mix(in srgb, var(--acc-surface-3) 70%, transparent);
+}
+
+.error-state {
+    margin: .2rem 0;
+    padding: .75rem .85rem;
+    border-radius: var(--acc-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--acc-danger-500) 45%, var(--acc-border));
+    background: color-mix(in srgb, var(--acc-danger-500) 14%, var(--acc-surface-3));
+    color: var(--acc-text);
+}
+
+@media (max-width: 720px) {
+    .interes-header {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
-    .interest-btn:hover {
-        background: #3a3a75;
+    .interes-item {
+        align-items: stretch;
+        grid-template-columns: 1fr;
     }
 
-
+    .interes-action {
+        width: fit-content;
+    }
+}
