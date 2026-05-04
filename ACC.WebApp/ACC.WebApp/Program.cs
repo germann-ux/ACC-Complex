@@ -42,7 +42,7 @@ var endpointOptions = builder.Configuration.GetSection(ServiceEndpointsOptions.S
 var apiBaseUrl = NormalizeBaseUrl(endpointOptions.ApiBaseUrl, nameof(ServiceEndpointsOptions.ApiBaseUrl));
 var compilerBaseUrl = NormalizeBaseUrl(endpointOptions.CompilerBaseUrl, nameof(ServiceEndpointsOptions.CompilerBaseUrl));
 
-builder.AddServiceDefaults();// quizas quitar luego...
+builder.AddServiceDefaults();// quizas quitar luego
 
 builder.Services.AddAutoMapper(cfg => { }, typeof(UserMappingProfile).Assembly);
 // Add services to the container.
