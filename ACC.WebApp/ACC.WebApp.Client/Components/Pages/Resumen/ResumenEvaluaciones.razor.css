@@ -154,6 +154,42 @@
     gap: .35rem;
 }
 
+.eval-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-top: .65rem;
+}
+
+.eval-action {
+    align-items: center;
+    border-radius: var(--acc-radius-sm);
+    display: inline-flex;
+    font-size: .78rem;
+    font-weight: 800;
+    justify-content: center;
+    min-height: 34px;
+    padding: .4rem .65rem;
+    text-decoration: none;
+}
+
+.eval-action--primary {
+    background: var(--acc-brand-600);
+    border: 1px solid color-mix(in srgb, var(--acc-brand-600) 78%, white);
+    color: white;
+}
+
+.eval-action--secondary {
+    background: color-mix(in srgb, var(--acc-surface-3) 82%, black);
+    border: 1px solid var(--acc-border);
+    color: var(--acc-text);
+}
+
+.eval-action:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--acc-brand-500) 72%, white);
+    outline-offset: 2px;
+}
+
 .meta-badge {
     border-radius: 999px;
     padding: .2rem .55rem;

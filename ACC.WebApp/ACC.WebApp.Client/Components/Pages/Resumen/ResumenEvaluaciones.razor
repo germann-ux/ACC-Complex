@@ -1,4 +1,5 @@
 @rendermode InteractiveServer
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual
 
 <div class="resumen-evaluaciones card">
     <h2>Evaluaciones</h2>
@@ -94,6 +95,31 @@
                                             <span class="meta-badge badge-alert">Limite de 3 intentos alcanzado (no aprobado)</span>
                                         }
                                     </div>
+                                    <div class="eval-actions">
+                                        <a class="@ObtenerClaseAccionPrincipal(item)"
+                                           href="@ObtenerHrefAccionPrincipal(item)"
+                                           aria-label="@($"{ObtenerTextoAccionPrincipal(item)}: {item.Nombre}")">
+                                            @ObtenerTextoAccionPrincipal(item)
+                                        </a>
+
+                                        @if (DebeMostrarResultadoSecundario(item))
+                                        {
+                                            <a class="eval-action eval-action--secondary"
+                                               href="@ManualExamSupport.BuildResultRoute(item.Key.Tipo, item.ExamenId)"
+                                               aria-label="@($"Ver ultimo resultado: {item.Nombre}")">
+                                                Ver resultado
+                                            </a>
+                                        }
+
+                                        @if (DebeMostrarRutaModuloSecundaria(item))
+                                        {
+                                            <a class="eval-action eval-action--secondary"
+                                               href="@ObtenerRutaModulo(item)"
+                                               aria-label="@($"Abrir ruta del modulo: {item.Nombre}")">
+                                                Ruta del modulo
+                                            </a>
+                                        }
+                                    </div>
                                 </article>
                             }
                         </div>
@@ -129,6 +155,44 @@
 
     private int Conteo(EstadoEvaluacionResumen estado)
         => Evaluaciones.Count(x => x.Estado == estado);
+
+    private static string ObtenerTextoAccionPrincipal(EvaluacionResumenItem item)
+        => item.Estado switch
+        {
+            EstadoEvaluacionResumen.Bloqueado => "Abrir ruta",
+            EstadoEvaluacionResumen.Completado => "Ver ultimo resultado",
+            EstadoEvaluacionResumen.NoAprobado when item.IntentosDisponibles <= 0 => "Ver ultimo resultado",
+            EstadoEvaluacionResumen.NoAprobado => "Reintentar examen",
+            _ => "Presentar examen"
+        };
+
+    private static string ObtenerHrefAccionPrincipal(EvaluacionResumenItem item)
+        => item.Estado switch
+        {
+            EstadoEvaluacionResumen.Bloqueado => ObtenerRutaModulo(item),
+            EstadoEvaluacionResumen.Completado => ManualExamSupport.BuildResultRoute(item.Key.Tipo, item.ExamenId),
+            EstadoEvaluacionResumen.NoAprobado when item.IntentosDisponibles <= 0 =>
+                ManualExamSupport.BuildResultRoute(item.Key.Tipo, item.ExamenId),
+            _ => ManualExamSupport.BuildExamRoute(item.Key.Tipo, item.ExamenId)
+        };
+
+    private static string ObtenerClaseAccionPrincipal(EvaluacionResumenItem item)
+        => item.Estado == EstadoEvaluacionResumen.Bloqueado
+            ? "eval-action eval-action--secondary"
+            : "eval-action eval-action--primary";
+
+    private static bool DebeMostrarResultadoSecundario(EvaluacionResumenItem item)
+        => item.FechaUltimoIntento.HasValue &&
+           item.Estado == EstadoEvaluacionResumen.NoAprobado &&
+           item.IntentosDisponibles > 0;
+
+    private static bool DebeMostrarRutaModuloSecundaria(EvaluacionResumenItem item)
+        => item.ModuloId is > 0 && item.Estado != EstadoEvaluacionResumen.Bloqueado;
+
+    private static string ObtenerRutaModulo(EvaluacionResumenItem item)
+        => item.ModuloId is > 0
+            ? ManualExamSupport.BuildModuleExamRoute(item.ModuloId.Value)
+            : ManualExamSupport.BuildGuideRoute(item.Key.Tipo, item.ModuloId, item.SubModuloId);
 
     private static string NotaTexto(double? nota)
         => nota.HasValue

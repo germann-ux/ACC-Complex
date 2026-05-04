@@ -88,6 +88,20 @@ public static class ManualExamSupport
     public static string BuildResultRoute(ExamenTipo tipo, int refId)
         => $"/examen/resultado/{GetTypeSlug(tipo)}/{refId}";
 
+    public static string BuildModuleExamRoute(int moduloId)
+        => $"/examenes/modulo/{moduloId}";
+
+    public static string BuildGuideRoute(ExamenTipo tipo, int? moduloId, int? subModuloId = null)
+    {
+        if (tipo == ExamenTipo.SubModulo && subModuloId is > 0)
+            return $"/contenido/SubModulo/{subModuloId.Value}";
+
+        if (moduloId is > 0)
+            return $"/contenido/Modulo/{moduloId.Value}";
+
+        return "/Guia";
+    }
+
     public static string GetPassingText(int passingScore, int totalQuestions)
     {
         if (passingScore <= totalQuestions)

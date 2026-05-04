@@ -1,5 +1,6 @@
 using ACC.Shared.DTOs;
 using ACC.Shared.Enums;
+using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual;
 using ACC.WebApp.Client.Components.Pages.Resumen;
 
 namespace ACC.Tests.Resumen;
@@ -130,6 +131,45 @@ public class ResumenEvaluacionesTests
         Assert.Equal(3, item.IntentosUsados);
         Assert.Equal(1, item.IntentosIgnorados);
         Assert.Equal(70, item.UltimaCalificacion);
+    }
+
+    [Fact]
+    public void Construir_ConservaContextoDeNavegacionDeModuloYSubModulo()
+    {
+        var examenesSub = new List<ExamenSubModuloDto>
+        {
+            new()
+            {
+                Id = 40,
+                SubModuloId = 400,
+                SubModulo = new SubModuloDto { Id_SubModulo = 400, Id_Modulo = 4 },
+                Nombre = "Sub M",
+                Descripcion = "d"
+            }
+        };
+        var examenesMod = new List<ExamenModuloDto>
+        {
+            new() { Id = 50, ModuloId = 5, Nombre = "Modulo", Descripcion = "d" }
+        };
+
+        var items = ResumenEvaluacionesModelo.Construir(examenesSub, examenesMod, [], null);
+
+        var subModulo = items.Single(i => i.ExamenId == 40);
+        var modulo = items.Single(i => i.ExamenId == 50);
+
+        Assert.Equal(4, subModulo.ModuloId);
+        Assert.Equal(400, subModulo.SubModuloId);
+        Assert.Equal(5, modulo.ModuloId);
+        Assert.Null(modulo.SubModuloId);
+    }
+
+    [Fact]
+    public void ManualExamSupport_GeneraRutasDeAccionContextual()
+    {
+        Assert.Equal("/examen/submodulo/40", ManualExamSupport.BuildExamRoute(ExamenTipo.SubModulo, 40));
+        Assert.Equal("/examen/resultado/modulo/50", ManualExamSupport.BuildResultRoute(ExamenTipo.Modulo, 50));
+        Assert.Equal("/examenes/modulo/4", ManualExamSupport.BuildModuleExamRoute(4));
+        Assert.Equal("/contenido/SubModulo/400", ManualExamSupport.BuildGuideRoute(ExamenTipo.SubModulo, 4, 400));
     }
 
     [Fact]

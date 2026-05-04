@@ -8,6 +8,8 @@ public readonly record struct EvaluacionResumenKey(ExamenTipo Tipo, int RefId);
 public sealed record EvaluacionResumenItem(
     EvaluacionResumenKey Key,
     int ExamenId,
+    int? ModuloId,
+    int? SubModuloId,
     string Nombre,
     string? Descripcion,
     bool EstaHabilitado,
@@ -64,6 +66,8 @@ public static class ResumenEvaluacionesModelo
             items.Add(CrearItem(
                 key: key,
                 examenId: examen.Id,
+                moduloId: examen.SubModulo?.Id_Modulo > 0 ? examen.SubModulo.Id_Modulo : null,
+                subModuloId: examen.SubModuloId,
                 nombre: examen.Nombre,
                 descripcion: examen.Descripcion,
                 habilitaciones: habilitaciones,
@@ -76,6 +80,8 @@ public static class ResumenEvaluacionesModelo
             items.Add(CrearItem(
                 key: key,
                 examenId: examen.Id,
+                moduloId: examen.ModuloId,
+                subModuloId: null,
                 nombre: examen.Nombre,
                 descripcion: examen.Descripcion,
                 habilitaciones: habilitaciones,
@@ -91,6 +97,8 @@ public static class ResumenEvaluacionesModelo
     private static EvaluacionResumenItem CrearItem(
         EvaluacionResumenKey key,
         int examenId,
+        int? moduloId,
+        int? subModuloId,
         string nombre,
         string? descripcion,
         IReadOnlyDictionary<EvaluacionResumenKey, bool> habilitaciones,
@@ -118,6 +126,8 @@ public static class ResumenEvaluacionesModelo
         return new EvaluacionResumenItem(
             Key: key,
             ExamenId: examenId,
+            ModuloId: moduloId,
+            SubModuloId: subModuloId,
             Nombre: nombre,
             Descripcion: descripcion,
             EstaHabilitado: estaHabilitado,

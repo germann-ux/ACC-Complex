@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 
 @using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes
+@using ACC.WebApp.Client.Components.Pages.Guia.Components.Examenes.Manual
 @using ACC.WebApp.Client.Services
 @using ACC.Shared.Core
 @using ACC.Shared.DTOs
@@ -168,10 +169,19 @@
                     <div class="exam-route-context__actions">
                         <button type="button"
                                 class="exam-route-btn exam-route-btn--primary"
-                                disabled="@(!selectedStep.IsEnabled)"
-                                @onclick="() => IniciarExamenAsync(selectedStep)">
-                            Iniciar examen
+                                disabled="@(!PuedeEjecutarAccionPrincipal(selectedStep))"
+                                @onclick="() => EjecutarAccionPrincipalAsync(selectedStep)">
+                            @ObtenerTextoAccionPrincipal(selectedStep)
                         </button>
+
+                        @if (selectedStep.LatestAttempt is not null && !selectedStep.IsCompleted)
+                        {
+                            <button type="button"
+                                    class="exam-route-btn exam-route-btn--ghost"
+                                    @onclick="() => VerResultadoAsync(selectedStep)">
+                                Ver ultimo resultado
+                            </button>
+                        }
 
                         <button type="button" class="exam-route-btn exam-route-btn--ghost" @onclick="VolverAGuiaAsync">
                             Volver a la guía
@@ -386,9 +396,37 @@
             return Task.CompletedTask;
         }
 
-        var slug = step.ExamType == ExamenTipo.Modulo ? "ExamenModulo" : "ExamenSubModulo";
-        NavigationManager.NavigateTo($"/examen/{slug}/{step.RefId}");
+        NavigationManager.NavigateTo(ManualExamSupport.BuildExamRoute(step.ExamType, step.RefId));
         return Task.CompletedTask;
+    }
+
+    private Task VerResultadoAsync(ExamRouteStepViewModel step)
+    {
+        NavigationManager.NavigateTo(ManualExamSupport.BuildResultRoute(step.ExamType, step.RefId));
+        return Task.CompletedTask;
+    }
+
+    private Task EjecutarAccionPrincipalAsync(ExamRouteStepViewModel step)
+    {
+        if (step.IsCompleted)
+        {
+            return VerResultadoAsync(step);
+        }
+
+        return IniciarExamenAsync(step);
+    }
+
+    private static bool PuedeEjecutarAccionPrincipal(ExamRouteStepViewModel step)
+        => step.IsCompleted || step.IsEnabled;
+
+    private static string ObtenerTextoAccionPrincipal(ExamRouteStepViewModel step)
+    {
+        if (step.IsCompleted)
+        {
+            return "Ver ultimo resultado";
+        }
+
+        return step.LatestAttempt is null ? "Iniciar examen" : "Reintentar examen";
     }
 
     private Task VolverAGuiaAsync()

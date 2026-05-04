@@ -78,6 +78,7 @@ namespace ACC.API.Services
             // ExamenesSubModulo
             var examenes = await _context.ExamenesSubModulo
                                          .AsNoTracking()
+                                         .Include(e => e.SubModulo)
                                          .ToListAsync()
                                          .ConfigureAwait(false);
 
@@ -105,6 +106,7 @@ namespace ACC.API.Services
 
             var examen = await _context.ExamenesSubModulo
                                        .AsNoTracking()
+                                       .Include(e => e.SubModulo)
                                        .FirstOrDefaultAsync(e => e.Id == id)
                                        .ConfigureAwait(false);
 
