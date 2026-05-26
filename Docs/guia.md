@@ -4,7 +4,7 @@ Para contexto técnico completo y estado actualizado del modelo de lecciones, co
 
 ### 1. Requisitos
 - .NET 8 SDK o superior.
-- Docker Desktop activo para contenedores de Redis y SQL Server.
+- Runtime de contenedores compatible con Aspire para Redis y SQL Server en desarrollo local.
 - Entorno de desarrollo compatible con .NET (Visual Studio 2022 o VS Code).
 - Acceso a una instancia de SQL Server o contenedor equivalente.
 

@@ -197,9 +197,9 @@ graph TB
 ### Prerrequisitos
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) o superior
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (para Redis y SQL Server)
+- Runtime de contenedores compatible con Aspire para desarrollo local (para Redis y SQL Server)
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) (recomendado) o VS Code
-- [SQL Server](https://www.microsoft.com/sql-server) (opcional si usas Docker)
+- [SQL Server](https://www.microsoft.com/sql-server) (opcional si usas una instancia externa)
 
 ### Pasos de Instalación
 
@@ -303,7 +303,7 @@ ACC-Complex/
 | .NET Aspire | 9.2 | Orquestación de servicios |
 | SQL Server | 2022 | Bases de datos (Identity + Académica) |
 | Redis | 7.x | Recurso orquestado y listo para cache distribuido |
-| Docker | Latest | Contenedorización |
+| Podman | Latest | Contenedorizacion para despliegues serios |
 | Chatbase | SaaS | Integración actual de Charp |
 
 ---

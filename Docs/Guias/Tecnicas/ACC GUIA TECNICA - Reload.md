@@ -214,7 +214,7 @@ La solucion actual utiliza o declara de forma verificable las siguientes herrami
 | .NET SDK | 8.0.123 | Compilacion y ejecucion de la solucion |
 | Visual Studio 2022 / VS Code | Entorno externo | Desarrollo y depuracion |
 | SQL Server | 2022 | Persistencia de identidad y dominio academico |
-| Docker Desktop | Variable | Soporte para contenedores de infraestructura |
+| Runtime de contenedores compatible con Aspire | Variable | Soporte local para contenedores de infraestructura |
 | Redis | 7.x en topologia | Cache distribuido y soporte infraestructural |
 | .NET Aspire | 9.2.0 / 9.1.0 | Orquestacion local de servicios y recursos |
 | OpenTelemetry | 1.9.0 a 1.11.2 | Telemetria y observabilidad |
@@ -253,7 +253,7 @@ La solucion actual utiliza o declara de forma verificable las siguientes herrami
 - .NET Aspire
 - SQL Server
 - Redis
-- Docker Desktop
+- Runtime de contenedores compatible con Aspire para desarrollo local
 - OpenTelemetry
 
 #### Calidad y pruebas
@@ -289,7 +289,7 @@ Estos equipos confirman que ACC puede desarrollarse de forma razonable en hardwa
 
 - suficiente memoria para correr IDE, servicios .NET y contenedores
 - almacenamiento SSD para restauraciones, builds y bases de datos locales
-- capacidad de ejecutar Docker Desktop y SQL Server sin degradacion excesiva
+- capacidad de ejecutar contenedores de SQL Server y Redis sin degradacion excesiva
 
 ### 7.3 Nota editorial
 
@@ -297,7 +297,7 @@ La presente guia no adopta estos equipos como estandar obligatorio. Se incluyen 
 
 ## 8. Requerimientos tecnicos para desarrollo
 
-Para recrear, compilar y mantener ACC en un entorno local o profesional se requiere un entorno compatible con .NET 8, SQL Server, Docker y la topologia definida por `ACC.AppHost`.
+Para recrear, compilar y mantener ACC en un entorno local se requiere un entorno compatible con .NET 8, SQL Server y la topologia definida por `ACC.AppHost`. Para despliegues serios, la ruta operativa del proyecto es Podman.
 
 ### 8.1 Requerimientos de hardware
 
@@ -314,7 +314,7 @@ El entorno base para desarrollo debe contar con:
 
 - .NET SDK 8.0
 - Visual Studio 2022 o VS Code con soporte .NET
-- Docker Desktop activo
+- runtime de contenedores compatible con Aspire activo
 - acceso a SQL Server local o levantado desde Aspire
 - Git
 - navegador moderno para validar la experiencia web
@@ -351,7 +351,7 @@ En desarrollo local, esa topologia puede levantarse desde `ACC.AppHost`, lo cual
 
 Para evitar problemas durante desarrollo se recomienda:
 
-- mantener Docker Desktop funcionando antes de arrancar AppHost
+- mantener el runtime de contenedores local funcionando antes de arrancar AppHost
 - verificar disponibilidad de puertos locales para SQL y servicios web
 - usar navegadores actualizados
 - validar compatibilidad al actualizar paquetes mayores de EF Core, Aspire o ASP.NET Core
@@ -2256,7 +2256,7 @@ Las herramientas mas visibles en el flujo de trabajo han sido:
 
 - .NET SDK 8
 - Visual Studio 2022 y VS Code
-- Docker Desktop
+- Runtime de contenedores compatible con Aspire para desarrollo local
 - SQL Server
 - SQL Server Management Studio
 - Postman
@@ -2451,7 +2451,7 @@ La puesta en marcha local vigente de ACC debe seguir la topologia real del repos
 Antes de arrancar la solucion localmente se requiere:
 
 - .NET SDK `8.0.123` o compatible con `global.json`
-- Docker Desktop activo
+- runtime de contenedores compatible con Aspire activo
 - capacidad de ejecutar contenedores SQL Server y Redis
 - dependencias NuGet restaurables
 

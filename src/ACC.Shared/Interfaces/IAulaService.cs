@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ACC.Shared.Interfaces;
+
 /// <summary>
 /// Interfaz de servicio para la gestión de aulas.
 /// </summary>
@@ -11,18 +12,29 @@ public interface IAulaService //TODO: me falta arreglar todo el sistema de los A
 {
     Task<ServiceResult<AulaConfigDto>> GetConfigAsync(
         int aulaId,
+        string currentUserId,
+        bool esAdministrador = false,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResult<AulaConfigDto>> UpdateConfigAsync(
         int aulaId,
         AulaConfigUpdateDto updateDto,
         string currentUserId,
+        bool esAdministrador = false,
         CancellationToken cancellationToken = default);
 
     Task<ServiceResult<InvitacionGeneradaDto>> GenerarInvitacionAsync(
         int aulaId,
         string currentUserId,
-        CancellationToken cancellationToken = default); 
-}
+        bool esAdministrador = false,
+        CancellationToken cancellationToken = default);
+    Task<ServiceResult<AulaInscripcionRedeemDto>> RedeemInvitationAsync(
+        string token,
+        string currentUserId,
+        CancellationToken cancellationToken = default);
 
+    Task<ServiceResult<IReadOnlyList<AulaDto>>> GetMisAulasAsync(
+        string currentUserId,
+        CancellationToken cancellationToken = default);
+}
 

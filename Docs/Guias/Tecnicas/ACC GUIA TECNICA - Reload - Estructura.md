@@ -78,7 +78,7 @@ Debe incluir:
 - .NET SDK
 - Visual Studio / VS Code
 - SQL Server
-- Docker Desktop
+- Runtime de contenedores compatible con Aspire para desarrollo local
 - Redis
 - Postman
 - Git / GitHub

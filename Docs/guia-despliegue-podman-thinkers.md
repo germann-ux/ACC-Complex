@@ -140,7 +140,7 @@ Archivos:
 1. `C:\Users\unesp\OneDrive\Desktop\Proyectos\Proyectos_Source\ACC-Complex\src\ACC.API\Containerfile`
 2. `C:\Users\unesp\OneDrive\Desktop\Proyectos\Proyectos_Source\ACC-Complex\ACC.WebApp\ACC.WebApp\Containerfile`
 3. `C:\Users\unesp\OneDrive\Desktop\Proyectos\Proyectos_Source\ACC-Complex\src\API_CompilerACC\Containerfile`
-4. `C:\Users\unesp\OneDrive\Desktop\Proyectos\Proyectos_Source\ACC-Complex\.dockerignore`
+4. `C:\Users\unesp\OneDrive\Desktop\Proyectos\Proyectos_Source\ACC-Complex\.containerignore`
 
 ### 5.4 Health checks
 

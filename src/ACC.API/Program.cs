@@ -33,7 +33,7 @@ if (tlsTerminatedAtProxy)
 }
 
 builder.AddServiceDefaults();
-builder.Services.AddAutoMapper(cfg => { }, typeof(ACCmappingProfile).Assembly); 
+builder.Services.AddAutoMapper(cfg => { }, typeof(ACCmappingProfile).Assembly);
 builder.Services.Configure<ServiceEndpointsOptions>(builder.Configuration.GetSection(ServiceEndpointsOptions.SectionName));
 var endpointOptions = builder.Configuration.GetSection(ServiceEndpointsOptions.SectionName).Get<ServiceEndpointsOptions>() ?? new ServiceEndpointsOptions();
 var compilerBaseUrl = NormalizeBaseUrl(endpointOptions.CompilerBaseUrl, nameof(ServiceEndpointsOptions.CompilerBaseUrl));
@@ -140,6 +140,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddSingleton<UserSessionService>();
 builder.Services.AddScoped<ITemaService, TemaService>();
 builder.Services.AddScoped<IAulaService, AulaService>();
+builder.Services.AddScoped<IAulasEstudiantesService, AulasEstudiantesService>();
 builder.Services.AddScoped<IHistorialCalificacionesService, HistorialCalificacionesService>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 builder.Services.AddScoped<ISubModuloService, SubModuloService>();
