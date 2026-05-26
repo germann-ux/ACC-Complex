@@ -4,6 +4,7 @@
 
 @code {
     [Parameter] public LeccionDto Leccion { get; set; } = default!;
+    [Parameter] public bool MostrarNavegacion { get; set; } = true;
 
     private ModalActividades? ModalActividad;
     private string? urlActividadActual;
@@ -27,16 +28,19 @@
 <ModalActividades Url="@urlActividadActual" @ref="ModalActividad" />
 
 <div class="content leccion-container">
-    <div class="leccion-toolbar">
-        <div class="leccion-nav-arrows" aria-label="Navegacion de leccion">
-            <button type="button" class="leccion-nav-arrow" @onclick="async () => await NavegarAtrasAsync()" title="Volver">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <button type="button" class="leccion-nav-arrow" @onclick="async () => await NavegarAdelanteAsync()" title="Avanzar">
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
+    @if (MostrarNavegacion)
+    {
+        <div class="leccion-toolbar">
+            <div class="leccion-nav-arrows" aria-label="Navegacion de leccion">
+                <button type="button" class="leccion-nav-arrow" @onclick="async () => await NavegarAtrasAsync()" title="Volver">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button type="button" class="leccion-nav-arrow" @onclick="async () => await NavegarAdelanteAsync()" title="Avanzar">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
         </div>
-    </div>
+    }
 
     @if (!string.IsNullOrWhiteSpace(NivelBloomLeccion))
     {

@@ -830,6 +830,19 @@ namespace ACC.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("AulaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EstadoLeccion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("OrigenLeccion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
                     b.Property<int>("SubtemaId")
                         .HasColumnType("int");
 
@@ -839,6 +852,8 @@ namespace ACC.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("IdLeccion");
+
+                    b.HasIndex("AulaId");
 
                     b.HasIndex("SubtemaId");
 
@@ -1641,11 +1656,18 @@ namespace ACC.Data.Migrations
 
             modelBuilder.Entity("ACC.Data.Entities.Leccion", b =>
                 {
+                    b.HasOne("ACC.Data.Entities.Aula", "Aula")
+                        .WithMany("Lecciones")
+                        .HasForeignKey("AulaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("ACC.Data.Entities.SubTema", "SubTema")
                         .WithMany("Lecciones")
                         .HasForeignKey("SubtemaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Aula");
 
                     b.Navigation("SubTema");
                 });
@@ -1879,6 +1901,8 @@ namespace ACC.Data.Migrations
                     b.Navigation("Evaluaciones");
 
                     b.Navigation("Invitaciones");
+
+                    b.Navigation("Lecciones");
 
                     b.Navigation("Notificaciones");
 

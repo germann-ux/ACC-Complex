@@ -11,120 +11,115 @@
 
 <div class="guia-page">
     <div class="guia-hero-stack">
-        <section class="guia-card guia-header" aria-label="Encabezado de la guia">
+        <section class="guia-card guia-header study-guide-card" aria-label="Encabezado de la guia">
             <div class="guia-header__content">
-                <div class="guia-header__main">
-
+                <div class="guia-header__top">
                     <div class="guia-header__copy">
-                        <h1>Guia de estudios</h1>
-                        <p>La guia organiza el contenido de ACC en modulos progresivos que representan las etapas fundamentales del recorrido academico en desarrollo de software con C#.</p>
-                        <p><strong>Recorrido academico estructurado</strong></p>
-                        <p>Cada modulo se presenta como una etapa de avance dentro de la guia, con mayor presencia visual y una lectura mas clara del trayecto completo.</p>
+                        <span class="guia-header__label">Ruta academica</span>
+                        <h1>Guia de ACC</h1>
+                        <p>
+                            La guia organiza el contenido de ACC en modulos progresivos para el desarrollo
+                            de software con C#.
+                        </p>
+                    </div>
+
+                    <div class="guia-header__progress-card" aria-label="Progreso general">
+                        <strong>@ObtenerProgresoGeneralTexto()</strong>
+                        <span>Progreso general</span>
                     </div>
                 </div>
 
-                <div class="guia-journey__intro">
-                    <div class="guia-journey__copy">
-                       
+                <ul class="guia-header__features" aria-label="Caracteristicas de la guia">
+                    <li>
+                        <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                        <span>Modulos progresivos</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                        <span>Avance medible</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-code" aria-hidden="true"></i>
+                        <span>Enfoque en C#</span>
+                    </li>
+                </ul>
+
+                <section class="guia-header__overview" aria-label="Panorama de la ruta">
+                    <div class="guia-overview__copy">
+                        <span class="guia-overview__label">Panorama de la ruta</span>
+                        <h2>@ObtenerResumenRuta()</h2>
+                        <p>@ObtenerDetalleRuta()</p>
                     </div>
 
-                    <ul class="guia-header__features" aria-label="Caracteristicas de la guia">
-                        <li>
-                            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                            <span>Modulos progresivos</span>
-                        </li>
-                        <li>
-                            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-                            <span>Avance medible</span>
-                        </li>
-                        <li>
-                            <i class="fa-solid fa-code" aria-hidden="true"></i>
-                            <span>Enfoque en C#</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section class="guia-card guia-overview" aria-label="Panorama de la ruta">
-            <div class="guia-overview__copy">
-                <span class="guia-overview__label">Panorama de la ruta</span>
-                <h2>@ObtenerResumenRuta()</h2>
-                <p>@ObtenerDetalleRuta()</p>
-            </div>
-
-            @if (resumenGuia is not null)
-            {
-                <dl class="guia-overview__metrics" aria-label="Resumen numerico de la ruta">
-                    <div class="guia-overview__metric">
-                        <dt>Etapas</dt>
-                        <dd>@resumenGuia.TotalModulos</dd>
-                    </div>
-                    <div class="guia-overview__metric">
-                        <dt>Lecciones</dt>
-                        <dd>@resumenGuia.TotalLecciones</dd>
-                    </div>
-                    <div class="guia-overview__metric">
-                        <dt>Evaluaciones</dt>
-                        <dd>@resumenGuia.TotalEvaluaciones</dd>
-                    </div>
-                    <div class="guia-overview__metric">
-                        <dt>Practicas</dt>
-                        <dd>@resumenGuia.TotalPracticas</dd>
-                    </div>
-                </dl>
-            }
-            else
-            {
-                <dl class="guia-overview__metrics" aria-label="Resumen numerico de la ruta">
-                    <div class="guia-overview__metric">
-                        <dt>Etapas</dt>
-                        <dd>@modulos.Count</dd>
-                    </div>
-                    <div class="guia-overview__metric">
-                        <dt>Estado</dt>
-                        <dd>@(modulos.Count > 0 ? "Disponible" : "En espera")</dd>
-                    </div>
-                </dl>
-            }
-
-            @if (modulos.Count > 0)
-            {
-                <ol class="guia-header__track" aria-label="Etapas disponibles">
-                    @for (var index = 0; index < modulos.Count; index++)
+                    @if (resumenGuia is not null)
                     {
-                        var moduloTrack = modulos[index];
-                        <li class="guia-header__track-item guia-header__track-item--@ObtenerClaseAcento(index)"
-                            style="@ObtenerEstiloProgresoTrack(moduloTrack.Id)">
-                            <span class="sr-only">@($"Etapa {index + 1}: {moduloTrack.Nombre}")</span>
-                        </li>
+                        <dl class="guia-overview__metrics" aria-label="Resumen numerico de la ruta">
+                            <div class="guia-overview__metric">
+                                <dt>Etapas</dt>
+                                <dd>@resumenGuia.TotalModulos</dd>
+                            </div>
+                            <div class="guia-overview__metric">
+                                <dt>Lecciones</dt>
+                                <dd>@resumenGuia.TotalLecciones</dd>
+                            </div>
+                            <div class="guia-overview__metric">
+                                <dt>Evaluaciones</dt>
+                                <dd>@resumenGuia.TotalEvaluaciones</dd>
+                            </div>
+                            <div class="guia-overview__metric">
+                                <dt>Practicas</dt>
+                                <dd>@resumenGuia.TotalPracticas</dd>
+                            </div>
+                        </dl>
                     }
-                </ol>
-            }
+                    else
+                    {
+                        <dl class="guia-overview__metrics" aria-label="Resumen numerico de la ruta">
+                            <div class="guia-overview__metric">
+                                <dt>Etapas</dt>
+                                <dd>@modulos.Count</dd>
+                            </div>
+                            <div class="guia-overview__metric">
+                                <dt>Estado</dt>
+                                <dd>@(modulos.Count > 0 ? "Disponible" : "En espera")</dd>
+                            </div>
+                        </dl>
+                    }
 
-            @if (resumenGuia is not null)
-            {
-                <div class="guia-header__progress" aria-label="Progreso general del usuario">
-                    <div class="guia-header__progress-head">
-                        <span class="guia-header__progress-label">Progreso general</span>
-                        <strong>@($"{resumenGuia.ProgresoPorcentaje}%")</strong>
-                    </div>
+                    @if (resumenGuia is not null)
+                    {
+                        <div class="guia-header__progress" aria-label="Detalle del progreso general">
+                            <div class="guia-header__progress-bar"
+                                 role="progressbar"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                                 aria-valuenow="@resumenGuia.ProgresoPorcentaje"
+                                 aria-label="Progreso general de la guia">
+                                <span class="guia-header__progress-fill" style="@($"width: {resumenGuia.ProgresoPorcentaje}%;")"></span>
+                            </div>
 
-                    <div class="guia-header__progress-bar"
-                         role="progressbar"
-                         aria-valuemin="0"
-                         aria-valuemax="100"
-                         aria-valuenow="@resumenGuia.ProgresoPorcentaje"
-                         aria-label="Progreso general de la guia">
-                        <span class="guia-header__progress-fill" style="@($"width: {resumenGuia.ProgresoPorcentaje}%;")"></span>
-                    </div>
+                            <div class="guia-header__progress-meta">
+                                <span>@($"{resumenGuia.SubTemasCompletados} de {resumenGuia.TotalSubTemas} subtemas completados")</span>
+                                <span>@($"{resumenGuia.TotalLecciones} lecciones · {resumenGuia.TotalEvaluaciones} evaluaciones · {resumenGuia.TotalPracticas} practicas")</span>
+                            </div>
+                        </div>
+                    }
+                </section>
 
-                    <div class="guia-header__progress-meta">
-                        <span>@($"{resumenGuia.SubTemasCompletados} de {resumenGuia.TotalSubTemas} subtemas completados")</span>
-                        <span>@($"{resumenGuia.TotalLecciones} lecciones · {resumenGuia.TotalEvaluaciones} evaluaciones · {resumenGuia.TotalPracticas} practicas")</span>
-                    </div>
-                </div>
-            }
+                @if (modulos.Count > 0)
+                {
+                    <ol class="guia-header__stages" aria-label="Modulos de la guia">
+                        @for (var index = 0; index < modulos.Count; index++)
+                        {
+                            var moduloStage = modulos[index];
+                            <li>
+                                <b>@($"{index + 1:00}")</b>
+                                <span>@moduloStage.Nombre</span>
+                            </li>
+                        }
+                    </ol>
+                }
+            </div>
         </section>
     </div>
 
@@ -167,37 +162,36 @@
                     <a class="guia-modulo-card guia-modulo-card--@ObtenerClaseAcento(index)"
                        href="@ObtenerRutaModulo(modulo.Id)"
                        aria-label="@($"Abrir {modulo.Nombre}")">
-                        <span class="guia-modulo-card__accent" aria-hidden="true"></span>
-
                         <div class="guia-modulo-card__content">
+                            <span class="guia-modulo-card__eyebrow">@ObtenerEtiquetaModulo(index)</span>
+
                             <div class="guia-modulo-card__heading">
                                 <h2>@modulo.Nombre</h2>
                             </div>
+
                             <p>@ObtenerDescripcionModulo(modulo.Descripcion)</p>
                         </div>
-
-                        <div class="guia-modulo-card__divider" aria-hidden="true"></div>
 
                         @if (resumenModulo is not null)
                         {
                             <dl class="guia-modulo-card__stats" aria-label="@($"Metricas de {modulo.Nombre}")">
-                                <div class="guia-modulo-card__stat-row">
+                                <div class="guia-modulo-card__stat">
                                     <dt>Lecciones</dt>
                                     <dd>@resumenModulo.LeccionesCount</dd>
                                 </div>
 
-                                <div class="guia-modulo-card__stat-row">
+                                <div class="guia-modulo-card__stat">
                                     <dt>Temas</dt>
                                     <dd>@resumenModulo.TemasCount</dd>
                                 </div>
 
-                                <div class="guia-modulo-card__stat-row">
+                                <div class="guia-modulo-card__stat">
                                     <dt>Subtemas</dt>
                                     <dd>@resumenModulo.SubTemasCount</dd>
                                 </div>
 
-                                <div class="guia-modulo-card__stat-row guia-modulo-card__stat-row--wide">
-                                    <dt>Tiempo estimado de finalizacion</dt>
+                                <div class="guia-modulo-card__stat">
+                                    <dt>Finalizacion estimada</dt>
                                     <dd>@ObtenerTiempoEstimadoModulo(resumenModulo.LeccionesCount)</dd>
                                 </div>
                             </dl>
@@ -308,6 +302,43 @@
         _ => "orange"
     };
 
+    private static string ObtenerEtiquetaModulo(int index)
+        => $"Modulo {ConvertirNumeroRomano(index + 1)}";
+
+    private static string ConvertirNumeroRomano(int numero)
+    {
+        (int Valor, string Simbolo)[] mapa =
+        [
+            (1000, "M"),
+            (900, "CM"),
+            (500, "D"),
+            (400, "CD"),
+            (100, "C"),
+            (90, "XC"),
+            (50, "L"),
+            (40, "XL"),
+            (10, "X"),
+            (9, "IX"),
+            (5, "V"),
+            (4, "IV"),
+            (1, "I")
+        ];
+
+        var restante = numero;
+        var resultado = string.Empty;
+
+        foreach (var item in mapa)
+        {
+            while (restante >= item.Valor)
+            {
+                resultado += item.Simbolo;
+                restante -= item.Valor;
+            }
+        }
+
+        return resultado;
+    }
+
     private static string ObtenerDescripcionModulo(string? descripcion)
         => string.IsNullOrWhiteSpace(descripcion)
             ? "Explora esta etapa del recorrido para continuar avanzando dentro de la guia."
@@ -323,6 +354,11 @@
 
     private GuiaModuloResumenDto? ObtenerResumenModuloDatos(int moduloId)
         => resumenesModulo.GetValueOrDefault(moduloId);
+
+    private string ObtenerProgresoGeneralTexto()
+        => resumenGuia is not null
+            ? $"{resumenGuia.ProgresoPorcentaje}%"
+            : "--";
 
     private string ObtenerResumenRuta()
         => resumenGuia is not null

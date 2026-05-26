@@ -16,13 +16,11 @@ public class AulaController : ControllerBase
 {
     private readonly IAulaService _aulaService;
     private readonly IAulasEstudiantesService _aulasEstudiantesService;
-
     public AulaController(IAulaService aulaService, IAulasEstudiantesService aulasEstudiantesService)
     {
         _aulaService = aulaService;
         _aulasEstudiantesService = aulasEstudiantesService;
     }
-
     [Authorize(Roles = "Docente,Administrador")]
     [HttpGet("{aulaId:int}")]
     public async Task<ActionResult<ServiceResult<AulaConfigDto>>> GetConfig(int aulaId, CancellationToken cancellationToken)
@@ -109,12 +107,10 @@ public class AulaController : ControllerBase
         }
         return StatusCode(result.StatusCode ?? HttpStatusCodes.OK, result);
     }
-
     private string? GetUserId()
     {
         return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
     }
-
     private bool IsAdministrator()
     {
         return User.IsInRole("Administrador");

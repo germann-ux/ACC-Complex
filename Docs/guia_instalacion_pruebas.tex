@@ -1,0 +1,409 @@
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{caption}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\definecolor{codegray}{RGB}{245,245,245}
+\definecolor{codeborder}{RGB}{210,210,210}
+
+\lstdefinestyle{terminal}{
+    backgroundcolor=\color{codegray},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{codeborder},
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    tabsize=2
+}
+
+\lstset{style=terminal}
+
+\title{\textbf{Gu\'ia de instalaci\'on y pruebas locales}\\
+\large Proyecto ACC-Complex: Aprendiendo C\# con Charp}
+\author{Documento t\'ecnico de instalaci\'on}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Este documento describe el procedimiento recomendado para instalar, configurar y probar localmente el proyecto \textit{ACC-Complex}. La soluci\'on corresponde a una plataforma educativa construida con .NET 8, ASP.NET Core, Blazor Web App, servicios HTTP independientes, Entity Framework Core, SQL Server, Redis y orquestaci\'on local mediante .NET Aspire. Tambi\'en se incluye una ruta alternativa basada en Podman Compose para levantar la aplicaci\'on en contenedores.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Objetivo}
+
+El objetivo de esta gu\'ia es proporcionar una secuencia reproducible para preparar un ambiente local de pruebas del sistema ACC. Al finalizar, el evaluador deber\'ia poder:
+
+\begin{itemize}[noitemsep]
+    \item Restaurar las dependencias de la soluci\'on.
+    \item Configurar las variables y secretos requeridos.
+    \item Levantar los servicios principales con .NET Aspire o Podman Compose.
+    \item Aplicar migraciones de base de datos cuando sea necesario.
+    \item Ejecutar las pruebas automatizadas del repositorio.
+    \item Verificar que la aplicaci\'on web, la API acad\'emica y el servicio de compilaci\'on respondan correctamente.
+\end{itemize}
+
+\section{Descripci\'on general del sistema}
+
+La soluci\'on \texttt{ACC.sln} est\'a organizada en varios proyectos .NET. La Tabla~\ref{tab:componentes} resume los componentes relevantes para la instalaci\'on.
+
+\begin{longtable}{p{0.30\textwidth}p{0.60\textwidth}}
+\caption{Componentes principales de la soluci\'on ACC.}
+\label{tab:componentes}\\
+\toprule
+\textbf{Proyecto} & \textbf{Prop\'osito} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Proyecto} & \textbf{Prop\'osito} \\
+\midrule
+\endhead
+\texttt{src/ACC.AppHost} & Orquestador local con .NET Aspire. Crea y enlaza SQL Server, Redis, WebApp, API y compilador. \\
+\texttt{ACC.WebApp/ACC.WebApp} & Aplicaci\'on ASP.NET Core/Blazor Web App. Aloja la interfaz web, autenticaci\'on e Identity. \\
+\texttt{ACC.WebApp/ACC.WebApp.Client} & Cliente Blazor WebAssembly usado por la aplicaci\'on web. \\
+\texttt{src/ACC.API} & API acad\'emica para contenido, progreso, aulas, tareas, ex\'amenes y servicios del dominio. \\
+\texttt{src/API\_CompilerACC} & Servicio \texttt{ACC.Compiler}; compila c\'odigo C\# mediante Roslyn para pr\'acticas interactivas. \\
+\texttt{src/ACC.Data} & Capa de datos, entidades y migraciones de la base acad\'emica. \\
+\texttt{ACC.ServiceDefaults} & Configuraci\'on compartida de health checks, telemetr\'ia y service discovery. \\
+\texttt{tests/ACC.Tests} & Proyecto de pruebas automatizadas. \\
+\bottomrule
+\end{longtable}
+
+\section{Prerrequisitos}
+
+\subsection{Software requerido}
+
+Antes de iniciar, instalar y verificar las herramientas listadas en la Tabla~\ref{tab:prerrequisitos}.
+
+\begin{longtable}{p{0.30\textwidth}p{0.55\textwidth}p{0.10\textwidth}}
+\caption{Prerrequisitos del ambiente local.}
+\label{tab:prerrequisitos}\\
+\toprule
+\textbf{Herramienta} & \textbf{Uso} & \textbf{Requerido} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Herramienta} & \textbf{Uso} & \textbf{Requerido} \\
+\midrule
+\endhead
+.NET SDK 8 & Compilaci\'on y ejecuci\'on de la soluci\'on. El archivo \texttt{global.json} fija \texttt{8.0.124} con \texttt{rollForward=latestFeature}. & S\'i \\
+Runtime de contenedores & Necesario para SQL Server y Redis cuando se usa Aspire o Podman Compose. Puede usarse Docker Desktop o Podman. & S\'i \\
+SQL Server local o contenedor & Persistencia de datos de Identity y del dominio acad\'emico. Aspire puede provisionarlo autom\'aticamente. & S\'i \\
+Git & Clonado del repositorio y control de versiones. & S\'i \\
+dotnet-ef & Aplicaci\'on manual de migraciones Entity Framework Core. & Opcional \\
+Visual Studio 2022 o VS Code & Edici\'on, depuraci\'on y ejecuci\'on asistida. & Opcional \\
+\bottomrule
+\end{longtable}
+
+\subsection{Verificaci\'on inicial}
+
+Ejecutar los siguientes comandos desde una terminal:
+
+\begin{lstlisting}[language=bash,caption={Verificaci\'on de herramientas base.}]
+dotnet --version
+dotnet --info
+git --version
+\end{lstlisting}
+
+Si se planea aplicar migraciones manuales, instalar o actualizar la herramienta de Entity Framework:
+
+\begin{lstlisting}[language=bash,caption={Instalaci\'on de dotnet-ef.}]
+dotnet tool install --global dotnet-ef
+dotnet ef --version
+\end{lstlisting}
+
+Si la herramienta ya se encuentra instalada:
+
+\begin{lstlisting}[language=bash,caption={Actualizaci\'on de dotnet-ef.}]
+dotnet tool update --global dotnet-ef
+\end{lstlisting}
+
+\section{Obtenci\'on del c\'odigo fuente}
+
+Clonar el repositorio y entrar al directorio del proyecto:
+
+\begin{lstlisting}[language=bash,caption={Clonado del repositorio.}]
+git clone https://github.com/germann-ux/ACC-Complex.git
+cd ACC-Complex
+\end{lstlisting}
+
+En caso de trabajar con una copia local ya existente, ubicarse en la ra\'iz donde se encuentra \texttt{ACC.sln}.
+
+\section{Restauraci\'on y compilaci\'on}
+
+Desde la ra\'iz del repositorio, restaurar paquetes NuGet y compilar la soluci\'on:
+
+\begin{lstlisting}[language=bash,caption={Restauraci\'on y compilaci\'on de la soluci\'on.}]
+dotnet restore ACC.sln
+dotnet build ACC.sln
+\end{lstlisting}
+
+Si el comando de compilaci\'on falla por no encontrar el SDK exacto, instalar .NET 8 SDK o una versi\'on compatible con la pol\'itica de \texttt{global.json}.
+
+\section{Configuraci\'on local recomendada con .NET Aspire}
+
+\subsection{Razonamiento de la ruta recomendada}
+
+La forma m\'as directa de probar el proyecto en desarrollo es ejecutar \texttt{ACC.AppHost}. Este proyecto usa .NET Aspire para levantar y enlazar los servicios requeridos: SQL Server para Identity, SQL Server para la base acad\'emica, Redis, API acad\'emica, WebApp y servicio de compilaci\'on.
+
+\subsection{Secreto de SQL Server para Aspire}
+
+El AppHost declara un par\'ametro secreto llamado \texttt{sql-password}. Configurarlo con User Secrets:
+
+\begin{lstlisting}[language=bash,caption={Configuraci\'on del secreto de SQL para AppHost.}]
+dotnet user-secrets set "Parameters:sql-password" "1234Abcd." --project src/ACC.AppHost/ACC.AppHost.csproj
+\end{lstlisting}
+
+Para un ambiente real o compartido debe reemplazarse el valor de ejemplo por una contrase\~na robusta. En pruebas locales, la contrase\~na debe cumplir los requisitos de complejidad de SQL Server.
+
+\subsection{Ejecuci\'on con Aspire}
+
+Iniciar el orquestador:
+
+\begin{lstlisting}[language=bash,caption={Ejecuci\'on del AppHost.}]
+dotnet run --project src/ACC.AppHost/ACC.AppHost.csproj
+\end{lstlisting}
+
+Al iniciar, Aspire mostrar\'a en la consola la URL del dashboard. Desde dicho panel pueden observarse los endpoints de:
+
+\begin{itemize}[noitemsep]
+    \item \texttt{acc-blazor}: aplicaci\'on web principal.
+    \item \texttt{acc-api}: API acad\'emica.
+    \item \texttt{acc-compiler}: servicio de compilaci\'on.
+    \item \texttt{acc-sql-identity}: base de datos de autenticaci\'on.
+    \item \texttt{acc-sql-academic}: base de datos acad\'emica.
+    \item \texttt{acc-redis}: cach\'e Redis.
+\end{itemize}
+
+\subsection{Migraciones de base de datos}
+
+El AppHost crea las bases \texttt{ACC\_Identity} y \texttt{ACC\_Academic}. Si el modelo requiere aplicar migraciones manualmente, ejecutar los siguientes comandos desde la ra\'iz del repositorio. Para la base acad\'emica:
+
+\begin{lstlisting}[language=bash,caption={Migraciones de la base acad\'emica.}]
+dotnet ef database update \
+  --project src/ACC.Data/ACC.Data.csproj \
+  --startup-project src/ACC.API/ACC.API.csproj \
+  --context ACCDbContext
+\end{lstlisting}
+
+Para la base de Identity:
+
+\begin{lstlisting}[language=bash,caption={Migraciones de la base Identity.}]
+dotnet ef database update \
+  --project ACC.WebApp/ACC.WebApp/ACC.WebApp.csproj \
+  --startup-project ACC.WebApp/ACC.WebApp/ACC.WebApp.csproj \
+  --context ApplicationDbContext
+\end{lstlisting}
+
+En Windows PowerShell, si se desean partir las l\'ineas, usar el acento grave \verb|`| en lugar de la barra invertida \texttt{\textbackslash}.
+
+\section{Ejecuci\'on alternativa con Podman Compose}
+
+\subsection{Archivo de variables de entorno}
+
+El repositorio incluye \texttt{.env.example}. Crear una copia llamada \texttt{.env}:
+
+\begin{lstlisting}[language=bash,caption={Creaci\'on del archivo .env.}]
+cp .env.example .env
+\end{lstlisting}
+
+En PowerShell:
+
+\begin{lstlisting}[language=bash,caption={Creaci\'on del archivo .env en PowerShell.}]
+Copy-Item .env.example .env
+\end{lstlisting}
+
+Revisar y ajustar las variables principales:
+
+\begin{lstlisting}[caption={Variables principales para contenedores.}]
+SQL_PASSWORD=1234Abcd.
+JWT_ISSUER=ACC.API
+JWT_AUDIENCE=ACC.Client
+JWT_KEY=CHANGE-THIS-TO-A-STRONG-32-CHARACTER-SECRET
+WEBAPP_HTTP_PORT=8080
+\end{lstlisting}
+
+\subsection{Levantamiento de servicios}
+
+Con Podman Compose:
+
+\begin{lstlisting}[language=bash,caption={Ejecuci\'on con Podman Compose.}]
+podman compose -f podman-compose.yml up --build
+\end{lstlisting}
+
+Si se usa Docker Compose y el entorno lo permite:
+
+\begin{lstlisting}[language=bash,caption={Ejecuci\'on con Docker Compose.}]
+docker compose -f podman-compose.yml up --build
+\end{lstlisting}
+
+La aplicaci\'on web quedar\'a expuesta en el puerto definido por \texttt{WEBAPP\_HTTP\_PORT}; por defecto:
+
+\begin{lstlisting}[caption={URL por defecto en contenedores.}]
+http://localhost:8080
+\end{lstlisting}
+
+\section{Ejecuci\'on manual sin AppHost}
+
+Esta ruta es \'util si se desea depurar cada servicio por separado. Requiere que SQL Server y Redis ya est\'en disponibles y que las cadenas de conexi\'on est\'en configuradas.
+
+\subsection{Puertos de desarrollo}
+
+Los perfiles de desarrollo incluidos en \texttt{launchSettings.json} definen los siguientes endpoints HTTPS:
+
+\begin{longtable}{p{0.35\textwidth}p{0.30\textwidth}p{0.25\textwidth}}
+\caption{Puertos locales por servicio.}
+\label{tab:puertos}\\
+\toprule
+\textbf{Servicio} & \textbf{HTTPS} & \textbf{HTTP} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Servicio} & \textbf{HTTPS} & \textbf{HTTP} \\
+\midrule
+\endhead
+\texttt{ACC.WebApp} & \texttt{https://localhost:7189} & \texttt{http://localhost:5173} \\
+\texttt{ACC.API} & \texttt{https://localhost:7059} & \texttt{http://localhost:5009} \\
+\texttt{ACC.Compiler} & \texttt{https://localhost:7023} & \texttt{http://localhost:5052} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Comandos de ejecuci\'on}
+
+Abrir tres terminales desde la ra\'iz del repositorio y ejecutar:
+
+\begin{lstlisting}[language=bash,caption={Terminal 1: servicio de compilaci\'on.}]
+dotnet run --project src/API_CompilerACC/ACC.Compiler.csproj --launch-profile https
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Terminal 2: API acad\'emica.}]
+dotnet run --project src/ACC.API/ACC.API.csproj --launch-profile https
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Terminal 3: aplicaci\'on web.}]
+dotnet run --project ACC.WebApp/ACC.WebApp/ACC.WebApp.csproj --launch-profile https
+\end{lstlisting}
+
+La aplicaci\'on web consumir\'a por defecto la API en \texttt{https://localhost:7059/api/} y el compilador en \texttt{https://localhost:7023/}, seg\'un los archivos \texttt{appsettings.Development.json}.
+
+\section{Pruebas automatizadas}
+
+Para ejecutar la suite de pruebas:
+
+\begin{lstlisting}[language=bash,caption={Ejecuci\'on de pruebas.}]
+dotnet test ACC.sln
+\end{lstlisting}
+
+Para obtener mayor detalle:
+
+\begin{lstlisting}[language=bash,caption={Pruebas con salida detallada.}]
+dotnet test ACC.sln --logger "console;verbosity=detailed"
+\end{lstlisting}
+
+Una ejecuci\'on satisfactoria debe finalizar sin pruebas fallidas. Si aparecen fallos relacionados con dependencias externas, verificar primero cadenas de conexi\'on, disponibilidad de SQL Server, Redis y variables de entorno.
+
+\section{Verificaci\'on funcional}
+
+\subsection{Health checks}
+
+Los servicios ASP.NET Core integran endpoints de disponibilidad mediante \texttt{ACC.ServiceDefaults}. En ejecuci\'on directa, comprobar:
+
+\begin{lstlisting}[language=bash,caption={Verificaci\'on del servicio de compilaci\'on.}]
+curl -k https://localhost:7023/alive
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Verificaci\'on de la API acad\'emica.}]
+curl -k https://localhost:7059/alive
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Verificaci\'on de la aplicaci\'on web.}]
+curl -k https://localhost:7189/alive
+\end{lstlisting}
+
+\subsection{Interfaz web}
+
+Abrir la aplicaci\'on web en el navegador:
+
+\begin{lstlisting}[caption={URL de la WebApp en ejecuci\'on directa.}]
+https://localhost:7189
+\end{lstlisting}
+
+Validar al menos los siguientes puntos:
+
+\begin{itemize}[noitemsep]
+    \item La p\'agina principal carga sin errores HTTP 500.
+    \item El flujo de registro o inicio de sesi\'on se muestra correctamente.
+    \item La navegaci\'on hacia contenidos, gu\'ia, resumen o aulas no muestra errores de cliente.
+    \item El servicio de compilaci\'on responde al usar pr\'acticas con c\'odigo C\#.
+    \item El dashboard de Aspire, si se usa AppHost, muestra los servicios en estado saludable.
+\end{itemize}
+
+\section{Problemas frecuentes y mitigaci\'on}
+
+\begin{longtable}{p{0.34\textwidth}p{0.56\textwidth}}
+\caption{Problemas comunes durante la instalaci\'on.}
+\label{tab:problemas}\\
+\toprule
+\textbf{Problema} & \textbf{Acci\'on recomendada} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Problema} & \textbf{Acci\'on recomendada} \\
+\midrule
+\endhead
+No se encuentra el SDK de .NET & Instalar .NET 8 SDK y verificar \texttt{dotnet --info}. El repositorio usa \texttt{global.json} con versi\'on \texttt{8.0.124}. \\
+SQL Server no inicia & Confirmar que el runtime de contenedores est\'a activo y que la contrase\~na cumple complejidad. \\
+Error de cadena de conexi\'on & Revisar \texttt{ConnectionStrings:DefaultConnection}, \texttt{ConnectionStrings:acc-identity-db} y \texttt{ConnectionStrings:acc-academic-db}. \\
+Error \texttt{Missing 'Jwt:Key' configuration} & Configurar \texttt{Jwt:Key} en \texttt{appsettings.Development.json}, User Secrets o variables de entorno. \\
+Puertos ocupados & Cambiar puertos locales o detener procesos que usen \texttt{7189}, \texttt{7059}, \texttt{7023}, \texttt{1434}, \texttt{1435} o \texttt{8080}. \\
+Migraciones fallan & Verificar que la base exista, que el usuario tenga permisos y que \texttt{dotnet-ef} sea compatible con el proyecto. \\
+Certificados HTTPS de desarrollo no confiables & Ejecutar \texttt{dotnet dev-certs https --trust} y reiniciar el navegador. \\
+\bottomrule
+\end{longtable}
+
+\section{Limpieza del ambiente}
+
+Para detener Aspire, finalizar el proceso del AppHost con \texttt{Ctrl+C}. Para detener contenedores de Podman Compose:
+
+\begin{lstlisting}[language=bash,caption={Detener servicios de Podman Compose.}]
+podman compose -f podman-compose.yml down
+\end{lstlisting}
+
+Si se desea eliminar tambi\'en vol\'umenes de base de datos y Redis creados por Compose:
+
+\begin{lstlisting}[language=bash,caption={Eliminar servicios y vol\'umenes de Compose.}]
+podman compose -f podman-compose.yml down -v
+\end{lstlisting}
+
+Esta operaci\'on elimina datos persistidos del entorno local de contenedores; debe usarse solo cuando se quiera reiniciar el ambiente desde cero.
+
+\section{Conclusi\'on}
+
+El proyecto ACC puede probarse localmente de manera integrada mediante \texttt{ACC.AppHost}, que representa la ruta recomendada para desarrollo por su capacidad de orquestar dependencias y servicios. Para una validaci\'on m\'as cercana a despliegue, \texttt{podman-compose.yml} permite construir y ejecutar los componentes como contenedores. En ambos casos, la verificaci\'on m\'inima debe incluir compilaci\'on, pruebas automatizadas, health checks y una revisi\'on funcional desde la aplicaci\'on web.
+
+\end{document}

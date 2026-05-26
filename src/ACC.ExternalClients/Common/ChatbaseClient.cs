@@ -17,6 +17,6 @@ public sealed class ChatbaseClient(IOptions<ChatbaseOptions> options, ILogger<Ch
         }
 
         var domain = string.IsNullOrWhiteSpace(_options.Domain) ? "www.chatbase.co" : _options.Domain.Trim();
-        return $"https://{domain}/chatbot-iframe/{_options.ChatbotId}";
+        return $"https://{domain}/{_options.ChatbotId}/help";
     }
 }

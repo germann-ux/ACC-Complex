@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
 namespace ACC.Data.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(ACCDbContext))]
+    [Migration("20260503233000_AddLeccionProvenance")]
     public partial class AddLeccionProvenance : Migration
     {
         /// <inheritdoc />
@@ -24,7 +27,7 @@ namespace ACC.Data.Migrations
                 type: "nvarchar(32)",
                 maxLength: 32,
                 nullable: false,
-                defaultValue: "Borrador");
+                defaultValue: "Publicado");
 
             migrationBuilder.AddColumn<string>(
                 name: "OrigenLeccion",
